@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" width="30" height="20" role="img"
+    aria-label="Drapeau de la France">
+    <rect width="1" height="2" x="0" fill="#0055A4" />
+    <rect width="1" height="2" x="1" fill="#FFFFFF" />
+    <rect width="1" height="2" x="2" fill="#EF4135" />
+</svg>
