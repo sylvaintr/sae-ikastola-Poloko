@@ -45,4 +45,15 @@ return [
     'texte_confirmation_suppression' => 'Une fois votre compte supprimé, toutes ses ressources et données seront définitivement supprimées. Veuillez entrer votre mot de passe pour confirmer que vous souhaitez supprimer votre compte définitivement.',
     'annuler' => 'Annuler',
     'confirmer' => 'Confirmer',
+    
+    // Profile sections
+    'mon_profil' => 'Mon profil',
+    'prenom' => 'Prénom',
+    'date_naissance' => 'Date de naissance',
+    'role' => 'Rôle',
+    'statut_compte' => 'Statut du compte',
+    'comptes_lies' => 'Comptes liés à ce profil',
+    'mes_documents' => 'Mes documents',
+    'valide' => 'Validé',
+    'en_attente' => 'En attente',
 ];
