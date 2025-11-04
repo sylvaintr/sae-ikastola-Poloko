@@ -2,13 +2,33 @@
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('auth.nom')" />
-            <x-text-input id="name" class="" type="text" name="name" :value="old('name')" required autofocus
-                autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" />
+        <!-- Prénom and Nom -->
+        <div class="row">
+            <div class="col-md-6">
+                <x-input-label for="prenom" :value="__('auth.prenom')" />
+                <x-text-input id="prenom" class="" type="text" name="prenom" :value="old('prenom')" required autofocus
+                    autocomplete="given-name" />
+                <x-input-error :messages="$errors->get('prenom')" />
+            </div>
+            <div class="col-md-6">
+                <x-input-label for="nom" :value="__('auth.nom')" />
+                <x-text-input id="nom" class="" type="text" name="nom" :value="old('nom')" required
+                    autocomplete="family-name" />
+                <x-input-error :messages="$errors->get('nom')" />
+            </div>
         </div>
+
+        <!-- Language preference -->
+        <div class="mt-3">
+            <x-input-label for="languePref" :value="__('Langue')" />
+            <select id="languePref" name="languePref" class="form-select">
+                <option value="fr" {{ old('languePref') === 'fr' ? 'selected' : '' }}>Français</option>
+                <option value="en" {{ old('languePref') === 'en' ? 'selected' : '' }}>English</option>
+            </select>
+            <x-input-error :messages="$errors->get('languePref')" />
+        </div>
+
+        <input type="hidden" name="statutValidation" value="1">
 
         <!-- Email Address -->
         <div class="mt-3">

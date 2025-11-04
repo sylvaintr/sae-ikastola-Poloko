@@ -27,7 +27,7 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
-        
+
         // Update fields
         $user->fill($request->only(['name', 'email', 'prenom', 'date_naissance', 'photo']));
 
