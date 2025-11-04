@@ -14,7 +14,7 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         Permission::create(['name' => 'access-administration']);
-        Permission::create(['name' => 'access-demende']);
+        Permission::create(['name' => 'access-demande']);
         Permission::create(['name' => 'access-tache']);
         Permission::create(['name' => 'access-presence']);
         Permission::create(['name' => 'access-evenement']);

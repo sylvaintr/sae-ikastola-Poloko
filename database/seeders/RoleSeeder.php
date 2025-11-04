@@ -14,7 +14,7 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         $role = Role::create(['name' => 'CA']);
-        $role->givePermissionTo('access-demende');
+        $role->givePermissionTo('access-demande');
         $role->givePermissionTo('access-tache');
         $role->givePermissionTo('access-presence');
         $role->givePermissionTo('access-evenement');
@@ -22,12 +22,12 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo('access-administration');
 
         $role = Role::create(['name' => 'parent']);
-        $role->givePermissionTo('access-demende');
+        $role->givePermissionTo('access-demande');
         $role->givePermissionTo('access-tache');
         $role->givePermissionTo('access-calendrier');
 
         $role = Role::create(['name' => 'salarie']);
-        $role->givePermissionTo('access-demende');
+        $role->givePermissionTo('access-demande');
         $role->givePermissionTo('access-presence');
         $role->givePermissionTo('access-calendrier');
 
