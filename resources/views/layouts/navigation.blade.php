@@ -60,8 +60,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-inline-flex align-items-center" href="#" id="userDropdown"
                             role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
-                                 style="width: 40px; height: 40px; overflow: hidden;">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center">
                                 @if(Auth::user()->name)
                                     <span class="text-dark" style="font-size: 1rem;">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
                                 @else
