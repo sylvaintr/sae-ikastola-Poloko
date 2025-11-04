@@ -49,10 +49,13 @@
 
             <ul class="navbar-nav ms-auto mb-2 mb-sm-0 align-items-center">
                 @auth
-                    <li class="nav-item me-3">
-                        <a class="nav-link d-flex align-items-center" href="#" style="padding: 0.5rem;">
+                    <li class="nav-item dropdown me-3">
+                        <a class="nav-link d-flex align-items-center" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0.5rem;">
                             <i class="bi bi-bell" style="font-size: 1.25rem;"></i>
                         </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" style="min-width: 300px;">
+                            <li class="dropdown-item text-muted">{{ __('No new notifications') }}</li>
+                        </ul>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-inline-flex align-items-center" href="#" id="userDropdown"
