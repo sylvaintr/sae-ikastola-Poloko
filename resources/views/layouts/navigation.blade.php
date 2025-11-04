@@ -99,7 +99,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-primary" href="{{ route('login') }}" style="font-weight: bold;">{{ __('nav.connexion') }}</a>
+                        <a class="btn btn-primary fw-bold" href="{{ route('login') }}">{{ __('nav.connexion') }}</a>
                     </li>
                 @endauth
             </ul>
