@@ -1,14 +1,14 @@
 <?php
 
 return [
-    'actualites' => 'actualités',
-    'demande' => 'demande',
-    'tache' => 'tâche',
-    'presence' => 'présence',
-    'evenement' => 'événement',
-    'calendrier' => 'calendrier',
-    'administration' => 'administration',
-    'connexion' => 'connexion',
-    'francais' => 'français',
-    'basque' => 'basque',
+    'actualites' => 'Actualités',
+    'demande' => 'Demande',
+    'tache' => 'Tâche',
+    'presence' => 'Présence',
+    'evenement' => 'Événement',
+    'calendrier' => 'Calendrier',
+    'administration' => 'Administration',
+    'connexion' => 'Connexion',
+    'francais' => 'Français',
+    'basque' => 'Basque',
 ];

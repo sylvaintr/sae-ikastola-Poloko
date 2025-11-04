@@ -19,6 +19,8 @@ return [
     'deconnexion' => 'Se déconnecter',
     'deja_inscrit' => 'Déjà inscrit ?',
     'profil' => 'Profil',
+    'consulter_profil' => 'Consulter le profil',
+    'passer_eus_fr' => 'Passer en EUS/FR',
 
     // Notices
     'notification_verification_email' => "Merci pour votre inscription ! Avant de continuer, pouvez-vous vérifier votre adresse e-mail en cliquant sur le lien que nous venons d'envoyer ? Si vous n'avez pas reçu l'e-mail, nous vous en enverrons volontiers un autre.",
