@@ -51,7 +51,7 @@
                 @auth
                     <li class="nav-item me-3">
                         <a class="nav-link d-flex align-items-center" href="#" style="padding: 0.5rem;">
-                            <x-bell-icon style="width: 24px; height: 24px;" />
+                            <i class="bi bi-bell" style="font-size: 1.25rem;"></i>
                         </a>
                     </li>
                     <li class="nav-item dropdown">
