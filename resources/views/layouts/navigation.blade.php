@@ -67,11 +67,14 @@
                             </div>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="{{ route('profile.edit') }}">{{ __('Profile') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ route('profile.edit') }}">{{ __('auth.consulter_profil') }}</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">{{ __('auth.passer_eus_fr') }}</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                     @csrf
-                                    <button type="submit" class="dropdown-item">{{ __('auth.deconnexion') }}</button>
+                                    <button type="submit" class="dropdown-item w-100 text-start border-0 bg-transparent">{{ __('auth.deconnexion') }}</button>
                                 </form>
                             </li>
                         </ul>
@@ -94,7 +97,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <x-nav-link :href="route('login')" class="nav-link">{{ __('connexion') }}</x-nav-link>
+                        <a class="btn btn-primary" href="{{ route('login') }}" style="font-weight: bold;">{{ __('nav.connexion') }}</a>
                     </li>
                 @endauth
             </ul>
