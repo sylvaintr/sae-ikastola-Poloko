@@ -41,6 +41,12 @@ jobs:
       - name: Install dependencies
         run: composer install --no-progress --prefer-dist --no-interaction
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: npm ci
+      - run: npm run build
+
       # Étape 4 : Préparer Laravel
       - name: Copy .env
         run: cp .env.example .env
