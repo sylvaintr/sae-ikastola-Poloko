@@ -51,7 +51,7 @@
                 @auth
                     <li class="nav-item dropdown me-3">
                         <a class="nav-link d-flex align-items-center" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0.5rem;">
-                            <i class="bi bi-bell" style="font-size: 1.25rem;"></i>
+                            <i class="bi bi-bell bell-icon"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" style="min-width: 300px;">
                             <li class="dropdown-item text-muted">{{ __('No new notifications') }}</li>
