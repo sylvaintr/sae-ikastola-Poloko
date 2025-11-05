@@ -21,7 +21,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD_RECETTE }}
           port: 22
           script: |
-            cd /www/sae-ikastola-Poloko
+            cd ${{ secrets.SERVER_PATH_RECETTE }}
             git fetch origin
             mkdir -p git-backups
             TS=$(date +"%Y%m%d_%H%M%S")
