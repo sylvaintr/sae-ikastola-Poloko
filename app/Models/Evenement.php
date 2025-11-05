@@ -12,11 +12,11 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Evenement
  * 
- * @property int $idEvenement
- * @property string $titre
- * @property string $description
- * @property bool $obligatoire
- * @property Carbon $dateE
+ * @property int $idEvenement Identifiant de l'événement.
+ * @property string $titre Titre de l'événement.
+ * @property string $description Description détaillée de l'événement.
+ * @property bool $obligatoire Indique si l'événement est obligatoire.
+ * @property Carbon $dateE Date à laquelle l'événement a lieu.
  *
  * @package App\Models
  */
@@ -39,4 +39,19 @@ class Evenement extends Model
 		'obligatoire',
 		'dateE'
 	];
+
+	public function recettes()
+	{
+		return $this->hasMany(Recette::class, 'idEvenement');
+	}
+
+	public function taches()
+	{
+		return $this->hasMany(Tache::class, 'idEvenement');
+	}
+
+	public function materiels()
+	{
+		return $this->belongsToMany(Materiel::class, 'inclure', 'idEvenement', 'idMateriel');
+	}
 }

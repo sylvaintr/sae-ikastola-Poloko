@@ -12,10 +12,10 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Realiser
  * 
- * @property int $idUtilisateur
- * @property int $idTache
- * @property Carbon|null $dateM
- * @property string|null $description
+ * @property int $idUtilisateur Identifiant de l'utilisateur qui réalise la tâche.
+ * @property int $idTache Identifiant de la tâche réalisée.
+ * @property Carbon|null $dateM Date de réalisation ou modification (peut être nulle).
+ * @property string|null $description Description du travail réalisé (optionnel).
  *
  * @package App\Models
  */
@@ -35,4 +35,14 @@ class Realiser extends Model
 		'dateM',
 		'description'
 	];
+
+	public function utilisateur()
+	{
+		return $this->belongsTo(Utilisateur::class, 'idUtilisateur');
+	}
+
+	public function tache()
+	{
+		return $this->belongsTo(Tache::class, 'idTache');
+	}
 }

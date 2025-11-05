@@ -12,16 +12,16 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Tache
  * 
- * @property int $idTache
- * @property string $titre
- * @property string $description
- * @property string $type
- * @property string $etat
- * @property Carbon|null $dateD
- * @property Carbon|null $dateF
- * @property float|null $montantP
- * @property float|null $montantR
- * @property int|null $idEvenement
+ * @property int $idTache Identifiant de la tâche.
+ * @property string $titre Titre de la tâche.
+ * @property string $description Description de la tâche.
+ * @property string $type Type / catégorie de la tâche.
+ * @property string $etat État actuel de la tâche (ex: ouverte, en cours, fermée).
+ * @property Carbon|null $dateD Date de début (peut être nulle).
+ * @property Carbon|null $dateF Date de fin (peut être nulle).
+ * @property float|null $montantP Montant prévu (optionnel).
+ * @property float|null $montantR Montant réel (optionnel).
+ * @property int|null $idEvenement Référence optionnelle à un événement associé.
  *
  * @package App\Models
  */
@@ -52,4 +52,14 @@ class Tache extends Model
 		'montantR',
 		'idEvenement'
 	];
+
+	public function evenement()
+	{
+		return $this->belongsTo(Evenement::class, 'idEvenement');
+	}
+
+	public function realisateurs()
+	{
+		return $this->belongsToMany(Utilisateur::class, 'realiser', 'idTache', 'idUtilisateur')->withPivot('dateM', 'description');
+	}
 }

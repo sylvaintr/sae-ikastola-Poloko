@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Etiquette
  * 
- * @property int $idEtiquette
- * @property string $nom
+ * @property int $idEtiquette Identifiant de l'étiquette.
+ * @property string $nom Nom / libellé de l'étiquette.
  *
  * @package App\Models
  */
@@ -30,4 +30,12 @@ class Etiquette extends Model
 	protected $fillable = [
 		'nom'
 	];
+
+	/**
+	 * Actualités associées via la table pivot `correspondre`.
+	 */
+	public function actualites()
+	{
+		return $this->belongsToMany(Actualite::class, 'correspondre', 'idEtiquette', 'idActualite');
+	}
 }

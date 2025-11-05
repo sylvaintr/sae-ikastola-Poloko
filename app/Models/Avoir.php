@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Avoir
  * 
- * @property int $idUtilisateur
- * @property int $idRole
+ * @property int $idUtilisateur Identifiant de l'utilisateur.
+ * @property int $idRole Identifiant du rôle attribué à l'utilisateur.
  *
  * @package App\Models
  */
@@ -26,6 +26,7 @@ class Avoir extends Model
 		'idUtilisateur' => 'int',
 		'idRole' => 'int'
 	];
+
 	public function utilisateur()
 	{
 		return $this->belongsTo(Utilisateur::class, 'idUtilisateur');

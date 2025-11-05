@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Activite
  * 
- * @property string $activite
- * @property Carbon $dateP
+ * @property string $activite Identifiant / nom de l'activité (clé logique). Chaîne unique servant à référencer l'activité depuis d'autres tables.
+ * @property Carbon $dateP Date prévue / programmée de l'activité (utilisé pour trier et filtrer par date).
  *
  * @package App\Models
  */
@@ -26,4 +26,10 @@ class Activite extends Model
 	protected $casts = [
 		'dateP' => 'datetime'
 	];
+
+	public function etres()
+	{
+		// Etre uses column `activite` (string) to reference Activite.activite
+		return $this->hasMany(Etre::class, 'activite', 'activite');
+	}
 }

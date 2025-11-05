@@ -11,9 +11,9 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Materiel
  * 
- * @property int $idMateriel
- * @property string $provenance
- * @property string $description
+ * @property int $idMateriel Identifiant du matériel.
+ * @property string $provenance Provenance du matériel (achat, don, prêt, etc.).
+ * @property string $description Description détaillée du matériel.
  *
  * @package App\Models
  */
@@ -32,4 +32,9 @@ class Materiel extends Model
 		'provenance',
 		'description'
 	];
+
+	public function evenements()
+	{
+		return $this->belongsToMany(Evenement::class, 'inclure', 'idMateriel', 'idEvenement');
+	}
 }

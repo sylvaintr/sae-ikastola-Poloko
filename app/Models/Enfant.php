@@ -12,14 +12,14 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Enfant
  * 
- * @property int $idEnfant
- * @property string $nom
- * @property string $prenom
- * @property Carbon $dateN
- * @property string $sexe
- * @property int $NNI
- * @property int $idClasse
- * @property int $idFamille
+ * @property int $idEnfant Identifiant de l'enfant.
+ * @property string $nom Nom de famille de l'enfant.
+ * @property string $prenom Prénom de l'enfant.
+ * @property Carbon $dateN Date de naissance.
+ * @property string $sexe Sexe de l'enfant (ex: "M" / "F").
+ * @property int $NNI Numéro national d'identification (ou numéro interne selon le projet).
+ * @property int $idClasse Identifiant de la classe de l'enfant.
+ * @property int $idFamille Identifiant de la famille / tuteur associé.
  *
  * @package App\Models
  */
@@ -47,4 +47,14 @@ class Enfant extends Model
 		'idClasse',
 		'idFamille'
 	];
+
+	public function classe()
+	{
+		return $this->belongsTo(Classe::class, 'idClasse');
+	}
+
+	public function famille()
+	{
+		return $this->belongsTo(Famille::class, 'idFamille');
+	}
 }

@@ -11,9 +11,9 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Classe
  * 
- * @property int $idClasse
- * @property string $nom
- * @property string $niveau
+ * @property int $idClasse Identifiant de la classe.
+ * @property string $nom Nom de la classe (ex: "3A").
+ * @property string $niveau Niveau ou cycle (ex: "CE2", "CM1").
  *
  * @package App\Models
  */
@@ -32,4 +32,9 @@ class Classe extends Model
 		'nom',
 		'niveau'
 	];
+
+	public function enfants()
+	{
+		return $this->hasMany(Enfant::class, 'idClasse', 'idClasse');
+	}
 }

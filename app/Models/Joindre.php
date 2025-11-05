@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Joindre
  * 
- * @property int $idDocument
- * @property int $idActualite
+ * @property int $idDocument Identifiant du document joint.
+ * @property int $idActualite Identifiant de l'actualité à laquelle le document est attaché.
  *
  * @package App\Models
  */
@@ -26,4 +26,14 @@ class Joindre extends Model
 		'idDocument' => 'int',
 		'idActualite' => 'int'
 	];
+
+	public function document()
+	{
+		return $this->belongsTo(Document::class, 'idDocument');
+	}
+
+	public function actualite()
+	{
+		return $this->belongsTo(Actualite::class, 'idActualite');
+	}
 }

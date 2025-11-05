@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Attribuer
  * 
- * @property int $idRole
- * @property int $idDocumentObligatoire
+ * @property int $idRole Identifiant du rôle attribué.
+ * @property int $idDocumentObligatoire Identifiant du document obligatoire associé au rôle.
  *
  * @package App\Models
  */
@@ -26,4 +26,14 @@ class Attribuer extends Model
 		'idRole' => 'int',
 		'idDocumentObligatoire' => 'int'
 	];
+
+	public function role()
+	{
+		return $this->belongsTo(Role::class, 'idRole');
+	}
+
+	public function documentObligatoire()
+	{
+		return $this->belongsTo(DocumentObligatoire::class, 'idDocumentObligatoire');
+	}
 }

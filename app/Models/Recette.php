@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Recette
  * 
- * @property int $idRecette
- * @property string $description
- * @property string $prix
- * @property string $quantite
- * @property int $idEvenement
+ * @property int $idRecette Identifiant de la recette.
+ * @property string $description Description ou nom de la recette.
+ * @property string $prix Prix (champ string selon le schéma actuel).
+ * @property string $quantite Quantité (stockée comme string dans le modèle actuel).
+ * @property int $idEvenement Identifiant de l'événement lié (ex: vente, cantine).
  *
  * @package App\Models
  */
@@ -37,4 +37,9 @@ class Recette extends Model
 		'quantite',
 		'idEvenement'
 	];
+
+	public function evenement()
+	{
+		return $this->belongsTo(Evenement::class, 'idEvenement');
+	}
 }

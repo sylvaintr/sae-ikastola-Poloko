@@ -10,10 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('documentObligatoire', function (Blueprint $table) {
-            $table->integer('idDocumentObligatoire')->primary();
-            $table->string('nom', 20)->nullable();
-            $table->boolean('dateE')->nullable();
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
+            $table->string('email')->index();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
         });
     }
 
@@ -22,6 +22,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('documentObligatoire');
+        Schema::dropIfExists('password_reset_tokens');
     }
 };

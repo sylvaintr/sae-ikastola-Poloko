@@ -12,11 +12,11 @@ use Carbon\Carbon;
 /**
  * Class Role
  * 
- * @property int $idRole
- * @property string $name
- * @property string $guard_name
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property int $idRole Identifiant du rôle.
+ * @property string $name Nom interne du rôle (ex: "admin", "enseignant").
+ * @property string $guard_name Nom du guard/auth driver (si utilisé).
+ * @property Carbon|null $created_at Date de création du rôle.
+ * @property Carbon|null $updated_at Date de dernière mise à jour du rôle.
  *
  * @package App\Models
  */
@@ -35,5 +35,13 @@ class Role extends \Spatie\Permission\Models\Role
 		'name',
 		'guard_name'
 	];
+
+	/**
+	 * Documents obligatoires attributés à ce rôle (pivot `attribuer`).
+	 */
+	public function documentObligatoires()
+	{
+		return $this->belongsToMany(DocumentObligatoire::class, 'attribuer', 'idRole', 'idDocumentObligatoire');
+	}
 
 }
