@@ -29,7 +29,8 @@ jobs:
 
       # 4️⃣ Lancer les tests
       - name: Run tests
-        run: php artisan test --without-tty  --stop-on-failure
+        run: php ./vendor/bin/phpunit --stop-on-failure
+
 
       # 5️⃣ Déploiement sur le serveur
       - name: Deploy to Recette Server
