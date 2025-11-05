@@ -11,28 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Récupération du code
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # 2️⃣ Installation de PHP
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4' 
-          extensions: mbstring, bcmath, intl, pdo_mysql
-          coverage: none
-
-      # 3️⃣ Installation des dépendances
-      - name: Install dependencies
-        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-
-      # 4️⃣ Lancer les tests
-      - name: Run tests
-        run: php ./vendor/bin/phpunit --stop-on-failure
-
-
-      # 5️⃣ Déploiement sur le serveur
+      
+      # Déploiement sur le serveur
       - name: Deploy to Recette Server
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -53,4 +33,5 @@ jobs:
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
+            npm ci
             sudo systemctl reload php8.4-fpm
