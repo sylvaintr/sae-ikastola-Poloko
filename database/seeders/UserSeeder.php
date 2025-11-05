@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\User;
+use App\Models\Utilisateur;
 
 class UserSeeder extends Seeder
 {
@@ -14,27 +14,36 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Create a user with role CA
-        $userCA = User::create([
-            'name' => 'CA',
+        $userCA = Utilisateur::create([
+            'prenom' => 'CA',
+            'nom' => 'CA',
             'email' => 'ca@example.com',
-            'password' => bcrypt('CA'),
+            'mdp' => bcrypt('CA'),
+            'languePref' => 'fr',
+            'statutValidation' => true,
         ]);
 
         $userCA->assignRole('CA');
 
-        $userP = User::create([
-            'name' => 'parent',
+        $userP = Utilisateur::create([
+            'prenom' => 'parent',
+            'nom' => 'parent',
             'email' => 'parent@example.com',
-            'password' => bcrypt('parent'),
+            'mdp' => bcrypt('parent'),
+            'languePref' => 'fr',
+            'statutValidation' => true,
         ]);
 
         $userP->assignRole('parent');
 
         // Create a user with role salarie
-        $userS = User::create([
-            'name' => 'salarie',
+        $userS = Utilisateur::create([
+            'prenom' => 'salarie',
+            'nom' => 'salarie',
             'email' => 'salarie@example.com',
-            'password' => bcrypt('salarie'),
+            'mdp' => bcrypt('salarie'),
+            'languePref' => 'fr',
+            'statutValidation' => true,
         ]);
 
         $userS->assignRole('salarie');

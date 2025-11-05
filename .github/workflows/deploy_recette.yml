@@ -1,0 +1,37 @@
+name: Deploy Serveur Recette
+
+on:
+  push:
+    branches:
+      - master   
+  workflow_dispatch: 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      
+      # Déploiement sur le serveur
+      - name: Deploy to Recette Server
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST_RECETTE }}
+          username: ${{ secrets.SERVER_USER_RECETTE }}
+          password: ${{ secrets.SERVER_PASSWORD_RECETTE }}
+          port: 22
+          script: |
+            cd ${{ secrets.SERVER_PATH_RECETTE }}
+            git fetch origin
+            mkdir -p git-backups
+            TS=$(date +"%Y%m%d_%H%M%S")
+            git status > git-backups/status_$TS.txt
+            git diff > git-backups/diff_$TS.patch
+            git reset --hard origin/master
+            composer install --no-dev --optimize-autoloader
+            php artisan migrate --force
+            php artisan db:seed --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            npm ci
