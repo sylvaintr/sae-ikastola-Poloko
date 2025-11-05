@@ -34,4 +34,3 @@ jobs:
             php artisan route:cache
             php artisan view:cache
             npm ci
-            sudo systemctl reload php8.4-fpm
