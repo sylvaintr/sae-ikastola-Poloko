@@ -4,6 +4,7 @@ return [
     // Labels (keys in French)
     'email' => 'E-mail',
     'mot_de_passe' => 'Mot de passe',
+    'prenom' => 'Prénom',
     'se_souvenir_de_moi' => "Se souvenir de moi",
     'connexion' => 'Se connecter',
     'inscription' => "S'inscrire",
