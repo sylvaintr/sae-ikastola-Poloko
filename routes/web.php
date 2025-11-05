@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\DemandeController;
@@ -8,7 +9,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\ClasseController;
-use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
 
 /*
