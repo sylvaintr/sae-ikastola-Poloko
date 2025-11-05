@@ -10,6 +10,8 @@
 
 .profile-card-body {
     padding: 0;
+}
+
 /* Logo responsive dans la navbar */
 .navbar-brand svg {
     width: auto;
@@ -83,3 +85,4 @@
         font-size: 1rem !important;
     }
 }
+
