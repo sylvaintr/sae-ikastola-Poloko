@@ -1,5 +1,17 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 
+/* Suppression des séparations visuelles sur la page de profil */
+/* Remplacez l'utilisation de .card et .card-body par .profile-card et .profile-card-body dans votre HTML */
+.profile-card {
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+}
+
+.profile-card-body {
+    padding: 0;
+}
+
 /* Logo responsive dans la navbar */
 .navbar-brand svg {
     width: auto;
@@ -73,3 +85,4 @@
         font-size: 1rem !important;
     }
 }
+
