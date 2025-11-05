@@ -1,39 +1,55 @@
 name: Deploy Serveur Recette
 
+on:
+  push:
+    branches:
+      - master   
+  workflow_dispatch: 
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      # 1️⃣ Récupération du code
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.4'
-        extensions: mbstring, bcmath, intl, pdo_mysql
-        coverage: none
+      # 2️⃣ Installation de PHP
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4' 
+          extensions: mbstring, bcmath, intl, pdo_mysql
+          coverage: none
 
-    - name: Install dependencies
-      run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+      # 3️⃣ Installation des dépendances
+      - name: Install dependencies
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-    - name: Run tests
-      run: php artisan test
+      # 4️⃣ Lancer les tests
+      - name: Run tests
+        run: php artisan test --without-tty  --stop-on-failure
 
-    - name: Deploy to server
-      uses: appleboy/ssh-action@v0.1.7
-      with:
-        host: ${{ secrets.SERVER_HOST_RECETTE }}
-        username: ${{ secrets.SERVER_USER_RECETTE }}
-        password: ${{ secrets.SERVER_PASSWORD_RECETTE }}
-        port: 22
-        script: |
-          cd /var/www/sae-ikastola-Poloko
-          git pull origin master
-          composer install --no-dev --optimize-autoloader
-          php artisan migrate --force
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-          sudo systemctl restart php8.4-fpm
+      # 5️⃣ Déploiement sur le serveur
+      - name: Deploy to Recette Server
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST_RECETTE }}
+          username: ${{ secrets.SERVER_USER_RECETTE }}
+          password: ${{ secrets.SERVER_PASSWORD_RECETTE }}
+          port: 22
+          script: |
+            cd /var/www/sae-ikastola-Poloko
+            git fetch origin
+            mkdir -p git-backups
+            TS=$(date +"%Y%m%d_%H%M%S")
+            git status > git-backups/status_$TS.txt
+            git diff > git-backups/diff_$TS.patch
+            git reset --hard origin/master
+            composer install --no-dev --optimize-autoloader
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            sudo systemctl reload php8.4-fpm
