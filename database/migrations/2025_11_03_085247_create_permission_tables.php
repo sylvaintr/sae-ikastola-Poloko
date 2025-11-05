@@ -29,12 +29,11 @@ return new class extends Migration {
             $table->unique(['name', 'guard_name']);
         });
 
-        // Si vous avez déjà une table 'role' personnalisée (ex: colonne primaire `idRole`),
-        // ne pas recréer la table fournie par le package pour éviter les doublons.
+
         if (!Schema::hasTable($tableNames['roles'])) {
             Schema::create($tableNames['roles'], static function (Blueprint $table) use ($teams, $columnNames) {
                 // $table->engine('InnoDB');
-                $table->bigIncrements('id'); // role id
+                $table->bigIncrements('id');
                 if ($teams || config('permission.testing')) { // permission.testing is a fix for sqlite testing
                     $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable();
                     $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
@@ -54,12 +53,11 @@ return new class extends Migration {
             $table->unsignedBigInteger($pivotPermission);
 
             $table->string('model_type');
-            // Utiliser integer pour correspondre à `utilisateur.idUtilisateur` personnalisé
             $table->integer($columnNames['model_morph_key']);
             $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_permissions_model_id_model_type_index');
 
             $table->foreign($pivotPermission)
-                ->references('id') // permission id
+                ->references('id')
                 ->on($tableNames['permissions'])
                 ->onDelete('cascade');
             if ($teams) {
@@ -79,19 +77,18 @@ return new class extends Migration {
 
         });
 
-        // Si vous avez déjà une table personnalisée (ex: 'avoir'), ne pas la recréer
+
         if (!Schema::hasTable($tableNames['model_has_roles'])) {
             Schema::create($tableNames['model_has_roles'], static function (Blueprint $table) use ($tableNames, $columnNames, $pivotRole, $teams) {
-                // Utiliser integer pour correspondre au type de votre PK `role.idRole`
                 $table->integer($pivotRole);
 
                 $table->string('model_type');
-                // Utiliser integer pour correspondre à `utilisateur.idUtilisateur` personnalisé
+
                 $table->integer($columnNames['model_morph_key']);
                 $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_roles_model_id_model_type_index');
-                // Faire référencer la colonne pivot `idRole` (ou la valeur configurée dans role_pivot_key)
+
                 $table->foreign($pivotRole)
-                    ->references($pivotRole) // role id personnalisé (ex: idRole)
+                    ->references($pivotRole)
                     ->on($tableNames['roles'])
                     ->onDelete('cascade');
                 if ($teams) {

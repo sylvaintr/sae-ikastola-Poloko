@@ -24,7 +24,7 @@ use Illuminate\Support\Str;
  * @property string $mdp Mot de passe (hashé) — ne pas stocker ni exposer en clair.
  * @property string|null $email Adresse e‑mail (peut être nulle).
  * @property string $languePref Langue préférée (ex: "fr", "en").
- * @property bool $statutValidation Indique si le compte est validé / activé.
+ * @property bool|null $statutValidation Indique si le compte est validé / activé.
  * @property string|null $remember_token Jeton de "remember me" (peut être nul).
  * @property Carbon|null $created_at Date de création du compte.
  * @property Carbon|null $updated_at Date de dernière mise à jour du compte.
@@ -94,8 +94,14 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	 */
 	public function setPasswordAttribute($value)
 	{
-		// If value already hashed, keep it, otherwise hash it.
-		$this->attributes['mdp'] = password_get_info($value)['algo'] ? $value : bcrypt($value);
+		$info = password_get_info($value);
+
+		// Only hash if not already hashed
+		if ($info['algo'] === null || $info['algo'] === 0) {
+			return password_hash($value, PASSWORD_DEFAULT);
+		}
+
+		return $value;
 	}
 
 	/**

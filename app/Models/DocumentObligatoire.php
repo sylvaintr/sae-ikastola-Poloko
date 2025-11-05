@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class DocumentObligatoire extends Model
 {
-	protected $table = 'document_obligatoire';
+	protected $table = 'documentObligatoire';
 	protected $primaryKey = 'idDocumentObligatoire';
 	public $incrementing = false;
 	public $timestamps = false;

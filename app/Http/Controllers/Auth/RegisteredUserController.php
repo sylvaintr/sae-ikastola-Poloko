@@ -53,7 +53,6 @@ class RegisteredUserController extends Controller
             'nom' => $nom,
             'email' => $request->email,
             'mdp' => Hash::make($request->password),
-            // valeurs par défaut pour champs requis
             'languePref' => $request->input('languePref', 'fr'),
             'statutValidation' => $request->input('statutValidation', true),
         ]);

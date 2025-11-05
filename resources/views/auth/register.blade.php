@@ -28,8 +28,6 @@
             <x-input-error :messages="$errors->get('languePref')" />
         </div>
 
-        <input type="hidden" name="statutValidation" value="1">
-
         <!-- Email Address -->
         <div class="mt-3">
             <x-input-label for="email" :value="__('auth.email')" />
