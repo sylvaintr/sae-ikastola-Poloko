@@ -1,6 +1,6 @@
 @foreach($actualites as $actu)
 @if($actualites->isEmpty())
-<p class="text-center text-gray-500">{{__('aucune_actualite')}}</p>
+<p class="text-center text-gray-500">{{Str::ucfirst(__('aucune_actualite'))}}</p>
 @else
 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
     @if ($actu->type == 'Publique')
