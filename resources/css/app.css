@@ -9,4 +9,76 @@
 
 .profile-page .card-body {
     padding: 0 !important;
+/* Logo responsive dans la navbar */
+.navbar-brand svg {
+    width: auto;
+    height: 40px;
+    max-height: 40px;
+    max-width: 100%;
+}
+
+/* Logo bien aligné à gauche */
+.navbar-brand {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+}
+
+/* Container avec padding minimal à gauche */
+.navbar > .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* Navigation links styling - tous les liens en gras */
+.navbar-nav .nav-link {
+    color: #000000 !important;
+    font-weight: bold;
+    padding: 0.5rem 1rem !important;
+}
+
+.navbar-nav .nav-link.active {
+    font-weight: bold !important;
+    color: #F29201 !important;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #000000 !important;
+    opacity: 0.8;
+}
+
+/* Avatar utilisateur */
+.navbar .rounded-circle {
+    border: none;
+    background-color: #f5f5f5 !important;
+}
+
+/* Pas de flèche pour l'avatar utilisateur */
+.navbar #userDropdown.dropdown-toggle::after {
+    display: none !important;
+}
+
+.navbar #userDropdown.dropdown-toggle {
+    padding-right: 0 !important;
+}
+
+/* Icône de cloche */
+.navbar .bell-icon {
+    color: #000000;
+}
+
+/* Ajustement pour les petits écrans */
+@media (max-width: 576px) {
+    .navbar-brand svg {
+        height: 35px;
+        max-height: 35px;
+    }
+    
+    .navbar > .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    .navbar-brand span {
+        font-size: 1rem !important;
+    }
 }
