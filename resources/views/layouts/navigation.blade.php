@@ -75,9 +75,9 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
                             <li><a class="dropdown-item d-flex align-items-center"
-                                    href="#"><x-flag-basque />&nbsp;{{ __('basque') }}</a></li>
+                                    href="{{ route('lang.switch', 'eus') }}"><x-flag-basque />&nbsp;{{ __('basque') }}</a></li>
                             <li><a class="dropdown-item d-flex align-items-center"
-                                    href="#"><x-flag-french />&nbsp;{{ __('francais') }}</a></li>
+                                    href="{{ route('lang.switch', 'fr') }}"><x-flag-french />&nbsp;{{ __('francais') }}</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">

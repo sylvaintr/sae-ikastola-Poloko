@@ -1,11 +1,22 @@
 <?php
 
+use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('layouts.app');
-})->name('home');
+//Route::get('/', function () {
+//    return view('layouts.app');
+//})->name('home');
+
+Route::get('/', [ActualiteController::class, 'index'])->name('home');
+
+// Changer de langue
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['fr', 'eus'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
