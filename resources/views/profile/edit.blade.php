@@ -43,7 +43,7 @@
                                         @if(Auth::user()->roles->count() > 0)
                                             {{ Auth::user()->roles->first()->name }}
                                         @else
-                                            Parent
+                                            {{ __('auth.default_role') }}
                                         @endif
                                     </span>
                                 </div>
