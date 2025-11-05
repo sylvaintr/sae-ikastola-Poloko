@@ -3,8 +3,8 @@ name: Deploy Serveur Recette
 on:
   push:
     branches:
-      - master   # ou main, selon ton dépôt
-  workflow_dispatch: # permet de lancer manuellement le déploiement
+      - master   
+  workflow_dispatch: 
 
 jobs:
   deploy:
@@ -19,7 +19,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4' # 8.4 n’est pas encore totalement supportée par GitHub Actions
+          php-version: '8.4' 
           extensions: mbstring, bcmath, intl, pdo_mysql
           coverage: none
 
