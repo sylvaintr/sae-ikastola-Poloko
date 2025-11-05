@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 //})->name('home');
 
 Route::get('/', [ActualiteController::class, 'index'])->name('home');
+Route::get('/actualite/edit', [ActualiteController::class, 'edit'])->name('actualite.edit');
 
 // Changer de langue
 Route::get('/lang/{locale}', function ($locale) {

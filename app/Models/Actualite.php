@@ -10,4 +10,6 @@ class Actualite extends Model
     use HasFactory;
 
     protected $table = "actualite";
+    protected $primaryKey = 'idActualite';
+    public $timestamps = false;
 }

@@ -12,7 +12,7 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav me-auto mb-2 mb-sm-0">
                 <li class="nav-item text-capitalize ">
-                    <x-nav-link href="#" class="nav-link">{{ __('nav.actualites') }}</x-nav-link>
+                    <x-nav-link href="/" class="nav-link">{{ __('nav.actualites') }}</x-nav-link>
                 </li>
                 @can('access-demande')
                     <li class="nav-item text-capitalize">
