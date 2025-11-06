@@ -4,13 +4,13 @@
 			<div class="d-flex justify-content-between align-items-end">
                 <ul class="nav nav-tabs border-0 presence-tabs">
                 <li class="nav-item me-3">
-                    <a class="nav-link active fw-bold text-warning" href="#" aria-current="page">{{ __('presence.cantine') }}</a>
+                    <a class="nav-link active fw-bold text-warning activite-tab" href="#" data-activite="cantine" aria-current="page">{{ __('presence.cantine') }}</a>
                 </li>
                 <li class="nav-item me-3">
-                    <a class="nav-link text-secondary" href="#">{{ __('presence.garderie_matin') }}</a>
+                    <a class="nav-link text-secondary activite-tab" href="#" data-activite="garderie_matin">{{ __('presence.garderie_matin') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-secondary" href="#">{{ __('presence.garderie_soir') }}</a>
+                    <a class="nav-link text-secondary activite-tab" href="#" data-activite="garderie_soir">{{ __('presence.garderie_soir') }}</a>
                 </li>
 				</ul>
 
@@ -68,9 +68,11 @@
         const classeSelect = document.getElementById('classe-select');
         const studentsList = document.getElementById('students-list');
         const searchInput = document.getElementById('search-student');
+        const activiteTabs = document.querySelectorAll('.activite-tab');
         let allStudents = [];
         let currentDate = new Date(input.value);
         let calendarVisible = false;
+        let currentActivite = 'cantine';
 
         function formatDateToYYYYMMDD(date) {
             const year = date.getFullYear();
@@ -299,9 +301,8 @@
         async function loadStatus() {
             const classeId = classeSelect.value;
             const date = input.value;
-            const activite = 'cantine'; // par défaut pour l’instant
             if (!classeId || !date) return;
-            const res = await fetch(`{{ route('presence.status') }}?classe_id=${classeId}&date=${date}&activite=${activite}`, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(`{{ route('presence.status') }}?classe_id=${classeId}&date=${date}&activite=${currentActivite}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             const presentSet = new Set(data.presentIds || []);
             getAllCheckboxes().forEach(cb => {
@@ -314,12 +315,35 @@
         // Recharger le statut quand la date change
         input.addEventListener('change', loadStatus);
 
+        // Gestion des onglets d'activité
+        activiteTabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const activite = this.getAttribute('data-activite');
+                if (activite === currentActivite) return;
+                
+                // Mettre à jour l'onglet actif
+                activiteTabs.forEach(t => {
+                    t.classList.remove('active', 'fw-bold', 'text-warning');
+                    t.classList.add('text-secondary');
+                });
+                this.classList.add('active', 'fw-bold', 'text-warning');
+                this.classList.remove('text-secondary');
+                
+                // Changer l'activité courante
+                currentActivite = activite;
+                
+                // Recharger les données pour la nouvelle activité
+                loadStatus();
+            });
+        });
+
         // Enregistrer
         const saveBtn = document.getElementById('save-presences');
         saveBtn.addEventListener('click', async function() {
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const items = getAllCheckboxes().map(cb => ({ idEnfant: parseInt(cb.getAttribute('data-eleve-id')), present: cb.checked }));
-            const payload = { date: input.value, activite: 'cantine', items };
+            const payload = { date: input.value, activite: currentActivite, items };
             const res = await fetch(`{{ route('presence.save') }}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
