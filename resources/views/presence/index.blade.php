@@ -72,9 +72,16 @@
         let currentDate = new Date(input.value);
         let calendarVisible = false;
 
+        function formatDateToYYYYMMDD(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         function formatFr(dateStr) {
             try {
-                const d = new Date(dateStr);
+                const d = new Date(dateStr + 'T00:00:00');
                 const txt = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
                 return txt.charAt(0).toUpperCase() + txt.slice(1);
             } catch (_) { return ''; }
@@ -116,10 +123,11 @@
                 <div class="presence-calendar-days">`;
             
             const current = new Date(startDate);
+            const todayStr = formatDateToYYYYMMDD(today);
             for (let i = 0; i < 42; i++) {
-                const dateStr = current.toISOString().split('T')[0];
+                const dateStr = formatDateToYYYYMMDD(current);
                 const isCurrentMonth = current.getMonth() === month;
-                const isToday = dateStr === today.toISOString().split('T')[0];
+                const isToday = dateStr === todayStr;
                 const isFuture = current > today;
                 const isSelected = dateStr === input.value;
                 
