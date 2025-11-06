@@ -1,7 +1,5 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 
-/* Suppression des séparations visuelles sur la page de profil */
-/* Remplacez l'utilisation de .card et .card-body par .profile-card et .profile-card-body dans votre HTML */
 .profile-card {
     border: none;
     box-shadow: none;
@@ -12,7 +10,6 @@
     padding: 0;
 }
 
-/* Logo responsive dans la navbar */
 .navbar-brand svg {
     width: auto;
     height: 40px;
@@ -20,19 +17,18 @@
     max-width: 100%;
 }
 
-/* Logo bien aligné à gauche */
+
 .navbar-brand {
     margin-left: 0 !important;
     padding-left: 0 !important;
 }
 
-/* Container avec padding minimal à gauche */
+
 .navbar > .container-fluid {
     padding-left: 1rem;
     padding-right: 1rem;
 }
 
-/* Navigation links styling - tous les liens en gras */
 .navbar-nav .nav-link {
     color: #000000 !important;
     font-weight: bold;
@@ -49,13 +45,13 @@
     opacity: 0.8;
 }
 
-/* Avatar utilisateur */
+
 .navbar .rounded-circle {
     border: none;
     background-color: #f5f5f5 !important;
 }
 
-/* Pas de flèche pour l'avatar utilisateur */
+
 .navbar #userDropdown.dropdown-toggle::after {
     display: none !important;
 }
@@ -64,12 +60,12 @@
     padding-right: 0 !important;
 }
 
-/* Icône de cloche */
+
 .navbar .bell-icon {
     color: #000000;
 }
 
-/* Ajustement pour les petits écrans */
+
 @media (max-width: 576px) {
     .navbar-brand svg {
         height: 35px;
@@ -85,4 +81,38 @@
         font-size: 1rem !important;
     }
 }
+
+/* Presence page */
+.presence-tabs .nav-link { border: none !important; }
+.presence-divider { height: 3px; background-color: #e48a1f; margin-top: 4px; }
+.presence-date-text { font-size: 1.05rem; }
+.presence-date-btn i { font-size: 1.1rem; }
+.presence-date-input-hidden { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+.presence-calendar-dropdown { position: absolute; top: 100%; right: 0; margin-top: 8px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; }
+.presence-calendar-dropdown.show { display: block; }
+.presence-calendar { padding: 16px; min-width: 300px; }
+.presence-calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.presence-calendar-nav { background: none; border: none; color: #e48a1f; font-size: 1.2rem; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: background 0.2s; }
+.presence-calendar-nav:hover { background: #f5e6d3; }
+.presence-calendar-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+.presence-calendar-title-group { display: flex; gap: 8px; align-items: center; }
+.presence-calendar-select { border: 1px solid #ddd; border-radius: 4px; padding: 4px 8px; font-size: 0.95rem; color: #333; background: white; cursor: pointer; }
+.presence-calendar-select:focus { outline: none; border-color: #e48a1f; }
+.presence-calendar-title { font-weight: 600; font-size: 1.1rem; color: #333; }
+.presence-calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px; }
+.presence-calendar-weekday { text-align: center; font-weight: 600; font-size: 0.85rem; color: #666; padding: 8px 0; }
+.presence-calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.presence-calendar-day { text-align: center; padding: 10px 4px; cursor: pointer; border-radius: 4px; transition: all 0.2s; font-size: 0.9rem; color: #333; }
+.presence-calendar-day:hover:not(.presence-calendar-day-disabled) { background: #f5e6d3; }
+.presence-calendar-day-other { color: #ccc; }
+.presence-calendar-day-today { font-weight: 700; color: #e48a1f; }
+.presence-calendar-day-selected { background: #e48a1f; color: white; font-weight: 600; }
+.presence-calendar-day-selected:hover { background: #d67a0f; }
+.presence-calendar-day-disabled { color: #ddd; cursor: not-allowed; opacity: 0.5; }
+.presence-calendar-day-disabled:hover { background: transparent; }
+.presence-classe-select { min-width: 220px; }
+.presence-search-input { min-width: 250px; }
+.present-col { min-width: 100px; }
+.avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; }
+.checkbox-lg { transform: scale(1.4); width: 20px; height: 20px; }
 
