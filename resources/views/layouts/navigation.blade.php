@@ -25,11 +25,9 @@
                         <x-nav-link href="/tache" :active="request()->is('tache*')" class="nav-link">{{ __('nav.tache') }}</x-nav-link>
                     </li>
                 @endcan
-                @can('access-presence')
-                    <li class="nav-item">
-                        <x-nav-link href="/presence" :active="request()->is('presence*')" class="nav-link">{{ __('nav.presence') }}</x-nav-link>
-                    </li>
-                @endcan
+                <li class="nav-item">
+                    <x-nav-link href="{{ route('presence.index') }}" :active="request()->routeIs('presence.index') || request()->is('presence*')" class="nav-link">{{ __('nav.presence') }}</x-nav-link>
+                </li>
                 @can('access-evenement')
                     <li class="nav-item">
                         <x-nav-link href="/evenement" :active="request()->is('evenement*')" class="nav-link">{{ __('nav.evenement') }}</x-nav-link>
