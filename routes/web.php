@@ -5,6 +5,10 @@ use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\Admin\AccountController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
+use App\Http\Controllers\FactureController;
+use App\Models\Facture;
+
+
 Route::get('/', function () {
     return view('layouts.app');
 })->name('home');
@@ -14,7 +18,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware('role:CA')->group(function () {
         $accountRoute = '/{account}';
         Route::view('/', 'admin.index')->name('index');
         Route::view('/publications', 'admin.messages')->name('messages');
@@ -41,20 +45,24 @@ Route::middleware('auth')->group(function () {
             Route::put('/{obligatoryDocument}', 'update')->name('update');
             Route::delete('/{obligatoryDocument}', 'destroy')->name('destroy');
         });
+        Route::get('/presence', function () {
+            return view('presence.index');
+        })->name('presence.index');
+
+
+        Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
+        Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
+        Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
+        Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
+
+
+        Route::resource('/admin/facture', FactureController::class);
+        Route::get('/factures-data', [FactureController::class, 'facturesData'])->name('factures.data');
+        Route::get('/facture/{id}/export', [FactureController::class, 'exportFacture'])->name('facture.export');
+        Route::get('/facture/{id}/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
+        Route::get('/facture/{id}/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
     });
 });
 
-Route::get('/presence', function () {
-    return view('presence.index');
-})->name('presence.index');
-
-
-Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
-Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
-Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
-Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
 
 require __DIR__ . '/auth.php';
-
-
-

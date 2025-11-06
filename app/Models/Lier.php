@@ -6,6 +6,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Lier extends Model
 {
+	use HasFactory;
+
 	protected $table = 'lier';
 	public $incrementing = false;
 	public $timestamps = false;

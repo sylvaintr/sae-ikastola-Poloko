@@ -1,0 +1,36 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Enfant;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Classe;
+use App\Models\Famille;
+
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Enfant>
+ */
+class EnfantFactory extends Factory
+{
+
+    protected $model = Enfant::class;
+
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'nom' => $this->faker->lastName(),
+            'prenom' => $this->faker->firstName(),
+            'dateN' => $this->faker->date(),
+            'sexe' => $this->faker->randomElement(['M', 'F']),
+            'NNI' => $this->faker->unique()->numberBetween(100000000, 999999999),
+            'idClasse' => Classe::factory(),
+            'idFamille' => Famille::factory(),
+        ];
+    }
+}

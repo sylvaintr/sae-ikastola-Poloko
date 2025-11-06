@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Facture extends Model
 {
+	use HasFactory;
 	protected $table = 'facture';
 	protected $primaryKey = 'idFacture';
 	public $incrementing = false;
