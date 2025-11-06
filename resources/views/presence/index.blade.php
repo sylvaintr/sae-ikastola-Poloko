@@ -57,6 +57,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Conteneur pour les notifications -->
+    <div id="notification-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"></div>
 </x-app-layout>
 
 <script>
@@ -338,20 +341,73 @@
             });
         });
 
+        // Fonction pour afficher la notification de succès
+        function showSuccessNotification() {
+            const container = document.getElementById('notification-container');
+            
+            // Créer l'élément de notification
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-success alert-dismissible fade show shadow';
+            notification.style.minWidth = '300px';
+            notification.setAttribute('role', 'alert');
+            notification.innerHTML = `
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>Succès !</strong> Les présences ont été enregistrées avec succès.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Ajouter au conteneur
+            container.innerHTML = '';
+            container.appendChild(notification);
+            
+            // Supprimer automatiquement après 4 secondes
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }
+            }, 4000);
+        }
+
         // Enregistrer
         const saveBtn = document.getElementById('save-presences');
         saveBtn.addEventListener('click', async function() {
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const items = getAllCheckboxes().map(cb => ({ idEnfant: parseInt(cb.getAttribute('data-eleve-id')), present: cb.checked }));
             const payload = { date: input.value, activite: currentActivite, items };
-            const res = await fetch(`{{ route('presence.save') }}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (res.ok) {
-                // Optionnel: feedback léger
-                saveBtn.disabled = true; setTimeout(() => saveBtn.disabled = false, 600);
+            
+            // Désactiver le bouton pendant l'envoi
+            saveBtn.disabled = true;
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = 'Enregistrement...';
+            
+            try {
+                const res = await fetch(`{{ route('presence.save') }}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    // Afficher la notification de succès
+                    console.log('Enregistrement réussi, affichage de la notification');
+                    showSuccessNotification();
+                } else {
+                    // En cas d'erreur, on pourrait afficher une notification d'erreur
+                    console.error('Erreur lors de l\'enregistrement');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            } finally {
+                // Réactiver le bouton après un court délai
+                setTimeout(() => {
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = originalText;
+                }, 600);
             }
         });
 
