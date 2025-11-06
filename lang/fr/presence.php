@@ -8,6 +8,7 @@ return [
     'eleve' => 'Élève',
     'present' => 'Présent',
     'tout_selectionner' => 'Tout sélectionner',
+    'rechercher_eleve' => 'Rechercher un élève',
 ];
 
 

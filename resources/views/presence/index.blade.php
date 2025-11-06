@@ -26,10 +26,14 @@
         </div>
         <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <div class="d-flex align-items-center mb-2">
-                    <div class="me-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div>
                         <div class="small text-muted">{{ __('presence.classe') }}</div>
                         <select id="classe-select" class="form-select presence-classe-select"></select>
+                    </div>
+                    <div>
+                        <div class="small text-muted">{{ __('presence.rechercher_eleve') }}</div>
+                        <input id="search-student" type="text" class="form-control presence-search-input" placeholder="{{ __('presence.rechercher_eleve') }}" />
                     </div>
                 </div>
 
@@ -46,6 +50,10 @@
                         <input id="select-all" type="checkbox" class="checkbox-lg" />
                     </div>
                 </div>
+
+                <div class="d-flex justify-content-end mt-3">
+                    <button id="save-presences" class="btn btn-warning fw-bold">{{ __('auth.enregistrer') }}</button>
+                </div>
             </div>
         </div>
     </div>
@@ -58,6 +66,8 @@
         const btn = document.getElementById('open-date');
         const classeSelect = document.getElementById('classe-select');
         const studentsList = document.getElementById('students-list');
+        const searchInput = document.getElementById('search-student');
+        let allStudents = [];
         function formatFr(dateStr) {
             try {
                 const d = new Date(dateStr);
@@ -98,10 +108,29 @@
 
         async function loadStudents(classeId) {
             const students = await fetchJson('{{ route('presence.students') }}' + `?classe_id=${classeId}`);
+            allStudents = students;
+            filterAndRenderStudents();
+        }
+
+        function filterAndRenderStudents() {
+            const query = (searchInput.value || '').trim();
+            const normalizedQuery = normalizeText(query);
+            const filtered = query 
+                ? allStudents.filter(s => {
+                    const prenomNorm = normalizeText(s.prenom || '');
+                    const nomNorm = normalizeText(s.nom || '');
+                    const fullNorm = normalizeText(`${s.prenom} ${s.nom}`);
+                    return prenomNorm.includes(normalizedQuery) || 
+                           nomNorm.includes(normalizedQuery) ||
+                           fullNorm.includes(normalizedQuery);
+                })
+                : allStudents;
+
             studentsList.innerHTML = '';
-            for (const s of students) {
+            for (const s of filtered) {
                 const row = document.createElement('div');
-                row.className = 'd-flex align-items-center justify-content-between py-2 border-bottom';
+                row.className = 'd-flex align-items-center justify-content-between py-2 border-bottom student-row';
+                row.setAttribute('data-eleve-id', s.idEnfant);
                 row.innerHTML = `<div class="d-flex align-items-center">
                         <div class="avatar-circle me-3">
                             <span class="text-dark">${(s.prenom || s.nom || 'U').toString().charAt(0).toUpperCase()}</span>
@@ -113,10 +142,21 @@
             }
             updateSelectAllState();
             attachCheckboxListeners();
+            // Recharger le statut après filtrage pour maintenir les cases cochées
+            loadStatus();
         }
+
+        function normalizeText(text) {
+            return text.toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        searchInput.addEventListener('input', filterAndRenderStudents);
 
         classeSelect?.addEventListener('change', async function() {
             const v = this.value;
+            searchInput.value = '';
             if (v) { await loadStudents(v); }
         });
 
@@ -130,7 +170,43 @@
         function attachCheckboxListeners() { getAllCheckboxes().forEach(cb => cb.addEventListener('change', updateSelectAllState)); }
         selectAll.addEventListener('change', function() { getAllCheckboxes().forEach(cb => cb.checked = selectAll.checked); });
 
-        loadClasses();
+        async function loadStatus() {
+            const classeId = classeSelect.value;
+            const date = input.value;
+            const activite = 'cantine'; // par défaut pour l’instant
+            if (!classeId || !date) return;
+            const res = await fetch(`{{ route('presence.status') }}?classe_id=${classeId}&date=${date}&activite=${activite}`, { headers: { 'Accept': 'application/json' } });
+            const data = await res.json();
+            const presentSet = new Set(data.presentIds || []);
+            getAllCheckboxes().forEach(cb => {
+                const id = parseInt(cb.getAttribute('data-eleve-id'));
+                cb.checked = presentSet.has(id);
+            });
+            updateSelectAllState();
+        }
+
+        // Recharger le statut quand la date change
+        input.addEventListener('change', loadStatus);
+
+        // Enregistrer
+        const saveBtn = document.getElementById('save-presences');
+        saveBtn.addEventListener('click', async function() {
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const items = getAllCheckboxes().map(cb => ({ idEnfant: parseInt(cb.getAttribute('data-eleve-id')), present: cb.checked }));
+            const payload = { date: input.value, activite: 'cantine', items };
+            const res = await fetch(`{{ route('presence.save') }}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                // Optionnel: feedback léger
+                saveBtn.disabled = true; setTimeout(() => saveBtn.disabled = false, 600);
+            }
+        });
+
+        // init
+        loadClasses().then(loadStatus);
     })();
 </script>
 

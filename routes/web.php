@@ -21,5 +21,7 @@ Route::get('/presence', function () {
 
 Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
 Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
+Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
+Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
 
 require __DIR__ . '/auth.php';

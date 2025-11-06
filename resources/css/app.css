@@ -89,6 +89,7 @@
 .presence-date-btn i { font-size: 1.1rem; }
 .presence-date-input-hidden { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
 .presence-classe-select { min-width: 220px; }
+.presence-search-input { min-width: 250px; }
 .present-col { min-width: 100px; }
 .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; }
 .checkbox-lg { transform: scale(1.4); width: 20px; height: 20px; }
