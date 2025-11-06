@@ -12,8 +12,9 @@
                             <div class="me-4" style="flex-shrink: 0;">
                                 <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
                                      style="width: 100px; height: 100px; overflow: hidden; background-color: #f5e6d3;">
-                                    @if(Auth::user()->name)
-                                        <span class="text-dark" style="font-size: 2rem;">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                    @php($initial = Auth::user()->nom ?: Auth::user()->prenom)
+                                    @if($initial)
+                                        <span class="text-dark" style="font-size: 2rem;">{{ strtoupper(substr($initial, 0, 1)) }}</span>
                                     @else
                                         <span class="text-dark" style="font-size: 2rem;">U</span>
                                     @endif
@@ -24,7 +25,7 @@
                             <div class="flex-grow-1">
                                 <div class="mb-3">
                                     <span class="text-muted small">{{ __('auth.nom') }} :</span>
-                                    <span class="fw-semibold">{{ Auth::user()->name ?? '-' }}</span>
+                                    <span class="fw-semibold">{{ Auth::user()->nom ?? '-' }}</span>
                                 </div>
                                 
                                 <div class="mb-3">
