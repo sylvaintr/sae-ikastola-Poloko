@@ -14,12 +14,13 @@
                 </li>
 				</ul>
 
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 position-relative">
                     <div id="display-date" class="fw-semibold me-1 presence-date-text"></div>
                     <button id="open-date" type="button" class="btn btn-link p-0 presence-date-btn" aria-label="Choisir la date">
                         <i class="bi bi-chevron-down"></i>
                     </button>
-                    <input id="presence-date" name="date" type="date" value="{{ now()->toDateString() }}" class="presence-date-input-hidden" />
+                    <input id="presence-date" name="date" type="date" value="{{ now()->toDateString() }}" max="{{ now()->toDateString() }}" class="presence-date-input-hidden" />
+                    <div id="custom-calendar" class="presence-calendar-dropdown"></div>
 				</div>
 			</div>
             <div class="presence-divider"></div>
@@ -32,7 +33,7 @@
                         <select id="classe-select" class="form-select presence-classe-select"></select>
                     </div>
                     <div>
-                        <div class="small text-muted">{{ __('presence.rechercher_eleve') }}</div>
+                        <div class="small text-muted">&nbsp;</div>
                         <input id="search-student" type="text" class="form-control presence-search-input" placeholder="{{ __('presence.rechercher_eleve') }}" />
                     </div>
                 </div>
@@ -44,15 +45,14 @@
 
                 <div id="students-list"></div>
 
-                <div class="d-flex justify-content-end align-items-center mt-3">
-                    <label class="me-2 small text-muted">{{ __('presence.tout_selectionner') }}</label>
-                    <div class="d-flex align-items-center justify-content-center present-col">
-                        <input id="select-all" type="checkbox" class="checkbox-lg" />
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-end mt-3">
+                <div class="d-flex justify-content-between align-items-center mt-3">
                     <button id="save-presences" class="btn btn-warning fw-bold">{{ __('auth.enregistrer') }}</button>
+                    <div class="d-flex align-items-center">
+                        <label class="me-2 small text-muted">{{ __('presence.tout_selectionner') }}</label>
+                        <div class="d-flex align-items-center justify-content-center present-col">
+                            <input id="select-all" type="checkbox" class="checkbox-lg" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -64,10 +64,14 @@
         const input = document.getElementById('presence-date');
         const out = document.getElementById('display-date');
         const btn = document.getElementById('open-date');
+        const calendarDropdown = document.getElementById('custom-calendar');
         const classeSelect = document.getElementById('classe-select');
         const studentsList = document.getElementById('students-list');
         const searchInput = document.getElementById('search-student');
         let allStudents = [];
+        let currentDate = new Date(input.value);
+        let calendarVisible = false;
+
         function formatFr(dateStr) {
             try {
                 const d = new Date(dateStr);
@@ -76,14 +80,128 @@
             } catch (_) { return ''; }
         }
         function render() { out.textContent = formatFr(input.value); }
-        input.addEventListener('change', render);
-        btn.addEventListener('click', function() {
-            if (typeof input.showPicker === 'function') {
-                input.showPicker();
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - startDate.getDay());
+            
+            const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+            const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+            
+            const currentYear = today.getFullYear();
+            const years = [];
+            for (let y = currentYear; y >= currentYear - 10; y--) {
+                years.push(y);
+            }
+            
+            let html = `<div class="presence-calendar">
+                <div class="presence-calendar-header">
+                    <button type="button" class="presence-calendar-nav" id="prev-month"><i class="bi bi-chevron-left"></i></button>
+                    <div class="presence-calendar-title-group">
+                        <select id="calendar-month" class="presence-calendar-select">${monthNames.map((m, i) => `<option value="${i}" ${i === month ? 'selected' : ''}>${m}</option>`).join('')}</select>
+                        <select id="calendar-year" class="presence-calendar-select">${years.map(y => `<option value="${y}" ${y === year ? 'selected' : ''}>${y}</option>`).join('')}</select>
+                    </div>
+                    <button type="button" class="presence-calendar-nav" id="next-month"><i class="bi bi-chevron-right"></i></button>
+                </div>
+                <div class="presence-calendar-weekdays">
+                    ${dayNames.map(d => `<div class="presence-calendar-weekday">${d}</div>`).join('')}
+                </div>
+                <div class="presence-calendar-days">`;
+            
+            const current = new Date(startDate);
+            for (let i = 0; i < 42; i++) {
+                const dateStr = current.toISOString().split('T')[0];
+                const isCurrentMonth = current.getMonth() === month;
+                const isToday = dateStr === today.toISOString().split('T')[0];
+                const isFuture = current > today;
+                const isSelected = dateStr === input.value;
+                
+                let classes = 'presence-calendar-day';
+                if (!isCurrentMonth) classes += ' presence-calendar-day-other';
+                if (isToday) classes += ' presence-calendar-day-today';
+                if (isSelected) classes += ' presence-calendar-day-selected';
+                if (isFuture) classes += ' presence-calendar-day-disabled';
+                
+                html += `<div class="${classes}" ${!isFuture ? `data-date="${dateStr}"` : ''}>${current.getDate()}</div>`;
+                current.setDate(current.getDate() + 1);
+            }
+            
+            html += `</div></div>`;
+            calendarDropdown.innerHTML = html;
+            
+            document.getElementById('prev-month').addEventListener('click', (e) => {
+                e.stopPropagation();
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+            
+            document.getElementById('next-month').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1) <= today) {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                    renderCalendar();
+                }
+            });
+            
+            document.getElementById('calendar-month').addEventListener('change', (e) => {
+                e.stopPropagation();
+                currentDate.setMonth(parseInt(e.target.value));
+                renderCalendar();
+            });
+            
+            document.getElementById('calendar-year').addEventListener('change', (e) => {
+                e.stopPropagation();
+                const newYear = parseInt(e.target.value);
+                const newDate = new Date(newYear, currentDate.getMonth(), 1);
+                if (newDate <= today) {
+                    currentDate.setFullYear(newYear);
+                    renderCalendar();
+                } else {
+                    e.target.value = currentDate.getFullYear();
+                }
+            });
+            
+            document.getElementById('calendar-month').addEventListener('click', (e) => e.stopPropagation());
+            document.getElementById('calendar-year').addEventListener('click', (e) => e.stopPropagation());
+            
+            document.querySelectorAll('.presence-calendar-day[data-date]').forEach(day => {
+                day.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    input.value = day.getAttribute('data-date');
+                    render();
+                    calendarDropdown.classList.remove('show');
+                    calendarVisible = false;
+                    loadStatus();
+                });
+            });
+        }
+
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            calendarVisible = !calendarVisible;
+            if (calendarVisible) {
+                calendarDropdown.classList.add('show');
+                renderCalendar();
             } else {
-                input.click();
+                calendarDropdown.classList.remove('show');
             }
         });
+
+        document.addEventListener('click', function(e) {
+            if (!btn.contains(e.target) && !calendarDropdown.contains(e.target)) {
+                calendarDropdown.classList.remove('show');
+                calendarVisible = false;
+            }
+        });
+
+        input.addEventListener('change', render);
         render();
 
         
