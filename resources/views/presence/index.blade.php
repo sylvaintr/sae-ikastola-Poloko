@@ -394,7 +394,6 @@
                 
                 if (res.ok) {
                     // Afficher la notification de succès
-                    console.log('Enregistrement réussi, affichage de la notification');
                     showSuccessNotification();
                 } else {
                     // En cas d'erreur, on pourrait afficher une notification d'erreur
