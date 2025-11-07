@@ -7,7 +7,7 @@
     <x-actualites-index :actualites="$actualites" />
 
     @can('access-gestion-actualite')
-    <a href="{{ route('actualite.edit') }}"></a>
+    <a href="{{ route('actualite.edit') }}">Modifier</a>
     @endcan
 </div>
 @endsection
