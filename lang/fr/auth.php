@@ -4,6 +4,7 @@ return [
     // Labels (keys in French)
     'email' => 'E-mail',
     'mot_de_passe' => 'Mot de passe',
+    'prenom' => 'Prénom',
     'se_souvenir_de_moi' => "Se souvenir de moi",
     'connexion' => 'Se connecter',
     'inscription' => "S'inscrire",
@@ -19,6 +20,8 @@ return [
     'deconnexion' => 'Se déconnecter',
     'deja_inscrit' => 'Déjà inscrit ?',
     'profil' => 'Profil',
+    'consulter_profil' => 'Consulter le profil',
+    'passer_eus_fr' => 'Passer en EUS/FR',
 
     // Notices
     'notification_verification_email' => "Merci pour votre inscription ! Avant de continuer, pouvez-vous vérifier votre adresse e-mail en cliquant sur le lien que nous venons d'envoyer ? Si vous n'avez pas reçu l'e-mail, nous vous en enverrons volontiers un autre.",
@@ -45,4 +48,15 @@ return [
     'texte_confirmation_suppression' => 'Une fois votre compte supprimé, toutes ses ressources et données seront définitivement supprimées. Veuillez entrer votre mot de passe pour confirmer que vous souhaitez supprimer votre compte définitivement.',
     'annuler' => 'Annuler',
     'confirmer' => 'Confirmer',
+    
+    // Profile sections
+    'mon_profil' => 'Mon profil',
+    'prenom' => 'Prénom',
+    'date_naissance' => 'Date de naissance',
+    'role' => 'Rôle',
+    'statut_compte' => 'Statut du compte',
+    'comptes_lies' => 'Comptes liés à ce profil',
+    'mes_documents' => 'Mes documents',
+    'valide' => 'Validé',
+    'en_attente' => 'En attente',
 ];
