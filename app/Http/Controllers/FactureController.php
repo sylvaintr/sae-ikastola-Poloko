@@ -50,15 +50,6 @@ class FactureController extends Controller
         ]);
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
     /**
      * permet de gérer le corps du tableau de factures en AJAX pour DataTables
      */
