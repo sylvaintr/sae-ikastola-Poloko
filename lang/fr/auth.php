@@ -8,6 +8,17 @@ return [
     'se_souvenir_de_moi' => "Se souvenir de moi",
     'connexion' => 'Se connecter',
     'inscription' => "S'inscrire",
+    'titre_connexion_principal' => 'Connexion',
+
+    'email_principal' => 'Email',
+    'mot_de_passe_principal' => 'Mot de passe',
+    
+    'placeholder_email' => 'adresse@email.com',
+    'placeholder_password' => 'Votre mot de passe',
+    'mot_de_passe_oublie_principal' => 'Mot de passe oublié ?',
+    'pas_compte_principal' => "Vous n'avez pas encore de compte ?",
+    'pas_compte_secondaire' => 'Inscrivez-vous',
+    'bouton_connexion' => 'Se connecter',
     'nom' => 'Nom',
     'confirmer_mot_de_passe' => 'Confirmer le mot de passe',
 
