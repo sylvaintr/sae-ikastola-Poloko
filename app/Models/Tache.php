@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Tache
- * 
  * @property int $idTache Identifiant de la tâche.
  * @property string $titre Titre de la tâche.
  * @property string $description Description de la tâche.

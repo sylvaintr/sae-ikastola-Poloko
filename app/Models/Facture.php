@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Facture
- * 
  * @property int $idFacture Identifiant de la facture.
  * @property bool $etat État de la facture (ex: payée / non payée) — flag.
  * @property Carbon $dateC Date de création / émission de la facture.

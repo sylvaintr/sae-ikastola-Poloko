@@ -1,0 +1,51 @@
+name: Analyse SonarQube
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  sonarcloud:
+    name: Analyse SonarQube
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Nécessaire pour que SonarQube analyse tout l’historique des commits
+
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Installer Node.js (si ton projet en a besoin)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Installer PHP (si ton projet est en PHP)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      # (optionnel) Installation de dépendances si tu utilises Composer
+      - name: Installer les dépendances PHP
+        run: composer install --no-progress --prefer-dist
+
+      # Exécution du scanner SonarQube
+      - name: Analyse SonarQube
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          echo "Démarrage de l’analyse SonarQube..."
+          npx sonar-scanner \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}

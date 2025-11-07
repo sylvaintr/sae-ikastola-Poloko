@@ -50,14 +50,13 @@ class FactureController extends Controller
         $facture = Facture::all()->first();
         $famille = Famille::find($facture->idFamille);
         $enfants = Enfant::where('idFamille', $famille->idFamille);
-        // $nomFamille = $famille->utilisateurs()->first()->nom;
 
 
         return view('facture.show', [
             'facture' => $facture,
             'famille' => $famille,
             'enfants' => $enfants,
-            // 'nomFamille' => $nomFamille, 
+            // 'nomFamille' => $nomFamille,
 
         ]);
     }
@@ -135,7 +134,6 @@ class FactureController extends Controller
     public function envoyerFacture(string $id): RedirectResponse
     {
         $facture = Facture::findOrFail($id);
-        $famille = Famille::find($facture->idFamille);
         $client = Utilisateur::find($facture->idUtilisateur);
         if ($facture->etat) {
 

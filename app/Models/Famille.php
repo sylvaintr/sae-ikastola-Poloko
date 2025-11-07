@@ -11,9 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Famille
- * 
  * @property int $idFamille Identifiant de la famille / tuteur (regroupe des enfants et contacts).
- *
  * @package App\Models
  */
 class Famille extends Model
