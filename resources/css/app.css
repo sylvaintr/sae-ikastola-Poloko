@@ -182,7 +182,6 @@
 
 @media (min-width: 576px) {
     .auth-footer {
-        flex-direction: row;
         align-items: center;
         justify-content: space-between;
     }
