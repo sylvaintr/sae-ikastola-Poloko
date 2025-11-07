@@ -11,5 +11,5 @@ return [
     'connexion' => 'konexioa',
     'francais' => 'frantsesa',
     'basque' => 'euskara',
-    'aucune_actualite' => 'Unebak berririk ez eskuragarri une honetan.'
+    'aucune_actualite' => 'Une honetan berririk ez dago eskuragarri.'
 ];
