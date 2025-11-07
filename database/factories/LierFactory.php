@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Utilisateur;
+use App\Models\Famille;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +21,7 @@ class LierFactory extends Factory
         return [
 
             'idUtilisateur' => Utilisateur::factory(),
-            'idFamille' => $this->faker->unique()->numberBetween(1000, 999999),
+            'idFamille' => Famille::factory(),
             'parite' => $this->faker->randomElement(['parent', 'tuteur', 'autre', null]),
         ];
     }

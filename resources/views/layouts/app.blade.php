@@ -55,7 +55,10 @@
                 aria-atomic="true">
                 <div class="d-flex">
                     <div class="toast-body">
-                        {{ __(session('success')) }}
+                        {{ Lang::get(session('success'), [], 'eus') }}
+                        @if (Lang::getLocale() == 'fr')
+                            <p class="fw-light">{{ __(session('success')) }}</p>
+                        @endif
                     </div>
                     <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"
                         aria-label="Close"></button>
@@ -74,15 +77,28 @@
 
 
     @if (session('error'))
-        <div class="toast align-items-center text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    {{ session('error') }}
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+            <div id="errorToast" class="toast align-items-center text-bg-danger" role="alert" aria-live="assertive"
+                aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        {{ Lang::get(session('error'), [], 'eus') }}
+                        @if (Lang::getLocale() == 'fr')
+                            <p class="fw-light">{{ __(session('error')) }}</p>
+                        @endif
+                    </div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
                 </div>
-                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
             </div>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var toastEl = document.getElementById('errorToast');
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            });
+        </script>
     @endif
     </div>
 </body>

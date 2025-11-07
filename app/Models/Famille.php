@@ -44,4 +44,12 @@ class Famille extends Model
 	{
 		return $this->belongsToMany(Utilisateur::class, 'lier', 'idFamille', 'idUtilisateur')->withPivot('parite');
 	}
+
+	/**
+	 * Compatibility accessor: provide $famille->id mapping to the model primary key.
+	 */
+	public function getIdAttribute()
+	{
+		return $this->getKey();
+	}
 }

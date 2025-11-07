@@ -145,9 +145,14 @@ class FactureController extends Controller
             return redirect()->route('facture.index')->with('error', 'facture.envoiererror');
         }
     }
+
     public function validerFacture(string $id): RedirectResponse
     {
-        $facture = Facture::findOrFail($id);
+        try {
+            $facture = Facture::findOrFail($id);
+        } catch (\Exception $e) {
+            return redirect()->route('facture.index')->with('error', 'facture.inexistante');
+        }
         $facture->etat = true;
         $facture->save();
 

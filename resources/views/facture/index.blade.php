@@ -32,6 +32,6 @@
             const currentLang = "{{ app()->getLocale() }}";
         </script>
 
-        @vite('resources/js/facture.js')
+        @vite(['resources/js/facture.js'])
 
 </x-app-layout>

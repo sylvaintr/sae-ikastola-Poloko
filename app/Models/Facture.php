@@ -53,4 +53,12 @@ class Facture extends Model
 	{
 		return $this->belongsTo(Famille::class, 'idFamille');
 	}
+
+	/**
+	 * Compatibility accessor: provide $facture->id mapping to the model primary key.
+	 */
+	public function getIdAttribute()
+	{
+		return $this->getKey();
+	}
 }
