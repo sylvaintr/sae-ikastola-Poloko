@@ -34,25 +34,24 @@ const dataTableLangs = {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    new DataTable('#myTable', {
-        processing: true,    // montre un spinner pendant le chargement
-        serverSide: true,    // active le mode serveur
-        ajax: '/sae-ikastola-Poloko/public/factures-data', // l’URL définie dans Laravel
-        columns: [
-            { data: 'idFacture', name: 'idFacture' },
-            { data: 'titre', name: 'titre' },
-            { data: 'etat', name: 'etat' },
-            { data: 'idFamille', name: 'idFamille' },
-            {
-                data: 'dateC', name: 'dateC', render: function (data) {
-                    const date = new Date(data);
-                    return date.toLocaleDateString();
-                }
-            },
-            { data: 'actions', name: 'actions', orderable: false, searchable: false }
-        ],
-        language: dataTableLangs[currentLang] || dataTableLangs.fr,
-        responsive: true
-    });
+    let dataTable = new DataTable('#myTable');
+    dataTable.processing(true);
+    dataTable.serverSide(true);
+    dataTable.ajax('/sae-ikastola-Poloko/public/factures-data');
+    dataTable.columns([
+        { data: 'idFacture', name: 'idFacture' },
+        { data: 'titre', name: 'titre' },
+        { data: 'etat', name: 'etat' },
+        { data: 'idFamille', name: 'idFamille' },
+        {
+            data: 'dateC', name: 'dateC', render: function (data) {
+                const date = new Date(data);
+                return date.toLocaleDateString();
+            }
+        },
+        { data: 'actions', name: 'actions', orderable: false, searchable: false }
+    ]);
+    dataTable.responsive(true);
+    dataTable.language(dataTableLangs[currentLang] || dataTableLangs.eus);
 });
 

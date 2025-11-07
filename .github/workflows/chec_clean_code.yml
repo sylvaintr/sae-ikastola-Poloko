@@ -28,10 +28,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Installer PHP (si ton projet est en PHP)
-        uses: shivammathur/setup-php@v2
+      - name: Installer PHP
+        uses: shivammathur/setup-php@c13f1b0a83d1aebfc1f9e5a2d95d9c7e3a1b2c4d
         with:
-          php-version: '8.2'
+          php-version: '8.4'
 
       # (optionnel) Installation de dépendances si tu utilises Composer
       - name: Installer les dépendances PHP
@@ -42,10 +42,11 @@ jobs:
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
         run: |
           echo "Démarrage de l’analyse SonarQube..."
           npx sonar-scanner \
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+            -Dsonar.projectKey=$SONAR_PROJECT_KEY \
             -Dsonar.sources=. \
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.host.url=$SONAR_HOST_URL \
+            -Dsonar.login=$SONAR_TOKEN

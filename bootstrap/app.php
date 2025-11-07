@@ -33,6 +33,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 403);
             }
 
+            logger()->error($e->getMessage(), [
+                'exception' => $e,
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'user_id' => optional($request->user())->id,
+            ]);
+
             // Sinon, on redirige avec un message flash
             return redirect()
                 ->route('home') // ou une autre route
@@ -45,6 +52,14 @@ return Application::configure(basePath: dirname(__DIR__))
                     'message' => "Vous devez être connecté pour accéder à cette ressource."
                 ], 401);
             }
+
+            // Enregistrer l'exception dans les logs
+            logger()->error($e->getMessage(), [
+                'exception' => $e,
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'user_id' => optional($request->user())->id,
+            ]);
 
             // Sinon → redirection avec message flash
             return redirect()
