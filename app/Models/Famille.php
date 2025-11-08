@@ -21,7 +21,9 @@ class Famille extends Model
 	protected $primaryKey = 'idFamille';
 	public $incrementing = false;
 	public $timestamps = false;
-
+    protected $fillable = [
+        'idFamille'
+    ]; 
 	protected $casts = [
 		'idFamille' => 'int'
 	];
