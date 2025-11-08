@@ -17,7 +17,7 @@ Route::middleware('auth')->group(function () {
 require __DIR__ . '/auth.php';
 
 
-
+/*
 
 
 Route::get('familles', [FamilleController::class, 'index'])->name('familles.index'); 
@@ -30,3 +30,6 @@ Route::get('familles/{id}/edit', [FamilleController::class, 'edit'])->name('fami
 Route::put('familles/{id}', [FamilleController::class, 'update'])->name('familles.update'); 
 
 Route::delete('familles/{id}', [FamilleController::class, 'destroy'])->name('familles.destroy'); 
+
+
+*/

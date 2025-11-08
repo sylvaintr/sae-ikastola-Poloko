@@ -59,19 +59,19 @@ class FamilleController extends Controller
     }
    
 
-  public function update(Request $request, $id)
+ public function update(Request $request, $id)
 {
-    // Récupérer la famille avec enfants et utilisateurs
+    // Récupère la famille avec ses enfants et utilisateurs
     $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
 
     if (!$famille) {
         return response()->json(['message' => 'Famille non trouvée'], 404);
     }
 
-    // Modifier les enfants
+    // 🔹 Mise à jour des enfants
     if ($request->has('enfants')) {
         foreach ($request->enfants as $enfantData) {
-            $enfant = $famille->enfants()->find($enfantData['idEnfant']);
+            $enfant = $famille->enfants()->find($enfantData['idEnfant'] ?? null);
             if ($enfant) {
                 $enfant->update([
                     'nom' => $enfantData['nom'] ?? $enfant->nom,
@@ -85,10 +85,13 @@ class FamilleController extends Controller
         }
     }
 
-    // Modifier les utilisateurs et la parité
+    // 🔹 Mise à jour des utilisateurs (parents) + parité
     if ($request->has('utilisateurs')) {
         foreach ($request->utilisateurs as $userData) {
-            $user = $famille->utilisateurs()->find($userData['idUtilisateur']);
+            $userId = $userData['idUtilisateur'] ?? null;
+            if (!$userId) continue;
+
+            $user = $famille->utilisateurs()->find($userId);
             if ($user) {
                 // Modifier les infos de l'utilisateur
                 $user->update([
@@ -96,23 +99,24 @@ class FamilleController extends Controller
                     'prenom' => $userData['prenom'] ?? $user->prenom,
                 ]);
 
-                // Modifier la parité dans la table pivot
+                // ✅ Modifier la parité dans la table pivot
                 if (isset($userData['parite'])) {
-                    $famille->utilisateurs()->updateExistingPivot($user->idUtilisateur, [
-                        'parite' => $userData['parite']
-                    ]);
+                    \DB::table('lier')
+                        ->where('idFamille', $famille->idFamille)
+                        ->where('idUtilisateur', $userId)
+                        ->update(['parite' => $userData['parite']]);
                 }
             }
         }
     }
 
-    // Recharger la famille avec les relations pour retourner les données à jour
+    // 🔹 Recharge la famille pour renvoyer les données à jour
     $famille->load(['enfants', 'utilisateurs']);
 
     return response()->json([
-        'message' => 'Famille et ses relations mises à jour avec succès',
+        'message' => 'Famille mise à jour avec succès (enfants + utilisateurs + parité)',
         'famille' => $famille
-    ]);
+    ], 200);
 }
 
 
