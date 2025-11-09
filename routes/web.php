@@ -33,3 +33,7 @@ Route::delete('familles/{id}', [FamilleController::class, 'destroy'])->name('fam
 
 
 */
+
+Route::get('familles2', [FamilleController::class, 'index'])->name('familles.index');
+Route::delete('familles/{id}', [FamilleController::class, 'destroy'])->name('familles.destroy');
+Route::get('familles/create', [FamilleController::class, 'create'])->name('familles.create'); 

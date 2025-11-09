@@ -27,3 +27,5 @@ Route::delete('/familles/{id}', [FamilleController::class, 'destroy']);
 Route::get('utilisateurs', [UtilisateurController::class, 'searchByNom']);
 
 Route::put('/familles/{id}', [FamilleController::class, 'update']);
+
+Route::post('/issa', [FamilleController::class, 'ajouter']);
