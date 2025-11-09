@@ -36,12 +36,12 @@ public function ajouter(Request $request)
     //  Lier les utilisateurs avec des familles
     foreach ($data['utilisateurs'] ?? [] as $userData) {
     if (isset($userData['idUtilisateur'])) {
-        // Utilisateur existant, on attache
+        // Utilisateur existant donc relie avec la famille
         $famille->utilisateurs()->attach($userData['idUtilisateur'], [
             'parite' => $userData['parite'] ?? null,
         ]);
     } else {
-        // Nouveau utilisateur, on crée puis on attache
+        // on creer une autre utilisateur et on relie avec la famille
         $newUser = Utilisateur::create([
             'nom' => $userData['nom'],
             'prenom' => $userData['prenom'],
@@ -56,26 +56,22 @@ public function ajouter(Request $request)
 }
 
 
-    //  Charger les relations pour les renvoyer
+   
     $famille->load(['enfants', 'utilisateurs']);
 
     return response()->json([
         'message' => 'Famille complète créée avec succès',
         'famille' => $famille,
     ], 201);
+
+    // ---------------Si on veut tester avec frontend-------------------
+
+    //return view('familles.create');
+
 }
 
 
-   // ---------------------Ajouter une famille---------------------------------
-    public function store(Request $request)
-{
-    
-    $famille = Famille::create([
-        'idFamille' => $request->idFamille,
-    ]);
-
-    return response()->json($famille, 201);
-}
+   
 
 //-------------------------------------Afficher une famille specifique-------------------------------------
   public function show($id)
@@ -87,6 +83,9 @@ public function ajouter(Request $request)
         }
 
         return response()->json($famille);
+
+      // -----------------------Si on veut tester avec frontend-------------------------------- 
+      //  return view('familles.show', compact('famille'));
     }
 
 
@@ -95,8 +94,10 @@ public function ajouter(Request $request)
 {
     $familles = Famille::with(['enfants', 'utilisateurs'])->get();
    return response()->json($familles);
+
+   // ------------Si on veut tester avec frontend---------------- 
    // return view('familles.index', compact('familles'));
-   //dd($familles);
+   
 }
 
    
@@ -119,8 +120,13 @@ public function ajouter(Request $request)
         $famille->delete();
 
         return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
+
+        // ----------------------------------Si on veut tester avec frontend------------------------------------ 
+        //return redirect()->route('familles.index')->with('success', 'Famille supprimée avec succès');
     }
    
+
+
 
 //--------------------------------------- Modification famille--------------------------------------
 public function update(Request $request, $id)
@@ -130,7 +136,7 @@ public function update(Request $request, $id)
         return response()->json(['message' => 'Famille non trouvée'], 404);
     }
 
-    // Modifier enfants
+   
     if ($request->has('enfants')) {
         foreach ($request->enfants as $enfantData) {
             $enfant = $famille->enfants()->find($enfantData['idEnfant'] ?? null);
@@ -146,7 +152,7 @@ public function update(Request $request, $id)
         }
     }
 
-    // Modifier utilisateurs (infos seulement, pas pivot)
+    // Modifier les informations dans utilisateur mais pas pivote
     if ($request->has('utilisateurs')) {
         foreach ($request->utilisateurs as $userData) {
             $user = Utilisateur::find($userData['idUtilisateur'] ?? null);
@@ -166,6 +172,8 @@ public function update(Request $request, $id)
         'message' => 'Famille mise à jour (enfants + utilisateurs)',
         'famille' => $famille
     ]);
+   // Si on veut tester avec frontend
+   // return view('familles.update', compact('famille'));
 }
 
 

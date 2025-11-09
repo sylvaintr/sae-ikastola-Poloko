@@ -10,7 +10,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('familles',[FamilleController::class, 'store']);
+//Route::post('familles',[FamilleController::class, 'store']);
 
 Route::post('enfants',[EnfantController::class, 'store']);
 
@@ -28,7 +28,7 @@ Route::get('utilisateurs', [UtilisateurController::class, 'searchByNom']);
 
 Route::put('/familles/{id}', [FamilleController::class, 'update']);
 
-Route::post('/issa', [FamilleController::class, 'ajouter']);
+Route::post('/familles', [FamilleController::class, 'ajouter']);
 
 Route::get('testParite/{idFamille}', [FamilleController::class, 'testParite']);
 

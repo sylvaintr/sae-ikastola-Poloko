@@ -17,23 +17,16 @@ Route::middleware('auth')->group(function () {
 require __DIR__ . '/auth.php';
 
 
+
 /*
+Route::get('familles2', [FamilleController::class, 'index'])->name('familles.index');
 
+Route::delete('/familles/{id}', [FamilleController::class, 'delete'])->name('familles.idex');
 
-Route::get('familles', [FamilleController::class, 'index'])->name('familles.index'); 
-Route::get('familles/{id}', [FamilleController::class, 'show'])->name('familles.show'); 
+Route::post('/familles', [FamilleController::class, 'ajouter'])->name('familles.create'); 
 
-Route::get('familles/create', [FamilleController::class, 'create'])->name('familles.create'); 
-Route::post('familles', [FamilleController::class, 'store'])->name('familles.store'); 
+Route::get('/familles/{id}', [FamilleController::class, 'show'])->name('familles.show');
 
-Route::get('familles/{id}/edit', [FamilleController::class, 'edit'])->name('familles.edit'); 
-Route::put('familles/{id}', [FamilleController::class, 'update'])->name('familles.update'); 
-
-Route::delete('familles/{id}', [FamilleController::class, 'destroy'])->name('familles.destroy'); 
-
+Route::put('/familles/{id}', [FamilleController::class, 'update'])->name('familles.update');
 
 */
-
-Route::get('familles2', [FamilleController::class, 'index'])->name('familles.index');
-Route::delete('familles/{id}', [FamilleController::class, 'destroy'])->name('familles.destroy');
-Route::get('familles/create', [FamilleController::class, 'create'])->name('familles.create'); 
