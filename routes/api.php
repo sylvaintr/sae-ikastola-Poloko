@@ -22,10 +22,14 @@ Route::get('/familles/{id}', [FamilleController::class, 'show']);
 
 Route::get('familles2',[FamilleController::class, 'index']);
 
-Route::delete('/familles/{id}', [FamilleController::class, 'destroy']);
+Route::delete('/familles/{id}', [FamilleController::class, 'delete']);
 
 Route::get('utilisateurs', [UtilisateurController::class, 'searchByNom']);
 
 Route::put('/familles/{id}', [FamilleController::class, 'update']);
 
 Route::post('/issa', [FamilleController::class, 'ajouter']);
+
+Route::get('testParite/{idFamille}', [FamilleController::class, 'testParite']);
+
+Route::put('parite', [LierController::class, 'updateParite']);

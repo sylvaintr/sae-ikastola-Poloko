@@ -9,6 +9,7 @@ use App\Models\Utilisateur;
 class FamilleController extends Controller
 {
 
+    // --------------------L'ajoutation d'une famille avec ses parents et enfants--------------------
 public function ajouter(Request $request)
 {
     $data = $request->validate([
@@ -55,7 +56,7 @@ public function ajouter(Request $request)
 }
 
 
-    // 4️⃣ Charger les relations pour les renvoyer
+    //  Charger les relations pour les renvoyer
     $famille->load(['enfants', 'utilisateurs']);
 
     return response()->json([
@@ -65,7 +66,7 @@ public function ajouter(Request $request)
 }
 
 
-   // Ajouter une famille
+   // ---------------------Ajouter une famille---------------------------------
     public function store(Request $request)
 {
     
@@ -76,7 +77,7 @@ public function ajouter(Request $request)
     return response()->json($famille, 201);
 }
 
-// Afficher une famille
+//-------------------------------------Afficher une famille specifique-------------------------------------
   public function show($id)
     {
         $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
@@ -88,17 +89,19 @@ public function ajouter(Request $request)
         return response()->json($famille);
     }
 
+
+    // ----------------------on affiche liste des familles--------------------------
     public function index()
 {
     $familles = Famille::with(['enfants', 'utilisateurs'])->get();
-   //  return response()->json($familles);
-    return view('familles.index', compact('familles'));
+   return response()->json($familles);
+   // return view('familles.index', compact('familles'));
    //dd($familles);
 }
 
    
-    //  Supprimer une famille
-   public function destroy($id)
+    // -----------------------Ici on supprime une famille------------------------ 
+   public function delete($id)
     {
         $famille = Famille::find($id);
 
@@ -119,16 +122,15 @@ public function ajouter(Request $request)
     }
    
 
- public function update(Request $request, $id)
+//--------------------------------------- Modification famille--------------------------------------
+public function update(Request $request, $id)
 {
-    // Récupère la famille avec ses enfants et utilisateurs
     $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
-
     if (!$famille) {
         return response()->json(['message' => 'Famille non trouvée'], 404);
     }
 
-    //  Mise à jour des enfants
+    // Modifier enfants
     if ($request->has('enfants')) {
         foreach ($request->enfants as $enfantData) {
             $enfant = $famille->enfants()->find($enfantData['idEnfant'] ?? null);
@@ -138,45 +140,32 @@ public function ajouter(Request $request)
                     'prenom' => $enfantData['prenom'] ?? $enfant->prenom,
                     'dateN' => $enfantData['dateN'] ?? $enfant->dateN,
                     'sexe' => $enfantData['sexe'] ?? $enfant->sexe,
-                    'NNI' => $enfantData['NNI'] ?? $enfant->NNI,
                     'idClasse' => $enfantData['idClasse'] ?? $enfant->idClasse,
                 ]);
             }
         }
     }
 
-    //  Mise à jour des utilisateurs (parents) + parité
+    // Modifier utilisateurs (infos seulement, pas pivot)
     if ($request->has('utilisateurs')) {
         foreach ($request->utilisateurs as $userData) {
-            $userId = $userData['idUtilisateur'] ?? null;
-            if (!$userId) continue;
-
-            $user = $famille->utilisateurs()->find($userId);
+            $user = Utilisateur::find($userData['idUtilisateur'] ?? null);
             if ($user) {
-                // Modifier les infos de l'utilisateur
                 $user->update([
                     'nom' => $userData['nom'] ?? $user->nom,
                     'prenom' => $userData['prenom'] ?? $user->prenom,
+                    'languePref'=> $userData['languePref'] ?? $user->languePref,
                 ]);
-
-                //  Modifier la parité dans la table pivot
-                if (isset($userData['parite'])) {
-                    \DB::table('lier')
-                        ->where('idFamille', $famille->idFamille)
-                        ->where('idUtilisateur', $userId)
-                        ->update(['parite' => $userData['parite']]);
-                }
             }
         }
     }
 
-    //  Recharge la famille pour renvoyer les données à jour
     $famille->load(['enfants', 'utilisateurs']);
 
     return response()->json([
-        'message' => 'Famille mise à jour avec succès (enfants + utilisateurs + parité)',
+        'message' => 'Famille mise à jour (enfants + utilisateurs)',
         'famille' => $famille
-    ], 200);
+    ]);
 }
 
 
