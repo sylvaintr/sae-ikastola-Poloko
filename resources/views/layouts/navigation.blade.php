@@ -42,7 +42,7 @@
                 @endcan
                 @can('access-administration')
                     <li class="nav-item">
-                        <x-nav-link href="{{ route('admin.index') }}" :active="request()->routeIs('admin.index') || request()->is('admin*')" class="nav-link">{{ __('nav.administration') }}</x-nav-link>
+                        <x-nav-link href="{{ route('admin.index') }}" :active="request()->routeIs('admin.*')" class="nav-link">{{ __('nav.administration') }}</x-nav-link>
                     </li>
                 @endcan
             </ul>
