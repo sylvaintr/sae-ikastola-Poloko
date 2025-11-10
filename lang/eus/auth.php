@@ -9,7 +9,7 @@ return [
     'inscription' => 'Erregistratu',
     'nom' => 'Izena',
     'confirmer_mot_de_passe' => 'Pasahitza berretsi',
-    'titre_connexion_principal' => 'Saioa hasi',
+
     'titre_connexion_secondaire' => 'Sartu zure kontuan',
     'email_principal' => 'Posta elektronikoa',
     'email_secondaire' => 'Emaila',
@@ -21,7 +21,7 @@ return [
     'mot_de_passe_oublie_secondaire' => 'Berrezarri zure pasahitza',
     'pas_compte_principal' => 'Ez duzu konturik oraindik?',
     'pas_compte_secondaire' => 'Eman izena',
-    'bouton_connexion' => 'Saioa hasi',
+
 
     // Actions / Links
     'mot_de_passe_oublie' => 'Pasahitza ahaztu duzu?',
