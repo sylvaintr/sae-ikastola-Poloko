@@ -27,7 +27,8 @@ class Enfant extends Model
 {
 	protected $table = 'enfant';
 	protected $primaryKey = 'idEnfant';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [

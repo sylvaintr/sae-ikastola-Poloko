@@ -21,7 +21,8 @@ class Materiel extends Model
 {
 	protected $table = 'materiel';
 	protected $primaryKey = 'idMateriel';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [

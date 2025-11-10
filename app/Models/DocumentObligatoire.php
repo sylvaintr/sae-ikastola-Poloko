@@ -21,7 +21,8 @@ class DocumentObligatoire extends Model
 {
 	protected $table = 'documentObligatoire';
 	protected $primaryKey = 'idDocumentObligatoire';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [

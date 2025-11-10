@@ -9,7 +9,12 @@ use Illuminate\Support\Facades\Route;
 //})->name('home');
 
 Route::get('/', [ActualiteController::class, 'index'])->name('home');
-Route::get('/actualite/edit', [ActualiteController::class, 'edit'])->name('actualite.edit');
+Route::middleware('permission:access-gestion-actualite')->group(function () {
+    Route::get('/actualite/create', [ActualiteController::class, 'create'])->name('actualites.create');
+    Route::post('/actualite/store', [ActualiteController::class, 'store'])->name('actualites.store');
+    Route::get('/actualite/edit', [ActualiteController::class, 'edit'])->name('actualites.edit');
+    Route::get('/actualite/delete', [ActualiteController::class, 'delete'])->name('actualites.delete');
+});
 
 // Changer de langue
 Route::get('/lang/{locale}', function ($locale) {
