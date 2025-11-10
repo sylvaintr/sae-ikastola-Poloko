@@ -23,7 +23,8 @@ class Recette extends Model
 	use HasFactory;
 	protected $table = 'recette';
 	protected $primaryKey = 'idRecette';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [
