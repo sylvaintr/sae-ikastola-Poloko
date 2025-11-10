@@ -116,3 +116,14 @@
 .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: #f8f9fa; display: flex; align-items: center; justify-content: center; }
 .checkbox-lg { transform: scale(1.4); width: 20px; height: 20px; }
 
+.admin-section-link {
+    text-decoration: none;
+    transition: transform 0.15s ease, color 0.15s ease;
+    transform-origin: left center;
+}
+
+.admin-section-link:hover {
+    text-decoration: underline;
+    transform: scale(1.02);
+}
+
