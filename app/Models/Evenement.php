@@ -9,12 +9,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * Class Evenement
  *
+ * Représente un événement (assemblée, sortie, vente, etc.) lié à l'application.
+ *
+ * @package App\Models
+ *
  * @property int $idEvenement Identifiant de l'événement.
  * @property string $titre Titre de l'événement.
  * @property string $description Description détaillée.
  * @property bool $obligatoire Indique si l'événement est obligatoire.
- * @property Carbon $start_at Date et heure de début de l'événement.
- * @property Carbon|null $end_at Date et heure de fin de l'événement.e
+ * @property Carbon $dateE Date de l'événement.
  */
 class Evenement extends Model
 {
@@ -22,13 +25,13 @@ class Evenement extends Model
 	protected $table = 'evenement';
 	protected $primaryKey = 'idEvenement';
 	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [
 		'idEvenement' => 'int',
 		'obligatoire' => 'bool',
-		'start_at' => 'datetime',
-		'end_at' => 'datetime',
+		'dateE' => 'datetime'
 	];
 
 	/**
@@ -37,16 +40,15 @@ class Evenement extends Model
 	 * - `titre` (string) : titre de l'événement.
 	 * - `description` (string) : description détaillée.
 	 * - `obligatoire` (bool) : indique si l'événement est obligatoire.
-	 * - `start_at` (datetime) : date et heure de début de l'événement.
-	 * - `end_at` (datetime) : date et heure de fin de l'événement.
+	 * - `dateE` (datetime) : date de l'événement.
 	 */
 	protected $fillable = [
 		'titre',
 		'description',
 		'obligatoire',
-		'start_at',
-		'end_at',
+		'dateE'
 	];
+
 	/**
 	 * Relation hasMany vers les recettes associées à cet événement.
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -72,13 +74,5 @@ class Evenement extends Model
 	public function materiels()
 	{
 		return $this->belongsToMany(Materiel::class, 'inclure', 'idEvenement', 'idMateriel');
-	}
-
-	/**
-	 * Rôles associés à l'événement (pivot `evenement_role`).
-	 */
-	public function roles()
-	{
-		return $this->belongsToMany(Role::class, 'evenement_role', 'idEvenement', 'idRole');
 	}
 }

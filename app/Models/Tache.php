@@ -30,7 +30,8 @@ class Tache extends Model
 	use HasFactory;
 	protected $table = 'tache';
 	protected $primaryKey = 'idTache';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [
