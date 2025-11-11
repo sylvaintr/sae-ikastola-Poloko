@@ -35,10 +35,10 @@
                     </div>
 
                     <div class="d-flex gap-3 mt-4 justify-content-end">
-                        <a href="{{ route('admin.classes.index') }}" class="btn btn-outline-secondary px-4 admin-cancel-btn">
+                        <a href="{{ route('admin.classes.index') }}" class="btn admin-cancel-btn px-4">
                             {{ __('admin.classes_page.create.cancel') }}
                         </a>
-                        <button type="submit" class="btn btn-warning fw-semibold px-4 admin-submit-btn">
+                        <button type="submit" class="btn fw-semibold px-4 admin-submit-btn">
                             {{ __('admin.classes_page.create.submit') }}
                         </button>
                     </div>

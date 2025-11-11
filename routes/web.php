@@ -18,13 +18,15 @@ Route::middleware('auth')->group(function () {
         Route::view('/publications', 'admin.messages')->name('messages');
         Route::view('/comptes', 'admin.accounts')->name('accounts');
         Route::view('/familles', 'admin.families')->name('families');
-        Route::get('/classes', [ClasseController::class, 'index'])->name('classes.index');
-        Route::get('/classes/ajouter', [ClasseController::class, 'create'])->name('classes.create');
-        Route::post('/classes', [ClasseController::class, 'store'])->name('classes.store');
-        Route::get('/classes/{classe}', [ClasseController::class, 'show'])->name('classes.show');
-        Route::get('/classes/{classe}/modifier', [ClasseController::class, 'edit'])->name('classes.edit');
-        Route::put('/classes/{classe}', [ClasseController::class, 'update'])->name('classes.update');
-        Route::delete('/classes/{classe}', [ClasseController::class, 'destroy'])->name('classes.destroy');
+        Route::prefix('classes')->name('classes.')->controller(ClasseController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/ajouter', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{classe}', 'show')->name('show');
+            Route::get('/{classe}/modifier', 'edit')->name('edit');
+            Route::put('/{classe}', 'update')->name('update');
+            Route::delete('/{classe}', 'destroy')->name('destroy');
+        });
         Route::view('/facture', 'admin.invoices')->name('invoices');
         Route::view('/notifications', 'admin.notifications')->name('notifications');
     });

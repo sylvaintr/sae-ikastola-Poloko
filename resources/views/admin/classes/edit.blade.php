@@ -1,8 +1,8 @@
 <x-app-layout>
     <div class="container py-4">
-        <a href="{{ route('admin.classes.index') }}" class="text-decoration-none mb-4 d-inline-flex align-items-center gap-2">
+        <a href="{{ route('admin.classes.show', $classe) }}" class="admin-back-link mb-4 d-inline-flex align-items-center gap-2">
             <i class="bi bi-arrow-left"></i>
-            <span>Retour à la liste</span>
+            <span>Retour à la classe</span>
         </a>
 
         <div class="card border-0 shadow-sm">
@@ -22,9 +22,9 @@
                         @enderror
                     </div>
 
-                    <div class="d-flex gap-3">
-                        <a href="{{ route('admin.classes.index') }}" class="btn btn-outline-secondary px-4">Annuler</a>
-                        <button type="submit" class="btn btn-primary px-4">Enregistrer</button>
+                    <div class="d-flex gap-3 justify-content-end">
+                        <a href="{{ route('admin.classes.show', $classe) }}" class="btn admin-cancel-btn px-4">Annuler</a>
+                        <button type="submit" class="btn fw-semibold px-4 admin-submit-btn">Enregistrer</button>
                     </div>
                 </form>
             </div>

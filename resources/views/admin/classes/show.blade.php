@@ -9,7 +9,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <h1 class="h4 fw-bold mb-0">{{ $classe->nom }}</h1>
-                    <a href="{{ route('admin.classes.edit', $classe) }}" class="btn btn-sm btn-warning text-dark fw-semibold d-inline-flex align-items-center gap-2 admin-submit-btn">
+                    <a href="{{ route('admin.classes.edit', $classe) }}" class="btn btn-sm fw-semibold d-inline-flex align-items-center gap-2 admin-submit-btn">
                         <i class="bi bi-pencil-square"></i>
                         <span>{{ __('admin.classes_page.actions.edit') }}</span>
                     </a>
