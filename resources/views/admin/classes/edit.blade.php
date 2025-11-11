@@ -7,7 +7,7 @@
 
         <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <h1 class="h4 fw-bold mb-4">Modifier la classe</h1>
+                <h1 class="h4 fw-bold mb-4">{{ __('admin.classes_page.edit.title') }}</h1>
 
                 <form method="POST" action="{{ route('admin.classes.update', $classe) }}" class="admin-form">
                     @csrf
