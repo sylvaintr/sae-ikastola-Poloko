@@ -15,7 +15,7 @@
                     </a>
                 </div>
                 <dl class="row mb-0">
-                    <dt class="col-sm-3">Niveau</dt>
+                    <dt class="col-sm-3">{{ __('admin.classes_page.show.level_label') }}</dt>
                     <dd class="col-sm-9">{{ $classe->niveau }}</dd>
                 </dl>
             </div>
