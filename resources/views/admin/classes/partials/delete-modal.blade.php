@@ -4,8 +4,7 @@
             <div class="modal-body p-4">
                 <h2 class="h5 fw-bold mb-3">{{ __('admin.classes_page.actions.delete') }}</h2>
                 <p class="mb-0 text-muted">
-                    Êtes-vous sûr de vouloir supprimer la classe
-                    <span class="fw-semibold text-dark" data-classe-name></span> ?
+                    {!! __('admin.classes_page.delete_confirmation', ['name' => '<span class="fw-semibold text-dark" data-classe-name></span>']) !!}
                 </p>
             </div>
             <div class="modal-footer border-0 pt-0">
