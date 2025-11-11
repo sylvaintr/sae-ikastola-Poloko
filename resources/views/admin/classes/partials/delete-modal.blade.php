@@ -13,7 +13,7 @@
                     {{ __('admin.classes_page.create.cancel') }}
                 </button>
                 <button type="button" class="btn btn-danger confirm-delete px-4 fw-semibold">
-                    Supprimer
+                    {{ __('admin.classes_page.actions.confirm_delete') }}
                 </button>
             </div>
         </div>
