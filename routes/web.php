@@ -13,19 +13,21 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::prefix('admin')->name('admin.')->group(function () {
+    $classeRoute = '/{classe}';
+
+    Route::prefix('admin')->name('admin.')->group(function () use ($classeRoute) {
         Route::view('/', 'admin.index')->name('index');
         Route::view('/publications', 'admin.messages')->name('messages');
         Route::view('/comptes', 'admin.accounts')->name('accounts');
         Route::view('/familles', 'admin.families')->name('families');
-        Route::prefix('classes')->name('classes.')->controller(ClasseController::class)->group(function () {
+        Route::prefix('classes')->name('classes.')->controller(ClasseController::class)->group(function () use ($classeRoute) {
             Route::get('/', 'index')->name('index');
             Route::get('/ajouter', 'create')->name('create');
             Route::post('/', 'store')->name('store');
-            Route::get('/{classe}', 'show')->name('show');
-            Route::get('/{classe}/modifier', 'edit')->name('edit');
-            Route::put('/{classe}', 'update')->name('update');
-            Route::delete('/{classe}', 'destroy')->name('destroy');
+            Route::get($classeRoute, 'show')->name('show');
+            Route::get("{$classeRoute}/modifier", 'edit')->name('edit');
+            Route::put($classeRoute, 'update')->name('update');
+            Route::delete($classeRoute, 'destroy')->name('destroy');
         });
         Route::view('/facture', 'admin.invoices')->name('invoices');
         Route::view('/notifications', 'admin.notifications')->name('notifications');
