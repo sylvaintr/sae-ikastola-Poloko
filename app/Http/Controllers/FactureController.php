@@ -37,7 +37,7 @@ class FactureController extends Controller
 
         $facture = Facture::find($id ?? null);
         if ($facture === null) {
-            return redirect()->route('facture.index')->with('error', 'facture.inexistante');
+            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
         $famille = Famille::find($facture->idFamille);
         $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
@@ -141,7 +141,7 @@ class FactureController extends Controller
     {
         $facture = Facture::find($id ?? null);
         if ($facture === null) {
-            return response(redirect()->route('facture.index')->with('error', 'facture.inexistante'));
+            return response(redirect()->route('admin.facture.index')->with('error', 'facture.inexistante'));
         }
         $famille = Famille::find($facture->idFamille);
         $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
@@ -229,15 +229,15 @@ class FactureController extends Controller
     {
         $facture = Facture::find($id ?? null);
         if ($facture === null) {
-            return redirect()->route('facture.index')->with('error', 'facture.inexistante');
+            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
         $client = Utilisateur::find($facture->idUtilisateur);
         if ($facture->etat) {
 
             Mail::to($client->email)->send(new FactureMail($facture));
-            return redirect()->route('facture.index')->with('success', 'facture.envoiersuccess');
+            return redirect()->route('admin.facture.index')->with('success', 'facture.envoiersuccess');
         } else {
-            return redirect()->route('facture.index')->with('error', 'facture.envoiererror');
+            return redirect()->route('admin.facture.index')->with('error', 'facture.envoiererror');
         }
     }
 
@@ -246,11 +246,11 @@ class FactureController extends Controller
         try {
             $facture = Facture::findOrFail($id ?? null);
         } catch (\Exception $e) {
-            return redirect()->route('facture.index')->with('error', 'facture.inexistante');
+            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
         $facture->etat = true;
         $facture->save();
 
-        return redirect()->route('facture.index')->with('success', 'facture.validersuccess');
+        return redirect()->route('admin.facture.index')->with('success', 'facture.validersuccess');
     }
 }

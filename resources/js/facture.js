@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let dataTable = new DataTable('#myTable', {
         processing: true,
         serverSide: true,
-        ajax: '/sae-ikastola-Poloko/public/factures-data',
+        ajax: '/sae-ikastola-Poloko/public/admin/factures-data',
         columns: [
             { data: 'idFacture', name: 'idFacture' },
             { data: 'titre', name: 'titre' },

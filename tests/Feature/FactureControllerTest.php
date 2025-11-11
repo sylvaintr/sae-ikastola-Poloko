@@ -28,7 +28,7 @@ class FactureControllerTest extends TestCase
 
     public function test_index_returns_view()
     {
-        $response = $this->get(route('facture.index'));
+        $response = $this->get(route('admin.facture.index'));
 
         $response->assertStatus(200);
         $response->assertViewIs('facture.index');
@@ -41,7 +41,7 @@ class FactureControllerTest extends TestCase
         $facture = Facture::factory()->create(['idFamille' => $famille->idFamille]);
         Enfant::factory()->count(2)->create(['idFamille' => $famille->idFamille]);
 
-        $response = $this->get(route('facture.show', $facture->idFacture));
+        $response = $this->get(route('admin.facture.show', $facture->idFacture));
 
         $response->assertStatus(200);
         $response->assertViewIs('facture.show');
@@ -52,7 +52,7 @@ class FactureControllerTest extends TestCase
     {
         Facture::factory()->count(3)->create();
 
-        $response = $this->getJson(route('factures.data'));
+        $response = $this->getJson(route('admin.factures.data'));
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -69,7 +69,7 @@ class FactureControllerTest extends TestCase
         $facture->idFamille = $famille->id;
         $facture->save();
 
-        $response = $this->get(route('facture.export', $facture->id));
+        $response = $this->get(route('admin.facture.export', $facture->id));
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'application/pdf');
@@ -78,7 +78,7 @@ class FactureControllerTest extends TestCase
         $facture->etat = false;
         $facture->save();
 
-        $response = $this->get(route('facture.export', $facture->id));
+        $response = $this->get(route('admin.facture.export', $facture->id));
         $response->assertHeader('Content-Type', 'application/vnd.ms-word');
     }
 
@@ -86,9 +86,9 @@ class FactureControllerTest extends TestCase
     {
         $facture = Facture::factory()->create(['etat' => false]);
 
-        $response = $this->get(route('facture.valider', $facture->id));
+        $response = $this->get(route('admin.facture.valider', $facture->id));
 
-        $response->assertRedirect(route('facture.index'));
+        $response->assertRedirect(route('admin.facture.index'));
         $this->assertTrue(Facture::find($facture->id)->etat);
     }
 
@@ -102,9 +102,9 @@ class FactureControllerTest extends TestCase
             'idUtilisateur' => $utilisateur->id
         ]);
 
-        $response = $this->get(route('facture.envoyer', $facture->id));
+        $response = $this->get(route('admin.facture.envoyer', $facture->id));
 
-        $response->assertRedirect(route('facture.index'));
+        $response->assertRedirect(route('admin.facture.index'));
         Mail::assertSent(FactureMail::class, function ($mail) use ($utilisateur) {
             return $mail->hasTo($utilisateur->email);
         });
@@ -121,9 +121,9 @@ class FactureControllerTest extends TestCase
             'idUtilisateur' => $utilisateur->id
         ]);
 
-        $response = $this->get(route('facture.envoyer', $facture->id));
+        $response = $this->get(route('admin.facture.envoyer', $facture->id));
 
-        $response->assertRedirect(route('facture.index'));
+        $response->assertRedirect(route('admin.facture.index'));
         Mail::assertNothingSent();
     }
 }
