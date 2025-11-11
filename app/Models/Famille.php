@@ -23,7 +23,7 @@ class Famille extends Model
 	public $timestamps = false;
     protected $fillable = [
         'idFamille'
-    ]; 
+    ];
 	protected $casts = [
 		'idFamille' => 'int'
 	];
