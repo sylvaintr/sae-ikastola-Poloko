@@ -29,10 +29,7 @@ class ClasseController extends Controller
             'niveau' => ['required', 'string', 'max:3'],
         ]);
 
-        $nextId = (int) Classe::max('idClasse') + 1;
-
         Classe::create([
-            'idClasse' => $nextId ?: 1,
             'nom' => $validated['nom'],
             'niveau' => $validated['niveau'],
         ]);
