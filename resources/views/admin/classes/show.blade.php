@@ -44,9 +44,9 @@
                                 <td>{{ optional($enfant->dateN)->format('d/m/Y') ?? '—' }}</td>
                                 <td>
                                     @if ($enfant->sexe === 'M')
-                                        Homme
+                                        {{ __('gender.male') }}
                                     @elseif ($enfant->sexe === 'F')
-                                        Femme
+                                        {{ __('gender.female') }}
                                     @else
                                         {{ $enfant->sexe ?? '—' }}
                                     @endif
