@@ -14,7 +14,7 @@
                     @method('PUT')
 
                     <div class="mb-4">
-                        <label for="nom" class="form-label fw-semibold">Nom de la classe</label>
+                        <label for="nom" class="form-label fw-semibold">{{ __('admin.classes_page.create.fields.name') }}</label>
                         <input id="nom" name="nom" type="text" class="form-control @error('nom') is-invalid @enderror"
                                value="{{ old('nom', $classe->nom) }}" required maxlength="255">
                         @error('nom')
