@@ -32,6 +32,7 @@ class Facture extends Model
 		'idFacture' => 'int',
 		'etat' => 'bool',
 		'dateC' => 'datetime',
+		'previsionnel' => 'bool',
 		'idUtilisateur' => 'int',
 		'idFamille' => 'int'
 	];
@@ -39,6 +40,7 @@ class Facture extends Model
 	protected $fillable = [
 		'etat',
 		'dateC',
+		'previsionnel',
 		'idUtilisateur',
 		'idFamille'
 	];

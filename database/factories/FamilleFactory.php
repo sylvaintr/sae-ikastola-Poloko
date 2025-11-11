@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Enfant;
 use App\Models\Famille;
 use App\Models\Lier;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,6 +23,8 @@ class FamilleFactory extends Factory
         return [
             // Famille primary key is non-incrementing in the model, generate a unique integer id
             'idFamille' => $this->faker->unique()->numberBetween(1000, 999999),
+            'aineDansAutreSeaska' => $this->faker->boolean(),
+
         ];
     }
 
@@ -33,6 +36,7 @@ class FamilleFactory extends Factory
     {
         return $this->afterCreating(function (Famille $famille) {
             Lier::factory()->create(['idFamille' => $famille->idFamille]);
+            Enfant::factory()->count(random_int(1, 4))->create(['idFamille' => $famille->idFamille]);
         });
     }
 }

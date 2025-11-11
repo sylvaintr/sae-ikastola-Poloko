@@ -36,6 +36,7 @@ class Enfant extends Model
 		'idEnfant' => 'int',
 		'dateN' => 'datetime',
 		'NNI' => 'int',
+		'nbFoisGarderie' => 'int',
 		'idClasse' => 'int',
 		'idFamille' => 'int'
 	];
@@ -48,6 +49,7 @@ class Enfant extends Model
 		'dateN',
 		'sexe',
 		'NNI',
+		'nbFoisGarderie',
 		'idClasse',
 		'idFamille'
 	];

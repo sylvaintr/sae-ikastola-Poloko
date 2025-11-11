@@ -15,6 +15,7 @@ return new class extends Migration
             $table->integer('idFacture')->primary()->autoIncrement();
             $table->boolean('etat');
             $table->date('dateC');
+            $table->boolean('previsionnel');
             $table->integer('idUtilisateur')->index('idutilisateur');
             $table->integer('idFamille')->index('idfamille');
         });

@@ -25,7 +25,12 @@ class Famille extends Model
         'idFamille'
     ];
 	protected $casts = [
-		'idFamille' => 'int'
+		'idFamille' => 'int',
+		'aineDansAutreSeaska' => 'bool'
+	];
+
+	protected $fillable = [
+		'aineDansAutreSeaska'
 	];
 
 	public function enfants()

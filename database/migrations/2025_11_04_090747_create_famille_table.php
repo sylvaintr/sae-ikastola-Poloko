@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('famille', function (Blueprint $table) {
             $table->integer('idFamille')->primary()->autoIncrement();
+            $table->boolean('aineDansAutreSeaska');
         });
     }
 

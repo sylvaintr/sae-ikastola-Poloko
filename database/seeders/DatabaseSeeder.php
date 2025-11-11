@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Facture::factory()->count(50)->create();
+        Facture::factory()->count(5)->create();
 
         $this->call([
             PermissionSeeder::class,
