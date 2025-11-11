@@ -7,17 +7,19 @@
 
         <div class="card border-0 shadow-sm mb-5">
             <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-4">
-                    <h1 class="h4 fw-bold mb-0">{{ $classe->nom }}</h1>
+                <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center gap-4">
+                        <h1 class="h4 fw-bold mb-0">{{ $classe->nom }}</h1>
+                        <div class="d-flex align-items-center gap-2 text-muted">
+                            <span class="fw-semibold text-dark">{{ __('admin.classes_page.show.level_label') }} :</span>
+                            <span>{{ $classe->niveau }}</span>
+                        </div>
+                    </div>
                     <a href="{{ route('admin.classes.edit', $classe) }}" class="btn btn-sm fw-semibold d-inline-flex align-items-center gap-2 admin-submit-btn">
                         <i class="bi bi-pencil-square"></i>
                         <span>{{ __('admin.classes_page.actions.edit') }}</span>
                     </a>
                 </div>
-                <dl class="row mb-0">
-                    <dt class="col-sm-3">{{ __('admin.classes_page.show.level_label') }}</dt>
-                    <dd class="col-sm-9">{{ $classe->niveau }}</dd>
-                </dl>
             </div>
         </div>
 

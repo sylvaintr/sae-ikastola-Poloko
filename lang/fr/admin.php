@@ -22,6 +22,9 @@ return [
             'level' => [
                 'title' => 'Niveau',
             ],
+            'students_count' => [
+                'title' => 'Élèves',
+            ],
             'actions' => [
                 'title' => 'Actions',
             ],

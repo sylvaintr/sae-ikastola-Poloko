@@ -27,6 +27,7 @@
                             <td>{{ $classe->idClasse }}</td>
                             <td>{{ $classe->nom }}</td>
                             <td>{{ $classe->niveau }}</td>
+                            <td>{{ $classe->enfants_count }}</td>
                             <td>
                                 <div class="d-flex align-items-center justify-content-center gap-3">
                                     <a href="{{ route('admin.classes.show', $classe) }}" class="admin-action-link" title="{{ __('admin.classes_page.actions.view') }}">

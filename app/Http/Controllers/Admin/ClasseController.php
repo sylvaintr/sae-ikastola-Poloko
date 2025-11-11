@@ -12,7 +12,7 @@ class ClasseController extends Controller
 {
     public function index(): View
     {
-        $classes = Classe::orderBy('idClasse')->get();
+        $classes = Classe::withCount('enfants')->orderBy('idClasse')->get();
 
         return view('admin.classes.index', compact('classes'));
     }
