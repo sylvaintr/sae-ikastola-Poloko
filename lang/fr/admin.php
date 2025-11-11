@@ -30,11 +30,21 @@ return [
             'view' => 'Visualiser',
             'edit' => 'Modifier',
             'delete' => 'Supprimer',
+            'confirm_delete' => 'Supprimer',
+        ],
+        'back' => 'Retour aux classes',
+        'show' => [
+            'level_label' => 'Niveau',
         ],
         'messages' => [
             'deleted' => 'La classe a été supprimée avec succès.',
             'updated' => 'La classe a été mise à jour avec succès.',
             'created' => 'La classe a été ajoutée avec succès.',
+        ],
+        'edit' => [
+            'title' => 'Modifier la classe',
+            'submit' => 'Enregistrer',
+            'cancel' => 'Annuler',
         ],
         'create' => [
             'title' => 'Ajouter une classe',
@@ -69,6 +79,7 @@ return [
                 ],
             ],
         ],
+        'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer la classe :name ?',
     ],
 ];
 

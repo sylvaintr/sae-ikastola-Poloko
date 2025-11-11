@@ -23,8 +23,8 @@
                     </div>
 
                     <div class="d-flex gap-3 justify-content-end">
-                        <a href="{{ route('admin.classes.show', $classe) }}" class="btn admin-cancel-btn px-4">{{ __('admin.classes_page.create.cancel') }}</a>
-                        <button type="submit" class="btn fw-semibold px-4 admin-submit-btn">{{ __('admin.classes_page.create.submit') }}</button>
+                        <a href="{{ route('admin.classes.show', $classe) }}" class="btn admin-cancel-btn px-4">{{ __('admin.classes_page.edit.cancel') }}</a>
+                        <button type="submit" class="btn fw-semibold px-4 admin-submit-btn">{{ __('admin.classes_page.edit.submit') }}</button>
                     </div>
                 </form>
             </div>
