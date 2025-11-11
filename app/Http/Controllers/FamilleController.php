@@ -6,103 +6,83 @@ use Illuminate\Http\Request;
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Utilisateur;
+
 class FamilleController extends Controller
 {
-
-    // --------------------L'ajoutation d'une famille avec ses parents et enfants--------------------
-public function ajouter(Request $request)
-{
-    $data = $request->validate([
-        'enfants' => 'array',
-        'utilisateurs' => 'array',
-    ]);
-
-   
-    $famille = Famille::create();
-
-    // la creation des enfants
-    foreach ($data['enfants'] ?? [] as $enfant) {
-        Enfant::create([
-            'nom' => $enfant['nom'],
-            'prenom' => $enfant['prenom'],
-            'dateN' => $enfant['dateN'],
-            'sexe' => $enfant['sexe'],
-            'NNI' => $enfant['NNI'],
-            'idClasse' => $enfant['idClasse'],
-            'idFamille' => $famille->idFamille,
+    // -------------------- Ajout d'une famille avec ses parents et enfants --------------------
+    public function ajouter(Request $request)
+    {
+        $data = $request->validate([
+            'enfants' => 'array',
+            'utilisateurs' => 'array',
         ]);
+
+        $famille = Famille::create();
+
+        // Création des enfants
+        foreach ($data['enfants'] ?? [] as $enfant) {
+            Enfant::create([
+                'nom' => $enfant['nom'],
+                'prenom' => $enfant['prenom'],
+                'dateN' => $enfant['dateN'],
+                'sexe' => $enfant['sexe'],
+                'NNI' => $enfant['NNI'],
+                'idClasse' => $enfant['idClasse'],
+                'idFamille' => $famille->idFamille,
+            ]);
+        }
+
+        // Lier les utilisateurs avec la famille
+        foreach ($data['utilisateurs'] ?? [] as $userData) {
+            if (isset($userData['idUtilisateur'])) {
+                // Utilisateur existant → lier à la famille
+                $famille->utilisateurs()->attach($userData['idUtilisateur'], [
+                    'parite' => $userData['parite'] ?? null,
+                ]);
+            } else {
+                // Créer un nouvel utilisateur et le lier à la famille
+                $newUser = Utilisateur::create([
+                    'nom' => $userData['nom'],
+                    'prenom' => $userData['prenom'],
+                    'mdp' => $userData['mdp'] ?? bcrypt('defaultpassword'),
+                    'languePref' => $userData['languePref'] ?? 'fr',
+                ]);
+
+                $famille->utilisateurs()->attach($newUser->idUtilisateur, [
+                    'parite' => $userData['parite'] ?? null,
+                ]);
+            }
+        }
+
+        $famille->load(['enfants', 'utilisateurs']);
+
+        return response()->json([
+            'message' => 'Famille complète créée avec succès',
+            'famille' => $famille,
+        ], 201);
     }
 
-    //  Lier les utilisateurs avec des familles
-    foreach ($data['utilisateurs'] ?? [] as $userData) {
-    if (isset($userData['idUtilisateur'])) {
-        // Utilisateur existant donc relie avec la famille
-        $famille->utilisateurs()->attach($userData['idUtilisateur'], [
-            'parite' => $userData['parite'] ?? null,
-        ]);
-    } else {
-        // on creer une autre utilisateur et on relie avec la famille
-        $newUser = Utilisateur::create([
-            'nom' => $userData['nom'],
-            'prenom' => $userData['prenom'],
-            'mdp' => $userData['mdp'] ?? bcrypt('defaultpassword'),
-            'languePref' => $userData['languePref'] ?? 'fr'
-        ]);
-
-        $famille->utilisateurs()->attach($newUser->idUtilisateur, [
-            'parite' => $userData['parite'] ?? null,
-        ]);
-    }
-}
-
-
-   
-    $famille->load(['enfants', 'utilisateurs']);
-
-    return response()->json([
-        'message' => 'Famille complète créée avec succès',
-        'famille' => $famille,
-    ], 201);
-
-    // ---------------Si on veut tester avec frontend-------------------
-
-    //return view('familles.create');
-
-}
-
-
-   
-
-//-------------------------------------Afficher une famille specifique-------------------------------------
-  public function show($id)
+    // ------------------------------------- Afficher une famille spécifique -------------------------------------
+    public function show($id)
     {
         $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
 
         if (!$famille) {
-            return response()->json(['message' => 'Famille nest pas trouvée'], 404);
+            return response()->json(['message' => 'Famille non trouvée'], 404);
         }
 
         return response()->json($famille);
-
-      // -----------------------Si on veut tester avec frontend-------------------------------- 
-      //  return view('familles.show', compact('famille'));
     }
 
-
-    // ----------------------on affiche liste des familles--------------------------
+    // ---------------------- Afficher la liste des familles --------------------------
     public function index()
-{
-    $familles = Famille::with(['enfants', 'utilisateurs'])->get();
-   return response()->json($familles);
+    {
+        $familles = Famille::with(['enfants', 'utilisateurs'])->get();
+        return response()->json($familles);
+    }
 
-   // ------------Si on veut tester avec frontend---------------- 
-   // return view('familles.index', compact('familles'));
-   
-}
-
-   
-    // -----------------------Ici on supprime une famille------------------------ 
-   public function delete($id)
+    // ----------------------- Supprimer une famille ------------------------ 
+    public function delete($id)
     {
         $famille = Famille::find($id);
 
@@ -110,72 +90,62 @@ public function ajouter(Request $request)
             return response()->json(['message' => 'Famille non trouvée'], 404);
         }
 
-        // on Supprimer l'enfant qui ont lie avec la famille
+        // Supprimer les enfants liés à la famille
         $famille->enfants()->delete();
 
-        // Ici on supprime les liason entre les familles et les utilisateurs
+        // Supprimer les liaisons entre familles et utilisateurs
         $famille->utilisateurs()->detach();
 
-        
+        // Supprimer la famille
         $famille->delete();
 
         return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
-
-        // ----------------------------------Si on veut tester avec frontend------------------------------------ 
-        //return redirect()->route('familles.index')->with('success', 'Famille supprimée avec succès');
-    }
-   
-
-
-
-//--------------------------------------- Modification famille--------------------------------------
-public function update(Request $request, $id)
-{
-    $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
-    if (!$famille) {
-        return response()->json(['message' => 'Famille non trouvée'], 404);
     }
 
-   
-    if ($request->has('enfants')) {
-        foreach ($request->enfants as $enfantData) {
-            $enfant = $famille->enfants()->find($enfantData['idEnfant'] ?? null);
-            if ($enfant) {
-                $enfant->update([
-                    'nom' => $enfantData['nom'] ?? $enfant->nom,
-                    'prenom' => $enfantData['prenom'] ?? $enfant->prenom,
-                    'dateN' => $enfantData['dateN'] ?? $enfant->dateN,
-                    'sexe' => $enfantData['sexe'] ?? $enfant->sexe,
-                    'idClasse' => $enfantData['idClasse'] ?? $enfant->idClasse,
-                ]);
+    // -------------------------------------- Modification d'une famille --------------------------------------
+    public function update(Request $request, $id)
+    {
+        $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
+
+        if (!$famille) {
+            return response()->json(['message' => 'Famille non trouvée'], 404);
+        }
+
+        // Modifier les enfants existants
+        if ($request->has('enfants')) {
+            foreach ($request->enfants as $enfantData) {
+                $enfant = $famille->enfants()->find($enfantData['idEnfant'] ?? null);
+                if ($enfant) {
+                    $enfant->update([
+                        'nom' => $enfantData['nom'] ?? $enfant->nom,
+                        'prenom' => $enfantData['prenom'] ?? $enfant->prenom,
+                        'dateN' => $enfantData['dateN'] ?? $enfant->dateN,
+                        'sexe' => $enfantData['sexe'] ?? $enfant->sexe,
+                        'idClasse' => $enfantData['idClasse'] ?? $enfant->idClasse,
+                    ]);
+                }
             }
         }
-    }
 
-    // Modifier les informations dans utilisateur mais pas pivote
-    if ($request->has('utilisateurs')) {
-        foreach ($request->utilisateurs as $userData) {
-            $user = Utilisateur::find($userData['idUtilisateur'] ?? null);
-            if ($user) {
-                $user->update([
-                    'nom' => $userData['nom'] ?? $user->nom,
-                    'prenom' => $userData['prenom'] ?? $user->prenom,
-                    'languePref'=> $userData['languePref'] ?? $user->languePref,
-                ]);
+        // Modifier les utilisateurs (hors table pivot)
+        if ($request->has('utilisateurs')) {
+            foreach ($request->utilisateurs as $userData) {
+                $user = Utilisateur::find($userData['idUtilisateur'] ?? null);
+                if ($user) {
+                    $user->update([
+                        'nom' => $userData['nom'] ?? $user->nom,
+                        'prenom' => $userData['prenom'] ?? $user->prenom,
+                        'languePref' => $userData['languePref'] ?? $user->languePref,
+                    ]);
+                }
             }
         }
+
+        $famille->load(['enfants', 'utilisateurs']);
+
+        return response()->json([
+            'message' => 'Famille mise à jour (enfants + utilisateurs)',
+            'famille' => $famille,
+        ]);
     }
-
-    $famille->load(['enfants', 'utilisateurs']);
-
-    return response()->json([
-        'message' => 'Famille mise à jour (enfants + utilisateurs)',
-        'famille' => $famille
-    ]);
-   // Si on veut tester avec frontend
-   // return view('familles.update', compact('famille'));
-}
-
-
-
 }
