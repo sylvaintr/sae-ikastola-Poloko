@@ -2,7 +2,7 @@
     <div class="container py-4">
         <a href="{{ route('admin.classes.index') }}" class="admin-back-link mb-4 d-inline-flex align-items-center gap-2">
             <i class="bi bi-arrow-left"></i>
-            <span>Retour aux classes</span>
+            <span>{{ __('admin.classes_page.back') }}</span>
         </a>
 
         <div class="card border-0 shadow-sm mb-5">
