@@ -6,7 +6,7 @@ use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\LierController;
 
-const FAMILLE_ROUTE = '/familles/{id}';
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -21,9 +21,9 @@ Route::post('lier', [LierController::class, 'store']);
 Route::put('parite', [LierController::class, 'updateParite']);
 
 // Familles
-Route::get(FAMILLE_ROUTE, [FamilleController::class, 'show']);
-Route::delete(FAMILLE_ROUTE, [FamilleController::class, 'delete']);
-Route::put(FAMILLE_ROUTE, [FamilleController::class, 'update']);
+Route::get('/familles/{id}', [FamilleController::class, 'show']);
+Route::delete('/familles/{id}', [FamilleController::class, 'delete']);
+Route::put('/familles2/{id}', [FamilleController::class, 'update']);
 Route::post('/familles', [FamilleController::class, 'ajouter']);
 Route::get('familles2', [FamilleController::class, 'index']);
 

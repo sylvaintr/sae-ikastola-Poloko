@@ -9,6 +9,8 @@ use App\Models\Utilisateur;
 
 class FamilleController extends Controller
 {
+    private const FAMILLE_NOT_FOUND = 'Famille non trouvée';
+
     // -------------------- Ajout d'une famille avec ses parents et enfants --------------------
     public function ajouter(Request $request)
     {
@@ -35,12 +37,10 @@ class FamilleController extends Controller
         // Lier les utilisateurs avec la famille
         foreach ($data['utilisateurs'] ?? [] as $userData) {
             if (isset($userData['idUtilisateur'])) {
-                // Utilisateur existant → lier à la famille
                 $famille->utilisateurs()->attach($userData['idUtilisateur'], [
                     'parite' => $userData['parite'] ?? null,
                 ]);
             } else {
-                // Créer un nouvel utilisateur et le lier à la famille
                 $newUser = Utilisateur::create([
                     'nom' => $userData['nom'],
                     'prenom' => $userData['prenom'],
@@ -62,38 +62,38 @@ class FamilleController extends Controller
         ], 201);
     }
 
-    // ------------------------------------- Afficher une famille spécifique -------------------------------------
+    // -------------------- Afficher une famille spécifique --------------------
     public function show($id)
     {
         $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
 
         if (!$famille) {
-            return response()->json(['message' => 'Famille non trouvée'], 404);
+            return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
 
         return response()->json($famille);
     }
 
-    // ---------------------- Afficher la liste des familles --------------------------
+    // -------------------- Afficher la liste des familles --------------------
     public function index()
     {
         $familles = Famille::with(['enfants', 'utilisateurs'])->get();
         return response()->json($familles);
     }
 
-    // ----------------------- Supprimer une famille ------------------------ 
+    // -------------------- Supprimer une famille --------------------
     public function delete($id)
     {
         $famille = Famille::find($id);
 
         if (!$famille) {
-            return response()->json(['message' => 'Famille non trouvée'], 404);
+            return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
 
         // Supprimer les enfants liés à la famille
         $famille->enfants()->delete();
 
-        // Supprimer les liaisons entre familles et utilisateurs
+        // Supprimer les liaisons avec les utilisateurs
         $famille->utilisateurs()->detach();
 
         // Supprimer la famille
@@ -102,16 +102,16 @@ class FamilleController extends Controller
         return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
     }
 
-    // -------------------------------------- Modification d'une famille --------------------------------------
+    // -------------------- Modification d'une famille --------------------
     public function update(Request $request, $id)
     {
         $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
 
         if (!$famille) {
-            return response()->json(['message' => 'Famille non trouvée'], 404);
+            return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
 
-        // Modifier les enfants existants
+        // Mise à jour des enfants
         if ($request->has('enfants')) {
             foreach ($request->enfants as $enfantData) {
                 $enfant = $famille->enfants()->find($enfantData['idEnfant'] ?? null);
@@ -127,7 +127,7 @@ class FamilleController extends Controller
             }
         }
 
-        // Modifier les utilisateurs (hors table pivot)
+        // Mise à jour des utilisateurs (hors pivot)
         if ($request->has('utilisateurs')) {
             foreach ($request->utilisateurs as $userData) {
                 $user = Utilisateur::find($userData['idUtilisateur'] ?? null);

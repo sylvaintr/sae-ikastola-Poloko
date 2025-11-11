@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\EnfantController;
 use App\Http\Controllers\FamilleController;
 Route::get('/', function () {
     return view('layouts.app');
@@ -18,15 +17,3 @@ require __DIR__ . '/auth.php';
 
 
 
-/*
-Route::get('familles2', [FamilleController::class, 'index'])->name('familles.index');
-
-Route::delete('/familles/{id}', [FamilleController::class, 'delete'])->name('familles.idex');
-
-Route::post('/familles', [FamilleController::class, 'ajouter'])->name('familles.create'); 
-
-Route::get('/familles/{id}', [FamilleController::class, 'show'])->name('familles.show');
-
-Route::put('/familles/{id}', [FamilleController::class, 'update'])->name('familles.update');
-
-*/
