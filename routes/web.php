@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ClasseController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +18,13 @@ Route::middleware('auth')->group(function () {
         Route::view('/publications', 'admin.messages')->name('messages');
         Route::view('/comptes', 'admin.accounts')->name('accounts');
         Route::view('/familles', 'admin.families')->name('families');
-        Route::view('/classes', 'admin.classes')->name('classes');
+        Route::get('/classes', [ClasseController::class, 'index'])->name('classes.index');
+        Route::get('/classes/ajouter', [ClasseController::class, 'create'])->name('classes.create');
+        Route::post('/classes', [ClasseController::class, 'store'])->name('classes.store');
+        Route::get('/classes/{classe}', [ClasseController::class, 'show'])->name('classes.show');
+        Route::get('/classes/{classe}/modifier', [ClasseController::class, 'edit'])->name('classes.edit');
+        Route::put('/classes/{classe}', [ClasseController::class, 'update'])->name('classes.update');
+        Route::delete('/classes/{classe}', [ClasseController::class, 'destroy'])->name('classes.destroy');
         Route::view('/facture', 'admin.invoices')->name('invoices');
         Route::view('/notifications', 'admin.notifications')->name('notifications');
     });

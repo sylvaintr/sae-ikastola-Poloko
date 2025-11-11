@@ -29,6 +29,7 @@ class Classe extends Model
 	];
 
 	protected $fillable = [
+		'idClasse',
 		'nom',
 		'niveau'
 	];
