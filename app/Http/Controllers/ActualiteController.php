@@ -68,7 +68,8 @@ class ActualiteController extends Controller
      */
     public function edit(Actualite $actualite)
     {
-        return 'edit';
+        $utilisateurs = Utilisateur::orderBy('nom')->get();
+        return view('actualites.edit', compact('actualite', 'utilisateurs'));
     }
 
     /**
@@ -76,7 +77,22 @@ class ActualiteController extends Controller
      */
     public function update(Request $request, Actualite $actualite)
     {
-        return 'update';
+        try {
+            $validated = $request->validate([
+                'titre' => 'required|string|max:30',
+                'description' => 'required|string|max:100',
+                'type' => 'required|string|in:Privée,Publique',
+                'archive' => 'required|boolean',
+                'lien' => 'nullable|string|max:2083',
+                'idUtilisateur' => 'required|int',
+            ]);
+        
+            $actualite->update($validated);
+        
+            return redirect()->route('home')->with('success', 'Actualité mise à jour avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Erreur lors de la mise à jour : ' . $e->getMessage());
+        }
     }
 
     /**
@@ -84,6 +100,7 @@ class ActualiteController extends Controller
      */
     public function delete(Actualite $actualite)
     {
-        return 'delete';
+        $actualite->delete();
+        return redirect()->route('home')->with('success', 'Actualité supprimée avec succès.');
     }
 }

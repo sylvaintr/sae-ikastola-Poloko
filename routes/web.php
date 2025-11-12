@@ -12,8 +12,9 @@ Route::get('/', [ActualiteController::class, 'index'])->name('home');
 Route::middleware('permission:access-gestion-actualite')->group(function () {
     Route::get('/actualite/create', [ActualiteController::class, 'create'])->name('actualites.create');
     Route::post('/actualite/store', [ActualiteController::class, 'store'])->name('actualites.store');
-    Route::get('/actualite/edit', [ActualiteController::class, 'edit'])->name('actualites.edit');
-    Route::get('/actualite/delete', [ActualiteController::class, 'delete'])->name('actualites.delete');
+    Route::get('/actualite/{actualite}/edit', [ActualiteController::class, 'edit'])->name('actualites.edit');
+    Route::put('/actualite/{actualite}', [ActualiteController::class, 'update'])->name('actualites.update');
+    Route::delete('/actualite/{actualite}', [ActualiteController::class, 'delete'])->name('actualites.delete');    
 });
 
 // Changer de langue
