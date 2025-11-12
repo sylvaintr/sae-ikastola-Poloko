@@ -1,7 +1,19 @@
 <?php
 
+$common = [
+    'roles' => 'Rôles',
+    'roles_search' => 'Rechercher un rôle',
+    'roles_search_placeholder' => 'Tapez pour rechercher...',
+    'roles_selected' => 'Rôles sélectionnés',
+    'roles_required' => 'Au moins un rôle doit être sélectionné.',
+    'first_name' => 'Prénom',
+    'preferred_language' => 'Langue préférée',
+    'fixed_expiration_date' => 'Date d\'expiration fixe',
+];
+
 return [
     'title' => 'Administration',
+    'common' => $common,
     'sections' => [
         'add_message' => 'Publications',
         'accounts' => 'Comptes',
@@ -23,7 +35,7 @@ return [
                 'title' => 'Identifiant',
             ],
             'first_name' => [
-                'title' => 'Prénom',
+                'title' => $common['first_name'],
             ],
             'last_name' => [
                 'title' => 'Nom',
@@ -47,12 +59,12 @@ return [
         ],
         'back' => 'Retour aux comptes',
         'show' => [
-            'first_name_label' => 'Prénom',
+            'first_name_label' => $common['first_name'],
             'last_name_label' => 'Nom',
             'email_label' => 'Email',
-            'language_label' => 'Langue préférée',
+            'language_label' => $common['preferred_language'],
             'status_label' => 'Statut',
-            'roles_label' => 'Rôles',
+            'roles_label' => $common['roles'],
             'no_roles' => 'Aucun rôle assigné',
         ],
         'messages' => [
@@ -66,18 +78,18 @@ return [
             'submit' => 'Enregistrer',
             'cancel' => 'Annuler',
             'fields' => [
-                'first_name' => 'Prénom',
+                'first_name' => $common['first_name'],
                 'last_name' => 'Nom',
                 'email' => 'Email',
                 'password' => 'Mot de passe (laisser vide pour ne pas changer)',
                 'password_help' => 'Laisser vide pour ne pas changer le mot de passe',
                 'password_confirmation' => 'Confirmer le mot de passe',
-                'language' => 'Langue préférée',
+                'language' => $common['preferred_language'],
                 'status' => 'Statut de validation',
-                'roles' => 'Rôles',
-                'roles_search' => 'Rechercher un rôle',
-                'roles_search_placeholder' => 'Tapez pour rechercher...',
-                'roles_selected' => 'Rôles sélectionnés',
+                'roles' => $common['roles'],
+                'roles_search' => $common['roles_search'],
+                'roles_search_placeholder' => $common['roles_search_placeholder'],
+                'roles_selected' => $common['roles_selected'],
             ],
         ],
         'create' => [
@@ -85,17 +97,17 @@ return [
             'submit' => 'Enregistrer',
             'cancel' => 'Annuler',
             'fields' => [
-                'first_name' => 'Prénom',
+                'first_name' => $common['first_name'],
                 'last_name' => 'Nom',
                 'email' => 'Email',
                 'password' => 'Mot de passe',
                 'password_confirmation' => 'Confirmer le mot de passe',
-                'language' => 'Langue préférée',
+                'language' => $common['preferred_language'],
                 'status' => 'Statut de validation',
-                'roles' => 'Rôles',
-                'roles_search' => 'Rechercher un rôle',
-                'roles_search_placeholder' => 'Tapez pour rechercher...',
-                'roles_selected' => 'Rôles sélectionnés',
+                'roles' => $common['roles'],
+                'roles_search' => $common['roles_search'],
+                'roles_search_placeholder' => $common['roles_search_placeholder'],
+                'roles_selected' => $common['roles_selected'],
             ],
         ],
         'password_strength' => [
@@ -147,18 +159,18 @@ return [
             'expiration_type' => 'Type d\'expiration',
             'expiration_none' => 'Aucune expiration',
             'expiration_delai' => 'Délai en jours après dépôt',
-            'expiration_date' => 'Date d\'expiration fixe',
+            'expiration_date' => $common['fixed_expiration_date'],
             'delai' => 'Délai',
             'delai_placeholder' => 'Nombre de jours',
             'delai_help' => 'Délai en jours après dépôt du fichier',
-            'date_expiration' => 'Date d\'expiration fixe',
-            'date_expiration_help' => 'Date d\'expiration fixe',
-            'roles' => 'Rôles',
-            'roles_search' => 'Rechercher un rôle',
-            'roles_search_placeholder' => 'Tapez pour rechercher...',
-            'roles_selected' => 'Rôles sélectionnés',
+            'date_expiration' => $common['fixed_expiration_date'],
+            'date_expiration_help' => $common['fixed_expiration_date'],
+            'roles' => $common['roles'],
+            'roles_search' => $common['roles_search'],
+            'roles_search_placeholder' => $common['roles_search_placeholder'],
+            'roles_selected' => $common['roles_selected'],
             'no_roles_selected' => 'Aucun rôle n\'a été sélectionné',
-            'roles_required' => 'Au moins un rôle doit être sélectionné.',
+            'roles_required' => $common['roles_required'],
         ],
         'create' => [
             'title' => 'Ajouter un document obligatoire',
@@ -173,4 +185,3 @@ return [
         'all_roles_option' => 'Tous les rôles',
     ],
 ];
-
