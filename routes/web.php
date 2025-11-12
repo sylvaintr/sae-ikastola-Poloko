@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\FamilleController;
 Route::get('/', function () {
     return view('layouts.app');
 })->name('home');
@@ -34,3 +34,6 @@ Route::get('/presence/status', [PresenceController::class, 'status'])->name('pre
 Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
 
 require __DIR__ . '/auth.php';
+
+
+
