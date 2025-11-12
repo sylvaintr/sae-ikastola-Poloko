@@ -28,22 +28,38 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (Schema::hasTable('documentObligatoire')) {
-            Schema::table('documentObligatoire', function (Blueprint $table) {
-                if (Schema::hasColumn('documentObligatoire', 'delai') || Schema::hasColumn('documentObligatoire', 'dateExpiration')) {
-                    $columns = [];
-                    if (Schema::hasColumn('documentObligatoire', 'delai')) {
-                        $columns[] = 'delai';
-                    }
-                    if (Schema::hasColumn('documentObligatoire', 'dateExpiration')) {
-                        $columns[] = 'dateExpiration';
-                    }
-                    if (!empty($columns)) {
-                        $table->dropColumn($columns);
-                    }
-                }
-            });
+        if (!Schema::hasTable('documentObligatoire')) {
+            return;
         }
+
+        $columnsToDrop = $this->getColumnsToDrop();
+
+        if (empty($columnsToDrop)) {
+            return;
+        }
+
+        Schema::table('documentObligatoire', function (Blueprint $table) use ($columnsToDrop) {
+            $table->dropColumn($columnsToDrop);
+        });
+    }
+
+    /**
+     * Get the list of columns to drop.
+     */
+    private function getColumnsToDrop(): array
+    {
+        $columns = [];
+        $tableName = 'documentObligatoire';
+
+        if (Schema::hasColumn($tableName, 'delai')) {
+            $columns[] = 'delai';
+        }
+
+        if (Schema::hasColumn($tableName, 'dateExpiration')) {
+            $columns[] = 'dateExpiration';
+        }
+
+        return $columns;
     }
 };
 
