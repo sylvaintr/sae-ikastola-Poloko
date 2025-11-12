@@ -15,8 +15,8 @@
 
             <div class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
                 <div class="admin-search-container">
-                    <input type="text" id="search-account" name="search" 
-                           class="form-control admin-search-input" 
+                    <input type="text" id="search-account" name="search"
+                           class="form-control admin-search-input"
                            placeholder="{{ __('admin.accounts_page.search_placeholder') }}"
                            value="{{ request('search') }}">
                     <p class="text-muted mb-0" style="font-size: 0.75rem; margin-top: 0.25rem;">{{ __('admin.accounts_page.search_label') }}</p>

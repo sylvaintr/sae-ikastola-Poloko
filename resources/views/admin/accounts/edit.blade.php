@@ -88,7 +88,7 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label fw-semibold">{{ __('admin.accounts_page.edit.fields.roles') }}</label>
+                            <div class="form-label fw-semibold mb-2">{{ __('admin.accounts_page.edit.fields.roles') }}</div>
                             
                             <div class="role-selector-container">
                                 <div class="row g-3">
@@ -110,7 +110,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label small">{{ __('admin.accounts_page.edit.fields.roles_selected') }} <span class="text-danger">*</span></label>
+                                        <div class="form-label small mb-2">{{ __('admin.accounts_page.edit.fields.roles_selected') }} <span class="text-danger">*</span></div>
                                         <div id="selected-roles" class="role-list mt-2">
                                             @if(count($selectedRoleIds) === 0)
                                                 <div class="role-list-empty-message">Aucun rôle n'a été sélectionné</div>

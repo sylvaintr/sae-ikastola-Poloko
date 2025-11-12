@@ -12,6 +12,8 @@ use Illuminate\View\View;
 
 class AccountController extends Controller
 {
+    private const ROLES_REQUIRED_MESSAGE = 'Au moins un rôle doit être sélectionné.';
+
     public function index(Request $request): View
     {
         $query = Utilisateur::query();
@@ -51,8 +53,8 @@ class AccountController extends Controller
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['exists:role,idRole'],
         ], [
-            'roles.required' => 'Au moins un rôle doit être sélectionné.',
-            'roles.min' => 'Au moins un rôle doit être sélectionné.',
+            'roles.required' => self::ROLES_REQUIRED_MESSAGE,
+            'roles.min' => self::ROLES_REQUIRED_MESSAGE,
             'mdp_confirmation.required' => 'La confirmation du mot de passe est requise.',
             'mdp_confirmation.same' => 'Les mots de passe ne correspondent pas.',
         ]);
@@ -122,8 +124,8 @@ class AccountController extends Controller
         }
         
         $validated = $request->validate($rules, [
-            'roles.required' => 'Au moins un rôle doit être sélectionné.',
-            'roles.min' => 'Au moins un rôle doit être sélectionné.',
+            'roles.required' => self::ROLES_REQUIRED_MESSAGE,
+            'roles.min' => self::ROLES_REQUIRED_MESSAGE,
             'mdp_confirmation.required' => 'La confirmation du mot de passe est requise lorsque vous modifiez le mot de passe.',
             'mdp_confirmation.same' => 'Les mots de passe ne correspondent pas.',
         ]);
