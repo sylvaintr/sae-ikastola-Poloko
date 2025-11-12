@@ -32,6 +32,14 @@ Route::middleware('auth')->group(function () {
         Route::view('/classes', 'admin.classes')->name('classes');
         Route::view('/facture', 'admin.invoices')->name('invoices');
         Route::view('/notifications', 'admin.notifications')->name('notifications');
+        Route::prefix('documents-obligatoires')->name('obligatory_documents.')->controller(\App\Http\Controllers\Admin\ObligatoryDocumentController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/ajouter', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{obligatoryDocument}/modifier', 'edit')->name('edit');
+            Route::put('/{obligatoryDocument}', 'update')->name('update');
+            Route::delete('/{obligatoryDocument}', 'destroy')->name('destroy');
+        });
     });
 });
 

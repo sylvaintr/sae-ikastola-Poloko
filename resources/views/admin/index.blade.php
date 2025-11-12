@@ -6,6 +6,7 @@
         'classes' => 'admin.classes',
         'invoices' => 'admin.invoices',
         'notifications' => 'admin.notifications',
+        'obligatory_documents' => 'admin.obligatory_documents.index',
     ])
 
     <div class="container py-4">
