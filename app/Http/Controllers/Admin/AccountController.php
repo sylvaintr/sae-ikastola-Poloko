@@ -57,14 +57,21 @@ class AccountController extends Controller
             'mdp_confirmation.same' => 'Les mots de passe ne correspondent pas.',
         ]);
 
-        $account = Utilisateur::create([
-            'prenom' => $validated['prenom'],
-            'nom' => $validated['nom'],
-            'email' => $validated['email'],
-            'languePref' => $validated['languePref'],
-            'mdp' => Hash::make($validated['mdp']),
-            'statutValidation' => $validated['statutValidation'] ?? false,
-        ]);
+        // Trouver le premier ID disponible
+        $availableId = $this->findAvailableId();
+
+        // Créer le compte avec l'ID disponible
+        // Désactiver temporairement l'auto-increment pour permettre l'insertion manuelle de l'ID
+        $account = new Utilisateur();
+        $account->incrementing = false;
+        $account->idUtilisateur = $availableId;
+        $account->prenom = $validated['prenom'];
+        $account->nom = $validated['nom'];
+        $account->email = $validated['email'];
+        $account->languePref = $validated['languePref'];
+        $account->mdp = Hash::make($validated['mdp']);
+        $account->statutValidation = $validated['statutValidation'] ?? false;
+        $account->save();
 
         // Sync roles with model_type automatically set
         $rolesToSync = [];
@@ -145,6 +152,39 @@ class AccountController extends Controller
         return redirect()
             ->route('admin.accounts.index')
             ->with('status', trans('admin.accounts_page.messages.updated'));
+    }
+
+    /**
+     * Trouve le premier ID disponible dans la table utilisateur
+     * Cherche les trous dans la séquence (ex: si 1,2,3,8,9 existent, retourne 4)
+     */
+    private function findAvailableId(): int
+    {
+        // Récupérer tous les IDs existants, triés et convertis en tableau pour recherche rapide
+        $existingIds = Utilisateur::orderBy('idUtilisateur')
+            ->pluck('idUtilisateur')
+            ->toArray();
+
+        // Si aucun ID n'existe, commencer à 1
+        if (empty($existingIds)) {
+            return 1;
+        }
+
+        // Convertir en Set pour recherche O(1) au lieu de O(n)
+        $existingIdsSet = array_flip($existingIds);
+        
+        // Trouver le premier ID disponible en partant de 1
+        $maxId = max($existingIds);
+        
+        // Parcourir de 1 jusqu'au maximum pour trouver le premier trou
+        for ($id = 1; $id <= $maxId; $id++) {
+            if (!isset($existingIdsSet[$id])) {
+                return $id;
+            }
+        }
+
+        // Si tous les IDs jusqu'au maximum sont utilisés, utiliser max + 1
+        return $maxId + 1;
     }
 
     public function validateAccount(Utilisateur $account): RedirectResponse
