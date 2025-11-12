@@ -9,9 +9,11 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "dompdf/dompdf": "^2.0.8",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
-        "pelago/emogrifier": "^8.1",
+        "pelago/emogrifier": "^7.0",
+        "phpoffice/phpword": "^1.4",
         "spatie/laravel-permission": "^6.0",
         "yajra/laravel-datatables-oracle": "^11.1"
     },

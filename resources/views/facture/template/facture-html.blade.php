@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html lang="eu" xml:lang="eu">
 
 <head>
@@ -325,9 +325,9 @@
 
 
     <p class="s3 ps-5 mb-4 text-center" style="line-height:106%;">
-        {{ $famille->utilisateurs()->first()->nom }} haurr(ar)en
-        arduraduna(k)
-        <br /><span class="text-muted-gray">Responsable(s) de(s) enfant(s)
+        {{ $famille->utilisateurs()->first()->nom }} haurr&#40;ar&#41;en
+        arduraduna&#40;k&#41;
+        <br /><span class="text-muted-gray">Responsable&#40;s&#41; de&#40;s&#41; enfant&#40;s&#41;
             {{ $famille->utilisateurs()->first()->nom }}</span>
     </p>
 
@@ -453,7 +453,7 @@
         </tr>
     </table>
     <p class="s13 pt-2 pl-26 text-start" style="line-height:107%;">BEZ-a ez aplikagarria, ZKN-aren 293B artikulua
-        <br><span class="text-muted-gray">TVA non applicable, article 293B du CGI</span>
+        <br /><span class="text-muted-gray">TVA non applicable, article 293B du CGI</span>
     </p>
     <p class="s3 pl-26 text-start">Hileko zenbatekoa:</p>
     <p class="pl-26 pt-1 text-start">Montant prélevé mensuellement :</p>
@@ -609,4 +609,4 @@
         paiement : 40€.</p>
 </body>
 
-</html>
+</html> --}}
