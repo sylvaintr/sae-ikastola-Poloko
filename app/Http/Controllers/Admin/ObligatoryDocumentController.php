@@ -51,27 +51,7 @@ class ObligatoryDocumentController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $expirationType = $request->input('expirationType', 'none');
-        
-        $rules = [
-            'nom' => ['required', 'string', 'max:100'],
-            'expirationType' => ['required', 'in:none,delai,date'],
-            'delai' => ['nullable', 'integer', 'min:0', 'required_if:expirationType,delai'],
-            'dateExpiration' => ['nullable', 'date', 'required_if:expirationType,date'],
-            'roles' => ['required', 'array', 'min:1'],
-            'roles.*' => ['exists:role,idRole'],
-        ];
-
-        $validated = $request->validate($rules, [
-            'nom.required' => 'Le nom du document est requis.',
-            'nom.max' => 'Le nom du document ne peut pas dépasser 100 caractères.',
-            'expirationType.required' => 'Le type d\'expiration est requis.',
-            'delai.required_if' => 'Le délai est requis lorsque le type d\'expiration est "délai".',
-            'delai.min' => 'Le délai doit être un nombre positif.',
-            'dateExpiration.required_if' => 'La date d\'expiration est requise lorsque le type d\'expiration est "date".',
-            'roles.required' => 'Au moins un rôle doit être sélectionné.',
-            'roles.min' => 'Au moins un rôle doit être sélectionné.',
-        ]);
+        $validated = $request->validate($this->getValidationRules(), $this->getValidationMessages());
 
         // Trouver le premier ID disponible
         $availableId = $this->findAvailableId();
@@ -81,9 +61,7 @@ class ObligatoryDocumentController extends Controller
         $document->incrementing = false;
         $document->idDocumentObligatoire = $availableId;
         $document->nom = $validated['nom'];
-        $document->dateE = $expirationType !== 'none';
-        $document->delai = $expirationType === 'delai' ? $validated['delai'] : null;
-        $document->dateExpiration = $expirationType === 'date' ? $validated['dateExpiration'] : null;
+        $this->setExpirationData($document, $validated);
         $document->save();
 
         // Sync roles
@@ -104,32 +82,10 @@ class ObligatoryDocumentController extends Controller
 
     public function update(Request $request, DocumentObligatoire $obligatoryDocument): RedirectResponse
     {
-        $expirationType = $request->input('expirationType', 'none');
-        
-        $rules = [
-            'nom' => ['required', 'string', 'max:100'],
-            'expirationType' => ['required', 'in:none,delai,date'],
-            'delai' => ['nullable', 'integer', 'min:0', 'required_if:expirationType,delai'],
-            'dateExpiration' => ['nullable', 'date', 'required_if:expirationType,date'],
-            'roles' => ['required', 'array', 'min:1'],
-            'roles.*' => ['exists:role,idRole'],
-        ];
-
-        $validated = $request->validate($rules, [
-            'nom.required' => 'Le nom du document est requis.',
-            'nom.max' => 'Le nom du document ne peut pas dépasser 100 caractères.',
-            'expirationType.required' => 'Le type d\'expiration est requis.',
-            'delai.required_if' => 'Le délai est requis lorsque le type d\'expiration est "délai".',
-            'delai.min' => 'Le délai doit être un nombre positif.',
-            'dateExpiration.required_if' => 'La date d\'expiration est requise lorsque le type d\'expiration est "date".',
-            'roles.required' => 'Au moins un rôle doit être sélectionné.',
-            'roles.min' => 'Au moins un rôle doit être sélectionné.',
-        ]);
+        $validated = $request->validate($this->getValidationRules(), $this->getValidationMessages());
 
         $obligatoryDocument->nom = $validated['nom'];
-        $obligatoryDocument->dateE = $expirationType !== 'none';
-        $obligatoryDocument->delai = $expirationType === 'delai' ? $validated['delai'] : null;
-        $obligatoryDocument->dateExpiration = $expirationType === 'date' ? $validated['dateExpiration'] : null;
+        $this->setExpirationData($obligatoryDocument, $validated);
         $obligatoryDocument->save();
 
         // Sync roles
@@ -147,6 +103,49 @@ class ObligatoryDocumentController extends Controller
         return redirect()
             ->route('admin.obligatory_documents.index')
             ->with('status', trans('admin.obligatory_documents.messages.deleted'));
+    }
+
+    /**
+     * Retourne les règles de validation pour les documents obligatoires
+     */
+    private function getValidationRules(): array
+    {
+        return [
+            'nom' => ['required', 'string', 'max:100'],
+            'expirationType' => ['required', 'in:none,delai,date'],
+            'delai' => ['nullable', 'integer', 'min:0', 'required_if:expirationType,delai'],
+            'dateExpiration' => ['nullable', 'date', 'required_if:expirationType,date'],
+            'roles' => ['required', 'array', 'min:1'],
+            'roles.*' => ['exists:role,idRole'],
+        ];
+    }
+
+    /**
+     * Retourne les messages de validation pour les documents obligatoires
+     */
+    private function getValidationMessages(): array
+    {
+        return [
+            'nom.required' => 'Le nom du document est requis.',
+            'nom.max' => 'Le nom du document ne peut pas dépasser 100 caractères.',
+            'expirationType.required' => 'Le type d\'expiration est requis.',
+            'delai.required_if' => 'Le délai est requis lorsque le type d\'expiration est "délai".',
+            'delai.min' => 'Le délai doit être un nombre positif.',
+            'dateExpiration.required_if' => 'La date d\'expiration est requise lorsque le type d\'expiration est "date".',
+            'roles.required' => 'Au moins un rôle doit être sélectionné.',
+            'roles.min' => 'Au moins un rôle doit être sélectionné.',
+        ];
+    }
+
+    /**
+     * Définit les données d'expiration sur un document
+     */
+    private function setExpirationData(DocumentObligatoire $document, array $validated): void
+    {
+        $expirationType = $validated['expirationType'] ?? 'none';
+        $document->dateE = $expirationType !== 'none';
+        $document->delai = $expirationType === 'delai' ? $validated['delai'] : null;
+        $document->dateExpiration = $expirationType === 'date' ? $validated['dateExpiration'] : null;
     }
 
     /**

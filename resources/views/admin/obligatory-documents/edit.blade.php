@@ -15,7 +15,7 @@
 
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <label for="nom" class="form-label fw-semibold">{{ __('admin.obligatory_documents.edit.fields.name') }} <span class="text-danger">*</span></label>
+                            <label for="nom" class="form-label fw-semibold">{{ __('admin.obligatory_documents.fields.name') }} <span class="text-danger">*</span></label>
                             <input id="nom" name="nom" type="text" class="form-control @error('nom') is-invalid @enderror"
                                    value="{{ old('nom', $document->nom) }}" required maxlength="100">
                             @error('nom')
@@ -24,7 +24,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label for="expirationType" class="form-label fw-semibold">{{ __('admin.obligatory_documents.edit.fields.expiration_type') }}</label>
+                            <label for="expirationType" class="form-label fw-semibold">{{ __('admin.obligatory_documents.fields.expiration_type') }}</label>
                             @php
                                 $currentExpirationType = old('expirationType');
                                 if (!$currentExpirationType) {
@@ -36,9 +36,9 @@
                                 }
                             @endphp
                             <select id="expirationType" name="expirationType" class="form-select @error('expirationType') is-invalid @enderror" required>
-                                <option value="none" {{ $currentExpirationType === 'none' ? 'selected' : '' }}>{{ __('admin.obligatory_documents.edit.fields.expiration_none') }}</option>
-                                <option value="delai" {{ $currentExpirationType === 'delai' ? 'selected' : '' }}>{{ __('admin.obligatory_documents.edit.fields.expiration_delai') }}</option>
-                                <option value="date" {{ $currentExpirationType === 'date' ? 'selected' : '' }}>{{ __('admin.obligatory_documents.edit.fields.expiration_date') }}</option>
+                                <option value="none" {{ $currentExpirationType === 'none' ? 'selected' : '' }}>{{ __('admin.obligatory_documents.fields.expiration_none') }}</option>
+                                <option value="delai" {{ $currentExpirationType === 'delai' ? 'selected' : '' }}>{{ __('admin.obligatory_documents.fields.expiration_delai') }}</option>
+                                <option value="date" {{ $currentExpirationType === 'date' ? 'selected' : '' }}>{{ __('admin.obligatory_documents.fields.expiration_date') }}</option>
                             </select>
                             @error('expirationType')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -46,17 +46,17 @@
                         </div>
 
                         <div class="col-md-6 expiration-delai-field" style="display: {{ $currentExpirationType === 'delai' ? 'block' : 'none' }};">
-                            <label for="delai" class="form-label fw-semibold">{{ __('admin.obligatory_documents.edit.fields.delai') }} <span class="text-danger">*</span></label>
+                            <label for="delai" class="form-label fw-semibold">{{ __('admin.obligatory_documents.fields.delai') }} <span class="text-danger">*</span></label>
                             <input id="delai" name="delai" type="number" class="form-control @error('delai') is-invalid @enderror"
-                                   value="{{ old('delai', $document->delai) }}" min="0" placeholder="{{ __('admin.obligatory_documents.edit.fields.delai_placeholder') }}">
-                            <small class="text-muted d-block mt-1">{{ __('admin.obligatory_documents.edit.fields.delai_help') }}</small>
+                                   value="{{ old('delai', $document->delai) }}" min="0" placeholder="{{ __('admin.obligatory_documents.fields.delai_placeholder') }}">
+                            <small class="text-muted d-block mt-1">{{ __('admin.obligatory_documents.fields.delai_help') }}</small>
                             @error('delai')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="col-md-6 expiration-date-field" style="display: {{ $currentExpirationType === 'date' ? 'block' : 'none' }};">
-                            <label for="dateExpiration" class="form-label fw-semibold">{{ __('admin.obligatory_documents.edit.fields.date_expiration') }} <span class="text-danger">*</span></label>
+                            <label for="dateExpiration" class="form-label fw-semibold">{{ __('admin.obligatory_documents.fields.date_expiration') }} <span class="text-danger">*</span></label>
                             <div class="d-flex align-items-center gap-2 position-relative">
                                 <div id="display-expiration-date" class="fw-semibold me-1 presence-date-text"></div>
                                 <button id="open-expiration-date" type="button" class="btn btn-link p-0 presence-date-btn" aria-label="Choisir la date" style="color: #e48a1f;">
@@ -71,13 +71,13 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label fw-semibold">{{ __('admin.obligatory_documents.edit.fields.roles') }} <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold">{{ __('admin.obligatory_documents.fields.roles') }} <span class="text-danger">*</span></label>
                             
                             <div class="role-selector-container">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="role-search" class="form-label small">{{ __('admin.obligatory_documents.edit.fields.roles_search') }}</label>
-                                        <input type="text" id="role-search" class="form-control" placeholder="{{ __('admin.obligatory_documents.edit.fields.roles_search_placeholder') }}">
+                                        <label for="role-search" class="form-label small">{{ __('admin.obligatory_documents.fields.roles_search') }}</label>
+                                        <input type="text" id="role-search" class="form-control" placeholder="{{ __('admin.obligatory_documents.fields.roles_search_placeholder') }}">
                                         <div id="available-roles" class="role-list mt-2">
                                             @php
                                                 $selectedRoleIds = old('roles', $document->roles->pluck('idRole')->toArray());
@@ -100,10 +100,10 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label small">{{ __('admin.obligatory_documents.edit.fields.roles_selected') }} <span class="text-danger">*</span></label>
+                                        <label class="form-label small">{{ __('admin.obligatory_documents.fields.roles_selected') }} <span class="text-danger">*</span></label>
                                         <div id="selected-roles" class="role-list mt-2">
                                             @if(count($selectedRoleIds) === 0)
-                                                <div class="role-list-empty-message">{{ __('admin.obligatory_documents.edit.fields.no_roles_selected') }}</div>
+                                                <div class="role-list-empty-message">{{ __('admin.obligatory_documents.fields.no_roles_selected') }}</div>
                                             @else
                                                 @foreach($roles as $role)
                                                     @if(in_array($role->idRole, $selectedRoleIds))
@@ -115,7 +115,7 @@
                                                 @endforeach
                                             @endif
                                         </div>
-                                        <div id="roles-error" class="invalid-feedback d-none mt-2">{{ __('admin.obligatory_documents.edit.fields.roles_required') }}</div>
+                                        <div id="roles-error" class="invalid-feedback d-none mt-2">{{ __('admin.obligatory_documents.fields.roles_required') }}</div>
                                     </div>
                                 </div>
                                 
@@ -417,7 +417,7 @@
                     if (!emptyMessage) {
                         const message = document.createElement('div');
                         message.className = 'role-list-empty-message';
-                        message.textContent = '{{ __('admin.obligatory_documents.edit.fields.no_roles_selected') }}';
+                        message.textContent = '{{ __('admin.obligatory_documents.fields.no_roles_selected') }}';
                         selectedRoles.appendChild(message);
                     }
                 } else {
