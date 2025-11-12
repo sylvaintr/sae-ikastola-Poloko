@@ -391,6 +391,15 @@
     transform: scale(1.05);
 }
 
+.admin-validate-link {
+    color: #28a745 !important;
+}
+
+.admin-validate-link:hover {
+    color: #1e7e34 !important;
+    transform: scale(1.05);
+}
+
 .admin-add-button {
     font-weight: 700;
     font-size: 1rem;

@@ -81,7 +81,7 @@ class AccountController extends Controller
     public function show(Utilisateur $account): View
     {
         $account->load(['rolesCustom' => function($query) {
-            $query->select('idRole', 'name');
+            $query->select('role.idRole', 'role.name');
         }]);
 
         return view('admin.accounts.show', compact('account'));
@@ -90,7 +90,7 @@ class AccountController extends Controller
     public function edit(Utilisateur $account): View
     {
         $account->load(['rolesCustom' => function($query) {
-            $query->select('idRole', 'name');
+            $query->select('role.idRole', 'role.name');
         }]);
         $roles = Role::select('idRole', 'name')->orderBy('name')->get();
         return view('admin.accounts.edit', compact('account', 'roles'));
@@ -145,6 +145,15 @@ class AccountController extends Controller
         return redirect()
             ->route('admin.accounts.index')
             ->with('status', trans('admin.accounts_page.messages.updated'));
+    }
+
+    public function validateAccount(Utilisateur $account): RedirectResponse
+    {
+        $account->update(['statutValidation' => true]);
+
+        return redirect()
+            ->route('admin.accounts.index')
+            ->with('status', trans('admin.accounts_page.messages.validated'));
     }
 
     public function destroy(Utilisateur $account): RedirectResponse

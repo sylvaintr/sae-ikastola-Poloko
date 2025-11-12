@@ -64,6 +64,15 @@
                                     <a href="{{ route('admin.accounts.edit', $account) }}" class="admin-action-link" title="{{ __('admin.accounts_page.actions.edit') }}">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
+                                    @if (!$account->statutValidation)
+                                        <form action="{{ route('admin.accounts.validate', $account) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="admin-action-link admin-validate-link btn btn-link p-0 m-0" title="{{ __('admin.accounts_page.actions.validate') }}">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                     <form action="{{ route('admin.accounts.destroy', $account) }}" method="POST" class="d-inline delete-account-form">
                                         @csrf
                                         @method('DELETE')

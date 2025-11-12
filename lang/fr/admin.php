@@ -42,6 +42,7 @@ return [
             'edit' => 'Modifier',
             'delete' => 'Supprimer',
             'confirm_delete' => 'Supprimer',
+            'validate' => 'Valider',
         ],
         'back' => 'Retour aux comptes',
         'show' => [
@@ -57,6 +58,7 @@ return [
             'deleted' => 'Le compte a été supprimé avec succès.',
             'updated' => 'Le compte a été mis à jour avec succès.',
             'created' => 'Le compte a été ajouté avec succès.',
+            'validated' => 'Le compte a été validé avec succès.',
         ],
         'edit' => [
             'title' => 'Modifier le compte',

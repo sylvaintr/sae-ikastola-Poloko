@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
             Route::get($accountRoute, 'show')->name('show');
             Route::get("{$accountRoute}/modifier", 'edit')->name('edit');
             Route::put($accountRoute, 'update')->name('update');
+            Route::patch("{$accountRoute}/valider", 'validateAccount')->name('validate');
             Route::delete($accountRoute, 'destroy')->name('destroy');
         });
         Route::view('/familles', 'admin.families')->name('families');
