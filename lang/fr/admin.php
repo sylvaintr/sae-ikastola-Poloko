@@ -7,8 +7,14 @@ $common = [
     'roles_selected' => 'Rôles sélectionnés',
     'roles_required' => 'Au moins un rôle doit être sélectionné.',
     'first_name' => 'Prénom',
+    'last_name' => 'Nom',
+    'email' => 'Email',
     'preferred_language' => 'Langue préférée',
     'fixed_expiration_date' => 'Date d\'expiration fixe',
+    'submit' => 'Enregistrer',
+    'cancel' => 'Annuler',
+    'edit' => 'Modifier',
+    'delete' => 'Supprimer',
 ];
 
 return [
@@ -38,10 +44,10 @@ return [
                 'title' => $common['first_name'],
             ],
             'last_name' => [
-                'title' => 'Nom',
+                'title' => $common['last_name'],
             ],
             'email' => [
-                'title' => 'Email',
+                'title' => $common['email'],
             ],
             'status' => [
                 'title' => 'Statut',
@@ -52,16 +58,16 @@ return [
         ],
         'actions' => [
             'view' => 'Visualiser',
-            'edit' => 'Modifier',
-            'delete' => 'Supprimer',
-            'confirm_delete' => 'Supprimer',
+            'edit' => $common['edit'],
+            'delete' => $common['delete'],
+            'confirm_delete' => $common['delete'],
             'validate' => 'Valider',
         ],
         'back' => 'Retour aux comptes',
         'show' => [
             'first_name_label' => $common['first_name'],
-            'last_name_label' => 'Nom',
-            'email_label' => 'Email',
+            'last_name_label' => $common['last_name'],
+            'email_label' => $common['email'],
             'language_label' => $common['preferred_language'],
             'status_label' => 'Statut',
             'roles_label' => $common['roles'],
@@ -75,12 +81,12 @@ return [
         ],
         'edit' => [
             'title' => 'Modifier le compte',
-            'submit' => 'Enregistrer',
-            'cancel' => 'Annuler',
+            'submit' => $common['submit'],
+            'cancel' => $common['cancel'],
             'fields' => [
                 'first_name' => $common['first_name'],
-                'last_name' => 'Nom',
-                'email' => 'Email',
+                'last_name' => $common['last_name'],
+                'email' => $common['email'],
                 'password' => 'Mot de passe (laisser vide pour ne pas changer)',
                 'password_help' => 'Laisser vide pour ne pas changer le mot de passe',
                 'password_confirmation' => 'Confirmer le mot de passe',
@@ -94,12 +100,12 @@ return [
         ],
         'create' => [
             'title' => 'Ajouter un compte',
-            'submit' => 'Enregistrer',
-            'cancel' => 'Annuler',
+            'submit' => $common['submit'],
+            'cancel' => $common['cancel'],
             'fields' => [
                 'first_name' => $common['first_name'],
-                'last_name' => 'Nom',
-                'email' => 'Email',
+                'last_name' => $common['last_name'],
+                'email' => $common['email'],
                 'password' => 'Mot de passe',
                 'password_confirmation' => 'Confirmer le mot de passe',
                 'language' => $common['preferred_language'],
@@ -140,8 +146,8 @@ return [
             'actions_subtitle' => 'Actions',
         ],
         'actions' => [
-            'edit' => 'Modifier',
-            'delete' => 'Supprimer',
+            'edit' => $common['edit'],
+            'delete' => $common['delete'],
         ],
         'messages' => [
             'created' => 'Le document obligatoire a été créé avec succès.',
@@ -151,8 +157,8 @@ return [
         'delete_modal' => [
             'title' => 'Supprimer le document',
             'message' => 'Êtes-vous sûr de vouloir supprimer le document suivant ?',
-            'cancel' => 'Annuler',
-            'confirm' => 'Supprimer',
+            'cancel' => $common['cancel'],
+            'confirm' => $common['delete'],
         ],
         'fields' => [
             'name' => 'Nom du document',
@@ -174,13 +180,13 @@ return [
         ],
         'create' => [
             'title' => 'Ajouter un document obligatoire',
-            'submit' => 'Enregistrer',
-            'cancel' => 'Annuler',
+            'submit' => $common['submit'],
+            'cancel' => $common['cancel'],
         ],
         'edit' => [
             'title' => 'Modifier le document obligatoire',
-            'submit' => 'Enregistrer',
-            'cancel' => 'Annuler',
+            'submit' => $common['submit'],
+            'cancel' => $common['cancel'],
         ],
         'all_roles_option' => 'Tous les rôles',
     ],
