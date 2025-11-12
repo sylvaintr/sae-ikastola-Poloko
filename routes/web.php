@@ -1,12 +1,34 @@
 <?php
 
+use App\Http\Controllers\ActualiteController;
+use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\FamilleController;
-Route::get('/', function () {
-    return view('layouts.app');
-})->name('home');
+
+//Route::get('/', function () {
+//    return view('layouts.app');
+//})->name('home');
+
+Route::get('/', [ActualiteController::class, 'index'])->name('home');
+
+Route::middleware('permission:access-gestion-actualite')->group(function () {
+    Route::prefix('actualite')->name('actualites.')->group(function () {
+        Route::get('/create', [ActualiteController::class, 'create'])->name('create');
+        Route::post('/store', [ActualiteController::class, 'store'])->name('store');
+        Route::get('/{actualite}/edit', [ActualiteController::class, 'edit'])->name('edit');
+        Route::put('/{actualite}', [ActualiteController::class, 'update'])->name('update');
+        Route::delete('/{actualite}', [ActualiteController::class, 'delete'])->name('delete');
+    });
+});
+
+// Changer de langue
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['fr', 'eus'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -34,6 +56,3 @@ Route::get('/presence/status', [PresenceController::class, 'status'])->name('pre
 Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
 
 require __DIR__ . '/auth.php';
-
-
-

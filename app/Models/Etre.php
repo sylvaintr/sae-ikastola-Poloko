@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Etre
- * 
+ *
  * @property int $idEnfant Identifiant de l'enfant lié à cette présence/inscription.
  * @property string $activite Référence à l'activité (valeur string correspondant à `Activite.activite`).
  * @property Carbon $dateP Date de la présence/inscription liée à l'activité.

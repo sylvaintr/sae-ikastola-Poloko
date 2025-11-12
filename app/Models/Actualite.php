@@ -27,7 +27,8 @@ class Actualite extends Model
 {
 	protected $table = 'actualite';
 	protected $primaryKey = 'idActualite';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [

@@ -20,6 +20,7 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo('access-evenement');
         $role->givePermissionTo('access-calendrier');
         $role->givePermissionTo('access-administration');
+        $role->givePermissionTo('access-gestion-actualite');
 
         $role = Role::create(['name' => 'parent']);
         $role->givePermissionTo('access-demande');

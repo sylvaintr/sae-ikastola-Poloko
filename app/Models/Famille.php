@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Famille
- * 
+ *
  * @property int $idFamille Identifiant de la famille / tuteur (regroupe des enfants et contacts).
  *
  * @package App\Models
@@ -20,6 +20,7 @@ class Famille extends Model
 	protected $table = 'famille';
 	protected $primaryKey = 'idFamille';
 	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
     protected $fillable = [
         'idFamille'

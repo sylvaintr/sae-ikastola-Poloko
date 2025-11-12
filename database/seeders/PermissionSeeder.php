@@ -19,6 +19,7 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'access-presence']);
         Permission::create(['name' => 'access-evenement']);
         Permission::create(['name' => 'access-calendrier']);
+        Permission::create(['name' => 'access-gestion-actualite']);
 
     }
 }

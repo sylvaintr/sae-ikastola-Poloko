@@ -24,7 +24,8 @@ class Evenement extends Model
 {
 	protected $table = 'evenement';
 	protected $primaryKey = 'idEvenement';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [
