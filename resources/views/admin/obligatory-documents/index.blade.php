@@ -78,7 +78,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="button" class="admin-action-link btn btn-link p-0 m-0 delete-document-btn" data-document-name="{{ $document->nom }}" title="{{ __('admin.obligatory_documents.actions.delete') }}">
-                                            <i class="bi bi-x-lg"></i>
+                                            <i class="bi bi-trash3-fill"></i>
                                         </button>
                                     </form>
                                 </div>
