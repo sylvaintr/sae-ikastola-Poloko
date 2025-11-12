@@ -5,6 +5,7 @@
             <span>{{ __('admin.accounts_page.back') }}</span>
         </a>
 
+        
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <h1 class="h4 fw-bold mb-4">{{ __('admin.accounts_page.edit.title') }}</h1>
