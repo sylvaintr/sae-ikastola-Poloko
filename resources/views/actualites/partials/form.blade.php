@@ -1,5 +1,5 @@
-<form 
-    action="{{ isset($actualite) ? route('actualites.update', $actualite->idActualite) : route('actualites.store') }}" 
+<form
+    action="{{ isset($actualite) ? route('actualites.update', $actualite->idActualite) : route('actualites.store') }}"
     method="POST"
 >
     @csrf
@@ -9,11 +9,11 @@
 
     <div class="mb-3">
         <label for="titre" class="form-label">Titre</label>
-        <input 
-            id="titre" 
-            name="titre" 
-            type="text" 
-            class="form-control" 
+        <input
+            id="titre"
+            name="titre"
+            type="text"
+            class="form-control"
             placeholder="Titre"
             value="{{ old('titre', $actualite->titre ?? '') }}"
         />
@@ -21,12 +21,12 @@
 
     <div class="mb-3">
         <label for="description" class="form-label">Description</label>
-        <textarea 
-            id="description" 
-            name="description" 
-            rows="3" 
-            cols="50" 
-            class="form-control" 
+        <textarea
+            id="description"
+            name="description"
+            rows="3"
+            cols="50"
+            class="form-control"
             placeholder="Description"
         >{{ old('description', $actualite->description ?? '') }}</textarea>
     </div>
@@ -44,7 +44,7 @@
         <select name="idUtilisateur" id="idUtilisateur" class="form-select">
             <option value="">-- Sélectionner un utilisateur --</option>
             @foreach ($utilisateurs as $utilisateur)
-                <option value="{{ $utilisateur->idUtilisateur }}" 
+                <option value="{{ $utilisateur->idUtilisateur }}"
                     {{ old('idUtilisateur', $actualite->idUtilisateur ?? '') == $utilisateur->idUtilisateur ? 'selected' : '' }}>
                     {{ $utilisateur->nom }} {{ $utilisateur->prenom }}
                 </option>
@@ -54,11 +54,11 @@
 
     <input type="hidden" name="archive" value="0">
     <div class="mb-3 form-check">
-        <input 
-            type="checkbox" 
-            id="archive" 
-            name="archive" 
-            value="1" 
+        <input
+            type="checkbox"
+            id="archive"
+            name="archive"
+            value="1"
             class="form-check-input"
             {{ old('archive', $actualite->archive ?? false) ? 'checked' : '' }}
         >
@@ -67,12 +67,12 @@
 
     <div class="mb-3">
         <label for="lien" class="form-label">Lien (optionnel)</label>
-        <textarea 
-            id="lien" 
-            name="lien" 
-            rows="2" 
-            cols="50" 
-            class="form-control" 
+        <textarea
+            id="lien"
+            name="lien"
+            rows="2"
+            cols="50"
+            class="form-control"
             placeholder="Lien"
         >{{ old('lien', $actualite->lien ?? '') }}</textarea>
     </div>

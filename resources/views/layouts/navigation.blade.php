@@ -27,7 +27,7 @@
                 @endcan
                 @can('access-presence')
                     <li class="nav-item">
-                        <x-nav-link href="/presence" :active="request()->is('presence*')" class="nav-link">{{ __('nav.presence') }}</x-nav-link>
+                        <x-nav-link href="{{ route('presence.index') }}" :active="request()->routeIs('presence.index') || request()->is('presence*')" class="nav-link">{{ __('nav.presence') }}</x-nav-link>
                     </li>
                 @endcan
                 @can('access-evenement')
@@ -42,7 +42,7 @@
                 @endcan
                 @can('access-administration')
                     <li class="nav-item">
-                        <x-nav-link href="/administration" :active="request()->is('administration*')" class="nav-link">{{ __('nav.administration') }}</x-nav-link>
+                        <x-nav-link href="{{ route('admin.index') }}" :active="request()->routeIs('admin.*')" class="nav-link">{{ __('nav.administration') }}</x-nav-link>
                     </li>
                 @endcan
             </ul>

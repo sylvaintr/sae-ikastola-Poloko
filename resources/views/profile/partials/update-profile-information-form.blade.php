@@ -18,10 +18,17 @@
         @method('patch')
 
         <div class="mb-3">
-            <x-input-label for="name" :value="__('auth.nom')" />
-            <x-text-input id="name" name="name" type="text" :value="old('name', $user->name)" required autofocus
-                autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" />
+            <x-input-label for="prenom" :value="__('auth.prenom')" />
+            <x-text-input id="prenom" name="prenom" type="text" :value="old('prenom', $user->prenom)" required autofocus
+                autocomplete="given-name" />
+            <x-input-error :messages="$errors->get('prenom')" />
+        </div>
+
+        <div class="mb-3">
+            <x-input-label for="nom" :value="__('auth.nom')" />
+            <x-text-input id="nom" name="nom" type="text" :value="old('nom', $user->nom)" required
+                autocomplete="family-name" />
+            <x-input-error :messages="$errors->get('nom')" />
         </div>
 
         <div class="mb-3">

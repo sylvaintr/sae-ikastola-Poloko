@@ -10,6 +10,19 @@ return [
     'nom' => 'Izena',
     'confirmer_mot_de_passe' => 'Pasahitza berretsi',
 
+    'titre_connexion_secondaire' => 'Sartu zure kontuan',
+    'email_principal' => 'Posta elektronikoa',
+    'email_secondaire' => 'Emaila',
+    'mot_de_passe_principal' => 'Pasahitza',
+    'mot_de_passe_secondaire' => 'Zure pasahitza',
+    'placeholder_email' => 'zure@emaila.com',
+    'placeholder_password' => 'Zure pasahitza',
+    'mot_de_passe_oublie_principal' => 'Pasahitza ahaztuta?',
+    'mot_de_passe_oublie_secondaire' => 'Berrezarri zure pasahitza',
+    'pas_compte_principal' => 'Ez duzu konturik oraindik?',
+    'pas_compte_secondaire' => 'Eman izena',
+
+
     // Actions / Links
     'mot_de_passe_oublie' => 'Pasahitza ahaztu duzu?',
     'aide_mot_de_passe_oublie' => 'Arazo barik. Jarri zure posta helbidea eta pasahitz berritzeko esteka bidaliko dizugu.',

@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\ActualiteController;
+use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PresenceController;
 use Illuminate\Support\Facades\Route;
 
 //Route::get('/', function () {
@@ -9,12 +11,15 @@ use Illuminate\Support\Facades\Route;
 //})->name('home');
 
 Route::get('/', [ActualiteController::class, 'index'])->name('home');
+
 Route::middleware('permission:access-gestion-actualite')->group(function () {
-    Route::get('/actualite/create', [ActualiteController::class, 'create'])->name('actualites.create');
-    Route::post('/actualite/store', [ActualiteController::class, 'store'])->name('actualites.store');
-    Route::get('/actualite/{actualite}/edit', [ActualiteController::class, 'edit'])->name('actualites.edit');
-    Route::put('/actualite/{actualite}', [ActualiteController::class, 'update'])->name('actualites.update');
-    Route::delete('/actualite/{actualite}', [ActualiteController::class, 'delete'])->name('actualites.delete');    
+    Route::prefix('actualite')->name('actualites.')->group(function () {
+        Route::get('/create', [ActualiteController::class, 'create'])->name('create');
+        Route::post('/store', [ActualiteController::class, 'store'])->name('store');
+        Route::get('/{actualite}/edit', [ActualiteController::class, 'edit'])->name('edit');
+        Route::put('/{actualite}', [ActualiteController::class, 'update'])->name('update');
+        Route::delete('/{actualite}', [ActualiteController::class, 'delete'])->name('delete');
+    });
 });
 
 // Changer de langue
@@ -29,6 +34,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::view('/', 'admin.index')->name('index');
+        Route::view('/publications', 'admin.messages')->name('messages');
+        Route::view('/comptes', 'admin.accounts')->name('accounts');
+        Route::view('/familles', 'admin.families')->name('families');
+        Route::view('/classes', 'admin.classes')->name('classes');
+        Route::view('/facture', 'admin.invoices')->name('invoices');
+        Route::view('/notifications', 'admin.notifications')->name('notifications');
+    });
 });
+
+Route::get('/presence', function () {
+    return view('presence.index');
+})->name('presence.index');
+
+
+Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
+Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
+Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
+Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
 
 require __DIR__ . '/auth.php';

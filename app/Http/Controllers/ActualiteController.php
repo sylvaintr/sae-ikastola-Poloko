@@ -41,7 +41,7 @@ class ActualiteController extends Controller
             'lien' => 'nullable|string|max:2083',
             'idUtilisateur' => 'required|int',
         ]);
-        $actualite = Actualite::create([
+        Actualite::create([
             'titre' => $validatedData['titre'],
             'description' => $validatedData['description'],
             'type' => $validatedData['type'],
@@ -50,7 +50,6 @@ class ActualiteController extends Controller
             'dateP' => date('Y-m-d'),
             'idUtilisateur' => $validatedData['idUtilisateur'],
         ]);
-        $actualites = Actualite::orderBy('dateP', 'desc')->get();
 
         return redirect()->route('home')->with('success', 'Actualité ajoutée avec succès.');
     }
@@ -58,7 +57,7 @@ class ActualiteController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Actualite $actualite)
+    public function show()
     {
         return 'show';
     }

@@ -14,24 +14,24 @@ class ActualiteSeeder extends Seeder
      */
     public function run(): void
     {
-        $actualite1 = Actualite::create([
+        Actualite::create([
             'idActualite' => 1,
             'titre' => 'Albisteen gehikuntza',
             'description' => 'Raphaël Audouard, BUT informatika 3. ikasturteko ikasleak, berrien zerrenda gehitu du',
             'type' => 'Privée',
             'dateP' => '2025-11-05',
             'archive' => 0,
-            'lien' => NULL,
+            'lien' => null,
             'idUtilisateur' => 0,
         ]);
-        $actualite2 = Actualite::create([
+        Actualite::create([
             'idActualite' => 2,
             'titre' => 'Actu privée ou publique ?',
             'description' => 'Désormais, si une actualité est privée, elle ne sera plus affichée à l\'accueil.',
             'type' => 'Publique',
             'dateP' => '2025-11-05',
             'archive' => 0,
-            'lien' => NULL,
+            'lien' => null,
             'idUtilisateur' => 0,
         ]);
     }

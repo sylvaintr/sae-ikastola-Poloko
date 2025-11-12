@@ -1,6 +1,6 @@
 @php
     // Vérifier si l'utilisateur peut gérer les actualités
-    $permissionActualies = auth()->check() && Auth::user()->can('access-gestion-actualite'); 
+    $permissionActualies = auth()->check() && Auth::user()->can('access-gestion-actualite');
 @endphp
 
 <div class="row">

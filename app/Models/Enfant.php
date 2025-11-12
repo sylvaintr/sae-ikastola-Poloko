@@ -39,7 +39,9 @@ class Enfant extends Model
 		'idFamille' => 'int'
 	];
 
+
 	protected $fillable = [
+		'idEnfant',
 		'nom',
 		'prenom',
 		'dateN',
