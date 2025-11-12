@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Pagination\Paginator;
 use App\Models\Utilisateur;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,5 +28,8 @@ class AppServiceProvider extends ServiceProvider
         Route::bind('account', function ($value) {
             return Utilisateur::where('idUtilisateur', $value)->firstOrFail();
         });
+
+        // Utiliser Bootstrap 5 pour la pagination
+        Paginator::useBootstrapFive();
     }
 }

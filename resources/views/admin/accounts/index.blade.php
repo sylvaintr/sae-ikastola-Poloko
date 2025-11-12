@@ -94,6 +94,12 @@
             </table>
         </div>
 
+        @if($accounts->hasPages())
+            <div class="admin-pagination-container">
+                {{ $accounts->links() }}
+            </div>
+        @endif
+
     </div>
 </x-app-layout>
 
@@ -123,6 +129,9 @@
             searchTimeout = setTimeout(() => {
                 const searchValue = this.value.trim();
                 const url = new URL(window.location.href);
+                
+                // Réinitialiser à la page 1 lors de la recherche
+                url.searchParams.delete('page');
                 
                 if (searchValue) {
                     url.searchParams.set('search', searchValue);

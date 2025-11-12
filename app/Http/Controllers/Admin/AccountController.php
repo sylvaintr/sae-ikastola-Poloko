@@ -27,7 +27,7 @@ class AccountController extends Controller
 
         $accounts = $query->select('idUtilisateur', 'prenom', 'nom', 'email', 'statutValidation')
             ->orderBy('idUtilisateur')
-            ->get();
+            ->paginate(5);
 
         return view('admin.accounts.index', compact('accounts'));
     }
