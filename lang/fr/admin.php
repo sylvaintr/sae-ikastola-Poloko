@@ -162,6 +162,7 @@ return [
         ],
         'fields' => [
             'name' => 'Nom du document',
+            'name_help' => 'Maximum :max caractères',
             'expiration_type' => 'Type d\'expiration',
             'expiration_none' => 'Aucune expiration',
             'expiration_delai' => 'Délai en jours après dépôt',
@@ -180,7 +181,7 @@ return [
         ],
         'validation' => [
             'nom_required' => 'Le nom du document est requis.',
-            'nom_max' => 'Le nom du document ne peut pas dépasser 100 caractères.',
+            'nom_max' => 'Le nom du document ne peut pas dépasser :max caractères.',
             'expiration_type_required' => 'Le type d\'expiration est requis.',
             'delai_required_if' => 'Le délai est requis lorsque le type d\'expiration est "délai".',
             'delai_min' => 'Le délai doit être un nombre positif.',

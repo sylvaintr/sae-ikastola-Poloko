@@ -9,6 +9,17 @@
             <div class="card-body">
                 <h1 class="h4 fw-bold mb-4">{{ __('admin.obligatory_documents.edit.title') }}</h1>
 
+                @php
+                    $nomMaxLength = $nomMaxLength ?? 100;
+                    $currentExpirationType = old('expirationType');
+                    if ($currentExpirationType === null) {
+                        if ($document->dateE) {
+                            $currentExpirationType = $document->delai ? 'delai' : 'date';
+                        } else {
+                            $currentExpirationType = 'none';
+                        }
+                    }
+                @endphp
                 <form method="POST" action="{{ route('admin.obligatory_documents.update', $document) }}" class="admin-form" id="document-form">
                     @csrf
                     @method('PUT')
@@ -17,7 +28,8 @@
                         <div class="col-md-6">
                             <label for="nom" class="form-label fw-semibold">{{ __('admin.obligatory_documents.fields.name') }} <span class="text-danger">*</span></label>
                             <input id="nom" name="nom" type="text" class="form-control @error('nom') is-invalid @enderror"
-                                   value="{{ old('nom', $document->nom) }}" required maxlength="100">
+                                   value="{{ old('nom', $document->nom) }}" required maxlength="{{ $nomMaxLength }}">
+                            <small class="text-muted d-block mt-1">{{ __('admin.obligatory_documents.fields.name_help', ['max' => $nomMaxLength]) }}</small>
                             @error('nom')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -25,16 +37,6 @@
 
                         <div class="col-md-6">
                             <label for="expirationType" class="form-label fw-semibold">{{ __('admin.obligatory_documents.fields.expiration_type') }}</label>
-                            @php
-                                $currentExpirationType = old('expirationType');
-                                if (!$currentExpirationType) {
-                                    if ($document->dateE) {
-                                        $currentExpirationType = $document->delai ? 'delai' : 'date';
-                                    } else {
-                                        $currentExpirationType = 'none';
-                                    }
-                                }
-                            @endphp
                             <select id="expirationType" name="expirationType" class="form-select @error('expirationType') is-invalid @enderror" required>
                                 <option value="none" {{ $currentExpirationType === 'none' ? 'selected' : '' }}>{{ __('admin.obligatory_documents.fields.expiration_none') }}</option>
                                 <option value="delai" {{ $currentExpirationType === 'delai' ? 'selected' : '' }}>{{ __('admin.obligatory_documents.fields.expiration_delai') }}</option>

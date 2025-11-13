@@ -7,6 +7,7 @@ use App\Models\DocumentObligatoire;
 use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ObligatoryDocumentController extends Controller
@@ -46,7 +47,8 @@ class ObligatoryDocumentController extends Controller
     public function create(): View
     {
         $roles = Role::select('idRole', 'name')->orderBy('name')->get();
-        return view('admin.obligatory-documents.create', compact('roles'));
+        $nomMaxLength = $this->getNomMaxLength();
+        return view('admin.obligatory-documents.create', compact('roles', 'nomMaxLength'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -77,7 +79,8 @@ class ObligatoryDocumentController extends Controller
         $document = $obligatoryDocument;
         $document->load('roles');
         $roles = Role::select('idRole', 'name')->orderBy('name')->get();
-        return view('admin.obligatory-documents.edit', compact('document', 'roles'));
+        $nomMaxLength = $this->getNomMaxLength();
+        return view('admin.obligatory-documents.edit', compact('document', 'roles', 'nomMaxLength'));
     }
 
     public function update(Request $request, DocumentObligatoire $obligatoryDocument): RedirectResponse
@@ -110,8 +113,10 @@ class ObligatoryDocumentController extends Controller
      */
     private function getValidationRules(): array
     {
+        $nomMaxLength = $this->getNomMaxLength();
+
         return [
-            'nom' => ['required', 'string', 'max:100'],
+            'nom' => ['required', 'string', 'max:' . $nomMaxLength],
             'expirationType' => ['required', 'in:none,delai,date'],
             'delai' => ['nullable', 'integer', 'min:0', 'required_if:expirationType,delai'],
             'dateExpiration' => ['nullable', 'date', 'required_if:expirationType,date'],
@@ -125,9 +130,11 @@ class ObligatoryDocumentController extends Controller
      */
     private function getValidationMessages(): array
     {
+        $nomMaxLength = $this->getNomMaxLength();
+
         return [
             'nom.required' => trans('admin.obligatory_documents.validation.nom_required'),
-            'nom.max' => trans('admin.obligatory_documents.validation.nom_max'),
+            'nom.max' => trans('admin.obligatory_documents.validation.nom_max', ['max' => $nomMaxLength]),
             'expirationType.required' => trans('admin.obligatory_documents.validation.expiration_type_required'),
             'delai.required_if' => trans('admin.obligatory_documents.validation.delai_required_if'),
             'delai.min' => trans('admin.obligatory_documents.validation.delai_min'),
@@ -135,6 +142,36 @@ class ObligatoryDocumentController extends Controller
             'roles.required' => trans('admin.obligatory_documents.fields.roles_required'),
             'roles.min' => trans('admin.obligatory_documents.fields.roles_required'),
         ];
+    }
+
+    /**
+     * Récupère dynamiquement la longueur maximale du champ "nom" dans la base.
+     */
+    private function getNomMaxLength(): int
+    {
+        static $cachedLength;
+
+        if ($cachedLength !== null) {
+            return $cachedLength;
+        }
+
+        $default = 100;
+        $table = 'documentObligatoire';
+        $column = 'nom';
+
+        try {
+            $length = DB::table('information_schema.columns')
+                ->where('table_schema', DB::getDatabaseName())
+                ->where('table_name', $table)
+                ->where('column_name', $column)
+                ->value('character_maximum_length');
+
+            $cachedLength = $length ? (int) $length : $default;
+        } catch (\Throwable $e) {
+            $cachedLength = $default;
+        }
+
+        return $cachedLength;
     }
 
     /**
