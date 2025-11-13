@@ -50,7 +50,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	];
 
 	protected $fillable = [
-		'idUtilisateur',
 		'prenom',
 		'nom',
 		'mdp',
