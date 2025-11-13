@@ -88,7 +88,7 @@ class FactureControllerTest extends TestCase
 
         $response = $this->get(route('admin.facture.valider', $facture->id));
 
-        $response->assertRedirect(route('admin.facture.index'));
+        $response->assertRedirect(route('admin.facture.index', $facture->id));
         $this->assertTrue(Facture::find($facture->id)->etat);
     }
 

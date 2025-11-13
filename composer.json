@@ -13,7 +13,6 @@
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "pelago/emogrifier": "^7.0",
-        "phpoffice/phpword": "^1.4",
         "spatie/laravel-permission": "^6.0",
         "yajra/laravel-datatables-oracle": "^11.1"
     },
