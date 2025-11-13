@@ -26,12 +26,16 @@ class DocumentObligatoire extends Model
 
 	protected $casts = [
 		'idDocumentObligatoire' => 'int',
-		'dateE' => 'bool'
+		'dateE' => 'bool',
+		'delai' => 'int',
+		'dateExpiration' => 'date'
 	];
 
 	protected $fillable = [
 		'nom',
-		'dateE'
+		'dateE',
+		'delai',
+		'dateExpiration'
 	];
 
 	public function roles()
