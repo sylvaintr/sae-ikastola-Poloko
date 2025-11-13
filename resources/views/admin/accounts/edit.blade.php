@@ -245,7 +245,7 @@
                     if (!emptyMessage) {
                         const message = document.createElement('div');
                         message.className = 'role-list-empty-message';
-                        message.textContent = 'Aucun rôle n\'a été sélectionné';
+                        message.textContent = '{{ __('admin.accounts_page.show.no_roles_selected') }}';
                         selectedRoles.appendChild(message);
                     }
                 } else {
