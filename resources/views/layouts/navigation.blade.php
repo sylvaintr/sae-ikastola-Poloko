@@ -17,7 +17,7 @@
                 </li>
                 @can('access-demande')
                     <li class="nav-item">
-                        <x-nav-link href="/demande" :active="request()->is('demande*')" class="nav-link">{{ __('nav.demande') }}</x-nav-link>
+                        <x-nav-link href="{{ route('demandes.index') }}" :active="request()->routeIs('demandes.index') || request()->is('demandes*')" class="nav-link">{{ __('nav.demandes') }}</x-nav-link>
                     </li>
                 @endcan
                 @can('access-tache')
