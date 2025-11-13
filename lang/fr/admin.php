@@ -29,13 +29,15 @@ return [
         'notifications' => 'Notifications',
         'obligatory_documents' => 'Documents obligatoires',
     ],
-    'accounts_page' => [
-        'title' => 'Comptes',
-        'title_subtitle' => 'Comptes',
-        'search_placeholder' => 'Rechercher un utilisateur...',
-        'search_label' => 'Rechercher un utilisateur',
-        'add_button' => 'Ajouter un compte',
-        'add_button_subtitle' => 'Ajouter un compte',
+    'accounts_page' => (function() use ($common) {
+        $addAccountText = 'Ajouter un compte';
+        return [
+            'title' => 'Comptes',
+            'title_subtitle' => 'Comptes',
+            'search_placeholder' => 'Rechercher un utilisateur...',
+            'search_label' => 'Rechercher un utilisateur',
+            'add_button' => $addAccountText,
+            'add_button_subtitle' => $addAccountText,
         'columns' => [
             'id' => [
                 'title' => 'Identifiant',
@@ -100,7 +102,7 @@ return [
             ],
         ],
         'create' => [
-            'title' => 'Ajouter un compte',
+            'title' => $addAccountText,
             'submit' => $common['submit'],
             'cancel' => $common['cancel'],
             'fields' => [
@@ -126,7 +128,8 @@ return [
             'no_match' => 'Les mots de passe ne correspondent pas',
         ],
         'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer le compte :name ?',
-    ],
+        ];
+    })(),
     'obligatory_documents' => [
         'title' => 'Documents obligatoires',
         'subtitle' => 'Documents requis',
