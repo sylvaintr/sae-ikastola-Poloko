@@ -7,16 +7,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Class Avoir
  * 
  * @property int $idUtilisateur Identifiant de l'utilisateur.
  * @property int $idRole Identifiant du rôle attribué à l'utilisateur.
+ * @property string $model_type Type du modèle (pour relation polymorphique).
  *
  * @package App\Models
  */
-class Avoir extends Model
+class Avoir extends Pivot
 {
 	protected $table = 'avoir';
 	public $incrementing = false;
@@ -26,6 +28,26 @@ class Avoir extends Model
 		'idUtilisateur' => 'int',
 		'idRole' => 'int'
 	];
+
+	protected $fillable = [
+		'idUtilisateur',
+		'idRole',
+		'model_type'
+	];
+
+	/**
+	 * Automatically set model_type when creating a new pivot record
+	 */
+	public static function boot()
+	{
+		parent::boot();
+
+		static::creating(function ($avoir) {
+			if (empty($avoir->model_type)) {
+				$avoir->model_type = Utilisateur::class;
+			}
+		});
+	}
 
 	public function utilisateur()
 	{

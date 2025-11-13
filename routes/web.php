@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
+use App\Http\Controllers\Admin\AccountController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
 Route::get('/', function () {
@@ -12,14 +13,34 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     Route::prefix('admin')->name('admin.')->group(function () {
+        $accountRoute = '/{account}';
         Route::view('/', 'admin.index')->name('index');
         Route::view('/publications', 'admin.messages')->name('messages');
-        Route::view('/comptes', 'admin.accounts')->name('accounts');
+        // Routes gérées par AccountController pour la gestion des comptes
+        Route::prefix('comptes')->name('accounts.')->controller(AccountController::class)->group(function () use ($accountRoute) {
+            Route::get('/', 'index')->name('index');
+            Route::get('/ajouter', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get($accountRoute, 'show')->name('show');
+            Route::get("{$accountRoute}/modifier", 'edit')->name('edit');
+            Route::put($accountRoute, 'update')->name('update');
+            Route::patch("{$accountRoute}/valider", 'validateAccount')->name('validate');
+            Route::delete($accountRoute, 'destroy')->name('destroy');
+        });
         Route::view('/familles', 'admin.families')->name('families');
         Route::view('/classes', 'admin.classes')->name('classes');
         Route::view('/facture', 'admin.invoices')->name('invoices');
         Route::view('/notifications', 'admin.notifications')->name('notifications');
+        Route::prefix('documents-obligatoires')->name('obligatory_documents.')->controller(\App\Http\Controllers\Admin\ObligatoryDocumentController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/ajouter', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{obligatoryDocument}/modifier', 'edit')->name('edit');
+            Route::put('/{obligatoryDocument}', 'update')->name('update');
+            Route::delete('/{obligatoryDocument}', 'destroy')->name('destroy');
+        });
     });
 });
 
