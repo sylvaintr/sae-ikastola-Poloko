@@ -30,11 +30,11 @@ return [
         'obligatory_documents' => 'Documents obligatoires',
     ],
     'accounts_page' => [
-        'title' => 'Kontuak',
+        'title' => 'Comptes',
         'title_subtitle' => 'Comptes',
-        'search_placeholder' => 'Erabiltzaile baten bilaketa...',
+        'search_placeholder' => 'Rechercher un utilisateur...',
         'search_label' => 'Rechercher un utilisateur',
-        'add_button' => 'Gehitu kontu bat',
+        'add_button' => 'Ajouter un compte',
         'add_button_subtitle' => 'Ajouter un compte',
         'columns' => [
             'id' => [
@@ -72,6 +72,7 @@ return [
             'status_label' => 'Statut',
             'roles_label' => $common['roles'],
             'no_roles' => 'Aucun rôle assigné',
+            'no_roles_selected' => 'Aucun rôle n\'a été sélectionné',
         ],
         'messages' => [
             'deleted' => 'Le compte a été supprimé avec succès.',
@@ -127,22 +128,22 @@ return [
         'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer le compte :name ?',
     ],
     'obligatory_documents' => [
-        'title' => 'Beharrezko dokumentuak',
+        'title' => 'Documents obligatoires',
         'subtitle' => 'Documents requis',
         'description' => 'Cette page permettra de gérer les documents obligatoires.',
-        'add_button' => 'Gehitu dokumentu bat',
+        'add_button' => 'Ajouter un document',
         'add_button_subtitle' => 'Ajouter un document',
         'back' => 'Retour aux documents obligatoires',
         'all_roles' => 'Tous',
         'no_documents' => 'Aucun document obligatoire disponible pour le moment.',
         'columns' => [
-            'title' => 'Izenburua',
+            'title' => 'Titre',
             'title_subtitle' => 'Titre',
-            'role' => 'Rola',
+            'role' => 'Rôle',
             'role_subtitle' => 'Rôle',
-            'expiration_date' => 'Iraungitze data',
+            'expiration_date' => 'Date d\'expiration',
             'expiration_date_subtitle' => 'Date d\'expiration',
-            'actions' => 'Ekintzak',
+            'actions' => 'Actions',
             'actions_subtitle' => 'Actions',
         ],
         'actions' => [

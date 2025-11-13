@@ -7,6 +7,7 @@ use App\Models\Utilisateur;
 use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
@@ -57,21 +58,27 @@ class AccountController extends Controller
             'mdp_confirmation.same' => 'Les mots de passe ne correspondent pas.',
         ]);
 
-        // Trouver le premier ID disponible
-        $availableId = $this->findAvailableId();
+        // Créer le compte dans une transaction pour éviter les conditions de course
+        // lors de la recherche et de l'insertion d'un ID disponible
+        $account = DB::transaction(function () use ($validated) {
+            // Trouver le premier ID disponible dans la transaction
+            $availableId = $this->findAvailableId();
 
-        // Créer le compte avec l'ID disponible
-        // Désactiver temporairement l'auto-increment pour permettre l'insertion manuelle de l'ID
-        $account = new Utilisateur();
-        $account->incrementing = false;
-        $account->idUtilisateur = $availableId;
-        $account->prenom = $validated['prenom'];
-        $account->nom = $validated['nom'];
-        $account->email = $validated['email'];
-        $account->languePref = $validated['languePref'];
-        $account->mdp = Hash::make($validated['mdp']);
-        $account->statutValidation = $validated['statutValidation'] ?? false;
-        $account->save();
+            // Créer le compte avec l'ID disponible
+            // Désactiver temporairement l'auto-increment pour permettre l'insertion manuelle de l'ID
+            $account = new Utilisateur();
+            $account->incrementing = false;
+            $account->idUtilisateur = $availableId;
+            $account->prenom = $validated['prenom'];
+            $account->nom = $validated['nom'];
+            $account->email = $validated['email'];
+            $account->languePref = $validated['languePref'];
+            $account->mdp = Hash::make($validated['mdp']);
+            $account->statutValidation = $validated['statutValidation'] ?? false;
+            $account->save();
+
+            return $account;
+        });
 
         // Sync roles with model_type automatically set
         $rolesToSync = [];
