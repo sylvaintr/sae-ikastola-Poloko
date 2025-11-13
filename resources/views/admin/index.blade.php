@@ -3,7 +3,7 @@
         'add_message' => 'admin.messages',
         'accounts' => 'admin.accounts.index',
         'families' => 'admin.families',
-        'classes' => 'admin.classes',
+        'classes' => 'admin.classes.index',
         'invoices' => 'admin.invoices',
         'notifications' => 'admin.notifications',
         'obligatory_documents' => 'admin.obligatory_documents.index',

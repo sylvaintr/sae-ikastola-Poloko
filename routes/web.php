@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ClasseController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\Admin\AccountController;
@@ -14,8 +15,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::prefix('admin')->name('admin.')->group(function () {
-        $accountRoute = '/{account}';
+    $classeRoute = '/{classe}';
+    $accountRoute = '/{account}';
+
+    Route::prefix('admin')->name('admin.')->group(function () use ($classeRoute, $accountRoute) {
         Route::view('/', 'admin.index')->name('index');
         Route::view('/publications', 'admin.messages')->name('messages');
         // Routes gérées par AccountController pour la gestion des comptes
@@ -30,7 +33,15 @@ Route::middleware('auth')->group(function () {
             Route::delete($accountRoute, 'destroy')->name('destroy');
         });
         Route::view('/familles', 'admin.families')->name('families');
-        Route::view('/classes', 'admin.classes')->name('classes');
+        Route::prefix('classes')->name('classes.')->controller(ClasseController::class)->group(function () use ($classeRoute) {
+            Route::get('/', 'index')->name('index');
+            Route::get('/ajouter', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get($classeRoute, 'show')->name('show');
+            Route::get("{$classeRoute}/modifier", 'edit')->name('edit');
+            Route::put($classeRoute, 'update')->name('update');
+            Route::delete($classeRoute, 'destroy')->name('destroy');
+        });
         Route::view('/facture', 'admin.invoices')->name('invoices');
         Route::view('/notifications', 'admin.notifications')->name('notifications');
         Route::prefix('documents-obligatoires')->name('obligatory_documents.')->controller(\App\Http\Controllers\Admin\ObligatoryDocumentController::class)->group(function () {
