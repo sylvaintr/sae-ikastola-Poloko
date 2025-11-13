@@ -199,8 +199,13 @@ return [
         ],
         'all_roles_option' => 'Tous les rôles',
     ],
-    'classes_page' => [
-        'title' => 'Gestion des classes',
+    'classes_page' => (function() use ($common) {
+        $addClassText = 'Ajouter une classe';
+        return [
+            'title' => 'Classes',
+            'title_subtitle' => 'Classes',
+            'add_button' => $addClassText,
+            'add_button_subtitle' => $addClassText,
         'columns' => [
             'id' => [
                 'title' => 'Identifiant',
@@ -272,5 +277,6 @@ return [
             ],
         ],
         'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer la classe :name ?',
-    ],
+        ];
+    })(),
 ];

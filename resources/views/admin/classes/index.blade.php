@@ -1,13 +1,24 @@
 <x-app-layout>
     <div class="container py-4">
-        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-lg-between gap-3 mb-4">
-            <h1 class="fw-bold display-6 mb-0">{{ __('admin.classes_page.title') }}</h1>
+        @if (session('status'))
+            <div id="status-alert" class="alert alert-success status-alert mb-3 d-flex align-items-center justify-content-between">
+                <span>{{ session('status') }}</span>
+                <button type="button" class="btn-close btn-close-sm" aria-label="Close" onclick="this.parentElement.remove()"></button>
+            </div>
+        @endif
 
-            @if (session('status'))
-                <div id="status-alert" class="alert alert-success status-alert mb-0 px-3 py-2">
-                    {{ session('status') }}
-                </div>
-            @endif
+        <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-4 mb-5">
+            <div>
+                <h1 class="fw-bold display-4 mb-1" style="font-size: 2.5rem;">{{ __('admin.classes_page.title') }}</h1>
+                <p class="text-muted mb-0" style="font-size: 0.9rem;">{{ __('admin.classes_page.title_subtitle') }}</p>
+            </div>
+
+            <div class="d-flex flex-column align-items-start">
+                <a href="{{ route('admin.classes.create') }}" class="btn admin-add-button">
+                    {{ __('admin.classes_page.add_button') }}
+                </a>
+                <p class="text-muted mb-0 admin-button-subtitle">{{ __('admin.classes_page.add_button_subtitle') }}</p>
+            </div>
         </div>
 
         <div class="table-responsive">
@@ -55,13 +66,6 @@
                     @endforelse
                 </tbody>
             </table>
-        </div>
-
-        <div class="d-flex justify-content-end mt-4">
-            <a href="{{ route('admin.classes.create') }}" class="btn btn-primary admin-add-button d-inline-flex align-items-center gap-2">
-                <i class="bi bi-plus-lg"></i>
-                <span>Ajouter une classe</span>
-            </a>
         </div>
     </div>
 </x-app-layout>
