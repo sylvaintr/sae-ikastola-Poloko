@@ -26,7 +26,8 @@ class AccountController extends Controller
             });
         }
 
-        $accounts = $query->select('idUtilisateur', 'prenom', 'nom', 'email', 'statutValidation')
+        $accounts = $query->with(['familles', 'rolesCustom'])
+            ->select('idUtilisateur', 'prenom', 'nom', 'email', 'statutValidation')
             ->orderBy('idUtilisateur')
             ->paginate(5);
 

@@ -45,10 +45,25 @@
                 <tbody>
                     @forelse ($accounts as $account)
                         <tr>
-                            <td>{{ $account->idUtilisateur }}</td>
                             <td>{{ $account->prenom }}</td>
                             <td>{{ $account->nom }}</td>
                             <td>{{ $account->email ?? '—' }}</td>
+                            <td>
+                                @if ($account->familles->isNotEmpty())
+                                    @foreach ($account->familles as $famille)
+                                        <span class="badge bg-info me-1">Famille #{{ $famille->idFamille }}</span>
+                                    @endforeach
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($account->rolesCustom->isNotEmpty())
+                                    {{ $account->rolesCustom->pluck('name')->join(', ') }}
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
                             <td>
                                 @if ($account->statutValidation)
                                     <span class="badge bg-success">Validé</span>
@@ -85,7 +100,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-5">
+                            <td colspan="7" class="text-center text-muted py-5">
                                 Aucun compte disponible pour le moment.
                             </td>
                         </tr>

@@ -39,9 +39,6 @@ return [
             'add_button' => $addAccountText,
             'add_button_subtitle' => $addAccountText,
         'columns' => [
-            'id' => [
-                'title' => 'Identifiant',
-            ],
             'first_name' => [
                 'title' => $common['first_name'],
             ],
@@ -50,6 +47,12 @@ return [
             ],
             'email' => [
                 'title' => $common['email'],
+            ],
+            'famille' => [
+                'title' => 'Famille',
+            ],
+            'roles' => [
+                'title' => 'Rôles',
             ],
             'status' => [
                 'title' => 'Statut',
