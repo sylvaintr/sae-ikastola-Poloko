@@ -126,14 +126,14 @@ class ObligatoryDocumentController extends Controller
     private function getValidationMessages(): array
     {
         return [
-            'nom.required' => 'Le nom du document est requis.',
-            'nom.max' => 'Le nom du document ne peut pas dépasser 100 caractères.',
-            'expirationType.required' => 'Le type d\'expiration est requis.',
-            'delai.required_if' => 'Le délai est requis lorsque le type d\'expiration est "délai".',
-            'delai.min' => 'Le délai doit être un nombre positif.',
-            'dateExpiration.required_if' => 'La date d\'expiration est requise lorsque le type d\'expiration est "date".',
-            'roles.required' => 'Au moins un rôle doit être sélectionné.',
-            'roles.min' => 'Au moins un rôle doit être sélectionné.',
+            'nom.required' => trans('admin.obligatory_documents.validation.nom_required'),
+            'nom.max' => trans('admin.obligatory_documents.validation.nom_max'),
+            'expirationType.required' => trans('admin.obligatory_documents.validation.expiration_type_required'),
+            'delai.required_if' => trans('admin.obligatory_documents.validation.delai_required_if'),
+            'delai.min' => trans('admin.obligatory_documents.validation.delai_min'),
+            'dateExpiration.required_if' => trans('admin.obligatory_documents.validation.date_expiration_required_if'),
+            'roles.required' => trans('admin.obligatory_documents.fields.roles_required'),
+            'roles.min' => trans('admin.obligatory_documents.fields.roles_required'),
         ];
     }
 

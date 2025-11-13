@@ -178,6 +178,14 @@ return [
             'no_roles_selected' => 'Aucun rôle n\'a été sélectionné',
             'roles_required' => $common['roles_required'],
         ],
+        'validation' => [
+            'nom_required' => 'Le nom du document est requis.',
+            'nom_max' => 'Le nom du document ne peut pas dépasser 100 caractères.',
+            'expiration_type_required' => 'Le type d\'expiration est requis.',
+            'delai_required_if' => 'Le délai est requis lorsque le type d\'expiration est "délai".',
+            'delai_min' => 'Le délai doit être un nombre positif.',
+            'date_expiration_required_if' => 'La date d\'expiration est requise lorsque le type d\'expiration est "date".',
+        ],
         'create' => [
             'title' => 'Ajouter un document obligatoire',
             'submit' => $common['submit'],
