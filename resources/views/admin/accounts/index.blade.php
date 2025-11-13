@@ -31,13 +31,53 @@
             </div>
         </div>
 
+        <div class="d-flex justify-content-end mb-4">
+            <div class="admin-filter-container">
+                <select id="filter-role" name="role" class="form-select admin-filter-select">
+                    <option value="">{{ __('admin.accounts_page.filter.all_roles') }}</option>
+                    @foreach($roles as $role)
+                        <option value="{{ $role->idRole }}" {{ request('role') == $role->idRole ? 'selected' : '' }}>
+                            {{ $role->name }}
+                        </option>
+                    @endforeach
+                </select>
+                <p class="text-muted mb-0 mt-2 text-center" style="font-size: 0.75rem;">{{ __('admin.accounts_page.filter.role_label') }}</p>
+            </div>
+        </div>
+
         <div class="table-responsive">
             <table class="table align-middle admin-table">
                 <thead>
                     <tr>
-                        @foreach (__('admin.accounts_page.columns') as $column)
+                        @php
+                            $allColumns = __('admin.accounts_page.columns');
+                            $columnOrder = ['first_name', 'last_name', 'email', 'famille', 'roles', 'status', 'actions'];
+                            $sortableColumns = ['first_name' => 'prenom', 'last_name' => 'nom', 'email' => 'email', 'famille' => 'famille', 'status' => 'statutValidation'];
+                        @endphp
+                        @foreach ($columnOrder as $key)
+                            @php $column = $allColumns[$key]; @endphp
                             <th scope="col">
-                                <span class="admin-table-heading">{{ $column['title'] }}</span>
+                                @if (isset($sortableColumns[$key]))
+                                    @php
+                                        $currentSort = $sortColumn ?? 'nom';
+                                        $currentDirection = $sortDirection ?? 'asc';
+                                        $isCurrentColumn = ($sortableColumns[$key] === $currentSort);
+                                        $nextDirection = $isCurrentColumn && $currentDirection === 'asc' ? 'desc' : 'asc';
+                                        $sortUrl = request()->fullUrlWithQuery(['sort' => $sortableColumns[$key], 'direction' => $nextDirection, 'page' => 1]);
+                                    @endphp
+                                    <a href="{{ $sortUrl }}" class="text-decoration-none text-dark d-inline-block" style="width: 100%;">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <span class="admin-table-heading">{{ $column['title'] }}</span>
+                                            <i class="bi bi-chevron-down ms-1" style="font-size: 0.9rem;"></i>
+                                        </div>
+                                        <p class="text-muted mb-0 text-center" style="font-size: 0.75rem; margin-top: 0.25rem;">{{ $column['subtitle'] }}</p>
+                                    </a>
+                                @else
+                                    <div class="text-center">
+                                        <span class="admin-table-heading">{{ $column['title'] }}</span>
+                                        <p class="text-muted mb-0" style="font-size: 0.75rem; margin-top: 0.25rem;">{{ $column['subtitle'] }}</p>
+                                    </div>
+                                @endif
                             </th>
                         @endforeach
                     </tr>
@@ -50,9 +90,7 @@
                             <td>{{ $account->email ?? '—' }}</td>
                             <td>
                                 @if ($account->familles->isNotEmpty())
-                                    @foreach ($account->familles as $famille)
-                                        <span class="badge bg-info me-1">Famille #{{ $famille->idFamille }}</span>
-                                    @endforeach
+                                    {{ $account->familles->pluck('idFamille')->join(', ') }}
                                 @else
                                     <span class="text-muted">—</span>
                                 @endif
@@ -156,6 +194,26 @@
                 
                 window.location.href = url.toString();
             }, 500);
+        });
+    })();
+
+    (function () {
+        const roleFilter = document.getElementById('filter-role');
+        if (!roleFilter) { return; }
+
+        roleFilter.addEventListener('change', function () {
+            const url = new URL(window.location.href);
+            
+            // Réinitialiser à la page 1 lors du changement de filtre
+            url.searchParams.delete('page');
+            
+            if (this.value) {
+                url.searchParams.set('role', this.value);
+            } else {
+                url.searchParams.delete('role');
+            }
+            
+            window.location.href = url.toString();
         });
     })();
 

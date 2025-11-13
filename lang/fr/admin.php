@@ -38,27 +38,38 @@ return [
             'search_label' => 'Rechercher un utilisateur',
             'add_button' => $addAccountText,
             'add_button_subtitle' => $addAccountText,
+        'filter' => [
+            'all_roles' => 'Tous les rôles',
+            'role_label' => 'Filtrer par rôle',
+        ],
         'columns' => [
             'first_name' => [
-                'title' => $common['first_name'],
+                'title' => 'Izena',
+                'subtitle' => 'Prénom',
             ],
             'last_name' => [
-                'title' => $common['last_name'],
+                'title' => 'Izena',
+                'subtitle' => 'Nom',
             ],
             'email' => [
                 'title' => $common['email'],
+                'subtitle' => $common['email'],
             ],
             'famille' => [
-                'title' => 'Famille',
+                'title' => 'Familiaren NAN',
+                'subtitle' => 'ID Famille',
             ],
             'roles' => [
-                'title' => 'Rôles',
+                'title' => 'Rola',
+                'subtitle' => 'Rôle',
             ],
             'status' => [
                 'title' => 'Statut',
+                'subtitle' => 'Statut',
             ],
             'actions' => [
                 'title' => 'Actions',
+                'subtitle' => 'Actions',
             ],
         ],
         'actions' => [

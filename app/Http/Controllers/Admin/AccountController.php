@@ -26,12 +26,46 @@ class AccountController extends Controller
             });
         }
 
-        $accounts = $query->with(['familles', 'rolesCustom'])
-            ->select('idUtilisateur', 'prenom', 'nom', 'email', 'statutValidation')
-            ->orderBy('idUtilisateur')
-            ->paginate(5);
+        // Filtrage par rôle
+        if ($request->filled('role')) {
+            $roleId = $request->get('role');
+            $query->whereHas('rolesCustom', function ($q) use ($roleId) {
+                $q->where('role.idRole', $roleId);
+            });
+        }
 
-        return view('admin.accounts.index', compact('accounts'));
+        // Gestion du tri
+        $sortColumn = $request->get('sort', 'nom');
+        $sortDirection = $request->get('direction', 'asc');
+        
+        $allowedSortColumns = ['prenom', 'nom', 'email', 'statutValidation', 'idUtilisateur', 'famille'];
+        if (!in_array($sortColumn, $allowedSortColumns)) {
+            $sortColumn = 'nom';
+        }
+        
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+
+        // Pour le tri par famille, on doit faire un join
+        if ($sortColumn === 'famille') {
+            $query->leftJoin('lier', 'utilisateur.idUtilisateur', '=', 'lier.idUtilisateur')
+                  ->leftJoin('famille', 'lier.idFamille', '=', 'famille.idFamille')
+                  ->select('utilisateur.idUtilisateur', 'utilisateur.prenom', 'utilisateur.nom', 'utilisateur.email', 'utilisateur.statutValidation')
+                  ->groupBy('utilisateur.idUtilisateur', 'utilisateur.prenom', 'utilisateur.nom', 'utilisateur.email', 'utilisateur.statutValidation')
+                  ->orderBy('famille.idFamille', $sortDirection);
+        } else {
+            $query->select('idUtilisateur', 'prenom', 'nom', 'email', 'statutValidation')
+                  ->orderBy($sortColumn, $sortDirection);
+        }
+
+        $accounts = $query->with(['familles', 'rolesCustom'])
+            ->paginate(5)
+            ->withQueryString();
+
+        $roles = Role::select('idRole', 'name')->orderBy('name')->get();
+
+        return view('admin.accounts.index', compact('accounts', 'sortColumn', 'sortDirection', 'roles'));
     }
 
     public function create(): View
