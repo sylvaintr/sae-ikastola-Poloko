@@ -133,27 +133,6 @@ class FactureController extends Controller
             return response($htmlInlined, 200)
                 ->header('Content-Type', 'application/vnd.ms-word')
                 ->header('Content-Disposition', 'attachment; filename="facture-' . $facture->idFacture . '.doc"');
-
-
-
-
-            // $config = HTMLPurifier_Config::createDefault();
-            // $purifier = new HTMLPurifier($config);
-            // $htmlInlined = mb_convert_encoding($htmlInlined, 'HTML-ENTITIES', 'UTF-8');
-            // $htmlInlined = $purifier->purify($htmlInlined);
-
-            // $phpWord = new PhpWord();
-            // $section = $phpWord->addSection();
-            // Html::addHtml($section, $htmlInlined, false, false);
-
-            // $tempFile = tempnam(sys_get_temp_dir(), 'facture') . '.docx';
-            // if (ob_get_length()) {
-            //     ob_end_clean();
-            // }
-            // $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
-            // $objWriter->save($tempFile);
-
-            // return response()->download($tempFile, 'facture-' . $facture->idFacture . '.docx')->deleteFileAfterSend(true);
         }
     }
 
