@@ -37,8 +37,10 @@ class FactureController extends Controller
      */
     public function show(string $id): View|RedirectResponse
     {
-
         $montants = $this->calculerMontantFacture($id);
+        if ($montants instanceof RedirectResponse) {
+            return $montants;
+        }
 
         return view('facture.show', [
             'facture' => $montants['facture'],
@@ -78,6 +80,10 @@ class FactureController extends Controller
     {
 
         $montants = $this->calculerMontantFacture($id);
+        if ($montants instanceof RedirectResponse) {
+            return $montants;
+        }
+
         $facture = $montants['facture'];
 
 
@@ -98,6 +104,7 @@ class FactureController extends Controller
             $options = new Options();
             $options->set('isHtml5ParserEnabled', true);
             $options->set('isRemoteEnabled', true);
+            $options->set('defaultPaperMargins', [10, 10, 10, 10]);
 
             $dompdf = new Dompdf($options);
             $dompdf->loadHtml($htmlInlined);

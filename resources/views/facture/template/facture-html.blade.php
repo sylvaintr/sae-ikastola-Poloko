@@ -83,11 +83,14 @@
     <table>
         <thead>
             <tr style="justify-content: center;">
-                <th style="background: #8ED773; width: 40%;ustify-content: center;">Gaia <br /> <span
-                        style="color: #7E7E7E;">Désignation</span></th>
-                <th style="background: #C0E9B0; width: 30%;">BEZ gabeko prezioa <span style="color: #7E7E7E;">Prix
+                <th style="background: #8ED773; width: 40%;justify-content: center;  text-align: center;">Gaia <br />
+                    <span style="color: #7E7E7E;">Désignation</span>
+                </th>
+                <th style="background: #C0E9B0; width: 30%; text-align: center;">BEZ gabeko prezioa <br /> <span
+                        style="color: #7E7E7E;">Prix
                         unitaire HT</span></th>
-                <th style="background: #C0E9B0; width: 30%;">BEZ gabeko orotara <span style="color: #7E7E7E;">Total
+                <th style="background: #C0E9B0; width: 30%; text-align: center;">BEZ gabeko orotara <br /> <span
+                        style="color: #7E7E7E;">Total
                         HT</span></th>
             </tr>
         </thead>
@@ -115,21 +118,22 @@
                 <td style="font-size: 9pt;">Aurreikusi haurtzaindegia (3. haurrarentzat, urririk)
                     <span style="color: #7E7E7E;"> garderie (gratuit pour le 3<sup>e</sup> enfant)</span>
                 </td>
-                <td style="font-size: 9pt;">1 - 8 aldiz – <span style="color: #7E7E7E;">fois</span> : 10 € - eusko /
+                <td style="font-size: 9pt; text-align: right;">1 - 8 aldiz – <span style="color: #7E7E7E;">fois</span> :
+                    10 € - eusko /
                     haurka – <span style="color: #7E7E7E;">enfant</span><br>
                     + 9 aldiz – <span style="color: #7E7E7E;">fois</span> : 20 € - eusko / haurka – <span
                         style="color: #7E7E7E;">enfant</span></td>
-                <td style="text-align: center;">
+                <td style="text-align: right;">
                     @if ($facture->previsionnel)
-                        <span style="font-size: 9pt;">montant previsionnel</span><br>
+                        <span style="font-size: 9pt;">montant previsionnel</span>
                     @endif
                     {{ $montangarderie ?? 0 }} € - eusko
                 </td>
             </tr>
             <tr>
                 <td style="border: 0px"></td>
-                <td style="background: #8ED773; font-weight: bold;">Zure gain den BEZekin Orotara <span
-                        style="color: #7E7E7E;">Total TTC à votre charge</span></td>
+                <td style="background: #8ED773; font-weight: bold; text-align: center;">Zure gain den BEZekin
+                    Orotara<br /> <span style="color: #7E7E7E;">Total TTC à votre charge</span></td>
                 <td style="background: #8ED773; font-weight: bold; text-align: center;">
                     {{ number_format($montanttotal ?? 0, 2, ',', '') }} € - eusko</td>
             </tr>
@@ -221,6 +225,14 @@
         <span style="color: #7E7E7E;">Indemnité forfaitaire pour frais de recouvrement due au créancier en cas de
             retard de paiement : 40€.</span>
     </p>
+    <footer style="text-align: center;color: #7E7E7E;">
+        <hr>
+        <p style="font-size: 10pt">
+            Association Loi 1901 enregistrée sous le N° 19800035 à la
+            Sous-préfecture de Bayonne - N° SIRET : 32416580200020 Catégorie juridique : 9220 Association déclarée –
+            hiriondo.bulegoa@seaska.eus
+        </p>
+    </footer>
 </body>
 
 </html>

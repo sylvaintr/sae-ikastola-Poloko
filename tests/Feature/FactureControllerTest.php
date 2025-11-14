@@ -129,11 +129,14 @@ class FactureControllerTest extends TestCase
     {
         $responseEnvoyerFacture = $this->get(route('admin.facture.envoyer', 1230));
         $responseValiderFacture = $this->get(route('admin.facture.valider', 1230));
-
+        $responseExportFacture = $this->get(route('admin.facture.export', 1230));
+        $responseShowFacture = $this->get(route('admin.facture.show', 1230));
 
 
 
         $responseEnvoyerFacture->assertRedirect(route('admin.facture.index'));
         $responseValiderFacture->assertRedirect(route('admin.facture.index'));
+        $responseExportFacture->assertRedirect(route('admin.facture.index'));
+        $responseShowFacture->assertRedirect(route('admin.facture.index'));
     }
 }

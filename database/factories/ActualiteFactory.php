@@ -14,7 +14,7 @@ class ActualiteFactory extends Factory
     {
         return [
             'idActualite' => $this->faker->unique()->numberBetween(1, 100000),
-            'titre' => $this->faker->optional()->sentence(3),
+            'titre' => $this->faker->optional()->sentence(2),
             'description' => $this->faker->text(80),
             'type' => $this->faker->word(),
             'dateP' => $this->faker->date(),
