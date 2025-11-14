@@ -7,7 +7,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Class Etre
@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Etre extends Model
+class Etre extends Pivot
 {
 	protected $table = 'etre';
 	public $incrementing = false;

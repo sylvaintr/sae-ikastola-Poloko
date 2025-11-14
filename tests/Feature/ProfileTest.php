@@ -18,7 +18,10 @@ class ProfileTest extends TestCase
     {
         parent::setUp();
 
-        $this->user = Utilisateur::factory()->create();
+        // Ensure unique email to avoid rare unique-constraint collisions during full suite runs
+        $this->user = Utilisateur::factory()->create([
+            'email' => 'user+' . uniqid() . '@example.test',
+        ]);
     }
 
     public function test_profile_page_is_displayed(): void

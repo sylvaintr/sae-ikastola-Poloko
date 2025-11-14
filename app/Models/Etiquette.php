@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Etiquette
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Etiquette extends Model
 {
+	use HasFactory;
 	protected $table = 'etiquette';
 	protected $primaryKey = 'idEtiquette';
 	public $incrementing = false;

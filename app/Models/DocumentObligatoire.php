@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class DocumentObligatoire
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class DocumentObligatoire extends Model
 {
+	use HasFactory;
 	protected $table = 'documentObligatoire';
 	protected $primaryKey = 'idDocumentObligatoire';
 	public $incrementing = false;

@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 /**
@@ -22,6 +23,7 @@ use Carbon\Carbon;
  */
 class Role extends \Spatie\Permission\Models\Role
 {
+	use HasFactory;
 	protected $table = 'role';
 	protected $primaryKey = 'idRole';
 	public $incrementing = true;
@@ -43,5 +45,4 @@ class Role extends \Spatie\Permission\Models\Role
 	{
 		return $this->belongsToMany(DocumentObligatoire::class, 'attribuer', 'idRole', 'idDocumentObligatoire');
 	}
-
 }

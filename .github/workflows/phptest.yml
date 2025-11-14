@@ -73,6 +73,20 @@ jobs:
             --testdox-html build/reports/testdox.html \
             --log-junit build/reports/junit.xml
 
+      - name: Fail if coverage is not 100%
+        run: |
+          COVERAGE=$(xmllint --xpath "string(/coverage/project/metrics/@line-rate)" build/reports/coverage.xml)
+          PERCENT=$(printf "%.0f" $(echo "$COVERAGE * 100" | bc -l))
+
+          echo "Couverture détectée : $PERCENT%"
+
+          if [ "$PERCENT" -lt 100 ]; then
+            echo "❌ La couverture doit être à 100% — Actuellement : $PERCENT%"
+            exit 1
+          fi
+
+          echo "✅ Couverture OK à 100%"
+
       # Étape 6 : Publier les rapports comme artefacts GitHub
       - name: Upload test reports
         uses: actions/upload-artifact@v4

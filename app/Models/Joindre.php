@@ -6,7 +6,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Class Joindre
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Joindre extends Model
+class Joindre extends Pivot
 {
 	protected $table = 'joindre';
 	public $incrementing = false;

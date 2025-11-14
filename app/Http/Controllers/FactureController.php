@@ -38,31 +38,17 @@ class FactureController extends Controller
     public function show(string $id): View|RedirectResponse
     {
 
-        $facture = Facture::find($id ?? null);
-        if ($facture === null) {
-            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
-        }
-        $famille = Famille::find($facture->idFamille);
-        $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
-
-
-        $montants = $this->calculerMontantFacture($facture, $famille, $enfants);
-        $montantcotisation = $montants['montantcotisation'];
-        $montantparticipation = $montants['montantparticipation'];
-        $montantparticipationSeaska = $montants['montantparticipationSeaska'];
-        $montangarderie = $montants['montangarderie'];
-        $montanttotal = $montants['montanttotal'];
+        $montants = $this->calculerMontantFacture($id);
 
         return view('facture.show', [
-            'facture' => $facture,
-            'famille' => $famille,
-            'enfants' => $enfants,
-            'montangarderie' => $montangarderie ?? 0,
-            'montantcotisation' => $montantcotisation ?? 0,
-            'montantparticipation' => $montantparticipation ?? 0,
-            'montantparticipationSeaska' => $montantparticipationSeaska ?? 0,
-            'montanttotal' => $montanttotal ?? 0,
-
+            'facture' => $montants['facture'],
+            'famille' => $montants['famille'],
+            'enfants' => $montants['enfants'],
+            'montangarderie' => $montants['montangarderie'] ?? 0,
+            'montantcotisation' => $montants['montantcotisation'] ?? 0,
+            'montantparticipation' => $montants['montantparticipation'] ?? 0,
+            'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
+            'montanttotal' => $montants['montanttotal'] ?? 0,
         ]);
     }
 
@@ -74,8 +60,12 @@ class FactureController extends Controller
         $query = Facture::query();
 
         return DataTables::of($query)
-            ->addColumn('titre', fn($facture) => "Facture {$facture->idFacture}")
-            ->addColumn('etat', fn($facture) => $facture->etat ? 'Vérifiée' : 'Brouillon')
+            ->addColumn('titre', function ($facture) {
+                return "Facture {$facture->idFacture}";
+            })
+            ->addColumn('etat', function ($facture) {
+                return $facture->etat ? 'Vérifiée' : 'Brouillon';
+            })
             ->addColumn('actions', function ($facture) {
                 return view('facture.template.colonne-action', compact('facture'));
             })
@@ -86,34 +76,24 @@ class FactureController extends Controller
 
     public function exportFacture(string $id): Response|RedirectResponse
     {
-        $facture = Facture::find($id ?? null);
-        if ($facture === null) {
-            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
-        }
-        $famille = Famille::find($facture->idFamille);
-        $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
 
-        $montants = $this->calculerMontantFacture($facture, $famille, $enfants);
-        $montantcotisation = $montants['montantcotisation'];
-        $montantparticipation = $montants['montantparticipation'];
-        $montantparticipationSeaska = $montants['montantparticipationSeaska'];
-        $montangarderie = $montants['montangarderie'];
-        $montanttotal = $montants['montanttotal'];
+        $montants = $this->calculerMontantFacture($id);
+        $facture = $montants['facture'];
 
 
 
-        $content = view('facture.template.facture-html', compact(
-            'facture',
-            'famille',
-            'enfants',
-            'montantcotisation',
-            'montantparticipation',
-            'montantparticipationSeaska',
-            'montangarderie',
-            'montanttotal'
-        ))->render();
+        $content = view('facture.template.facture-html', [
+            'facture' => $montants['facture'],
+            'famille' => $montants['famille'],
+            'enfants' => $montants['enfants'],
+            'montantcotisation' => $montants['montantcotisation'] ?? 0,
+            'montantparticipation' => $montants['montantparticipation'] ?? 0,
+            'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
+            'montangarderie' => $montants['montangarderie'] ?? 0,
+            'montanttotal' => $montants['montanttotal'] ?? 0
+        ])->render();
         $htmlInlined = CssInliner::fromHtml($content)->inlineCss()->render();
-        if ($facture->etat) {
+        if (is_object($facture) && $facture->etat) {
 
             $options = new Options();
             $options->set('isHtml5ParserEnabled', true);
@@ -127,12 +107,12 @@ class FactureController extends Controller
 
             return response($dompdf->output(), 200)
                 ->header('Content-Type', 'application/pdf')
-                ->header('Content-Disposition', 'attachment; filename="facture-' . $facture->idFacture . '.pdf"');
+                ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.pdf"');
         } else {
 
             return response($htmlInlined, 200)
                 ->header('Content-Type', 'application/vnd.ms-word')
-                ->header('Content-Disposition', 'attachment; filename="facture-' . $facture->idFacture . '.doc"');
+                ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.doc"');
         }
     }
 
@@ -175,8 +155,15 @@ class FactureController extends Controller
      * @return array<int, float> associative array with keys:
      *      montantcotisation, montantparticipation, montantparticipationSeaska, montangarderie, montanttotal
      */
-    private function calculerMontantFacture(Facture $facture, Famille $famille, Collection $enfants): array
+    private function calculerMontantFacture(string $id): array|RedirectResponse
     {
+
+        $facture = Facture::find($id ?? null);
+        if ($facture === null) {
+            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
+        }
+        $famille = Famille::find($facture->idFamille);
+        $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
 
         $montantcotisation = 0;
         switch ($enfants->count()) {
@@ -241,6 +228,9 @@ class FactureController extends Controller
         $montanttotal = $montangarderie + $montantcotisation + $montantparticipation + $montantparticipationSeaska;
 
         return [
+            'facture' => $facture,
+            'famille' => $famille,
+            'enfants' => $enfants,
             'montantcotisation' => $montantcotisation,
             'montantparticipation' => $montantparticipation,
             'montantparticipationSeaska' => $montantparticipationSeaska,

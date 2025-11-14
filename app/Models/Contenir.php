@@ -6,7 +6,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Class Contenir
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Contenir extends Model
+class Contenir extends Pivot
 {
 	protected $table = 'contenir';
 	public $incrementing = false;

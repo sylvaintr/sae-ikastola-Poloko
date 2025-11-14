@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\FactureController;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Facture;
@@ -20,9 +21,6 @@ class FactureControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Disable route middlewares for these feature tests so we don't need to
-        // create authenticated users / roles for every scenario. Tests focus on
-        // controller behaviour, not middleware enforcement.
         $this->withoutMiddleware();
     }
 
@@ -125,5 +123,17 @@ class FactureControllerTest extends TestCase
 
         $response->assertRedirect(route('admin.facture.index'));
         Mail::assertNothingSent();
+    }
+
+    public function test_redirects_to_index_on_invalid_facture()
+    {
+        $responseEnvoyerFacture = $this->get(route('admin.facture.envoyer', 1230));
+        $responseValiderFacture = $this->get(route('admin.facture.valider', 1230));
+
+
+
+
+        $responseEnvoyerFacture->assertRedirect(route('admin.facture.index'));
+        $responseValiderFacture->assertRedirect(route('admin.facture.index'));
     }
 }
