@@ -17,18 +17,10 @@ class CalculMontantFactureTest extends TestCase
 
     public function test_zero_children_returns_zero_amounts()
     {
-        $famille = Famille::create(['aineDansAutreSeaska' => false]);
+        $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
+        $facture = $this->createFacture($famille, ['previsionnel' => false]);
 
-        $facture = Facture::factory()->create([
-            'idFamille' => $famille->idFamille,
-            'previsionnel' => false,
-            'dateC' => Carbon::now(),
-        ]);
-
-        $controller = new \App\Http\Controllers\FactureController();
-        $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
-
-        $result = $ref->invoke($controller, $facture->idFacture);
+        $result = $this->invokeCalculerMontantFacture($facture);
 
         $this->assertEquals(0, $result['montantcotisation']);
         $this->assertEquals(0, $result['montantparticipation']);
@@ -39,23 +31,13 @@ class CalculMontantFactureTest extends TestCase
 
     public function test_one_child_previsionnel_uses_nbFoisGarderie()
     {
-        $famille = Famille::create(['aineDansAutreSeaska' => false]);
+        $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
 
-        Enfant::factory()->create([
-            'idFamille' => $famille->idFamille,
-            'nbFoisGarderie' => 9,
-        ]);
+        $this->createEnfant($famille, ['nbFoisGarderie' => 9]);
 
-        $facture = Facture::factory()->create([
-            'idFamille' => $famille->idFamille,
-            'previsionnel' => true,
-            'dateC' => Carbon::now(),
-        ]);
+        $facture = $this->createFacture($famille, ['previsionnel' => true]);
 
-        $controller = new \App\Http\Controllers\FactureController();
-        $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
-
-        $result = $ref->invoke($controller, $facture->idFacture);
+        $result = $this->invokeCalculerMontantFacture($facture);
 
         // 1 enfant -> cotisation 45
         $this->assertEquals(45, $result['montantcotisation']);
@@ -69,32 +51,16 @@ class CalculMontantFactureTest extends TestCase
 
     public function test_two_children_with_seaska_and_etre_counts()
     {
-        $famille = Famille::create(['aineDansAutreSeaska' => true]);
+        $famille = $this->createFamille(['aineDansAutreSeaska' => true]);
+        $this->createEnfants($famille, 2);
 
-        Enfant::factory()->create(['idFamille' => $famille->idFamille]);
-        Enfant::factory()->create(['idFamille' => $famille->idFamille]);
+        $facture = $this->createFacture($famille, ['previsionnel' => false]);
 
-        $facture = Facture::factory()->create([
-            'idFamille' => $famille->idFamille,
-            'previsionnel' => false,
-            'dateC' => Carbon::now(),
-        ]);
+        $activite = $this->createGarderieActivity('garderie soir');
 
-        $activite = Activite::factory()->create(['activite' => 'garderie soir']);
+        $this->createPresencesForAllEnfants($famille, $activite, Carbon::now());
 
-        $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
-        foreach ($enfants as $enfant) {
-            Etre::create([
-                'idEnfant' => $enfant->idEnfant,
-                'activite' => $activite->activite,
-                'dateP' => Carbon::now(),
-            ]);
-        }
-
-        $controller = new \App\Http\Controllers\FactureController();
-        $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
-
-        $result = $ref->invoke($controller, $facture->idFacture);
+        $result = $this->invokeCalculerMontantFacture($facture);
 
         // 2 enfants -> cotisation 65
         $this->assertEquals(65, $result['montantcotisation']);
@@ -108,21 +74,64 @@ class CalculMontantFactureTest extends TestCase
 
     public function test_three_or_more_children_cotisation_75()
     {
-        $famille = Famille::create(['aineDansAutreSeaska' => false]);
+        $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
 
-        Enfant::factory()->count(3)->create(['idFamille' => $famille->idFamille]);
+        $this->createEnfants($famille, 3);
 
-        $facture = Facture::factory()->create([
-            'idFamille' => $famille->idFamille,
-            'previsionnel' => false,
-            'dateC' => Carbon::now(),
-        ]);
+        $facture = $this->createFacture($famille, ['previsionnel' => false]);
 
-        $controller = new \App\Http\Controllers\FactureController();
-        $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
-
-        $result = $ref->invoke($controller, $facture->idFacture);
+        $result = $this->invokeCalculerMontantFacture($facture);
 
         $this->assertEquals(75, $result['montantcotisation']);
     }
+
+    // Helper methods to reduce duplication across tests
+    private function createFamille(array $attrs = []): Famille
+    {
+        return Famille::create(array_merge(['aineDansAutreSeaska' => false], $attrs));
+    }
+
+    private function createEnfant(Famille $famille, array $attrs = []): Enfant
+    {
+        return Enfant::factory()->create(array_merge(['idFamille' => $famille->idFamille], $attrs));
+    }
+
+    private function createEnfants(Famille $famille, int $count = 1, array $attrs = [])
+    {
+        Enfant::factory()->count($count)->create(array_merge(['idFamille' => $famille->idFamille], $attrs));
+    }
+
+    private function createFacture(Famille $famille, array $attrs = []): Facture
+    {
+        return Facture::factory()->create(array_merge([
+            'idFamille' => $famille->idFamille,
+            'previsionnel' => true,
+            'dateC' => Carbon::now(),
+        ], $attrs));
+    }
+
+    private function createGarderieActivity(string $name): Activite
+    {
+        return Activite::factory()->create(['activite' => $name]);
+    }
+
+    private function createPresencesForAllEnfants(Famille $famille, Activite $activite, Carbon $date)
+    {
+        $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
+        foreach ($enfants as $enfant) {
+            Etre::create([
+                'idEnfant' => $enfant->idEnfant,
+                'activite' => $activite->activite,
+                'dateP' => $date,
+            ]);
+        }
+    }
+
+    private function invokeCalculerMontantFacture(Facture $facture)
+    {
+        $controller = new \App\Http\Controllers\FactureController();
+        $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
+        return $ref->invoke($controller, $facture->idFacture);
+    }
+
 }

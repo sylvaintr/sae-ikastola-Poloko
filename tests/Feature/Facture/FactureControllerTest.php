@@ -17,32 +17,13 @@ class FactureControllerTest extends TestCase
 
     public function test_show_calculates_amounts_correctly()
     {
-        // Create family without factory side-effects and set aineDansAutreSeaska = true
-        $famille = Famille::create(['aineDansAutreSeaska' => true]);
+        $famille = $this->createFamilleWithEnfants(2, ['aineDansAutreSeaska' => true]);
 
-        // Create exactly 2 enfants for this famille
-        Enfant::factory()->create(['idFamille' => $famille->idFamille]);
-        Enfant::factory()->create(['idFamille' => $famille->idFamille]);
+        $facture = $this->createFactureForFamille($famille, ['previsionnel' => false, 'etat' => false]);
 
-        $facture = Facture::factory()->create([
-            'idFamille' => $famille->idFamille,
-            'previsionnel' => false,
-            'dateC' => Carbon::now(),
-            'etat' => false,
-        ]);
+        $activite = $this->createGarderieActivity('garderie matin');
 
-        // Create an activity that contains 'garderie' in its name
-        $activite = Activite::factory()->create(['activite' => 'garderie matin']);
-
-        // For each enfant, create one Etre within the facture month to count as 1 garderie
-        $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
-        foreach ($enfants as $enfant) {
-            Etre::create([
-                'idEnfant' => $enfant->idEnfant,
-                'activite' => $activite->activite,
-                'dateP' => Carbon::now(),
-            ]);
-        }
+        $this->createPresencesForAllEnfants($famille, $activite, Carbon::now());
 
         // Call the private calculerMontantFacture method directly to avoid view rendering side-effects
         $controller = new \App\Http\Controllers\FactureController();
@@ -70,5 +51,63 @@ class FactureControllerTest extends TestCase
         // total is the sum
         $expectedTotal = $cotisation + $participation + $seaska + $garderie;
         $this->assertEquals($expectedTotal, $total);
+    }
+
+    /**
+     * Create a famille and a given number of enfants.
+     *
+     * @param int $count
+     * @param array $familleAttrs
+     * @return \App\Models\Famille
+     */
+    private function createFamilleWithEnfants(int $count = 1, array $familleAttrs = []): Famille
+    {
+        $famille = Famille::create(array_merge(['aineDansAutreSeaska' => false], $familleAttrs));
+
+        for ($i = 0; $i < $count; $i++) {
+            Enfant::factory()->create(['idFamille' => $famille->idFamille]);
+        }
+
+        return $famille;
+    }
+
+    /**
+     * Create a Facture for the given famille with optional overrides.
+     *
+     * @param Famille $famille
+     * @param array $attrs
+     * @return \App\Models\Facture
+     */
+    private function createFactureForFamille(Famille $famille, array $attrs = []): Facture
+    {
+        return Facture::factory()->create(array_merge([
+            'idFamille' => $famille->idFamille,
+            'previsionnel' => true,
+            'dateC' => Carbon::now(),
+            'etat' => true,
+        ], $attrs));
+    }
+
+    /**
+     * Create an activity with provided name.
+     */
+    private function createGarderieActivity(string $name): Activite
+    {
+        return Activite::factory()->create(['activite' => $name]);
+    }
+
+    /**
+     * Create one Etre presence for each enfant of the famille using given activity.
+     */
+    private function createPresencesForAllEnfants(Famille $famille, Activite $activite, Carbon $date)
+    {
+        $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
+        foreach ($enfants as $enfant) {
+            Etre::create([
+                'idEnfant' => $enfant->idEnfant,
+                'activite' => $activite->activite,
+                'dateP' => $date,
+            ]);
+        }
     }
 }

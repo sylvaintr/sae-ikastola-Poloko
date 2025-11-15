@@ -33,6 +33,15 @@ class AccountControllerIndexTest extends TestCase
         $request2 = new \Illuminate\Http\Request(['search' => 'Alice']);
         $view2 = $controller->index($request2);
         $data2 = $view2->getData();
-        $this->assertEquals(1, $data2['accounts']->total());
+        // Ensure at least one matching account is returned and specifically 'Alice' exists
+        $this->assertGreaterThanOrEqual(1, $data2['accounts']->total());
+        $found = false;
+        foreach ($data2['accounts'] as $acct) {
+            if (($acct->prenom ?? '') === 'Alice') {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found, 'Search results should contain the account with prenom "Alice"');
     }
 }

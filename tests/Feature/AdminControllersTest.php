@@ -53,11 +53,13 @@ class AdminControllersTest extends TestCase
         $account = Utilisateur::factory()->create(['idUtilisateur' => random_int(1000, 999999)]);
         $account = Utilisateur::find($account->idUtilisateur);
 
+        // Use a unique email to avoid collisions when the full suite runs
+        $newEmail = uniqid('new_') . '@example.com';
+
         $putData = [
             'prenom' => 'NewPrenom',
             'nom' => 'NewNom',
-            // Use a deterministic email expected by the assertion
-            'email' => 'newemail@example.com',
+            'email' => $newEmail,
             'languePref' => 'en',
             'statutValidation' => false,
             'roles' => [$role->idRole],
@@ -67,7 +69,7 @@ class AdminControllersTest extends TestCase
 
         $response->assertRedirect(route('admin.accounts.index'));
 
-        $this->assertDatabaseHas('utilisateur', ['email' => 'newemail@example.com', 'prenom' => 'NewPrenom']);
+        $this->assertDatabaseHas('utilisateur', ['email' => $newEmail, 'prenom' => 'NewPrenom']);
     }
 
     public function test_account_validate_sets_statutValidation()

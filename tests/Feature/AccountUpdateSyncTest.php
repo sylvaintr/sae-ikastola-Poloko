@@ -11,16 +11,23 @@ class AccountUpdateSyncTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_put_update_then_roles_sync_via_controller()
+    /** @var \App\Models\Utilisateur */
+    protected $adminUser;
+    /**
+     * Set up an admin user and authenticate it.
+     */
+    protected function setUp(): void
     {
-        // This mirrors the failing feature test scenario
-        // Disable auth and role checks but keep route model binding (SubstituteBindings)
-        // Create an admin user and give it the CA role so middleware passes
+        parent::setUp();
+
         $adminRole = Role::factory()->create(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
         $adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
         $this->actingAs($adminUser);
+    }
 
+    public function test_put_update_then_roles_sync_via_controller()
+    {
         $role = Role::factory()->create();
         $account = Utilisateur::factory()->create();
 

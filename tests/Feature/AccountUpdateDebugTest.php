@@ -11,15 +11,21 @@ use App\Models\Utilisateur;
 class AccountUpdateDebugTest extends TestCase
 {
     use RefreshDatabase;
+    /** @var \App\Models\Utilisateur */
+    protected $adminUser;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $adminRole = Role::factory()->create(['name' => 'CA']);
+        $this->adminUser = Utilisateur::factory()->create();
+        $this->adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
+        $this->actingAs($this->adminUser);
+    }
 
     public function test_capture_queries_during_put_update()
     {
-        // Create admin user and authenticate so role middleware passes and SubstituteBindings runs
-        $adminRole = Role::factory()->create(['name' => 'CA']);
-        $adminUser = Utilisateur::factory()->create();
-        $adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
-        $this->actingAs($adminUser);
-
         $role = Role::factory()->create();
         $account = Utilisateur::factory()->create();
 
