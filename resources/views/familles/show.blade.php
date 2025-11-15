@@ -1,10 +1,10 @@
 <x-app-layout>
-    <div class="container mt-4">
-        <h2 class="mb-4">Gestion de la famille #{{ $famille->idFamille }}</h2>
+    <div class="container mt-5">
+       <h2 class="mb-5 fw-bolder">Gestion de la famille</h2>
 
         {{-- Section Parents --}}
         <div class="mb-5">
-            <h4 class="mb-3">Parents</h4>
+            <h4 class="mb-4 fw-bolder">Parents</h4>
             <table class="table table-borderless">
                 <thead>
                     <tr>
@@ -23,15 +23,17 @@
                             <td>Parent</td>
                             <td>{{ $parent->statut ?? 'Inconnu' }}</td>
                             <td>
-                                <a href="#" class="text-dark me-2" title="Voir">
-                                    <i class="bi bi-eye fs-5"></i>
-                                </a>
-                                <a href="#" class="text-dark me-2" title="Modifier">
-                                    <i class="bi bi-pencil fs-5"></i>
-                                </a>
-                                <button class="border-0 bg-transparent text-dark" title="Supprimer">
-                                    <i class="bi bi-x-circle fs-5"></i>
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <a href="#" class="text-dark" title="Voir">
+                                        <i class="bi bi-eye fs-5"></i>
+                                    </a>
+                                    <a href="#" class="text-dark" title="Modifier">
+                                        <i class="bi bi-pencil fs-5" style="color:#000;"></i>
+                                    </a>
+                                    <button class="border-0 bg-transparent text-secondary" title="Supprimer">
+                                        <span class="fs-5 fw-bold">X</span>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -44,8 +46,8 @@
         </div>
 
         {{-- Section Enfants --}}
-        <div class="mb-4">
-            <h4 class="mb-3">Enfants</h4>
+        <div class="mb-5">
+            <h4 class="mb-4 fw-bolder">Enfants</h4>
             <table class="table table-borderless">
                 <thead>
                     <tr>
@@ -62,17 +64,23 @@
                             <td>{{ $enfant->nom ?? '-' }}</td>
                             <td>{{ $enfant->prenom ?? '-' }}</td>
                             <td>Enfant</td>
-                            <td>{{ $enfant->classe ?? '-' }}</td>
                             <td>
-                                <a href="#" class="text-dark me-2" title="Voir">
-                                    <i class="bi bi-eye fs-5"></i>
-                                </a>
-                                <a href="#" class="text-dark me-2" title="Modifier">
-                                    <i class="bi bi-pencil fs-5"></i>
-                                </a>
-                                <button class="border-0 bg-transparent text-dark" title="Supprimer">
-                                    <i class="bi bi-x-circle fs-5"></i>
-                                </button>
+                                {{-- Affichage de la classe liée --}}
+                                {{ $enfant->classe->nom ?? '-' }}
+                                
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="#" class="text-dark" title="Voir">
+                                        <i class="bi bi-eye fs-5"></i>
+                                    </a>
+                                    <a href="#" class="text-dark" title="Modifier">
+                                        <i class="bi bi-pencil fs-5" style="color:#000;"></i>
+                                    </a>
+                                    <button class="border-0 bg-transparent text-secondary" title="Supprimer">
+                                        <span class="fs-5 fw-bold">X</span>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -87,4 +95,3 @@
       
     </div>
 </x-app-layout>
-

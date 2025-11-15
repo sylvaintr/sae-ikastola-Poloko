@@ -17,15 +17,16 @@
 
         {{-- Tableau des familles avec marge supplémentaire en haut --}}
         <div class="mt-5">
-            <table class="table">
-                <thead>
+            <table class="table table-borderless">
+                <thead class="table-light">
                     <tr>
-                        <th>Nom parent 1</th>
-                        <th>Prénom parent 1</th>
-                        <th>Nom parent 2</th>
-                        <th>Prénom parent 2</th>
-                        <th>Nombre d'enfants</th>
-                        <th>Actions</th>
+                        <th class="text-center align-middle">ID Famille</th>
+                        <th class="text-center align-middle">Nom parent 1</th>
+                        <th class="text-center align-middle">Prénom parent 1</th>
+                        <th class="text-center align-middle">Nom parent 2</th>
+                        <th class="text-center align-middle">Prénom parent 2</th>
+                        <th class="text-center align-middle">Nombre d'enfants</th>
+                        <th class="text-center align-middle">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,35 +38,35 @@
                             $parent2 = $parents->get(1);
                         @endphp
                         <tr id="famille-row-{{ $famille->idFamille }}">
-                            <td>{{ $parent1->nom ?? '-' }}</td>
-                            <td>{{ $parent1->prenom ?? '-' }}</td>
-                            <td>{{ $parent2->nom ?? '-' }}</td>
-                            <td>{{ $parent2->prenom ?? '-' }}</td>
-                            <td>{{ $enfants->count() }}</td>
-                         <td>
-    <div class="d-flex gap-2">
-        {{-- Voir --}}
-        <a href="{{ route('familles.show', $famille->idFamille) }}" title="Voir" class="text-dark">
-            <i class="bi bi-eye fs-5"></i>
-        </a>
+                            <td class="text-center align-middle">{{ $famille->idFamille }}</td>
+                            <td class="text-center align-middle">{{ $parent1->nom ?? '-' }}</td>
+                            <td class="text-center align-middle">{{ $parent1->prenom ?? '-' }}</td>
+                            <td class="text-center align-middle">{{ $parent2->nom ?? '-' }}</td>
+                            <td class="text-center align-middle">{{ $parent2->prenom ?? '-' }}</td>
+                            <td class="text-center align-middle">{{ $enfants->count() }}</td>
+                            <td class="text-center align-middle">
+                                <div class="d-flex justify-content-center gap-3">
+                                    {{-- Voir --}}
+                                    <a href="{{ route('familles.show', $famille->idFamille) }}" title="Voir" class="text-dark">
+                                        <i class="bi bi-eye fs-5"></i>
+                                    </a>
 
-        {{-- Modifier --}}
-        <a href="#" title="Modifier" class="text-dark">
-            <i class="bi bi-pencil fs-5"></i>
-        </a>
+                                    {{-- Modifier --}}
+                                    <a href="#" title="Modifier" class="text-dark">
+                                        <i class="bi bi-pencil fs-5"></i>
+                                    </a>
 
-        {{-- Supprimer : juste un X noir --}}
-        <button type="button" title="Supprimer" class="border-0 bg-transparent text-dark"
-                onclick="deleteFamille({{ $famille->idFamille }})">
-            <span class="fs-5">X</span>
-        </button>
-    </div>
-</td>
-
+                                    {{-- Supprimer : juste un X noir --}}
+                                    <button type="button" title="Supprimer" class="border-0 bg-transparent text-dark"
+                                            onclick="deleteFamille({{ $famille->idFamille }})">
+                                        <span class="fs-5">X</span>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted">Aucune famille enregistrée</td>
+                            <td colspan="7" class="text-center align-middle text-muted">Aucune famille enregistrée</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -100,5 +101,8 @@
         }
     </script>
 </x-app-layout>
+
+
+
 
 
