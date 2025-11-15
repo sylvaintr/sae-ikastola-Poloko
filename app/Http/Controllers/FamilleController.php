@@ -61,7 +61,7 @@ class FamilleController extends Controller
             'famille' => $famille,
         ], 201);
     }
-
+    
     // -------------------- Afficher une famille spécifique --------------------
     public function show($id)
     {
@@ -70,15 +70,17 @@ class FamilleController extends Controller
         if (!$famille) {
             return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
-
-        return response()->json($famille);
+      return view('familles.show', compact('famille'));
+    // return response()->json($famille);
     }
 
     // -------------------- Afficher la liste des familles --------------------
     public function index()
     {
         $familles = Famille::with(['enfants', 'utilisateurs'])->get();
-        return response()->json($familles);
+        //dd($familles);
+      return view('familles.index', compact('familles'));
+      // return response()->json($familles);
     }
 
     // -------------------- Supprimer une famille --------------------

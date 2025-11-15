@@ -27,6 +27,12 @@ Route::get('/presence', function () {
     return view('presence.index');
 })->name('presence.index');
 
+Route::get('/familles', [FamilleController::class, 'index'])->name('familles.index');
+Route::get('/familles/create', [FamilleController::class, 'createView'])->name('familles.create');
+Route::get('/familles/{id}', [FamilleController::class, 'show'])->name('familles.show');
+Route::get('/familles/{id}/edit', [FamilleController::class, 'editView'])->name('familles.edit');
+Route::put('/familles/{id}', [FamilleController::class, 'update'])->name('familles.update');
+Route::delete('/familles/{id}', [FamilleController::class, 'delete'])->name('familles.delete');
 
 Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
 Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
