@@ -27,10 +27,13 @@ class Document extends Model
 	public $timestamps = false;
 
 	protected $casts = [
-		'idDocument' => 'int'
+		'idDocument' => 'int',
+		'idTache' => 'int'
 	];
 
 	protected $fillable = [
+		'idDocument',
+		'idTache',
 		'nom',
 		'chemin',
 		'type',
@@ -40,6 +43,11 @@ class Document extends Model
 	public function utilisateurs()
 	{
 		return $this->belongsToMany(Utilisateur::class, 'contenir', 'idDocument', 'idUtilisateur');
+	}
+
+	public function tache()
+	{
+		return $this->belongsTo(Tache::class, 'idTache', 'idTache');
 	}
 
 	public function actualites()

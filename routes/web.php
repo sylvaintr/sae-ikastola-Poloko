@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
+use App\Http\Controllers\DemandeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
 Route::get('/', function () {
@@ -13,7 +14,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::middleware('can:access-demande')->group(function () {
-        Route::view('/demandes', 'demandes.index')->name('demandes.index');
+        Route::get('/demande', [DemandeController::class, 'index'])->name('demandes.index');
+        Route::get('/demande/create', [DemandeController::class, 'create'])->name('demandes.create');
+        Route::get('/demande/{demande}', [DemandeController::class, 'show'])->name('demandes.show');
+        Route::post('/demande', [DemandeController::class, 'store'])->name('demandes.store');
+        Route::delete('/demande/{demande}', [DemandeController::class, 'destroy'])->name('demandes.destroy');
     });
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::view('/', 'admin.index')->name('index');

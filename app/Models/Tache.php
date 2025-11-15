@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $titre Titre de la tâche.
  * @property string $description Description de la tâche.
  * @property string $type Type / catégorie de la tâche.
+ * @property string $urgence Niveau d'urgence (faible / moyen / élevé).
  * @property string $etat État actuel de la tâche (ex: ouverte, en cours, fermée).
  * @property Carbon|null $dateD Date de début (peut être nulle).
  * @property Carbon|null $dateF Date de fin (peut être nulle).
@@ -42,9 +43,11 @@ class Tache extends Model
 	];
 
 	protected $fillable = [
+		'idTache',
 		'titre',
 		'description',
 		'type',
+		'urgence',
 		'etat',
 		'dateD',
 		'dateF',
@@ -61,5 +64,10 @@ class Tache extends Model
 	public function realisateurs()
 	{
 		return $this->belongsToMany(Utilisateur::class, 'realiser', 'idTache', 'idUtilisateur')->withPivot('dateM', 'description');
+	}
+
+	public function documents()
+	{
+		return $this->hasMany(Document::class, 'idTache', 'idTache');
 	}
 }
