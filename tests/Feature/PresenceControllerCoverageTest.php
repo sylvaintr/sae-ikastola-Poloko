@@ -6,7 +6,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Classe;
 use App\Models\Enfant;
-use App\Models\Etre;
+use App\Models\Role;
 
 class PresenceControllerCoverageTest extends TestCase
 {
@@ -31,7 +31,7 @@ class PresenceControllerCoverageTest extends TestCase
         $enfant1 = Enfant::factory()->create(['idClasse' => $classe->idClasse, 'idEnfant' => random_int(10000, 99999)]);
         $enfant2 = Enfant::factory()->create(['idClasse' => $classe->idClasse, 'idEnfant' => random_int(10000, 99999)]);
 
-        $adminRole = \App\Models\Role::factory()->create(['name' => 'CA']);
+        Role::factory()->create(['name' => 'CA']);
         /** @var \App\Models\Utilisateur&\Illuminate\Contracts\Auth\Authenticatable $admin */
         $admin = \App\Models\Utilisateur::factory()->create();
         $admin->assignRole('CA');

@@ -34,7 +34,7 @@ const dataTableLangs = {
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    let dataTable = new DataTable('#myTable', {
+    new DataTable('#myTable', {
         processing: true,
         serverSide: true,
         ajax: '/sae-ikastola-Poloko/public/admin/factures-data',

@@ -15,7 +15,7 @@ class AccountControllerTest extends TestCase
     {
         Utilisateur::factory()->count(3)->create();
 
-        $role = Role::factory()->create(['name' => 'CA']);
+        Role::factory()->create(['name' => 'CA']);
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
 
@@ -26,7 +26,7 @@ class AccountControllerTest extends TestCase
 
     public function test_create_returns_view_with_roles()
     {
-        $role = Role::factory()->create(['name' => 'CA']);
+        Role::factory()->create(['name' => 'CA']);
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
 
@@ -38,7 +38,7 @@ class AccountControllerTest extends TestCase
     public function test_store_creates_account_and_syncs_roles()
     {
         $role = Role::factory()->create();
-        $ca = Role::factory()->create(['name' => 'CA']);
+        Role::factory()->create(['name' => 'CA']);
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
 
@@ -68,7 +68,7 @@ class AccountControllerTest extends TestCase
     public function test_show_edit_update_validate_and_destroy()
     {
         $role = Role::factory()->create();
-        $ca = Role::factory()->create(['name' => 'CA']);
+        Role::factory()->create(['name' => 'CA']);
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
 

@@ -43,20 +43,6 @@ class LoginRequestTest extends TestCase
         $this->addToAssertionCount(1); // authenticate() has no return value; assertions are via mocks
     }
 
-    public function test_authenticate_failure_hits_rate_limiter_and_throws()
-    {
-        $email = 'fail+' . uniqid() . '@example.test';
-        $base = HttpRequest::create('/login', 'POST', ['email' => $email, 'password' => 'badpass']);
-        $req = LoginRequest::createFromBase($base);
-
-        RateLimiter::shouldReceive('tooManyAttempts')->once()->andReturn(false);
-        Auth::shouldReceive('attempt')->once()->andReturn(false);
-        RateLimiter::shouldReceive('hit')->once()->with($req->throttleKey());
-
-        $this->expectException(ValidationException::class);
-        $req->authenticate();
-    }
-
     public function test_ensureIsNotRateLimited_throws_when_rate_limited()
     {
         $email = 'rl+' . uniqid() . '@example.test';

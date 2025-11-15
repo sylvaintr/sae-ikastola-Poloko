@@ -36,7 +36,7 @@ class AccountControllerUpdateTest extends TestCase
         // Call controller directly to avoid route/middleware complications
         $controller = new \App\Http\Controllers\Admin\AccountController();
         $request = new \Illuminate\Http\Request($putData);
-        $resp = $controller->update($request, $account);
+        $controller->update($request, $account);
 
         // After direct call, DB should be updated and pivot present
         $this->assertDatabaseHas('utilisateur', ['idUtilisateur' => $account->idUtilisateur, 'prenom' => 'NewPrenom', 'email' => 'new@example.com']);
@@ -107,7 +107,7 @@ class AccountControllerUpdateTest extends TestCase
     {
         $this->withoutMiddleware();
 
-        $existing = Utilisateur::factory()->create(['email' => 'exists@example.com']);
+        Utilisateur::factory()->create(['email' => 'exists@example.com']);
         $account = Utilisateur::factory()->create(['email' => 'target@example.com']);
 
         $putData = [

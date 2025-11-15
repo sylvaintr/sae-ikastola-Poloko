@@ -26,7 +26,7 @@ class UtilisateurControllerTest extends TestCase
 
     public function test_search_returns_users_when_match()
     {
-        $user = Utilisateur::factory()->create(['nom' => 'Dupont']);
+        Utilisateur::factory()->create(['nom' => 'Dupont']);
 
         $response = $this->getJson('/api/utilisateurs?nom=Dup');
         $response->assertStatus(200);

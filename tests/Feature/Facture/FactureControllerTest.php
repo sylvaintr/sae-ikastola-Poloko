@@ -9,8 +9,6 @@ use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Activite;
 use App\Models\Etre;
-use App\Models\Role;
-use App\Models\Utilisateur;
 use Carbon\Carbon;
 
 class FactureControllerTest extends TestCase

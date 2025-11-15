@@ -31,7 +31,7 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_create_returns_view()
     {
-        $role = Role::factory()->create(['name' => 'CA']);
+        Role::factory()->create(['name' => 'CA']);
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
 

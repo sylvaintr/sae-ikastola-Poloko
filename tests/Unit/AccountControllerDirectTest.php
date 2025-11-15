@@ -34,7 +34,7 @@ class AccountControllerDirectTest extends TestCase
         $request = new Request($putData);
 
         // Call controller method directly
-        $resp = $controller->update($request, $account);
+        $controller->update($request, $account);
 
         // After direct call, pivot should exist
         $this->assertDatabaseHas('avoir', ['idUtilisateur' => $account->idUtilisateur, 'idRole' => $role->idRole]);

@@ -24,7 +24,7 @@ class LierControllerCoverageTest extends TestCase
             'parite' => 'parent',
         ]);
 
-        $response = $this->postJson('/presence', []); // dummy to satisfy framework (we'll call controller directly)
+        $this->postJson('/presence', []); // dummy to satisfy framework (we'll call controller directly)
 
         // call controller directly
         $controller = new \App\Http\Controllers\LierController();
