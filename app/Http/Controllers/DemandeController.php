@@ -18,6 +18,8 @@ class DemandeController extends Controller
             'urgence' => $request->input('urgence', 'all'),
             'date_from' => $request->input('date_from'),
             'date_to' => $request->input('date_to'),
+            'sort' => $request->input('sort', 'date'),
+            'direction' => $request->input('direction', 'desc'),
         ];
 
         $query = Tache::query();
@@ -50,9 +52,21 @@ class DemandeController extends Controller
             $query->whereDate('dateD', '<=', $filters['date_to']);
         }
 
+        $sortable = [
+            'id' => 'idTache',
+            'date' => 'dateD',
+            'title' => 'titre',
+            'type' => 'type',
+            'urgence' => 'urgence',
+            'etat' => 'etat',
+        ];
+
+        $sortField = $sortable[$filters['sort']] ?? $sortable['date'];
+        $direction = strtolower($filters['direction']) === 'asc' ? 'asc' : 'desc';
+
         $demandes = $query
-            ->orderByDesc('dateD')
-            ->orderByDesc('idTache')
+            ->orderBy($sortField, $direction)
+            ->orderBy('idTache', 'desc')
             ->paginate(10)
             ->withQueryString();
 

@@ -94,29 +94,85 @@
             <table class="table align-middle demande-table mb-0">
                 <thead>
                     <tr>
+                        @php
+                            $queryBase = request()->except('page');
+                            $sortState = $filters['sort'] ?? 'date';
+                            $directionState = $filters['direction'] ?? 'desc';
+                            $sortHelper = function (string $key) use ($sortState, $directionState, $queryBase) {
+                                $isCurrent = $sortState === $key;
+                                $nextDir = $isCurrent && $directionState === 'asc' ? 'desc' : 'asc';
+                                $icon = $isCurrent
+                                    ? ($directionState === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill')
+                                    : 'bi-caret-down';
+                                $url = request()->fullUrlWithQuery(array_merge($queryBase, ['sort' => $key, 'direction' => $nextDir]));
+                                return [$url, $icon, $isCurrent];
+                            };
+                        @endphp
+                        @php [$urlId, $iconId] = $sortHelper('id'); @endphp
                         <th scope="col">
-                            <span class="d-block">Eskatu ID</span>
-                            <small class="text-muted">Request ID</small>
+                            <div class="demande-header-cell">
+                                <div class="demande-header-label">
+                                    <span class="basque">Eskatu ID</span>
+                                    <span class="fr">Request ID</span>
+                                </div>
+                                <a href="{{ $urlId }}" class="demande-sort-link" aria-label="Trier par ID">
+                                    <i class="bi {{ $iconId }}"></i>
+                                </a>
+                            </div>
+                        </th>
+                        @php [$urlDate, $iconDate] = $sortHelper('date'); @endphp
+                        <th scope="col">
+                            <div class="demande-header-cell">
+                                <div class="demande-header-label">
+                                    <span class="basque">Data</span>
+                                    <span class="fr">Date</span>
+                                </div>
+                                <a href="{{ $urlDate }}" class="demande-sort-link" aria-label="Trier par date">
+                                    <i class="bi {{ $iconDate }}"></i>
+                                </a>
+                            </div>
                         </th>
                         <th scope="col">
-                            <span class="d-inline-flex align-items-center gap-2">Data <i class="bi bi-caret-down-fill fs-6"></i></span>
-                            <small class="d-block text-muted">Date</small>
+                            <div class="demande-header-label">
+                                <span class="basque">Izenburua</span>
+                                <span class="fr">Titre</span>
+                            </div>
                         </th>
+                        @php [$urlType, $iconType] = $sortHelper('type'); @endphp
                         <th scope="col">
-                            <span class="d-block">Izenburua</span>
-                            <small class="text-muted">Titre</small>
+                            <div class="demande-header-cell">
+                                <div class="demande-header-label">
+                                    <span class="basque">Jatorra</span>
+                                    <span class="fr">Type</span>
+                                </div>
+                                <a href="{{ $urlType }}" class="demande-sort-link" aria-label="Trier par type">
+                                    <i class="bi {{ $iconType }}"></i>
+                                </a>
+                            </div>
                         </th>
+                        @php [$urlUrg, $iconUrg] = $sortHelper('urgence'); @endphp
                         <th scope="col">
-                            <span class="d-block">Jatorra</span>
-                            <small class="text-muted">Type</small>
+                            <div class="demande-header-cell">
+                                <div class="demande-header-label">
+                                    <span class="basque">Larrialdia</span>
+                                    <span class="fr">Urgence</span>
+                                </div>
+                                <a href="{{ $urlUrg }}" class="demande-sort-link" aria-label="Trier par urgence">
+                                    <i class="bi {{ $iconUrg }}"></i>
+                                </a>
+                            </div>
                         </th>
+                        @php [$urlEtat, $iconEtat] = $sortHelper('etat'); @endphp
                         <th scope="col">
-                            <span class="d-inline-flex align-items-center gap-2">Larrialdia <i class="bi bi-caret-down-fill fs-6"></i></span>
-                            <small class="text-muted">Urgence</small>
-                        </th>
-                        <th scope="col">
-                            <span class="d-inline-flex align-items-center gap-2">Egoera <i class="bi bi-caret-down-fill fs-6"></i></span>
-                            <small class="text-muted">Status</small>
+                            <div class="demande-header-cell">
+                                <div class="demande-header-label">
+                                    <span class="basque">Egoera</span>
+                                    <span class="fr">Status</span>
+                                </div>
+                                <a href="{{ $urlEtat }}" class="demande-sort-link" aria-label="Trier par statut">
+                                    <i class="bi {{ $iconEtat }}"></i>
+                                </a>
+                            </div>
                         </th>
                         <th scope="col" class="text-center">
                             <span class="d-block">Ekintzak</span>
@@ -139,14 +195,26 @@
                                         <i class="bi bi-eye"></i>
                                     </a>
                                     <button type="button" class="btn demande-action-btn" title="Modifier">
-                                        <i class="bi bi-pencil"></i>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                            class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                            <path
+                                                d="M15.502 1.94a.5.5 0 0 1 0 .706l-1 1a.5.5 0 0 1-.708 0L13 2.207l1-1a.5.5 0 0 1 .707 0l.795.733z" />
+                                            <path
+                                                d="M13.5 3.207L6 10.707V13h2.293l7.5-7.5L13.5 3.207zm-10 8.647V14h2.146l8.147-8.146-2.146-2.147L3.5 11.854z" />
+                                            <path fill-rule="evenodd"
+                                                d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                        </svg>
                                     </button>
                                     <form method="POST" action="{{ route('demandes.destroy', $demande) }}" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn demande-action-btn text-danger" title="Supprimer"
                                             onclick="return confirm('Supprimer cette demande ?')">
-                                            <i class="bi bi-trash"></i>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                                class="bi bi-trash" viewBox="0 0 16 16">
+                                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5"/>
+                                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM14.5 2h-13v1h13z"/>
+                                            </svg>
                                         </button>
                                     </form>
                                     <button type="button" class="btn demande-action-btn" title="Valider">

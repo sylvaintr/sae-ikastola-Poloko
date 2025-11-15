@@ -392,6 +392,37 @@
     color: #F29201;
 }
 
+.demande-header-cell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem;
+}
+
+.demande-header-label {
+    line-height: 1.2;
+}
+
+.demande-header-label .basque {
+    display: block;
+    font-weight: 600;
+}
+
+.demande-header-label .fr {
+    display: block;
+    font-size: 0.78rem;
+    color: #6b7280;
+}
+
+.demande-sort-link {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+.demande-sort-link:hover {
+    color: #F29201;
+}
+
 .demande-toast {
     position: fixed;
     top: 90px;
