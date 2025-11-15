@@ -69,6 +69,7 @@ jobs:
           mkdir -p build/reports
           ./vendor/bin/phpunit \
             --coverage-xml build/reports/coverage \
+            --coverage-html build/reports/coverage/html \
             --testdox-html build/reports/testdox.html \
             --log-junit build/reports/junit.xml
 
