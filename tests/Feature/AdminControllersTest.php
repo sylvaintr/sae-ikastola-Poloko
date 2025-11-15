@@ -56,8 +56,8 @@ class AdminControllersTest extends TestCase
         $putData = [
             'prenom' => 'NewPrenom',
             'nom' => 'NewNom',
-            // Ensure email is unique to avoid validation.unique failures when suite runs
-            'email' => uniqid('new_') . '@example.com',
+            // Use a deterministic email expected by the assertion
+            'email' => 'newemail@example.com',
             'languePref' => 'en',
             'statutValidation' => false,
             'roles' => [$role->idRole],
