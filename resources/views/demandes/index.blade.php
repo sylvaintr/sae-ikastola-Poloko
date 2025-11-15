@@ -40,7 +40,9 @@
                     <div class="dropdown d-inline-block">
                         <button class="demande-filter-toggle fw-semibold" type="button" id="filterDropdown"
                             data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            {{ __('demandes.filters.toggle.eu') }} <small class="text-muted">{{ __('demandes.filters.toggle.fr') }}</small> <i class="bi bi-chevron-down ms-1"></i>
+                            <span class="d-block">{{ __('demandes.filters.toggle.eu') }}</span>
+                            <small class="text-muted d-block">{{ __('demandes.filters.toggle.fr') }}</small>
+                            <i class="bi bi-chevron-down ms-1"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end demande-filter-panel p-3"
                             aria-labelledby="filterDropdown">

@@ -11,6 +11,12 @@ return [
             'fr' => 'Créer une demande de ticket',
         ],
     ],
+    'status' => [
+        'label' => [
+            'eu' => 'Egoera',
+            'fr' => 'Statut',
+        ],
+    ],
     'search' => [
         'label' => [
             'eu' => 'Sartu eskaeraren ID bat',
@@ -213,8 +219,14 @@ return [
         'empty' => 'La chronologie des actions apparaîtra ici.',
     ],
     'history_form' => [
-        'title' => 'Ajouter un avancement',
-        'subtitle' => 'Complétez ce formulaire pour enregistrer un nouvel avancement dans l\'historique.',
+        'heading' => [
+            'eu' => 'Gehitu aurrerapena',
+            'fr' => 'Ajouter un avancement',
+        ],
+        'subtitle' => [
+            'eu' => 'Bete inprimaki hau historikoan aurrerapen berria erregistratzeko.',
+            'fr' => 'Complétez ce formulaire pour enregistrer un nouvel avancement dans l\'historique.',
+        ],
         'fields' => [
             'title' => [
                 'eu' => 'Izenburua',
@@ -257,6 +269,7 @@ return [
         'history_added' => 'Nouvel avancement ajouté.',
         'validated' => 'Demande clôturée.',
         'locked' => 'La demande est déjà terminée.',
+        'history_locked' => 'Cette demande est terminée, impossible d’ajouter un avancement.',
     ],
 ];
 

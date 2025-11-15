@@ -8,8 +8,10 @@
 
         <div class="text-center mb-5">
             <p class="text-uppercase text-muted mb-1">{{ __('demandes.history.section.history.eu') }}</p>
-            <h1 class="fw-bold">{{ __('demandes.history_form.title') }}</h1>
-            <p class="text-muted">{{ __('demandes.history_form.subtitle') }}</p>
+            <h1 class="fw-bold mb-1">{{ __('demandes.history_form.heading.eu') }}</h1>
+            <p class="text-muted mb-3">{{ __('demandes.history_form.heading.fr') }}</p>
+            <p class="text-muted mb-0">{{ __('demandes.history_form.subtitle.eu') }}</p>
+            <p class="text-muted small">{{ __('demandes.history_form.subtitle.fr') }}</p>
         </div>
 
         <div class="row justify-content-center">

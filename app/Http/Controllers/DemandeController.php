@@ -248,11 +248,19 @@ class DemandeController extends Controller
 
     public function createHistorique(Tache $demande)
     {
+        if ($demande->etat === 'Terminé') {
+            return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_locked'));
+        }
+
         return view('demandes.historique.create', compact('demande'));
     }
 
     public function storeHistorique(Request $request, Tache $demande)
     {
+        if ($demande->etat === 'Terminé') {
+            return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_locked'));
+        }
+
         $validated = $request->validate([
             'titre' => ['required', 'string', 'max:60'],
             'description' => ['nullable', 'string', 'max:255'],

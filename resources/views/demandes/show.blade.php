@@ -2,15 +2,18 @@
     <div class="container py-4 demande-show-page">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-4 mb-5">
             <div>
-                <p class="text-uppercase text-muted small mb-1">{{ $demande->type ?? __('demandes.show.type_default') }}</p>
-                <h1 class="fw-bold mb-2">{{ $demande->titre }}</h1>
+                <h1 class="fw-bold mb-1">{{ $demande->titre }}</h1>
+                <p class="text-uppercase text-muted small mb-2">{{ $demande->type ?? __('demandes.show.type_default') }}</p>
                 <p class="text-muted mb-0">
                     {{ __('demandes.show.reported_by', ['name' => $metadata['reporter'], 'date' => $metadata['report_date']]) }}
                 </p>
             </div>
-            <div class="text-md-end">
-                <div class="text-uppercase text-muted small">Egoera</div>
-                <div class="demande-status-pill">{{ $demande->etat ?? 'Abian' }}</div>
+            <div class="d-flex flex-column align-items-md-end align-items-center">
+                <div class="text-uppercase text-muted small fw-semibold text-center">
+                    {{ __('demandes.status.label.eu') }}
+                    <small class="text-muted d-block">{{ __('demandes.status.label.fr') }}</small>
+                </div>
+                <div class="demande-status-pill mt-1">{{ $demande->etat ?? 'Abian' }}</div>
             </div>
         </div>
 
@@ -111,12 +114,14 @@
                 <div>{{ __('demandes.history.planned') }} : <span class="text-dark">{{ $demande->montantP ? number_format($demande->montantP, 0, ',', ' ') . ' €' : '—' }}</span></div>
                 <div>{{ __('demandes.history.real') }} : <span class="text-dark">{{ $totalDepense ? number_format($totalDepense, 0, ',', ' ') . ' €' : '—' }}</span></div>
             </div>
+        @if ($demande->etat !== 'Terminé')
             <div class="text-center">
                 <a href="{{ route('demandes.historique.create', $demande) }}" class="btn demande-btn-primary px-4">
                     {{ __('demandes.history.button.eu') }}
                 </a>
                 <div class="text-muted small">{{ __('demandes.history.button.fr') }}</div>
             </div>
+        @endif
         </div>
     </div>
 </x-app-layout>
