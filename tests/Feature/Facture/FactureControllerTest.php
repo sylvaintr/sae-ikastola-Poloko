@@ -47,7 +47,7 @@ class FactureControllerTest extends TestCase
         // Call the private calculerMontantFacture method directly to avoid view rendering side-effects
         $controller = new \App\Http\Controllers\FactureController();
         $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
-        $ref->setAccessible(true);
+        // $ref->setAccessible(true);
         $result = $ref->invoke($controller, $facture->idFacture);
 
         $cotisation = $result['montantcotisation'];

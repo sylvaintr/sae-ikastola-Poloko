@@ -37,7 +37,7 @@ class AccountUpdateDebugTest extends TestCase
             $queries[] = ['sql' => $query->sql, 'bindings' => $query->bindings];
         });
 
-        $response = $this->put(route('admin.accounts.update', $account->idUtilisateur), $putData);
+        $this->put(route('admin.accounts.update', $account->idUtilisateur), $putData);
 
         // Find any insert into `avoir` in captured queries
         $pivotInserts = array_filter($queries, function ($q) {

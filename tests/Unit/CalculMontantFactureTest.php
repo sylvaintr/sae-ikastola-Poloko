@@ -27,7 +27,7 @@ class CalculMontantFactureTest extends TestCase
 
         $controller = new \App\Http\Controllers\FactureController();
         $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
-        $ref->setAccessible(true);
+
         $result = $ref->invoke($controller, $facture->idFacture);
 
         $this->assertEquals(0, $result['montantcotisation']);
@@ -41,7 +41,7 @@ class CalculMontantFactureTest extends TestCase
     {
         $famille = Famille::create(['aineDansAutreSeaska' => false]);
 
-        $enfant = Enfant::factory()->create([
+        Enfant::factory()->create([
             'idFamille' => $famille->idFamille,
             'nbFoisGarderie' => 9,
         ]);
@@ -54,7 +54,7 @@ class CalculMontantFactureTest extends TestCase
 
         $controller = new \App\Http\Controllers\FactureController();
         $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
-        $ref->setAccessible(true);
+
         $result = $ref->invoke($controller, $facture->idFacture);
 
         // 1 enfant -> cotisation 45
@@ -93,7 +93,7 @@ class CalculMontantFactureTest extends TestCase
 
         $controller = new \App\Http\Controllers\FactureController();
         $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
-        $ref->setAccessible(true);
+
         $result = $ref->invoke($controller, $facture->idFacture);
 
         // 2 enfants -> cotisation 65
@@ -120,7 +120,7 @@ class CalculMontantFactureTest extends TestCase
 
         $controller = new \App\Http\Controllers\FactureController();
         $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
-        $ref->setAccessible(true);
+
         $result = $ref->invoke($controller, $facture->idFacture);
 
         $this->assertEquals(75, $result['montantcotisation']);

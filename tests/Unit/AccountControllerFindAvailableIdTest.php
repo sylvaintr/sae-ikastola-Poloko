@@ -18,7 +18,7 @@ class AccountControllerFindAvailableIdTest extends TestCase
 
         $controller = new AccountController();
         $ref = new \ReflectionMethod($controller, 'findAvailableId');
-        $ref->setAccessible(true);
+
 
 
         $id = $ref->invoke($controller);
@@ -34,7 +34,6 @@ class AccountControllerFindAvailableIdTest extends TestCase
 
         $controller = new AccountController();
         $ref = new \ReflectionMethod($controller, 'findAvailableId');
-        $ref->setAccessible(true);
 
         $id = $ref->invoke($controller);
         $this->assertEquals(3, $id);
@@ -49,7 +48,7 @@ class AccountControllerFindAvailableIdTest extends TestCase
 
         $controller = new AccountController();
         $ref = new \ReflectionMethod($controller, 'findAvailableId');
-        $ref->setAccessible(true);
+
 
         $id = $ref->invoke($controller);
         $this->assertEquals(4, $id);

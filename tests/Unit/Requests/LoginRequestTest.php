@@ -13,10 +13,11 @@ use App\Http\Requests\Auth\LoginRequest;
 class LoginRequestTest extends TestCase
 {
     use RefreshDatabase;
+    protected $pathtested = '/login';
 
     public function test_rules_return_expected_structure()
     {
-        $base = HttpRequest::create('/login', 'POST', ['email' => 'a@b.test', 'password' => 'secret']);
+        $base = HttpRequest::create($this->pathtested, 'POST', ['email' => 'a@b.test', 'password' => 'secret']);
         $req = LoginRequest::createFromBase($base);
 
         $rules = $req->rules();
@@ -29,7 +30,7 @@ class LoginRequestTest extends TestCase
     {
         // Arrange request with credentials
         $email = 'ok+' . uniqid() . '@example.test';
-        $base = HttpRequest::create('/login', 'POST', ['email' => $email, 'password' => 'secret', 'remember' => '0']);
+        $base = HttpRequest::create($this->pathtested, 'POST', ['email' => $email, 'password' => 'secret', 'remember' => '0']);
         $req = LoginRequest::createFromBase($base);
 
         // Mock RateLimiter and Auth behaviors
@@ -46,7 +47,7 @@ class LoginRequestTest extends TestCase
     public function test_ensureIsNotRateLimited_throws_when_rate_limited()
     {
         $email = 'rl+' . uniqid() . '@example.test';
-        $base = HttpRequest::create('/login', 'POST', ['email' => $email]);
+        $base = HttpRequest::create($this->pathtested, 'POST', ['email' => $email]);
         $req = LoginRequest::createFromBase($base);
 
         RateLimiter::shouldReceive('tooManyAttempts')->once()->andReturn(true);
@@ -60,7 +61,7 @@ class LoginRequestTest extends TestCase
     {
         $email = 'Mix.Case+test@example.test';
         $ip = '127.0.0.1';
-        $base = HttpRequest::create('/login', 'POST', ['email' => $email]);
+        $base = HttpRequest::create($this->pathtested, 'POST', ['email' => $email]);
         $base->server->set('REMOTE_ADDR', $ip);
         $req = LoginRequest::createFromBase($base);
 

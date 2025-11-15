@@ -15,7 +15,7 @@ class ObligatoryDocumentControllerTest extends TestCase
     {
         $controller = new \App\Http\Controllers\Admin\ObligatoryDocumentController();
         $ref = new \ReflectionMethod($controller, 'findAvailableId');
-        $ref->setAccessible(true);
+
 
         $id = $ref->invoke($controller);
         $this->assertEquals(1, $id);
@@ -41,7 +41,7 @@ class ObligatoryDocumentControllerTest extends TestCase
 
         $controller = new \App\Http\Controllers\Admin\ObligatoryDocumentController();
         $ref = new \ReflectionMethod($controller, 'findAvailableId');
-        $ref->setAccessible(true);
+
 
         $id = $ref->invoke($controller);
         $this->assertEquals(3, $id);
@@ -61,7 +61,7 @@ class ObligatoryDocumentControllerTest extends TestCase
 
         $controller = new \App\Http\Controllers\Admin\ObligatoryDocumentController();
         $ref = new \ReflectionMethod($controller, 'findAvailableId');
-        $ref->setAccessible(true);
+
 
         $id = $ref->invoke($controller);
         $this->assertEquals(4, $id);
@@ -74,7 +74,7 @@ class ObligatoryDocumentControllerTest extends TestCase
     {
         $controller = new \App\Http\Controllers\Admin\ObligatoryDocumentController();
         $ref = new \ReflectionMethod($controller, 'getNomMaxLength');
-        $ref->setAccessible(true);
+
 
         $len1 = $ref->invoke($controller);
         $len2 = $ref->invoke($controller);
@@ -95,7 +95,7 @@ class ObligatoryDocumentControllerTest extends TestCase
 
         $controller = new \App\Http\Controllers\Admin\ObligatoryDocumentController();
         $ref = new \ReflectionMethod($controller, 'getNomMaxLength');
-        $ref->setAccessible(true);
+
 
         $len = $ref->invoke($controller);
         $this->assertEquals(100, $len);
