@@ -2,12 +2,16 @@
     <div class="container py-4 demande-create-page">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h1 class="fw-bold mb-1">{{ isset($demande) ? 'Modifier la demande' : 'Sortu txartel eskaera' }}</h1>
+                @php $isEdit = isset($demande); @endphp
+                <h1 class="fw-bold mb-1">{{ $isEdit ? __('demandes.form.edit_title') : __('demandes.form.create_title') }}</h1>
                 <p class="text-muted mb-0">
-                    {{ isset($demande) ? 'Mettez à jour les informations de la demande.' : 'Créez une nouvelle demande en complétant les champs ci-dessous.' }}
+                    {{ $isEdit ? __('demandes.form.edit_subtitle') : __('demandes.form.create_subtitle') }}
                 </p>
             </div>
-            <a href="{{ route('demandes.index') }}" class="btn demande-btn-outline px-4 fw-semibold">Itzuli</a>
+            <div class="text-center">
+                <a href="{{ route('demandes.index') }}" class="btn demande-btn-outline px-4 fw-semibold">{{ __('demandes.form.buttons.back.eu') }}</a>
+                <small class="text-muted d-block mt-1">{{ __('demandes.form.buttons.back.fr') }}</small>
+            </div>
         </div>
 
         @if ($errors->any())
@@ -21,7 +25,6 @@
             </div>
         @endif
 
-        @php $isEdit = isset($demande); @endphp
         <form method="POST" action="{{ $isEdit ? route('demandes.update', $demande) : route('demandes.store') }}" enctype="multipart/form-data"
             class="demande-create-form">
             @csrf
@@ -30,11 +33,11 @@
             @endif
             <div class="demande-field-row">
                 <div class="demande-field-col flex-grow-1">
-                    <label class="form-label">Titre</label>
+                    <label class="form-label">{{ __('demandes.form.labels.title.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.title.fr') }}</small></label>
                     <input type="text" name="titre" class="form-control" value="{{ old('titre', $demande->titre ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>
                 </div>
                 <div class="demande-field-col demande-field-sm">
-                    <label class="form-label">Urgence</label>
+                    <label class="form-label">{{ __('demandes.form.labels.urgency.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.urgency.fr') }}</small></label>
                     <select name="urgence" class="form-select" required>
                         @foreach ($urgences as $urgence)
                             <option value="{{ $urgence }}" @selected(old('urgence', $demande->urgence ?? '') === $urgence)>{{ $urgence }}</option>
@@ -45,14 +48,14 @@
 
             <div class="demande-field-row">
                 <div class="demande-field-col w-100">
-                    <label class="form-label">Description</label>
+                    <label class="form-label">{{ __('demandes.form.labels.description.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.description.fr') }}</small></label>
                     <textarea name="description" rows="4" class="form-control" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>{{ old('description', $demande->description ?? '') }}</textarea>
                 </div>
             </div>
 
             <div class="demande-field-row">
                 <div class="demande-field-col flex-grow-1">
-                    <label class="form-label">Type</label>
+                    <label class="form-label">{{ __('demandes.form.labels.type.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.type.fr') }}</small></label>
                     <input type="text" name="type" class="form-control" list="types-list" value="{{ old('type', $demande->type ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>
                     <datalist id="types-list">
                         @foreach ($types as $type)
@@ -61,50 +64,40 @@
                     </datalist>
                 </div>
                 <div class="demande-field-col demande-field-sm">
-                    <label class="form-label">Dépense prévisionnelle (€)</label>
+                    <label class="form-label">{{ __('demandes.form.labels.planned_expense.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.planned_expense.fr') }}</small></label>
                     <input type="number" step="0.01" min="0" name="montantP" class="form-control"
                         value="{{ old('montantP', $demande->montantP ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : '' }}>
                 </div>
             </div>
 
-            <div class="demande-field-row">
-                <div class="demande-field-col flex-grow-1">
-                    <label class="form-label">Date de début</label>
-                    <input type="date" name="dateD" class="form-control" value="{{ old('dateD', isset($demande) ? optional($demande->dateD)->format('Y-m-d') : now()->toDateString()) }}"
-                        {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>
-                </div>
-                <div class="demande-field-col flex-grow-1">
-                    <label class="form-label">Date de fin</label>
-                    <input type="date" name="dateF" class="form-control" value="{{ old('dateF', isset($demande) ? optional($demande->dateF)->format('Y-m-d') : null) }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : '' }}>
-                </div>
-            </div>
-
-            <div class="demande-field-row align-items-center">
-                <div class="demande-field-col flex-grow-1">
-                    @if(!$isEdit)
-                        <label class="form-label d-block">Photo</label>
-                        <label class="demande-upload-btn">
+            @if(!$isEdit)
+                <div class="demande-field-row photo-row align-items-center">
+                    <div class="demande-field-col flex-grow-1 d-flex align-items-center gap-4">
+                    <label class="form-label mb-0">{{ __('demandes.form.labels.photo.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.photo.fr') }}</small></label>
+                        <div class="d-flex flex-column">
+                            <label class="demande-upload-btn mb-0">
                             <input id="photos-input" type="file" name="photos[]" class="d-none" accept=".jpg,.jpeg,.png" multiple>
-                            Sélectionner un fichier
-                        </label>
-                        <small class="text-muted d-block mt-1">Formats : JPG ou PNG, 4 Mo max, jusqu'à 4 photos.</small>
-                        <div id="photos-preview" class="row g-2 mt-2"></div>
-                    @endif
+                            {{ __('demandes.form.buttons.upload.eu') }}
+                            </label>
+                        <small class="text-muted d-block mt-1 text-center">{{ __('demandes.form.buttons.upload.fr') }}</small>
+                        </div>
+                    </div>
                 </div>
-            </div>
+                <div id="photos-preview" class="row g-2 mt-2"></div>
+            @endif
 
             <div class="demande-form-actions d-flex justify-content-end gap-4 mt-4">
                 <div class="text-center">
-                    <a href="{{ route('demandes.index') }}" class="btn demande-btn-outline px-5">Utzi</a>
-                    <small class="text-muted d-block mt-1">Annuler</small>
+                    <a href="{{ route('demandes.index') }}" class="btn demande-btn-outline px-5">{{ __('demandes.form.buttons.back.eu') }}</a>
+                    <small class="text-muted d-block mt-1">{{ __('demandes.form.buttons.back.fr') }}</small>
                 </div>
                 <div class="text-center">
                     @if($isEdit && $demande->etat === 'Terminé')
-                        <button type="button" class="btn demande-btn-primary px-5" disabled>Demande terminée</button>
-                        <small class="text-muted d-block mt-1">Cette demande n’est plus modifiable</small>
+                        <button type="button" class="btn demande-btn-primary px-5" disabled>{{ __('demandes.form.buttons.disabled') }}</button>
+                        <small class="text-muted d-block mt-1">{{ __('demandes.form.buttons.disabled_sub') }}</small>
                     @else
-                        <button type="submit" class="btn demande-btn-primary px-5">Gorde</button>
-                        <small class="text-muted d-block mt-1">Enregistrer</small>
+                        <button type="submit" class="btn demande-btn-primary px-5">{{ __('demandes.form.buttons.save.eu') }}</button>
+                        <small class="text-muted d-block mt-1">{{ __('demandes.form.buttons.save.fr') }}</small>
                     @endif
                 </div>
             </div>
@@ -118,13 +111,14 @@
         const preview = document.getElementById('photos-preview');
 
         if (!input || !preview) return;
+        const noFileText = '{{ __('demandes.form.no_file') }}';
 
         input.addEventListener('change', function () {
             preview.innerHTML = '';
             const files = Array.from(this.files || []);
 
             if (!files.length) {
-                preview.innerHTML = '<div class="text-muted small">Aucun fichier sélectionné.</div>';
+                preview.innerHTML = `<div class="text-muted small">${noFileText}</div>`;
                 return;
             }
 

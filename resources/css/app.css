@@ -318,8 +318,31 @@
     max-width: 1200px;
 }
 
+.demande-toolbar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.4rem;
+}
+
 .demande-toolbar .btn {
-    border-radius: 999px;
+    border-radius: 8px;
+    padding: 0.65rem 1.8rem;
+    font-size: 1rem;
+    min-width: 190px;
+    border-width: 2px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.demande-toolbar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.demande-toolbar-item small {
+    font-size: 0.78rem;
 }
 
 .demande-btn-primary {
@@ -338,7 +361,9 @@
 .demande-btn-outline {
     border-color: #F29201;
     color: #F29201;
-    background: transparent;
+    background: #fff;
+    border-width: 2px;
+    box-shadow: inset 0 0 0 1px rgba(242, 146, 1, 0.4);
 }
 
 .demande-btn-outline:hover,
@@ -348,10 +373,11 @@
 }
 
 .demande-filter-toggle {
-    border: 1px solid #ddd;
-    border-radius: 999px;
+    border: none;
+    background: transparent;
     color: #000;
-    background: #fff;
+    font-weight: 600;
+    font-size: 1rem;
 }
 
 .demande-filter-panel {
@@ -454,6 +480,16 @@
     box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
 }
 
+.demande-create-form .form-control,
+.demande-create-form .form-select,
+.demande-create-form textarea {
+    border-radius: 8px;
+}
+
+.demande-create-form input[type="date"] {
+    padding-right: 2.4rem;
+}
+
 .demande-field-row {
     display: flex;
     gap: 1.5rem;
@@ -465,18 +501,25 @@
     flex: 1;
 }
 
+.photo-row .form-label {
+    min-width: 110px;
+    font-weight: 600;
+}
+
 .demande-field-sm {
     flex: 0 0 220px;
 }
 
 .demande-upload-btn {
     display: inline-block;
-    border-radius: 999px;
+    border-radius: 8px;
     background: #F29201;
     color: #fff;
     padding: 0.65rem 1.5rem;
     cursor: pointer;
     font-weight: 600;
+    border: none;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 .demande-upload-btn:hover {
@@ -500,7 +543,9 @@
 }
 
 .demande-form-actions .btn {
-    border-radius: 999px;
+    border-radius: 8px;
+    min-width: 150px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 .demande-show-page {

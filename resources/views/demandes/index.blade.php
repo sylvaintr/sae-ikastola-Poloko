@@ -1,17 +1,20 @@
 <x-app-layout>
     <div class="container py-4 demande-page">
-        <div class="d-flex flex-column align-items-end text-end demande-toolbar">
-            <div class="d-flex flex-wrap gap-3 justify-content-end">
-                {{-- Export en attente de développement --}}
-                <button type="button" class="btn demande-btn-outline fw-semibold px-4">
-                    Esportatu (CSV)
-                </button>
-                <a href="{{ route('demandes.create') }}" class="btn demande-btn-primary fw-semibold px-4">
-                    Sortu txartel eskaera
-                </a>
+        <div class="demande-toolbar text-end">
+            <div class="d-flex flex-wrap gap-4 justify-content-end">
+                <div class="demande-toolbar-item">
+                    <button type="button" class="btn demande-btn-outline fw-semibold px-4 py-2">
+                        {{ __('demandes.toolbar.export.eu') }}
+                    </button>
+                    <small class="text-muted">{{ __('demandes.toolbar.export.fr') }}</small>
+                </div>
+                <div class="demande-toolbar-item">
+                    <a href="{{ route('demandes.create') }}" class="btn demande-btn-primary fw-semibold text-white px-4 py-2">
+                        {{ __('demandes.toolbar.create.eu') }}
+                    </a>
+                    <small class="text-muted">{{ __('demandes.toolbar.create.fr') }}</small>
+                </div>
             </div>
-            <p class="text-muted small mt-2 mb-0">Convertisseur CSV vers Excel si on n’arrive pas à exporter en
-                Excel</p>
         </div>
 
         @if (session('status'))
@@ -21,50 +24,48 @@
                         <i class="bi bi-check-circle-fill text-success"></i>
                         <span>{{ session('status') }}</span>
                     </div>
-                    <button type="button" class="btn-close btn-close-sm" aria-label="Fermer"></button>
+                    <button type="button" class="btn-close btn-close-sm" aria-label="{{ __('demandes.actions.close') }}"></button>
                 </div>
             </div>
         @endif
 
 <form class="demande-filter-form mt-4" method="GET" action="{{ route('demandes.index') }}" id="demande-filter-form">
             <div class="row g-3 align-items-start">
-                <div class="col-md-6">
-                    <label for="search" class="form-label fw-semibold text-muted small mb-1">Sartu eskaeraren ID bat</label>
+                <div class="col-md-4">
+                    <label for="search" class="form-label fw-semibold text-muted small mb-1">{{ __('demandes.search.label.eu') }} <small class="text-muted d-block">{{ __('demandes.search.label.fr') }}</small></label>
                     <input type="text" id="search" name="search" class="form-control demande-search-input"
-                        placeholder="Entrez un request ID" value="{{ $filters['search'] }}">
-                    <small class="text-muted">Entrez un request ID</small>
+                        placeholder="{{ __('demandes.search.placeholder') }}" value="{{ $filters['search'] }}">
                 </div>
-                <div class="col-md-6 text-md-end">
+                <div class="col-md-8 text-md-end">
                     <div class="dropdown d-inline-block">
-                        <button class="btn demande-filter-toggle fw-semibold" type="button" id="filterDropdown"
+                        <button class="demande-filter-toggle fw-semibold" type="button" id="filterDropdown"
                             data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            Iragazi arabera
-                            <i class="bi bi-chevron-down ms-1"></i>
+                            {{ __('demandes.filters.toggle.eu') }} <small class="text-muted">{{ __('demandes.filters.toggle.fr') }}</small> <i class="bi bi-chevron-down ms-1"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-end demande-filter-panel p-3"
                             aria-labelledby="filterDropdown">
                             <div class="mb-3">
-                                <label class="form-label small text-muted">Egoera</label>
+                                <label class="form-label small text-muted">{{ __('demandes.filters.status.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.status.fr') }}</small></label>
                                 <select class="form-select" name="etat">
-                                    <option value="all" @selected($filters['etat'] === 'all')>Tous les statuts</option>
+                                    <option value="all" @selected($filters['etat'] === 'all')>{{ __('demandes.filters.options.all_status') }}</option>
                                     @foreach ($etats as $etat)
                                         <option value="{{ $etat }}" @selected($filters['etat'] === $etat)>{{ $etat }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small text-muted">Jatorra</label>
+                                <label class="form-label small text-muted">{{ __('demandes.filters.type.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.type.fr') }}</small></label>
                                 <select class="form-select" name="type">
-                                    <option value="all" @selected($filters['type'] === 'all')>Tous les types</option>
+                                    <option value="all" @selected($filters['type'] === 'all')>{{ __('demandes.filters.options.all_types') }}</option>
                                     @foreach ($types as $type)
                                         <option value="{{ $type }}" @selected($filters['type'] === $type)>{{ $type }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small text-muted">Larrialdia</label>
+                                <label class="form-label small text-muted">{{ __('demandes.filters.urgency.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.urgency.fr') }}</small></label>
                                 <select class="form-select" name="urgence">
-                                    <option value="all" @selected($filters['urgence'] === 'all')>Toutes les urgences</option>
+                                    <option value="all" @selected($filters['urgence'] === 'all')>{{ __('demandes.filters.options.all_urgencies') }}</option>
                                     @foreach ($urgences as $urgence)
                                         <option value="{{ $urgence }}" @selected($filters['urgence'] === $urgence)>{{ $urgence }}</option>
                                     @endforeach
@@ -72,17 +73,17 @@
                             </div>
                             <div class="row g-2">
                                 <div class="col-6">
-                                    <label class="form-label small text-muted">Date min</label>
+                                    <label class="form-label small text-muted">{{ __('demandes.filters.date_min.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.date_min.fr') }}</small></label>
                                     <input type="date" class="form-control" name="date_from" value="{{ $filters['date_from'] }}">
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label small text-muted">Date max</label>
+                                    <label class="form-label small text-muted">{{ __('demandes.filters.date_max.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.date_max.fr') }}</small></label>
                                     <input type="date" class="form-control" name="date_to" value="{{ $filters['date_to'] }}">
                                 </div>
                             </div>
                             <div class="d-flex gap-2 mt-3">
-                                <button type="submit" class="btn demande-btn-primary flex-grow-1">Filtrer</button>
-                                <a href="{{ route('demandes.index') }}" class="btn demande-btn-outline flex-grow-1">Réinitialiser</a>
+                                <button type="submit" class="btn demande-btn-primary flex-grow-1">{{ __('demandes.filters.submit') }}</button>
+                                <a href="{{ route('demandes.index') }}" class="btn demande-btn-outline flex-grow-1">{{ __('demandes.filters.reset') }}</a>
                             </div>
                         </div>
                     </div>
@@ -112,10 +113,10 @@
                         <th scope="col">
                             <div class="demande-header-cell">
                                 <div class="demande-header-label">
-                                    <span class="basque">Eskatu ID</span>
-                                    <span class="fr">Request ID</span>
+                                    <span class="basque">{{ __('demandes.table.columns.id.eu') }}</span>
+                                    <span class="fr">{{ __('demandes.table.columns.id.fr') }}</span>
                                 </div>
-                                <a href="{{ $urlId }}" class="demande-sort-link" aria-label="Trier par ID">
+                                <a href="{{ $urlId }}" class="demande-sort-link" aria-label="{{ __('demandes.table.sort.id') }}">
                                     <i class="bi {{ $iconId }}"></i>
                                 </a>
                             </div>
@@ -124,28 +125,28 @@
                         <th scope="col">
                             <div class="demande-header-cell">
                                 <div class="demande-header-label">
-                                    <span class="basque">Data</span>
-                                    <span class="fr">Date</span>
+                                    <span class="basque">{{ __('demandes.table.columns.date.eu') }}</span>
+                                    <span class="fr">{{ __('demandes.table.columns.date.fr') }}</span>
                                 </div>
-                                <a href="{{ $urlDate }}" class="demande-sort-link" aria-label="Trier par date">
+                                <a href="{{ $urlDate }}" class="demande-sort-link" aria-label="{{ __('demandes.table.sort.date') }}">
                                     <i class="bi {{ $iconDate }}"></i>
                                 </a>
                             </div>
                         </th>
                         <th scope="col">
                             <div class="demande-header-label">
-                                <span class="basque">Izenburua</span>
-                                <span class="fr">Titre</span>
+                                <span class="basque">{{ __('demandes.table.columns.title.eu') }}</span>
+                                <span class="fr">{{ __('demandes.table.columns.title.fr') }}</span>
                             </div>
                         </th>
                         @php [$urlType, $iconType] = $sortHelper('type'); @endphp
                         <th scope="col">
                             <div class="demande-header-cell">
                                 <div class="demande-header-label">
-                                    <span class="basque">Jatorra</span>
-                                    <span class="fr">Type</span>
+                                    <span class="basque">{{ __('demandes.table.columns.type.eu') }}</span>
+                                    <span class="fr">{{ __('demandes.table.columns.type.fr') }}</span>
                                 </div>
-                                <a href="{{ $urlType }}" class="demande-sort-link" aria-label="Trier par type">
+                                <a href="{{ $urlType }}" class="demande-sort-link" aria-label="{{ __('demandes.table.sort.type') }}">
                                     <i class="bi {{ $iconType }}"></i>
                                 </a>
                             </div>
@@ -154,10 +155,10 @@
                         <th scope="col">
                             <div class="demande-header-cell">
                                 <div class="demande-header-label">
-                                    <span class="basque">Larrialdia</span>
-                                    <span class="fr">Urgence</span>
+                                    <span class="basque">{{ __('demandes.table.columns.urgency.eu') }}</span>
+                                    <span class="fr">{{ __('demandes.table.columns.urgency.fr') }}</span>
                                 </div>
-                                <a href="{{ $urlUrg }}" class="demande-sort-link" aria-label="Trier par urgence">
+                                <a href="{{ $urlUrg }}" class="demande-sort-link" aria-label="{{ __('demandes.table.sort.urgency') }}">
                                     <i class="bi {{ $iconUrg }}"></i>
                                 </a>
                             </div>
@@ -166,17 +167,17 @@
                         <th scope="col">
                             <div class="demande-header-cell">
                                 <div class="demande-header-label">
-                                    <span class="basque">Egoera</span>
-                                    <span class="fr">Status</span>
+                                    <span class="basque">{{ __('demandes.table.columns.status.eu') }}</span>
+                                    <span class="fr">{{ __('demandes.table.columns.status.fr') }}</span>
                                 </div>
-                                <a href="{{ $urlEtat }}" class="demande-sort-link" aria-label="Trier par statut">
+                                <a href="{{ $urlEtat }}" class="demande-sort-link" aria-label="{{ __('demandes.table.sort.status') }}">
                                     <i class="bi {{ $iconEtat }}"></i>
                                 </a>
                             </div>
                         </th>
                         <th scope="col" class="text-center">
-                            <span class="d-block">Ekintzak</span>
-                            <small class="text-muted">Actions</small>
+                            <span class="d-block">{{ __('demandes.table.columns.actions.eu') }}</span>
+                            <small class="text-muted">{{ __('demandes.table.columns.actions.fr') }}</small>
                         </th>
                     </tr>
                 </thead>
@@ -191,11 +192,11 @@
                             <td>{{ $demande->etat }}</td>
                             <td class="text-center">
                                 <div class="d-inline-flex gap-2">
-                                    <a href="{{ route('demandes.show', $demande) }}" class="btn demande-action-btn" title="Voir">
+                                    <a href="{{ route('demandes.show', $demande) }}" class="btn demande-action-btn" title="{{ __('demandes.actions.view') }}">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                     @if ($demande->etat !== 'Terminé')
-                                        <a href="{{ route('demandes.edit', $demande) }}" class="btn demande-action-btn" title="Modifier">
+                                        <a href="{{ route('demandes.edit', $demande) }}" class="btn demande-action-btn" title="{{ __('demandes.actions.edit') }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                                 class="bi bi-pencil-square" viewBox="0 0 16 16">
                                                 <path
@@ -211,7 +212,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="button" class="btn demande-action-btn text-muted demande-delete-btn"
-                                            data-demande-title="{{ $demande->titre }}" title="Supprimer">
+                                            data-demande-title="{{ $demande->titre }}" title="{{ __('demandes.actions.delete') }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                                 class="bi bi-trash" viewBox="0 0 16 16">
                                                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5"/>
@@ -223,7 +224,7 @@
                                         <form method="POST" action="{{ route('demandes.validate', $demande) }}" class="d-inline">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="btn demande-action-btn text-success" title="Valider">
+                                            <button type="submit" class="btn demande-action-btn text-success" title="{{ __('demandes.actions.validate') }}">
                                                 <i class="bi bi-check-lg"></i>
                                             </button>
                                         </form>
@@ -233,7 +234,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Aucune demande disponible.</td>
+                            <td colspan="7" class="text-center py-4 text-muted">{{ __('demandes.table.empty') }}</td>
                         </tr>
                     @endforelse
                 </tbody>

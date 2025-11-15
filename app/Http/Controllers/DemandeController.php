@@ -131,7 +131,7 @@ class DemandeController extends Controller
             'description' => ['required', 'string', 'max:100'],
             'type' => ['required', 'string', 'max:15'],
             'urgence' => ['required', 'string', 'max:15'],
-            'dateD' => ['required', 'date'],
+            'dateD' => ['nullable', 'date'],
             'dateF' => ['nullable', 'date', 'after_or_equal:dateD'],
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
@@ -143,19 +143,21 @@ class DemandeController extends Controller
         $data = collect($validated)->except(['photos'])->toArray();
         $data['idTache'] = (Tache::max('idTache') ?? 0) + 1;
         $data['etat'] = 'En attente';
+        $data['dateD'] = $validated['dateD'] ?? now();
+        $data['dateF'] = $validated['dateF'] ?? null;
 
         $demande = Tache::create($data);
 
         $this->storePhotos($demande, $request->file('photos', []));
         $this->createInitialHistory($demande);
 
-        return to_route('demandes.index')->with('status', 'Demande créée avec succès.');
+        return to_route('demandes.index')->with('status', __('demandes.messages.created'));
     }
 
     public function edit(Tache $demande)
     {
         if ($demande->etat === 'Terminé') {
-            return to_route('demandes.show', $demande)->with('status', 'La demande est déjà terminée.');
+            return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
         }
 
         $types = Tache::select('type')->distinct()->orderBy('type')->pluck('type')->filter();
@@ -174,7 +176,7 @@ class DemandeController extends Controller
     public function update(Request $request, Tache $demande)
     {
         if ($demande->etat === 'Terminé') {
-            return to_route('demandes.show', $demande)->with('status', 'La demande est déjà terminée.');
+            return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
         }
 
         $validated = $request->validate([
@@ -182,16 +184,17 @@ class DemandeController extends Controller
             'description' => ['required', 'string', 'max:100'],
             'type' => ['required', 'string', 'max:15'],
             'urgence' => ['required', 'string', 'max:15'],
-            'dateD' => ['required', 'date'],
+            'dateD' => ['nullable', 'date'],
             'dateF' => ['nullable', 'date', 'after_or_equal:dateD'],
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
             'idEvenement' => ['nullable', 'integer'],
         ]);
 
-        $demande->update($validated);
+        $updates = collect($validated)->except(['dateD', 'dateF'])->toArray();
+        $demande->update($updates);
 
-        return to_route('demandes.show', $demande)->with('status', 'Demande mise à jour.');
+        return to_route('demandes.show', $demande)->with('status', __('demandes.messages.updated'));
     }
 
     protected function storePhotos(Tache $demande, array $files): void
@@ -220,7 +223,7 @@ class DemandeController extends Controller
     {
         TacheHistorique::create([
             'idTache' => $demande->idTache,
-            'statut' => 'Demande créée',
+            'statut' => __('demandes.history_statuses.created'),
             'titre' => $demande->titre,
             'responsable' => auth()->user()->name ?? '',
             'depense' => $demande->montantP,
@@ -240,7 +243,7 @@ class DemandeController extends Controller
 
         $demande->delete();
 
-        return to_route('demandes.index')->with('status', 'Demande supprimée.');
+        return to_route('demandes.index')->with('status', __('demandes.messages.deleted'));
     }
 
     public function createHistorique(Tache $demande)
@@ -258,7 +261,7 @@ class DemandeController extends Controller
 
         TacheHistorique::create([
             'idTache' => $demande->idTache,
-            'statut' => 'Avancement',
+            'statut' => __('demandes.history_statuses.progress'),
             'date_evenement' => now(),
             'titre' => $validated['titre'],
             'responsable' => auth()->user()->name ?? '',
@@ -266,7 +269,7 @@ class DemandeController extends Controller
             'description' => $validated['description'] ?? null,
         ]);
 
-        return to_route('demandes.show', $demande)->with('status', 'Nouvel avancement ajouté.');
+        return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_added'));
     }
 
     public function validateDemande(Tache $demande)
@@ -275,15 +278,15 @@ class DemandeController extends Controller
 
         TacheHistorique::create([
             'idTache' => $demande->idTache,
-            'statut' => 'Effectué',
+            'statut' => __('demandes.history_statuses.done'),
             'date_evenement' => now(),
             'titre' => $demande->titre,
             'responsable' => auth()->user()->name ?? '',
             'depense' => $demande->montantR ?? null,
-            'description' => 'Demande marquée comme terminée.',
+            'description' => __('demandes.history_statuses.done_description'),
         ]);
 
-        return to_route('demandes.show', $demande)->with('status', 'Demande clôturée.');
+        return to_route('demandes.show', $demande)->with('status', __('demandes.messages.validated'));
     }
 }
 
