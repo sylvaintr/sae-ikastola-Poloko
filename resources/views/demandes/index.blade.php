@@ -26,7 +26,7 @@
             </div>
         @endif
 
-        <form class="demande-filter-form mt-4" method="GET" action="{{ route('demandes.index') }}">
+<form class="demande-filter-form mt-4" method="GET" action="{{ route('demandes.index') }}" id="demande-filter-form">
             <div class="row g-3 align-items-start">
                 <div class="col-md-6">
                     <label for="search" class="form-label fw-semibold text-muted small mb-1">Sartu eskaeraren ID bat</label>
@@ -194,22 +194,24 @@
                                     <a href="{{ route('demandes.show', $demande) }}" class="btn demande-action-btn" title="Voir">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <button type="button" class="btn demande-action-btn" title="Modifier">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                            class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                            <path
-                                                d="M15.502 1.94a.5.5 0 0 1 0 .706l-1 1a.5.5 0 0 1-.708 0L13 2.207l1-1a.5.5 0 0 1 .707 0l.795.733z" />
-                                            <path
-                                                d="M13.5 3.207L6 10.707V13h2.293l7.5-7.5L13.5 3.207zm-10 8.647V14h2.146l8.147-8.146-2.146-2.147L3.5 11.854z" />
-                                            <path fill-rule="evenodd"
-                                                d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                        </svg>
-                                    </button>
-                                    <form method="POST" action="{{ route('demandes.destroy', $demande) }}" class="d-inline">
+                                    @if ($demande->etat !== 'Terminé')
+                                        <a href="{{ route('demandes.edit', $demande) }}" class="btn demande-action-btn" title="Modifier">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                                class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M15.502 1.94a.5.5 0 0 1 0 .706l-1 1a.5.5 0 0 1-.708 0L13 2.207l1-1a.5.5 0 0 1 .707 0l.795.733z" />
+                                                <path
+                                                    d="M13.5 3.207L6 10.707V13h2.293l7.5-7.5L13.5 3.207zm-10 8.647V14h2.146l8.147-8.146-2.146-2.147L3.5 11.854z" />
+                                                <path fill-rule="evenodd"
+                                                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 1,00000 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                            </svg>
+                                        </a>
+                                    @endif
+                                    <form method="POST" action="{{ route('demandes.destroy', $demande) }}" class="d-inline demande-delete-form">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn demande-action-btn text-danger" title="Supprimer"
-                                            onclick="return confirm('Supprimer cette demande ?')">
+                                        <button type="button" class="btn demande-action-btn text-muted demande-delete-btn"
+                                            data-demande-title="{{ $demande->titre }}" title="Supprimer">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                                 class="bi bi-trash" viewBox="0 0 16 16">
                                                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5"/>
@@ -217,9 +219,15 @@
                                             </svg>
                                         </button>
                                     </form>
-                                    <button type="button" class="btn demande-action-btn" title="Valider">
-                                        <i class="bi bi-check-lg"></i>
-                                    </button>
+                                    @if ($demande->etat !== 'Terminé')
+                                        <form method="POST" action="{{ route('demandes.validate', $demande) }}" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn demande-action-btn text-success" title="Valider">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -238,20 +246,67 @@
     </div>
 </x-app-layout>
 
-@if (session('status'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const toast = document.getElementById('demande-toast');
-            if (!toast) return;
+@include('demandes.partials.delete-modal')
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toast = document.getElementById('demande-toast');
+        if (toast) {
             const closeBtn = toast.querySelector('.btn-close');
             const hideToast = () => {
                 toast.classList.add('hide');
                 setTimeout(() => toast.remove(), 250);
             };
-
             closeBtn?.addEventListener('click', hideToast);
             setTimeout(hideToast, 3200);
-        });
-    </script>
-@endif
+        }
+
+        const deleteModalEl = document.getElementById('deleteDemandeModal');
+        const searchInput = document.getElementById('search');
+        let currentForm = null;
+
+        if (deleteModalEl) {
+            const deleteModal = new bootstrap.Modal(deleteModalEl);
+            deleteModalEl.querySelector('.cancel-delete')?.addEventListener('click', () => {
+                deleteModal.hide();
+                currentForm = null;
+            });
+            deleteModalEl.querySelector('.confirm-delete')?.addEventListener('click', () => {
+                if (currentForm) {
+                    currentForm.submit();
+                    deleteModal.hide();
+                    currentForm = null;
+                }
+            });
+            document.querySelectorAll('.demande-delete-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    currentForm = this.closest('.demande-delete-form');
+                    const title = this.getAttribute('data-demande-title') || '';
+                    const label = deleteModalEl.querySelector('[data-demande-title]');
+                    if (label) {
+                        label.textContent = title;
+                    }
+                    deleteModal.show();
+                });
+            });
+        }
+
+        if (searchInput) {
+            let debounce;
+            searchInput.addEventListener('input', function () {
+                clearTimeout(debounce);
+                debounce = setTimeout(() => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('page');
+                    const value = this.value.trim();
+                    if (value) {
+                        url.searchParams.set('search', value);
+                    } else {
+                        url.searchParams.delete('search');
+                    }
+                    window.location.href = url.toString();
+                }, 500);
+            });
+        }
+    });
+</script>

@@ -70,4 +70,9 @@ class Tache extends Model
 	{
 		return $this->hasMany(Document::class, 'idTache', 'idTache');
 	}
+
+	public function historiques()
+	{
+		return $this->hasMany(TacheHistorique::class, 'idTache', 'idTache')->orderByDesc('date_evenement')->orderByDesc('id');
+	}
 }

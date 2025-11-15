@@ -522,6 +522,31 @@
     height: 320px;
 }
 
+.demande-history-table th {
+    border-bottom: none;
+    font-weight: 600;
+}
+
+.demande-history-table td {
+    border-top: 1px solid #f1f1f1;
+    padding: 1rem 0.5rem;
+    color: #4b5563;
+}
+
+.demande-history-table td:first-child {
+    font-weight: 600;
+    color: #111;
+}
+
+.depense-input {
+    max-width: 140px;
+}
+
+.demande-history-create .avancement-form .form-control {
+    border-radius: 0.75rem;
+    padding: 0.9rem 1.1rem;
+}
+
 .admin-search-container {
     min-width: 280px;
 }

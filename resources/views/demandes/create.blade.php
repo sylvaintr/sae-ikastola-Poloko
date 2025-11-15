@@ -2,8 +2,10 @@
     <div class="container py-4 demande-create-page">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h1 class="fw-bold mb-1">Sortu txartel eskaera</h1>
-                <p class="text-muted mb-0">Créez une nouvelle demande en complétant les champs ci-dessous.</p>
+                <h1 class="fw-bold mb-1">{{ isset($demande) ? 'Modifier la demande' : 'Sortu txartel eskaera' }}</h1>
+                <p class="text-muted mb-0">
+                    {{ isset($demande) ? 'Mettez à jour les informations de la demande.' : 'Créez une nouvelle demande en complétant les champs ci-dessous.' }}
+                </p>
             </div>
             <a href="{{ route('demandes.index') }}" class="btn demande-btn-outline px-4 fw-semibold">Itzuli</a>
         </div>
@@ -19,19 +21,23 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('demandes.store') }}" enctype="multipart/form-data"
+        @php $isEdit = isset($demande); @endphp
+        <form method="POST" action="{{ $isEdit ? route('demandes.update', $demande) : route('demandes.store') }}" enctype="multipart/form-data"
             class="demande-create-form">
             @csrf
+            @if($isEdit)
+                @method('PUT')
+            @endif
             <div class="demande-field-row">
                 <div class="demande-field-col flex-grow-1">
                     <label class="form-label">Titre</label>
-                    <input type="text" name="titre" class="form-control" value="{{ old('titre') }}" required>
+                    <input type="text" name="titre" class="form-control" value="{{ old('titre', $demande->titre ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>
                 </div>
                 <div class="demande-field-col demande-field-sm">
                     <label class="form-label">Urgence</label>
                     <select name="urgence" class="form-select" required>
                         @foreach ($urgences as $urgence)
-                            <option value="{{ $urgence }}" @selected(old('urgence') === $urgence)>{{ $urgence }}</option>
+                            <option value="{{ $urgence }}" @selected(old('urgence', $demande->urgence ?? '') === $urgence)>{{ $urgence }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -40,14 +46,14 @@
             <div class="demande-field-row">
                 <div class="demande-field-col w-100">
                     <label class="form-label">Description</label>
-                    <textarea name="description" rows="4" class="form-control" required>{{ old('description') }}</textarea>
+                    <textarea name="description" rows="4" class="form-control" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>{{ old('description', $demande->description ?? '') }}</textarea>
                 </div>
             </div>
 
             <div class="demande-field-row">
                 <div class="demande-field-col flex-grow-1">
                     <label class="form-label">Type</label>
-                    <input type="text" name="type" class="form-control" list="types-list" value="{{ old('type') }}" required>
+                    <input type="text" name="type" class="form-control" list="types-list" value="{{ old('type', $demande->type ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>
                     <datalist id="types-list">
                         @foreach ($types as $type)
                             <option value="{{ $type }}"></option>
@@ -57,31 +63,33 @@
                 <div class="demande-field-col demande-field-sm">
                     <label class="form-label">Dépense prévisionnelle (€)</label>
                     <input type="number" step="0.01" min="0" name="montantP" class="form-control"
-                        value="{{ old('montantP') }}">
+                        value="{{ old('montantP', $demande->montantP ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : '' }}>
                 </div>
             </div>
 
             <div class="demande-field-row">
                 <div class="demande-field-col flex-grow-1">
                     <label class="form-label">Date de début</label>
-                    <input type="date" name="dateD" class="form-control" value="{{ old('dateD', now()->toDateString()) }}"
-                        required>
+                    <input type="date" name="dateD" class="form-control" value="{{ old('dateD', isset($demande) ? optional($demande->dateD)->format('Y-m-d') : now()->toDateString()) }}"
+                        {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>
                 </div>
                 <div class="demande-field-col flex-grow-1">
                     <label class="form-label">Date de fin</label>
-                    <input type="date" name="dateF" class="form-control" value="{{ old('dateF') }}">
+                    <input type="date" name="dateF" class="form-control" value="{{ old('dateF', isset($demande) ? optional($demande->dateF)->format('Y-m-d') : null) }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : '' }}>
                 </div>
             </div>
 
             <div class="demande-field-row align-items-center">
                 <div class="demande-field-col flex-grow-1">
-                    <label class="form-label d-block">Photo</label>
-                    <label class="demande-upload-btn">
-                        <input id="photos-input" type="file" name="photos[]" class="d-none" accept=".jpg,.jpeg,.png" multiple>
-                        Sélectionner un fichier
-                    </label>
-                    <small class="text-muted d-block mt-1">Formats : JPG ou PNG, 4 Mo max, jusqu'à 4 photos.</small>
-                    <div id="photos-preview" class="row g-2 mt-2"></div>
+                    @if(!$isEdit)
+                        <label class="form-label d-block">Photo</label>
+                        <label class="demande-upload-btn">
+                            <input id="photos-input" type="file" name="photos[]" class="d-none" accept=".jpg,.jpeg,.png" multiple>
+                            Sélectionner un fichier
+                        </label>
+                        <small class="text-muted d-block mt-1">Formats : JPG ou PNG, 4 Mo max, jusqu'à 4 photos.</small>
+                        <div id="photos-preview" class="row g-2 mt-2"></div>
+                    @endif
                 </div>
             </div>
 
@@ -91,8 +99,13 @@
                     <small class="text-muted d-block mt-1">Annuler</small>
                 </div>
                 <div class="text-center">
-                    <button type="submit" class="btn demande-btn-primary px-5">Gorde</button>
-                    <small class="text-muted d-block mt-1">Enregistrer</small>
+                    @if($isEdit && $demande->etat === 'Terminé')
+                        <button type="button" class="btn demande-btn-primary px-5" disabled>Demande terminée</button>
+                        <small class="text-muted d-block mt-1">Cette demande n’est plus modifiable</small>
+                    @else
+                        <button type="submit" class="btn demande-btn-primary px-5">Gorde</button>
+                        <small class="text-muted d-block mt-1">Enregistrer</small>
+                    @endif
                 </div>
             </div>
         </form>

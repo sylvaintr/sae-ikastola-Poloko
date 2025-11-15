@@ -18,8 +18,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/demande', [DemandeController::class, 'index'])->name('demandes.index');
         Route::get('/demande/create', [DemandeController::class, 'create'])->name('demandes.create');
         Route::get('/demande/{demande}', [DemandeController::class, 'show'])->name('demandes.show');
+        Route::get('/demande/{demande}/edit', [DemandeController::class, 'edit'])->name('demandes.edit');
+        Route::put('/demande/{demande}', [DemandeController::class, 'update'])->name('demandes.update');
         Route::post('/demande', [DemandeController::class, 'store'])->name('demandes.store');
+        Route::patch('/demande/{demande}/valider', [DemandeController::class, 'validateDemande'])->name('demandes.validate');
         Route::delete('/demande/{demande}', [DemandeController::class, 'destroy'])->name('demandes.destroy');
+        Route::get('/demande/{demande}/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('demandes.historique.create');
+        Route::post('/demande/{demande}/historique', [DemandeController::class, 'storeHistorique'])->name('demandes.historique.store');
     });
     Route::prefix('admin')->name('admin.')->group(function () {
         $accountRoute = '/{account}';
