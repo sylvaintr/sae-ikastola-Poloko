@@ -133,5 +133,4 @@ class CalculMontantFactureTest extends TestCase
         $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
         return $ref->invoke($controller, $facture->idFacture);
     }
-
 }
