@@ -77,8 +77,8 @@ jobs:
       - name: Fail if coverage is not 100%
         run: |
           XML=build/reports/coverage/index.xml
-          COVERAGE=$(xmllint --xpath "string(/coverage/project/metrics/@line-rate)" "$XML")
-          PERCENT=$(printf "%.0f" $(echo "$COVERAGE * 100" | bc -l))
+          COVERAGE=$(xmllint --xpath "string(/*[local-name()='phpunit']/*[local-name()='project']/*[local-name()='directory']/*[local-name()='totals']/*[local-name()='lines']/@percent)" "$XML")
+          PERCENT=$(printf "%.0f" "$COVERAGE")
 
           echo "Couverture détectée : $PERCENT%"
 
