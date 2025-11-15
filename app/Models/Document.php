@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Document
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Document extends Model
 {
+	use HasFactory;
 	protected $table = 'document';
 	protected $primaryKey = 'idDocument';
 	public $incrementing = false;

@@ -1,0 +1,22 @@
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Enfant;
+
+class EnfantModelTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_enfant_factory_creates_with_famille_and_classe()
+    {
+        $enfant = Enfant::factory()->create();
+
+
+
+        $this->assertNotNull($enfant->famille);
+        $this->assertNotNull($enfant->classe);
+    }
+}

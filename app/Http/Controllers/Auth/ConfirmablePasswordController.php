@@ -31,11 +31,11 @@ class ConfirmablePasswordController extends Controller
             ])
         ) {
             throw ValidationException::withMessages([
-                'password' => __('auth.password'),
+                'password' => __('auth.mot_de_passe'),
             ]);
         }
 
-        $request->session()->put('auth.password_confirmed_at', time());
+        $request->session()->put('auth.mot_de_passe_confirme_a', time());
 
         return redirect()->intended(route('home'));
     }

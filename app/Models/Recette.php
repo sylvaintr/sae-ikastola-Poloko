@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Recette
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Recette extends Model
 {
+	use HasFactory;
 	protected $table = 'recette';
 	protected $primaryKey = 'idRecette';
 	public $incrementing = false;

@@ -1,13 +1,14 @@
 <x-app-layout>
-    @php($sections = [
-        'add_message' => 'admin.messages',
-        'accounts' => 'admin.accounts.index',
-        'families' => 'admin.families',
-        'classes' => 'admin.classes',
-        'invoices' => 'admin.invoices',
-        'notifications' => 'admin.notifications',
-        'obligatory_documents' => 'admin.obligatory_documents.index',
-    ])
+    @php
+        $sections = [
+            'add_message' => 'admin.messages',
+            'accounts' => 'admin.accounts.index',
+            'families' => 'admin.families',
+            'classes' => 'admin.classes',
+            'invoices' => 'admin.facture.index',
+            'notifications' => 'admin.notifications',
+        ];
+    @endphp
 
     <div class="container py-4">
         @foreach ($sections as $key => $route)
@@ -17,4 +18,3 @@
         @endforeach
     </div>
 </x-app-layout>
-

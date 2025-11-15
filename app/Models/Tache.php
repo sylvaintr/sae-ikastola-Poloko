@@ -8,10 +8,10 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Tache
- * 
  * @property int $idTache Identifiant de la tâche.
  * @property string $titre Titre de la tâche.
  * @property string $description Description de la tâche.
@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Tache extends Model
 {
+	use HasFactory;
 	protected $table = 'tache';
 	protected $primaryKey = 'idTache';
 	public $incrementing = false;

@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Materiel
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Materiel extends Model
 {
+	use HasFactory;
 	protected $table = 'materiel';
 	protected $primaryKey = 'idMateriel';
 	public $incrementing = false;

@@ -58,4 +58,6 @@ return [
     'texte_confirmation_suppression' => 'Kontua ezabatzen denean, bere baliabide eta datu guztiak betirako ezabatuko dira. Mesedez, sartu zure pasahitza kontua ezabatu nahi duzula berresteko.',
     'annuler' => 'Utzi',
     'confirmer' => 'Berretsi',
+    'nonconnecte' => 'Saioa hasi behar duzu baliabide honetara sartzeko.',
+    'accesrefuse' => 'Ez duzu baimenik orrialde honetara sartzeko.',
 ];

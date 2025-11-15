@@ -1,4 +1,5 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
+@import url('datatables.net-bs5');
 
 .auth-body {
     min-height: 100vh;

@@ -6,7 +6,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Class Attribuer
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Attribuer extends Model
+class Attribuer extends Pivot
 {
 	protected $table = 'attribuer';
 	public $incrementing = false;

@@ -6,7 +6,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Class Inclure
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Inclure extends Model
+class Inclure extends Pivot
 {
 	protected $table = 'inclure';
 	public $incrementing = false;

@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
 use Carbon\Carbon;
@@ -13,11 +9,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Support\Str;
 
 /**
  * Class Utilisateur
- * 
  * @property int $idUtilisateur Identifiant de l'utilisateur.
  * @property string $prenom Prénom de l'utilisateur.
  * @property string $nom Nom de l'utilisateur.

@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Enfant extends Model
 {
+	use HasFactory;
 	protected $table = 'enfant';
 	protected $primaryKey = 'idEnfant';
 	public $incrementing = false;
@@ -34,6 +36,7 @@ class Enfant extends Model
 		'idEnfant' => 'int',
 		'dateN' => 'datetime',
 		'NNI' => 'int',
+		'nbFoisGarderie' => 'int',
 		'idClasse' => 'int',
 		'idFamille' => 'int'
 	];
@@ -46,6 +49,7 @@ class Enfant extends Model
 		'dateN',
 		'sexe',
 		'NNI',
+		'nbFoisGarderie',
 		'idClasse',
 		'idFamille'
 	];

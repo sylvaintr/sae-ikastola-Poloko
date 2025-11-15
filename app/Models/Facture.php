@@ -7,11 +7,11 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Facture
- * 
  * @property int $idFacture Identifiant de la facture.
  * @property bool $etat État de la facture (ex: payée / non payée) — flag.
  * @property Carbon $dateC Date de création / émission de la facture.
@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Facture extends Model
 {
+	use HasFactory;
 	protected $table = 'facture';
 	protected $primaryKey = 'idFacture';
 	public $incrementing = false;
@@ -31,6 +32,7 @@ class Facture extends Model
 		'idFacture' => 'int',
 		'etat' => 'bool',
 		'dateC' => 'datetime',
+		'previsionnel' => 'bool',
 		'idUtilisateur' => 'int',
 		'idFamille' => 'int'
 	];
@@ -38,6 +40,7 @@ class Facture extends Model
 	protected $fillable = [
 		'etat',
 		'dateC',
+		'previsionnel',
 		'idUtilisateur',
 		'idFamille'
 	];
@@ -50,5 +53,13 @@ class Facture extends Model
 	public function famille()
 	{
 		return $this->belongsTo(Famille::class, 'idFamille');
+	}
+
+	/**
+	 * Compatibility accessor: provide $facture->id mapping to the model primary key.
+	 */
+	public function getIdAttribute()
+	{
+		return $this->getKey();
 	}
 }

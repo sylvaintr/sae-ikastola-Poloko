@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Activite
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Activite extends Model
 {
+	use HasFactory;
 	protected $table = 'activite';
 	public $incrementing = false;
 	public $timestamps = false;

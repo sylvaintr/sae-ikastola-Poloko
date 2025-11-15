@@ -10,7 +10,8 @@
     </header>
 
     <x-danger-button
-        onclick="event.preventDefault(); window.dispatchEvent(new CustomEvent('open-modal', { detail: 'confirm-user-deletion' }));">{{ __('auth.supprimer_compte') }}</x-danger-button>
+        onclick="event.preventDefault(); window.dispatchEvent(new CustomEvent('open-modal', { detail: 'confirm-user-deletion' }));"
+        onKeyDown="if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') { event.preventDefault(); window.dispatchEvent(new CustomEvent('open-modal', { detail: 'confirm-user-deletion' })); }">{{ __('auth.supprimer_compte') }}</x-danger-button>
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
         <form method="post" action="{{ route('profile.destroy') }}" class="p-3">
@@ -36,7 +37,8 @@
 
             <div class="d-flex justify-content-end">
                 <x-secondary-button
-                    onclick="event.preventDefault(); window.dispatchEvent(new CustomEvent('close-modal', { detail: 'confirm-user-deletion' }));">
+                    onclick="event.preventDefault(); window.dispatchEvent(new CustomEvent('close-modal', { detail: 'confirm-user-deletion' }));"
+                    onKeyDown="if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') { event.preventDefault(); window.dispatchEvent(new CustomEvent('close-modal', { detail: 'confirm-user-deletion' })); }">
                     {{ __('auth.annuler') }}
                 </x-secondary-button>
 

@@ -6,7 +6,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Class Correspondre
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Correspondre extends Model
+class Correspondre extends Pivot
 {
 	protected $table = 'correspondre';
 	public $incrementing = false;
