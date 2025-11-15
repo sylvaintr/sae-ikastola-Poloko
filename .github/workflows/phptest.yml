@@ -35,13 +35,6 @@ jobs:
           extensions: mbstring, bcmath, pdo_mysql, xdebug
           coverage: xdebug
 
-      # ✅ Activation garantie de Xdebug (important pour PHP 8.4)
-      - name: Force enable Xdebug coverage
-        run: |
-          echo "xdebug.mode=coverage" | sudo tee /etc/php/8.4/mods-available/xdebug.ini
-          echo "xdebug.start_with_request=yes" | sudo tee -a /etc/php/8.4/mods-available/xdebug.ini
-          php --ri xdebug
-
       - name: Install dependencies
         run: composer install --no-progress --prefer-dist --no-interaction
 
