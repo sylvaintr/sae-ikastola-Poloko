@@ -14,5 +14,5 @@
             </div>
         </div>
 
-
-        </x-a>
+    </div>
+</x-app-layout>
