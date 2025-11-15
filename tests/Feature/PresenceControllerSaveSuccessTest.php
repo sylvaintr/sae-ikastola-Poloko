@@ -20,7 +20,7 @@ class PresenceControllerSaveSuccessTest extends TestCase
         $enfants = collect();
         for ($i = 0; $i < 3; $i++) {
             $enfants->push(Enfant::factory()->create([
-                'idEnfant' => rand(100000 + $i, 999999 + $i),
+                'idEnfant' => random_int(100000 + $i, 999999 + $i),
                 'idClasse' => $classe->idClasse,
             ]));
         }

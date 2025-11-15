@@ -36,7 +36,7 @@ class AvoirEtreModelTest extends TestCase
     {
         $classe = Classe::factory()->create();
         $famille = Famille::factory()->create();
-        $idEnfant = rand(300000, 999999);
+        $idEnfant = random_int(300000, 999999);
         Enfant::factory()->create([
             'idEnfant' => $idEnfant,
             'idClasse' => $classe->idClasse,

@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Utilisateur;
+use App\Http\Controllers\Admin\AccountController;
 
 class AccountControllerFindAvailableIdTest extends TestCase
 {
@@ -15,9 +16,10 @@ class AccountControllerFindAvailableIdTest extends TestCase
         // ensure table is empty
         Utilisateur::query()->delete();
 
-        $controller = new \App\Http\Controllers\Admin\AccountController();
+        $controller = new AccountController();
         $ref = new \ReflectionMethod($controller, 'findAvailableId');
         $ref->setAccessible(true);
+
 
         $id = $ref->invoke($controller);
         $this->assertEquals(1, $id);
@@ -30,7 +32,7 @@ class AccountControllerFindAvailableIdTest extends TestCase
         Utilisateur::factory()->create(['idUtilisateur' => 2]);
         Utilisateur::factory()->create(['idUtilisateur' => 4]);
 
-        $controller = new \App\Http\Controllers\Admin\AccountController();
+        $controller = new AccountController();
         $ref = new \ReflectionMethod($controller, 'findAvailableId');
         $ref->setAccessible(true);
 
@@ -45,7 +47,7 @@ class AccountControllerFindAvailableIdTest extends TestCase
             Utilisateur::factory()->create(['idUtilisateur' => $i]);
         }
 
-        $controller = new \App\Http\Controllers\Admin\AccountController();
+        $controller = new AccountController();
         $ref = new \ReflectionMethod($controller, 'findAvailableId');
         $ref->setAccessible(true);
 

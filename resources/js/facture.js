@@ -34,10 +34,11 @@ const dataTableLangs = {
 
 
 document.addEventListener('DOMContentLoaded', function () {
+
     new DataTable('#myTable', {
         processing: true,
         serverSide: true,
-        ajax: '/sae-ikastola-Poloko/public/admin/factures-data',
+        ajax: location.pathname + "s-data",
         columns: [
             { data: 'idFacture', name: 'idFacture' },
             { data: 'titre', name: 'titre' },

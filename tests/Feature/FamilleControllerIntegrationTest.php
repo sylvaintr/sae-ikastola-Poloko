@@ -73,7 +73,8 @@ class FamilleControllerIntegrationTest extends TestCase
     {
         $famille = Famille::factory()->create();
         $enfant = Enfant::factory()->create([
-            'idEnfant' => rand(200000, 999999),
+            'idEnfant' => random_int(200000, 999999),
+
             'idFamille' => $famille->idFamille,
         ]);
         $user = Utilisateur::factory()->create();

@@ -127,7 +127,7 @@ return [
         'delete_confirmation' => 'Ziur zaude :name kontua ezabatu nahi duzula ?',
     ],
     'obligatory_documents' => [
-        'title' => 'Beharrezko dokumentuak',
+        'title',
         'subtitle' => 'Beharrezko dokumentuak',
         'description' => 'Orri honek beharrezko dokumentuak kudeatzeko aukera emango du.',
         'add_button' => 'Gehitu dokumentu bat',
