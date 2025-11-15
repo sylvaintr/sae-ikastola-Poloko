@@ -1,11 +1,12 @@
 <x-app-layout>
     @php($sections = [
         'add_message' => 'admin.messages',
-        'accounts' => 'admin.accounts',
+        'accounts' => 'admin.accounts.index',
         'families' => 'admin.families',
         'classes' => 'admin.classes',
         'invoices' => 'admin.invoices',
         'notifications' => 'admin.notifications',
+        'obligatory_documents' => 'admin.obligatory_documents.index',
     ])
 
     <div class="container py-4">
