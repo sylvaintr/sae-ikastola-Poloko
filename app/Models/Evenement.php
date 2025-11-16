@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Evenement
- * 
+ *
  * @property int $idEvenement Identifiant de l'événement.
  * @property string $titre Titre de l'événement.
  * @property string $description Description détaillée de l'événement.

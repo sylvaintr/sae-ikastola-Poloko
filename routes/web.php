@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
+use App\Http\Controllers\EvenementController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -23,5 +25,7 @@ Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('p
 Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
 Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
 Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
+
+Route::resource('evenements', EvenementController::class);
 
 require __DIR__ . '/auth.php';
