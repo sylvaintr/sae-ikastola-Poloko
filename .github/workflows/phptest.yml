@@ -95,7 +95,7 @@ jobs:
           name: php-test-reports
           path: build/reports/
 
-      - name: Upload coverage reports
+      - name: Clean directory on server
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST_RECETTE }}
@@ -105,5 +105,14 @@ jobs:
           script: |
             cd ${{ secrets.COVERAGE_SERVER_PATH_RECETTE }}
             rm -rf *
-            cp -r /home/runner/work/sae-ikastola-Poloko/sae-ikastola-Poloko/build/reports/coverage/html/* .
+
+      - name: Upload coverage to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST_RECETTE }}
+          username: ${{ secrets.SERVER_USER_RECETTE }}
+          password: ${{ secrets.SERVER_PASSWORD_RECETTE }}
+          port: 22
+          source: "build/reports/coverage/html/*"
+          target: ${{ secrets.COVERAGE_SERVER_PATH_RECETTE }}
 
