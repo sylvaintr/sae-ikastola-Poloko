@@ -14,7 +14,8 @@ class Facture extends Mailable
     use Queueable, SerializesModels;
 
     /**
-     * Create a new message instance.
+     * Constructeur pour initialiser une nouvelle instance du message.
+     * 
      */
     public function __construct()
     {
@@ -22,7 +23,9 @@ class Facture extends Mailable
     }
 
     /**
-     * Get the message envelope.
+     * methode pour definir l'enveloppe du mail
+     * 
+     * @return \Illuminate\Mail\Mailables\Envelope
      */
     public function envelope(): Envelope
     {
@@ -32,7 +35,9 @@ class Facture extends Mailable
     }
 
     /**
-     * Get the message content definition.
+     * methode pour definir le contenu du mail
+     * 
+     * @return \Illuminate\Mail\Mailables\Content
      */
     public function content(): Content
     {
@@ -42,7 +47,7 @@ class Facture extends Mailable
     }
 
     /**
-     * Get the attachments for the message.
+     * methode pour definir les pieces jointes du mail
      *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */

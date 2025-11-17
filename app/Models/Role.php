@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
 use Carbon\Carbon;
@@ -12,14 +8,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Role
- * 
- * @property int $idRole Identifiant du rôle.
- * @property string $name Nom interne du rôle (ex: "admin", "enseignant").
- * @property string $guard_name Nom du guard/auth driver (si utilisé).
- * @property Carbon|null $created_at Date de création du rôle.
- * @property Carbon|null $updated_at Date de dernière mise à jour du rôle.
+ *
+ * Représente un rôle utilisateur (intégré avec Spatie Permission dans ce projet).
  *
  * @package App\Models
+ *
+ * @property int $idRole Identifiant du rôle.
+ * @property string $name Nom interne du rôle (ex: "admin").
+ * @property string $guard_name Nom du guard/auth driver (si utilisé).
+ * @property Carbon|null $created_at Date de création.
+ * @property Carbon|null $updated_at Date de mise à jour.
  */
 class Role extends \Spatie\Permission\Models\Role
 {
@@ -33,13 +31,20 @@ class Role extends \Spatie\Permission\Models\Role
 		'idRole' => 'int'
 	];
 
+	/**
+	 * Attributs assignables (fillable) pour un rôle.
+	 *
+	 * - `name` (string) : nom interne du rôle (ex: "admin").
+	 * - `guard_name` (string) : nom du guard/auth driver (si utilisé).
+	 */
 	protected $fillable = [
 		'name',
 		'guard_name'
 	];
 
 	/**
-	 * Documents obligatoires attributés à ce rôle (pivot `attribuer`).
+	 * Relation many-to-many vers les documents obligatoires associés à ce rôle.
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
 	public function documentObligatoires()
 	{

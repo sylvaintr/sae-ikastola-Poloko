@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
 use Carbon\Carbon;
@@ -12,17 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Enfant
- * 
- * @property int $idEnfant Identifiant de l'enfant.
- * @property string $nom Nom de famille de l'enfant.
- * @property string $prenom Prénom de l'enfant.
- * @property Carbon $dateN Date de naissance.
- * @property string $sexe Sexe de l'enfant (ex: "M" / "F").
- * @property int $NNI Numéro national d'identification (ou numéro interne selon le projet).
- * @property int $idClasse Identifiant de la classe de l'enfant.
- * @property int $idFamille Identifiant de la famille / tuteur associé.
+ *
+ * Représente un enfant enregistré dans l'application (élève / participant).
  *
  * @package App\Models
+ *
+ * @property int $idEnfant Identifiant de l'enfant.
+ * @property string $nom Nom de famille.
+ * @property string $prenom Prénom.
+ * @property Carbon $dateN Date de naissance.
+ * @property string $sexe Sexe (ex: "M" / "F").
+ * @property int $NNI Numéro national ou interne d'identification.
+ * @property int $idClasse Identifiant de la classe.
+ * @property int $idFamille Identifiant de la famille / tuteur associé.
  */
 class Enfant extends Model
 {
@@ -41,7 +39,19 @@ class Enfant extends Model
 		'idFamille' => 'int'
 	];
 
-
+	/**
+	 * Attributs assignables (fillable) pour un enfant.
+	 *
+	 * - `idEnfant` (int) : identifiant de l'enfant (si utilisé en assignation).
+	 * - `nom` (string) : nom de famille.
+	 * - `prenom` (string) : prénom.
+	 * - `dateN` (datetime) : date de naissance.
+	 * - `sexe` (string) : sexe (ex: "M" / "F").
+	 * - `NNI` (int) : numéro national / interne d'identification.
+	 * - `nbFoisGarderie` (int) : nombre de passages en garderie.
+	 * - `idClasse` (int) : référence vers `Classe`.
+	 * - `idFamille` (int) : référence vers `Famille`.
+	 */
 	protected $fillable = [
 		'idEnfant',
 		'nom',
@@ -54,11 +64,21 @@ class Enfant extends Model
 		'idFamille'
 	];
 
+	/**
+	 * Relation belongsTo vers la classe de l'enfant.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
 	public function classe()
 	{
 		return $this->belongsTo(Classe::class, 'idClasse');
 	}
 
+	/**
+	 * Relation belongsTo vers la famille / tuteur de l'enfant.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
 	public function famille()
 	{
 		return $this->belongsTo(Famille::class, 'idFamille');

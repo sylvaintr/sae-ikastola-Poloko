@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
 use Carbon\Carbon;
@@ -11,12 +7,14 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Class Etre
- * 
- * @property int $idEnfant Identifiant de l'enfant lié à cette présence/inscription.
- * @property string $activite Référence à l'activité (valeur string correspondant à `Activite.activite`).
- * @property Carbon $dateP Date de la présence/inscription liée à l'activité.
+ *
+ * Pivot représentant la présence / inscription d'un `Enfant` à une `Activite`.
  *
  * @package App\Models
+ *
+ * @property int $idEnfant Identifiant de l'enfant lié à l'inscription.
+ * @property string $activite Référence à l'activité (clé `Activite.activite`).
+ * @property Carbon $dateP Date de la présence / inscription.
  */
 class Etre extends Pivot
 {
@@ -29,14 +27,24 @@ class Etre extends Pivot
 		'dateP' => 'datetime'
 	];
 
+	/**
+	 * Relation belongsTo vers l'enfant associé à cette inscription.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
 	public function enfant()
 	{
 		return $this->belongsTo(Enfant::class, 'idEnfant');
 	}
 
+	/**
+	 * Relation belongsTo vers l'activité correspondante.
+	 * La colonne locale `activite` référence `Activite.activite`.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
 	public function activite()
 	{
-		// The "activite" column stores the activity identifier (string). We map to Activite.activite
 		return $this->belongsTo(Activite::class, 'activite', 'activite');
 	}
 }

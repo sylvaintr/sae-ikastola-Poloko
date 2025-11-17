@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 class PresenceController extends Controller
 {
     /**
-     * Return all classes for the selector.
+     * Methode pour obtenir la liste des classes
+     * 
+     * @return \Illuminate\Http\JsonResponse la réponse JSON contenant la liste des classes
      */
     public function classes()
     {
@@ -23,7 +25,10 @@ class PresenceController extends Controller
     }
 
     /**
-     * Return students for a given class id.
+     * Methode pour obtenir la liste des élèves pour une classe donnée
+     * 
+     * @param Request $request la requête HTTP contenant le paramètre 'classe_id'
+     * @return \Illuminate\Http\JsonResponse la réponse JSON contenant la liste des élèves
      */
     public function students(Request $request)
     {
@@ -42,7 +47,9 @@ class PresenceController extends Controller
     }
 
     /**
-     * Return present student ids for a given date/activity and class.
+     * Methode pour obtenir la liste des identifiants des élèves présents pour une date/activité et une classe données
+     * @param Request $request la requête HTTP contenant les paramètres 'classe_id', 'date' et 'activite'
+     * @return \Illuminate\Http\JsonResponse la réponse JSON contenant la liste des identifiants des élèves présents
      */
     public function status(Request $request)
     {
@@ -65,7 +72,9 @@ class PresenceController extends Controller
     }
 
     /**
-     * Save presence status in bulk for a given date/activity.
+     * Methode pour enregistrer en masse le statut de présence pour une date/activité donnée
+     * @param Request $request la requête HTTP contenant les données de présence
+     * @return \Illuminate\Http\JsonResponse la réponse JSON indiquant le statut de l'opération
      */
     public function save(Request $request)
     {
@@ -108,5 +117,3 @@ class PresenceController extends Controller
         return response()->json(['status' => 'ok']);
     }
 }
-
-

@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -11,12 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Materiel
- * 
- * @property int $idMateriel Identifiant du matériel.
- * @property string $provenance Provenance du matériel (achat, don, prêt, etc.).
- * @property string $description Description détaillée du matériel.
+ *
+ * Modèle représentant du matériel/ressource pouvant être utilisé pour des événements.
  *
  * @package App\Models
+ *
+ * @property int $idMateriel Identifiant du matériel.
+ * @property string $provenance Provenance (achat, don, prêt, ...).
+ * @property string $description Description détaillée.
  */
 class Materiel extends Model
 {
@@ -30,11 +28,22 @@ class Materiel extends Model
 		'idMateriel' => 'int'
 	];
 
+	/**
+	 * Attributs assignables (fillable) pour le matériel.
+	 *
+	 * - `provenance` (string) : provenance du matériel (achat, don, prêt, ...).
+	 * - `description` (string) : description détaillée du matériel.
+	 */
 	protected $fillable = [
 		'provenance',
 		'description'
 	];
 
+	/**
+	 * Relation belongsToMany vers les événements utilisant ce matériel (pivot `inclure`).
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+	 */
 	public function evenements()
 	{
 		return $this->belongsToMany(Evenement::class, 'inclure', 'idMateriel', 'idEvenement');

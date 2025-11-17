@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Enfant;
 use App\Models\Facture;
 use App\Models\Famille;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\JsonResponse;
@@ -15,15 +14,23 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\Facture as FactureMail;
 use App\Models\Etre;
 use App\Models\Utilisateur;
-use Illuminate\Database\Eloquent\Collection;
 use Pelago\Emogrifier\CssInliner;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
+/**
+ * Class FactureController
+ *
+ * Contrôleur pour la gestion des factures.
+ *
+ * @package App\Http\Controllers
+ */
 class FactureController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Methode pour afficher la liste des factures
+     * 
+     * @return View
      */
     public function index(): View
     {
@@ -33,7 +40,10 @@ class FactureController extends Controller
 
 
     /**
-     * Display the specified resource.
+     * Methode pour afficher une facture specifique
+     * 
+     * @param string $id Identifiant de la facture à afficher
+     * @return View|RedirectResponse
      */
     public function show(string $id): View|RedirectResponse
     {
@@ -55,7 +65,9 @@ class FactureController extends Controller
     }
 
     /**
-     * permet de gérer le corps du tableau de factures en AJAX pour DataTables
+     * Permet de gérer le corps du tableau de factures en AJAX pour DataTables
+     * 
+     * @return JsonResponse
      */
     public function  facturesData(): JsonResponse
     {
@@ -75,7 +87,12 @@ class FactureController extends Controller
             ->make(true);
     }
 
-
+    /**
+     * Methode pour exporter une facture en PDF ou Word
+     * 
+     * @param string $id Identifiant de la facture à exporter
+     * @return Response|RedirectResponse response contenant le fichier exporté
+     */
     public function exportFacture(string $id): Response|RedirectResponse
     {
 
@@ -124,7 +141,12 @@ class FactureController extends Controller
     }
 
 
-
+    /**
+     * Methode pour envoyer une facture par mail
+     * 
+     * @param string $id Identifiant de la facture à envoyer
+     * @return RedirectResponse response de redirection vers la liste des factures
+     */
     public function envoyerFacture(string $id): RedirectResponse
     {
         $facture = Facture::find($id ?? null);
@@ -156,11 +178,9 @@ class FactureController extends Controller
 
     /**
      * Calculate invoice amounts.
-     * @param Facture $facture
-     * @param Famille $famille
-     * @param \Illuminate\Database\Eloquent\Collection<int, Enfant> $enfants
-     * @return array<int, float> associative array with keys:
-     *      montantcotisation, montantparticipation, montantparticipationSeaska, montangarderie, montanttotal
+     * @param string $id Identifiant de la facture à calculer
+     * @return array<int, float> tableau associatif contenant les montants calculés :
+     *      montantcotisation, montantparticipation, montantparticipationSeaska, montangarderie, montanttotal,facture, famille, enfants
      */
     private function calculerMontantFacture(string $id): array|RedirectResponse
     {

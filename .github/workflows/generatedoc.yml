@@ -20,7 +20,14 @@ jobs:
         run: doxygen Doxyfile
 
       - name: Upload documentation artifact
-        uses: actions/upload-artifact@v4
+        uses: appleboy/ssh-action@v0.1.7
         with:
-          name: doxygen-docs
-          path: /html  # adapte selon ton Doxyfile
+          host: ${{ secrets.SERVER_HOST_RECETTE }}
+          username: ${{ secrets.SERVER_USER_RECETTE }}
+          password: ${{ secrets.SERVER_PASSWORD_RECETTE }}
+          port: 22
+          script: |
+            cd  ${{ secrets.DOC_SERVER_PATH_RECETTE }}
+            rm -rf *
+            cp -r /home/runner/work/sae-ikastola-Poloko/sae-ikastola-Poloko/docs/html/* .
+      
