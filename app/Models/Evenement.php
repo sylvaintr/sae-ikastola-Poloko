@@ -48,9 +48,8 @@ class Evenement extends Model
 		'dateE'
 	];
 
-	/**	
+	/**
 	 * Relation hasMany vers les recettes associées à cet événement.
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
 	public function recettes()
@@ -58,9 +57,8 @@ class Evenement extends Model
 		return $this->hasMany(Recette::class, 'idEvenement');
 	}
 
-	/**	
+	/**
 	 * Relation hasMany vers les tâches associées à cet événement.
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
 	public function taches()
@@ -68,9 +66,8 @@ class Evenement extends Model
 		return $this->hasMany(Tache::class, 'idEvenement');
 	}
 
-	/**	
+	/**
 	 * Relation belongsToMany vers les matériels associés à cet événement via la table pivot `inclure`.
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
 	public function materiels()

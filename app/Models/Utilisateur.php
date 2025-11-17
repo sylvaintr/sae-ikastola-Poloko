@@ -42,7 +42,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	];
 	/**
 	 * Attributs à cacher lors de la sérialisation (ex: JSON).
-	 * 
 	 * mdp : Mot de passe (hashé) — ne pas exposer en clair.
 	 * remember_token : Jeton "remember me".
 	 */
@@ -55,7 +54,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	 * Les attributs assignables de l'utilisateur.
 	 *
 	 * Clés et explications :
-	 * 
 	 * - prenom (string) : Prénom de l'utilisateur.
 	 * - nom (string) : Nom de famille de l'utilisateur.
 	 * - email (string) : Adresse e‑mail unique utilisée pour l'authentification et les notifications.
@@ -82,7 +80,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 
 	/**
 	 * Retourne le mot de passe utilisé pour l'authentification.
-	 *
 	 * @return string Le mot de passe (hashé) stocké dans l'attribut `mdp`.
 	 */
 	public function getAuthPassword()
@@ -94,7 +91,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 
 	/**
 	 * Retourne l'adresse e-mail utilisée pour l'envoi des liens de réinitialisation.
-	 *
 	 * @return string|null Adresse e-mail ou null si absente.
 	 */
 	public function getEmailForPasswordReset()
@@ -106,7 +102,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 
 	/**
 	 * Envoie la notification de réinitialisation de mot de passe.
-	 *
 	 * @param string $token Jeton de réinitialisation fourni par le système.
 	 * @return void
 	 */
@@ -119,7 +114,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 
 	/**
 	 * Accesseur de compatibilité pour obtenir le mot de passe via `$user->password`.
-	 *
 	 * @return string Le mot de passe hashé (attribut `mdp`).
 	 */
 	public function getPasswordAttribute()
@@ -132,7 +126,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	/**
 	 * Mutateur de compatibilité qui permet d'assigner `$user->password = '...'`.
 	 * Si la valeur fournie n'est pas déjà hachée, elle sera hachée avant stockage.
-	 *
 	 * @param string $value Mot de passe en clair ou déjà hashé.
 	 * @return string Valeur (hashée) stockée.
 	 */
@@ -152,7 +145,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 
 	/**
 	 * Fournit un attribut virtuel `name` combinant `prenom` et `nom`.
-	 *
 	 * @return string Nom complet formaté.
 	 */
 	public function getNameAttribute()
@@ -166,7 +158,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 
 	/**
 	 * Fournit un alias `id` pointant vers la clé primaire `idUtilisateur`.
-	 *
 	 * @return int Identifiant primaire du modèle.
 	 */
 	public function getIdAttribute()
@@ -179,7 +170,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 
 	/**
 	 * Relation hasMany vers les actualités créées par l'utilisateur.
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
 	public function actualites()
@@ -190,7 +180,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 
 	/**
 	 * Relation belongsToMany vers les documents liés à l'utilisateur via la pivot `contenir`.
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
 	public function documents()
@@ -201,7 +190,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 
 	/**
 	 * Relation hasMany vers les factures émises par l'utilisateur.
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
 	public function factures()
@@ -212,7 +200,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 
 	/**
 	 * Relation hasMany vers les enregistrements de pivot `avoir` (rôles attribués).
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
 	public function avoirs()
@@ -224,7 +211,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	/**
 	 * Relation belongsToMany vers les rôles de l'utilisateur (via la table `avoir`).
 	 * Retourne les rôles associés et inclut la colonne pivot `model_type`.
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
 	public function rolesCustom()
@@ -240,7 +226,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	/**
 	 * Relation belongsToMany vers les familles associées à l'utilisateur (pivot `lier`).
 	 * La colonne pivot `parite` contient le rôle dans la famille.
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
 	public function familles()
@@ -252,7 +237,6 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	/**
 	 * Relation belongsToMany vers les tâches réalisées par l'utilisateur (pivot `realiser`).
 	 * Inclut les colonnes pivot `dateM` et `description`.
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
 	public function tachesRealisees()

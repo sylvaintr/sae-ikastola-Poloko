@@ -10,7 +10,6 @@ class UtilisateurController extends Controller
 
     /**
      * methode pour rechercher des utilisateurs par nom
-     * 
      * @param Request $request la requête HTTP contenant le paramètre 'nom'
      * @return \Illuminate\Http\JsonResponse la réponse JSON contenant les utilisateurs trouvés ou un message d'erreur
      */

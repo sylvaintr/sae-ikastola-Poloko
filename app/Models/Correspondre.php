@@ -27,7 +27,6 @@ class Correspondre extends Pivot
 
 	/**
 	 * Relation belongsTo vers l'actualité liée.
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
 	 */
 	public function actualite()
@@ -35,9 +34,8 @@ class Correspondre extends Pivot
 		return $this->belongsTo(Actualite::class, 'idActualite');
 	}
 
-	/**	
+	/**
 	 * Relation belongsTo vers l'étiquette associée.
-	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
 	 */
 	public function etiquette()

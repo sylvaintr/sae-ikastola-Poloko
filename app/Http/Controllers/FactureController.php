@@ -29,7 +29,6 @@ class FactureController extends Controller
 {
     /**
      * Methode pour afficher la liste des factures
-     * 
      * @return View
      */
     public function index(): View
@@ -41,7 +40,6 @@ class FactureController extends Controller
 
     /**
      * Methode pour afficher une facture specifique
-     * 
      * @param string $id Identifiant de la facture à afficher
      * @return View|RedirectResponse
      */
@@ -66,7 +64,6 @@ class FactureController extends Controller
 
     /**
      * Permet de gérer le corps du tableau de factures en AJAX pour DataTables
-     * 
      * @return JsonResponse
      */
     public function  facturesData(): JsonResponse
@@ -89,7 +86,6 @@ class FactureController extends Controller
 
     /**
      * Methode pour exporter une facture en PDF ou Word
-     * 
      * @param string $id Identifiant de la facture à exporter
      * @return Response|RedirectResponse response contenant le fichier exporté
      */
@@ -143,7 +139,6 @@ class FactureController extends Controller
 
     /**
      * Methode pour envoyer une facture par mail
-     * 
      * @param string $id Identifiant de la facture à envoyer
      * @return RedirectResponse response de redirection vers la liste des factures
      */

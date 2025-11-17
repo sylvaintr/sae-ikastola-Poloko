@@ -24,7 +24,6 @@ class Facture extends Mailable
 
     /**
      * methode pour definir l'enveloppe du mail
-     * 
      * @return \Illuminate\Mail\Mailables\Envelope
      */
     public function envelope(): Envelope
@@ -36,7 +35,6 @@ class Facture extends Mailable
 
     /**
      * methode pour definir le contenu du mail
-     * 
      * @return \Illuminate\Mail\Mailables\Content
      */
     public function content(): Content
@@ -48,7 +46,6 @@ class Facture extends Mailable
 
     /**
      * methode pour definir les pieces jointes du mail
-     *
      * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array

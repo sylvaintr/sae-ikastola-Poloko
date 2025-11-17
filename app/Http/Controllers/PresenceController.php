@@ -12,7 +12,6 @@ class PresenceController extends Controller
 {
     /**
      * Methode pour obtenir la liste des classes
-     * 
      * @return \Illuminate\Http\JsonResponse la réponse JSON contenant la liste des classes
      */
     public function classes()
@@ -26,7 +25,6 @@ class PresenceController extends Controller
 
     /**
      * Methode pour obtenir la liste des élèves pour une classe donnée
-     * 
      * @param Request $request la requête HTTP contenant le paramètre 'classe_id'
      * @return \Illuminate\Http\JsonResponse la réponse JSON contenant la liste des élèves
      */
