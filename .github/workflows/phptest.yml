@@ -89,11 +89,6 @@ jobs:
 
           echo "✅ Couverture OK à 100%"
 
-      - name: Upload test reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: php-test-reports
-          path: build/reports/
 
       - name: Clean directory on server
         uses: appleboy/ssh-action@v0.1.7
