@@ -1,42 +1,50 @@
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <div class="auth-header text-center">
+        <h1 class="auth-title">{{ __('auth.titre_connexion_principal') }}</h1>
+    </div>
 
-    <form method="POST" action="{{ route('login') }}">
+    <x-auth-session-status class="auth-status" :status="session('status')" />
+
+    <form method="POST" action="{{ route('login') }}" class="auth-form">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('auth.email')" />
-            <x-text-input id="email" class="" type="email" name="email" :value="old('email')" required autofocus
-                autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" />
+        <div class="auth-field">
+            <label for="email" class="auth-field-label">{{ __('auth.email_principal') }}</label>
+            <x-text-input id="email" class="auth-input" type="email" name="email" :value="old('email')" required
+                autofocus autocomplete="username" placeholder="{{ __('auth.placeholder_email') }}" />
+            <x-input-error class="auth-error" :messages="$errors->get('email')" />
         </div>
 
-        <!-- Password -->
-        <div class="mt-3">
-            <x-input-label for="password" :value="__('auth.mot_de_passe')" />
-            <x-text-input id="password" class="" type="password" name="password" required
-                autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" />
+        <div class="auth-field">
+            <label for="password" class="auth-field-label">{{ __('auth.mot_de_passe_principal') }}</label>
+            <x-text-input id="password" class="auth-input" type="password" name="password" required
+                autocomplete="current-password" placeholder="{{ __('auth.placeholder_password') }}" />
+            <x-input-error class="auth-error" :messages="$errors->get('password')" />
         </div>
 
-        <!-- Remember Me -->
-        <div class="form-check mt-3">
+        <div class="auth-checkbox">
             <input id="remember_me" class="form-check-input" type="checkbox" name="remember">
-            <label for="remember_me" class="form-check-label small">{{ __('auth.se_souvenir_de_moi') }}</label>
+            <label for="remember_me" class="auth-checkbox-label">{{ __('auth.se_souvenir_de_moi') }}</label>
         </div>
 
-        <div class="d-flex justify-content-end mt-3">
-            @if (Route::has('password.request'))
-                <a class="small text-decoration-underline text-muted me-3" href="{{ route('password.request') }}">
-                    {{ __('auth.mot_de_passe_oublie') }}
+        @if (Route::has('password.request'))
+            <div class="auth-forgot">
+                <a class="auth-forgot-link" href="{{ route('password.request') }}">
+                    <span class="auth-forgot-label">{{ __('auth.mot_de_passe_oublie_principal') }}</span>
                 </a>
-            @endif
+            </div>
+        @endif
 
-            <x-primary-button class="">
-                {{ __('auth.connexion') }}
+        <div class="auth-footer">
+            <div class="auth-footer-text">
+                <span class="auth-footer-title">{{ __('auth.pas_compte_principal') }}</span>
+                @if (Route::has('register'))
+                    <a class="auth-footer-link" href="{{ route('register') }}">{{ __('auth.pas_compte_secondaire') }}</a>
+                @endif
+            </div>
+
+            <x-primary-button class="btn-login">
+                {{ __('auth.bouton_connexion') }}
             </x-primary-button>
         </div>
     </form>

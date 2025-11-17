@@ -147,7 +147,10 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	public function rolesCustom()
 	{
 		// Pivot table `avoir` links utilisateurs and roles in this project
-		return $this->belongsToMany(Role::class, 'avoir', 'idUtilisateur', 'idRole');
+		// model_type is required for the polymorphic relationship structure
+		return $this->belongsToMany(Role::class, 'avoir', 'idUtilisateur', 'idRole')
+			->withPivot('model_type')
+			->using(Avoir::class);
 	}
 
 	public function familles()
