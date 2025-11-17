@@ -108,6 +108,6 @@ jobs:
           username: ${{ secrets.SERVER_USER_RECETTE }}
           password: ${{ secrets.SERVER_PASSWORD_RECETTE }}
           port: 22
-          source: "*"
+          source: "build/reports/coverage/*"
           target: ${{ secrets.COVERAGE_SERVER_PATH_RECETTE }}
 
