@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Actualite
- * 
+ *
  * @property int $idActualite Identifiant unique de l'actualité.
  * @property string|null $titre Titre de l'actualité (peut être nul).
  * @property string $description Contenu / texte de l'actualité.
@@ -41,11 +41,14 @@ class Actualite extends Model
 	protected $fillable = [
 		'titre',
 		'description',
+		'contenu',
 		'type',
 		'dateP',
 		'archive',
 		'lien',
-		'idUtilisateur'
+		'idUtilisateur',
+		'idDocument',
+		'idEtiquette',
 	];
 
 	public function utilisateur()

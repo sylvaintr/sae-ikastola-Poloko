@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Etiquette
- * 
+ *
  * @property int $idEtiquette Identifiant de l'étiquette.
  * @property string $nom Nom / libellé de l'étiquette.
  *

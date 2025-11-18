@@ -11,16 +11,7 @@ use Illuminate\Support\Facades\Route;
 //})->name('home');
 
 Route::get('/', [ActualiteController::class, 'index'])->name('home');
-
-Route::middleware('permission:access-gestion-actualite')->group(function () {
-    Route::prefix('actualite')->name('actualites.')->group(function () {
-        Route::get('/create', [ActualiteController::class, 'create'])->name('create');
-        Route::post('/store', [ActualiteController::class, 'store'])->name('store');
-        Route::get('/{actualite}/edit', [ActualiteController::class, 'edit'])->name('edit');
-        Route::put('/{actualite}', [ActualiteController::class, 'update'])->name('update');
-        Route::delete('/{actualite}', [ActualiteController::class, 'delete'])->name('delete');
-    });
-});
+Route::get('/actualite-show/{actualite}', [ActualiteController::class, 'show'])->name('actualite-show');
 
 // Changer de langue
 Route::get('/lang/{locale}', function ($locale) {
@@ -36,7 +27,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::view('/', 'admin.index')->name('index');
-        Route::view('/publications', 'admin.messages')->name('messages');
+        Route::middleware('permission:access-gestion-actualite')->group(function () {
+            Route::prefix('/actualite')->name('actualites.')->group(function () {
+                Route::get('/', [ActualiteController::class, 'actualitesAdmin'])->name('index');
+                Route::get('/get-datatable', [ActualiteController::class, 'getDatatable'])->name('get-datatable');
+                Route::get('/create', [ActualiteController::class, 'create'])->name('create');
+                Route::post('/store', [ActualiteController::class, 'store'])->name('store');
+                Route::get('/{actualite}/edit', [ActualiteController::class, 'edit'])->name('edit');
+                Route::put('/{actualite}', [ActualiteController::class, 'update'])->name('update');
+                Route::delete('/{actualite}', [ActualiteController::class, 'delete'])->name('delete');
+            });
+        });
         Route::view('/comptes', 'admin.accounts')->name('accounts');
         Route::view('/familles', 'admin.families')->name('families');
         Route::view('/classes', 'admin.classes')->name('classes');

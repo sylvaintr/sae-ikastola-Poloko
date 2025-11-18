@@ -1,5 +1,5 @@
 <form
-    action="{{ isset($actualite) ? route('actualites.update', $actualite->idActualite) : route('actualites.store') }}"
+    action="{{ isset($actualite) ? route('admin.actualites.update', $actualite->idActualite) : route('admin.actualites.store') }}"
     method="POST"
 >
     @csrf
@@ -14,7 +14,7 @@
             name="titre"
             type="text"
             class="form-control"
-            placeholder="Titre"
+            placeholder="Ajouter un titre..."
             value="{{ old('titre', $actualite->titre ?? '') }}"
         />
     </div>
@@ -27,8 +27,20 @@
             rows="3"
             cols="50"
             class="form-control"
-            placeholder="Description"
+            placeholder="Ajouter une description..."
         >{{ old('description', $actualite->description ?? '') }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="contenu" class="form-label">Contenu</label>
+        <textarea
+            id="contenu"
+            name="contenu"
+            rows="15"
+            cols="50"
+            class="form-control"
+            placeholder="Contenu de l'article..."
+        >{{ old('contenu', $actualite->contenu ?? '') }}</textarea>
     </div>
 
     <div class="mb-3">
@@ -36,19 +48,6 @@
         <select name="type" id="type" class="form-select">
             <option value="Privée" {{ old('type', $actualite->type ?? '') == 'Privée' ? 'selected' : '' }}>Privée</option>
             <option value="Publique" {{ old('type', $actualite->type ?? '') == 'Publique' ? 'selected' : '' }}>Publique</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label for="idUtilisateur" class="form-label">Utilisateur</label>
-        <select name="idUtilisateur" id="idUtilisateur" class="form-select">
-            <option value="">-- Sélectionner un utilisateur --</option>
-            @foreach ($utilisateurs as $utilisateur)
-                <option value="{{ $utilisateur->idUtilisateur }}"
-                    {{ old('idUtilisateur', $actualite->idUtilisateur ?? '') == $utilisateur->idUtilisateur ? 'selected' : '' }}>
-                    {{ $utilisateur->nom }} {{ $utilisateur->prenom }}
-                </option>
-            @endforeach
         </select>
     </div>
 
@@ -81,3 +80,7 @@
         {{ isset($actualite) ? 'Modifier' : 'Ajouter' }}
     </button>
 </form>
+<span>
+    <button class="btn btn-secondary mt-1" onclick="history.back();">Retour</button>
+</span>
+

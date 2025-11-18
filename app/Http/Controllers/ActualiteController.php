@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Actualite;
 use App\Models\Utilisateur;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class ActualiteController extends Controller
 {
@@ -18,6 +19,47 @@ class ActualiteController extends Controller
         return view('index', compact('actualites'));
     }
 
+    public function actualitesAdmin()
+    {
+        return view('admin.actualites.index');
+    }
+
+    public function getDatatable(Request $request)
+    {
+        if($request->ajax()){
+            return DataTables::of(Actualite::query())
+                ->editColumn('dateP', function ($row) {
+                    return \Carbon\Carbon::parse($row->dateP)->format('d/m/Y');
+                })
+                ->editColumn('archive', function ($row) {
+                    return $row->archive ? 'Archivé' : 'Publié';
+                })
+                ->addColumn('action', function ($row) {
+                    $showUrl = route('actualite-show', $row);
+                    $editUrl = route('admin.actualites.edit', $row);
+                    $deleteUrl = route('admin.actualites.delete', $row);
+                
+                    return '
+                        <a href="'.$showUrl.'" style="color: black;"><i class="bi bi-eye"></i></a>
+                        <a href="'.$editUrl.'" style="color: black;"><i class="bi bi-pencil-fill"></i></a>
+                
+                        <form action="'.$deleteUrl.'" method="POST" style="display:inline;">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button type="submit" style="border: none; padding: 0px"
+                                onclick="return confirm(\'Supprimer cette actualité ?\')">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </form>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.actualites.index');
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -25,7 +67,7 @@ class ActualiteController extends Controller
     {
         $utilisateurs = Utilisateur::orderBy('nom')->get();
 
-        return view('actualites.create', compact('utilisateurs'));
+        return view('admin.actualites.create', compact('utilisateurs'));
     }
 
     /**
@@ -36,30 +78,31 @@ class ActualiteController extends Controller
         $validatedData = $request->validate([
             'titre' => 'required|string|max:30',
             'description' => 'required|string|max:100',
+            'contenu' => 'required',
             'type' => 'required|string|in:Privée,Publique',
             'archive' => 'required|boolean',
             'lien' => 'nullable|string|max:2083',
-            'idUtilisateur' => 'required|int',
         ]);
         Actualite::create([
             'titre' => $validatedData['titre'],
             'description' => $validatedData['description'],
+            'contenu' => $validatedData['contenu'],
             'type' => $validatedData['type'],
             'archive' => $validatedData['archive'] ?? false,
             'lien' => $validatedData['lien'],
             'dateP' => date('Y-m-d'),
-            'idUtilisateur' => $validatedData['idUtilisateur'],
+            'idUtilisateur' => auth()->id(),
         ]);
 
-        return redirect()->route('home')->with('success', 'Actualité ajoutée avec succès.');
+        return redirect()->route('admin.actualites.index')->with('success', 'Actualité ajoutée avec succès.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show(Actualite $actualite)
     {
-        return 'show';
+        return view('actualite-show', compact('actualite'));
     }
 
     /**
@@ -68,7 +111,7 @@ class ActualiteController extends Controller
     public function edit(Actualite $actualite)
     {
         $utilisateurs = Utilisateur::orderBy('nom')->get();
-        return view('actualites.edit', compact('actualite', 'utilisateurs'));
+        return view('admin.actualites.edit', compact('actualite', 'utilisateurs'));
     }
 
     /**
@@ -80,15 +123,15 @@ class ActualiteController extends Controller
             $validated = $request->validate([
                 'titre' => 'required|string|max:30',
                 'description' => 'required|string|max:100',
+                'contenu' => 'required',
                 'type' => 'required|string|in:Privée,Publique',
                 'archive' => 'required|boolean',
                 'lien' => 'nullable|string|max:2083',
-                'idUtilisateur' => 'required|int',
             ]);
         
             $actualite->update($validated);
         
-            return redirect()->route('home')->with('success', 'Actualité mise à jour avec succès.');
+            return redirect()->route('admin.actualites.index')->with('success', 'Actualité mise à jour avec succès.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Erreur lors de la mise à jour : ' . $e->getMessage());
         }
@@ -99,7 +142,16 @@ class ActualiteController extends Controller
      */
     public function delete(Actualite $actualite)
     {
-        $actualite->delete();
-        return redirect()->route('home')->with('success', 'Actualité supprimée avec succès.');
+        try {
+            $actualite->delete();
+            return redirect()
+                ->route('admin.actualites.index')
+                ->with('success', 'Actualité supprimée avec succès.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('admin.actualites.index')
+                ->with('error', 'Erreur lors de la suppression.');
+        }
     }
+
 }

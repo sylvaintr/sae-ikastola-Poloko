@@ -1,6 +1,6 @@
 <x-app-layout>
     @php($sections = [
-        'add_message' => 'admin.messages',
+        'add_message' => 'admin.actualites.index',
         'accounts' => 'admin.accounts',
         'families' => 'admin.families',
         'classes' => 'admin.classes',

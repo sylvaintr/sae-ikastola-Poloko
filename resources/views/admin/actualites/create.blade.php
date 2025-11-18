@@ -4,6 +4,6 @@
 <div class="container-fluid mx-auto px-4 py-4">
     <h1 class="text-3xl font-bold mb-6 text-center">Ajouter une actualité</h1>
 
-    @include('actualites.partials.form', ['utilisateurs' => $utilisateurs])
+    @include('admin.actualites.partials.form', ['utilisateurs' => $utilisateurs])
 </div>
 @endsection
