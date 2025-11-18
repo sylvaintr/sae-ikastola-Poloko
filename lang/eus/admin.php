@@ -128,7 +128,7 @@ return [
     ],
     'obligatory_documents' => [
         'title' => 'Beharrezko dokumentuak',
-        'subtitle' => 'Beharrezko dokumentuak',
+        'subtitle' => 'Beharrezko dokumentuaks',
         'description' => 'Orri honek beharrezko dokumentuak kudeatzeko aukera emango du.',
         'add_button' => 'Gehitu dokumentu bat',
         'add_button_subtitle' => 'Dokumentu bat gehitu',
