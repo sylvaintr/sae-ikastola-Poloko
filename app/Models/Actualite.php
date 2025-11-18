@@ -60,7 +60,9 @@ class Actualite extends Model
 		'dateP',
 		'archive',
 		'lien',
-		'idUtilisateur'
+		'idUtilisateur',
+		'idDocument',
+		'idEtiquette',
 	];
 
 	/**

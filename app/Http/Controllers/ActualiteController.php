@@ -92,6 +92,47 @@ class ActualiteController extends Controller
         return view('actualites.index', compact('actualites', 'etiquettes', 'selected'));
     }
 
+    public function actualitesAdmin()
+    {
+        return view('admin.actualites.index');
+    }
+
+    public function getDatatable(Request $request)
+    {
+        if($request->ajax()){
+            return DataTables::of(Actualite::query())
+                ->editColumn('dateP', function ($row) {
+                    return \Carbon\Carbon::parse($row->dateP)->format('d/m/Y');
+                })
+                ->editColumn('archive', function ($row) {
+                    return $row->archive ? 'Archivé' : 'Publié';
+                })
+                ->addColumn('action', function ($row) {
+                    $showUrl = route('actualite-show', $row);
+                    $editUrl = route('admin.actualites.edit', $row);
+                    $deleteUrl = route('admin.actualites.delete', $row);
+                
+                    return '
+                        <a href="'.$showUrl.'" style="color: black;"><i class="bi bi-eye"></i></a>
+                        <a href="'.$editUrl.'" style="color: black;"><i class="bi bi-pencil-fill"></i></a>
+                
+                        <form action="'.$deleteUrl.'" method="POST" style="display:inline;">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button type="submit" style="border: none; padding: 0px"
+                                onclick="return confirm(\'Supprimer cette actualité ?\')">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </form>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.actualites.index');
+    }
+
     /**
      * Traite le formulaire de filtre (POST -> Session -> Redirect).
      */
@@ -412,4 +453,5 @@ class ActualiteController extends Controller
     {
         $q->whereHas('etiquettes', fn($sq) => $sq->where('nom', 'like', "%{$keyword}%"));
     }
+
 }
