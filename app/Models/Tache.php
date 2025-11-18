@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Tache
- * 
+ *
  * @property int $idTache Identifiant de la tâche.
  * @property string $titre Titre de la tâche.
  * @property string $description Description de la tâche.
@@ -29,7 +29,8 @@ class Tache extends Model
 {
 	protected $table = 'tache';
 	protected $primaryKey = 'idTache';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [

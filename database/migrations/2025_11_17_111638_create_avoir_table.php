@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('facture', function (Blueprint $table) {
-            $table->integer('idFacture')->primary();
-            $table->boolean('etat');
-            $table->date('dateC');
-            $table->integer('idUtilisateur')->index('idutilisateur');
-            $table->integer('idFamille')->index('idfamille');
+        Schema::create('avoir', function (Blueprint $table) {
+            $table->integer('idUtilisateur')->index();
+            $table->integer('idRole')->index();
+            $table->string('model_type')->index();
+
+            $table->primary(['idUtilisateur', 'idRole', 'model_type']);
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('facture');
+        Schema::dropIfExists('avoir');
     }
 };

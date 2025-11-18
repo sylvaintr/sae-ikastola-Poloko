@@ -11,15 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('actualite', function (Blueprint $table) {
-            $table->integer('idActualite')->primary();
-            $table->string('titre', 30)->nullable();
-            $table->string('description', 100);
-            $table->string('type', 20);
-            $table->date('dateP');
-            $table->boolean('archive');
-            $table->string('lien', 2083)->nullable();
+        Schema::create('facture', function (Blueprint $table) {
+            $table->bigIncrements('idFacture');
+            $table->boolean('etat');
+            $table->date('dateC');
             $table->integer('idUtilisateur')->index('idutilisateur');
+            $table->integer('idFamille')->index('idfamille');
         });
     }
 
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('actualite');
+        Schema::dropIfExists('facture');
     }
 };

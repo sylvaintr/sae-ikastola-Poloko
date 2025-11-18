@@ -23,7 +23,8 @@ class Document extends Model
 {
 	protected $table = 'document';
 	protected $primaryKey = 'idDocument';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [

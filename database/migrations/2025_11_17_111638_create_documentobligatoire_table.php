@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('famille', function (Blueprint $table) {
-            $table->integer('idFamille')->primary()->autoIncrement();
+        Schema::create('documentobligatoire', function (Blueprint $table) {
+            $table->bigIncrements('idDocumentObligatoire');
+            $table->string('nom', 20)->nullable();
+            $table->boolean('dateE')->nullable();
         });
     }
 
@@ -21,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('famille');
+        Schema::dropIfExists('documentobligatoire');
     }
 };

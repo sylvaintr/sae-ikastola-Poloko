@@ -160,6 +160,24 @@
     text-decoration: underline;
 }
 
+.btn-ikastola {
+    background-color: #f29201;
+    border-color: #f29201;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.15rem;
+    line-height: 1.05;
+    padding: 0.6rem 2.4rem;
+    border-radius: 6px;
+}
+
+.btn-ikastola:hover,
+.btn-ikastola:focus {
+    background-color: #d67f00;
+    border-color: #d67f00;
+}
+
 .btn-login {
     background-color: #f29201;
     border-color: #f29201;

@@ -11,4 +11,5 @@ return [
     'connexion' => 'Connexion',
     'francais' => 'Français',
     'basque' => 'Basque',
+    'aucune_actualite' => 'Aucune actualité disponible pour le moment.',
 ];

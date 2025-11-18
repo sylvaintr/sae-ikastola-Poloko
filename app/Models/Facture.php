@@ -24,7 +24,8 @@ class Facture extends Model
 {
 	protected $table = 'facture';
 	protected $primaryKey = 'idFacture';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [
