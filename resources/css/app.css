@@ -389,7 +389,7 @@
 }
 .presence-calendar-day-selected {
     background: #e48a1f;
-    color: white;
+    color: black;
     font-weight: 600;
 }
 .presence-calendar-day-selected:hover {

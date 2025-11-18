@@ -132,15 +132,16 @@ class FactureController extends Controller
 
 
 
-            return response($dompdf->output(), 200)
+            $reponce = response($dompdf->output(), 200)
                 ->header('Content-Type', 'application/pdf')
                 ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.pdf"');
         } else {
 
-            return response($htmlInlined, 200)
+            $reponce = response($htmlInlined, 200)
                 ->header('Content-Type', 'application/vnd.ms-word')
                 ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.doc"');
         }
+        return $reponce;
     }
 
 
