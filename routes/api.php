@@ -26,4 +26,5 @@ Route::delete('/familles/{id}', [FamilleController::class, 'delete']);
 Route::put('/familles2/{id}', [FamilleController::class, 'update']);
 Route::post('/familles', [FamilleController::class, 'ajouter']);
 Route::get('familles2', [FamilleController::class, 'index']);
+Route::get('search', [FamilleController::class, 'searchByParent']);
 

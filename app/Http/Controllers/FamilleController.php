@@ -80,7 +80,7 @@ class FamilleController extends Controller
         $familles = Famille::with(['enfants', 'utilisateurs'])->get();
         //dd($familles);
       return view('familles.index', compact('familles'));
-      // return response()->json($familles);
+     // return response()->json($familles);
     }
 
     // -------------------- Supprimer une famille --------------------
@@ -150,4 +150,25 @@ class FamilleController extends Controller
             'famille' => $famille,
         ]);
     }
+
+
+  public function searchByParent(Request $request)
+{
+    $query = $request->input('q');
+
+    $familles = Famille::with(['utilisateurs', 'enfants'])
+        ->whereHas('utilisateurs', function($q2) use ($query) {
+            $q2->where('nom', 'like', "%{$query}%")
+               ->orWhere('prenom', 'like', "%{$query}%");
+        })
+        ->get();
+
+    if ($familles->isEmpty()) {
+        return response()->json(['message' => 'Aucune famille trouvée']);
+    }
+
+    return response()->json($familles);
+}
+
+
 }
