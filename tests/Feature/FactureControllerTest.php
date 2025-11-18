@@ -95,9 +95,12 @@ class FactureControllerTest extends TestCase
         Mail::fake();
 
         $utilisateur = Utilisateur::factory()->create();
+        $famille = Famille::factory()->create();
+        $famille->utilisateurs()->detach();
+        $famille->utilisateurs()->attach($utilisateur->id);
         $facture = Facture::factory()->create([
             'etat' => true,
-            'idUtilisateur' => $utilisateur->id
+            'idFamille' => $famille->idFamille
         ]);
 
         $response = $this->get(route('admin.facture.envoyer', $facture->id));
