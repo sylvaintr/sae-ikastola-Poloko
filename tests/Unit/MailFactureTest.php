@@ -14,7 +14,9 @@ class MailFactureTest extends TestCase
     public function test_facture_mail_builds(): void
     {
         $facture = Facture::factory()->create();
-        $mail = new FactureMail($facture);
+        $famille = $facture->famille()->first();
+
+        $mail = new FactureMail($facture, $famille);
 
         $rendered = $mail->render();
         $this->assertIsString($rendered);

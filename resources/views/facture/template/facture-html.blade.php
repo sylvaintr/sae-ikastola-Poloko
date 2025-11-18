@@ -36,6 +36,17 @@
             max-width: 119px;
             height: auto;
         }
+
+        #footer {
+            position: fixed;
+            bottom: -20px;
+
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #7E7E7E;
+            font-size: 10pt;
+        }
     </style>
 </head>
 
@@ -112,7 +123,8 @@
                 <td>Seaska egutegiak, Herri Urrats txartelak <span style="color: #7E7E7E;">Calendrier Seaska, tickets
                         Herri Urrats</span></td>
                 <td style="text-align: right;">7,70 € / eusko</td>
-                <td style="text-align: right;">{{ $montantparticipationSeaska ?? 0 }} € - eusko</td>
+                <td style="text-align: right;">{{ number_format($montantparticipationSeaska ?? 0, 2, ',', '') }} € -
+                    eusko</td>
             </tr>
             <tr>
                 <td style="font-size: 9pt;">Aurreikusi haurtzaindegia (3. haurrarentzat, urririk)
@@ -225,14 +237,14 @@
         <span style="color: #7E7E7E;">Indemnité forfaitaire pour frais de recouvrement due au créancier en cas de
             retard de paiement : 40€.</span>
     </p>
-    <footer style="text-align: center;color: #7E7E7E;">
-        <hr>
-        <p style="font-size: 10pt">
+    <div id="footer">
+        <hr style="margin-bottom: 5px;">
+        <p>
             Association Loi 1901 enregistrée sous le N° 19800035 à la
             Sous-préfecture de Bayonne - N° SIRET : 32416580200020 Catégorie juridique : 9220 Association déclarée –
             hiriondo.bulegoa@seaska.eus
         </p>
-    </footer>
+    </div>
 </body>
 
 </html>

@@ -3,7 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Facture;
+use App\Models\Famille;
 use Illuminate\Database\Seeder;
+use App\Models\Utilisateur;
+use App\Models\Enfant;
+use Database\Factories\LierFactory;
 
 class DatabaseSeeder extends Seeder
 {

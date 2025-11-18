@@ -87,9 +87,10 @@ class FactureController extends Controller
     /**
      * Methode pour exporter une facture en PDF ou Word
      * @param string $id Identifiant de la facture à exporter
+     * @param bool $returnBinary Indique si la méthode doit retourner le binaire du fichier (true) ou une réponse HTTP (false)
      * @return Response|RedirectResponse response contenant le fichier exporté
      */
-    public function exportFacture(string $id): Response|RedirectResponse
+    public function exportFacture(string $id, bool $returnBinary = false): Response|RedirectResponse|string
     {
 
         $montants = $this->calculerMontantFacture($id);
@@ -117,12 +118,18 @@ class FactureController extends Controller
             $options = new Options();
             $options->set('isHtml5ParserEnabled', true);
             $options->set('isRemoteEnabled', true);
-            $options->set('defaultPaperMargins', [10, 10, 10, 10]);
+
+            $options->set('defaultPaperMargins', [-10, -10, -10, -10]);
 
             $dompdf = new Dompdf($options);
             $dompdf->loadHtml($htmlInlined);
             $dompdf->setPaper('A4', 'portrait');
             $dompdf->render();
+
+            if ($returnBinary) {
+                return $dompdf->output();
+            }
+
 
 
             return response($dompdf->output(), 200)
@@ -148,10 +155,19 @@ class FactureController extends Controller
         if ($facture === null) {
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
-        $client = Utilisateur::find($facture->idUtilisateur);
+        $client = $facture->famille()->first()->utilisateurs()->first();
         if ($facture->etat) {
 
-            Mail::to($client->email)->send(new FactureMail($facture));
+            $famille = Famille::find($facture->idFamille);
+
+            $mail = new FactureMail($facture, $famille);
+            $piecejointe = $this->exportFacture($id, true);
+
+            $mail->attachData($piecejointe, 'facture-' . $facture->idFacture . '.pdf', [
+                'mime' => 'application/pdf',
+            ]);
+
+            Mail::to($client->email)->send($mail);
             return redirect()->route('admin.facture.index')->with('success', 'facture.envoiersuccess');
         } else {
             return redirect()->route('admin.facture.index')->with('error', 'facture.envoiererror');
@@ -184,8 +200,8 @@ class FactureController extends Controller
         if ($facture === null) {
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
-        $famille = Famille::find($facture->idFamille);
-        $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
+        $famille = $facture->famille()->first();
+        $enfants = $famille->enfants()->get();
 
         $montantcotisation = 0;
         switch ($enfants->count()) {

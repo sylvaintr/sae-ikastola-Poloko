@@ -23,10 +23,15 @@
     </script>
 
     <!-- Scripts -->
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
 
 <body class="font-sans antialiased">
+    <x-loader />
+
+
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
         @include('layouts.navigation')
 
@@ -48,6 +53,8 @@
             @endisset
         </main>
     </div>
+
+
 
     @if (session('success'))
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">

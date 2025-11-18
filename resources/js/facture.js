@@ -1,4 +1,5 @@
-import DataTable from 'datatables.net-bs5';
+import DataTable from 'datatables.net-dt';
+import 'datatables.net-responsive-dt';
 
 
 const dataTableLangs = {
@@ -36,15 +37,16 @@ const dataTableLangs = {
 document.addEventListener('DOMContentLoaded', function () {
 
     try {
-        new DataTable('#myTable', {
+        new DataTable('#TableFacture', {
             processing: true,
             serverSide: true,
+            autoWidth: false,
             ajax: location.pathname + "s-data",
             columns: [
-                { data: 'idFacture', name: 'idFacture' },
+                { data: 'idFacture', name: 'idFacture', className: 'all dt-left' },
                 { data: 'titre', name: 'titre' },
                 { data: 'etat', name: 'etat' },
-                { data: 'idFamille', name: 'idFamille' },
+                { data: 'idFamille', name: 'idFamille', className: 'dt-left' },
                 {
                     data: 'dateC',
                     name: 'dateC',
@@ -53,7 +55,16 @@ document.addEventListener('DOMContentLoaded', function () {
                         return date.toLocaleDateString();
                     }
                 },
-                { data: 'actions', name: 'actions', orderable: false, searchable: false }
+                {
+                    data: 'actions', name: 'actions', orderable: false,
+                    searchable: false, className: 'all',
+                    width: '1%', // Astuce pour "coller" au contenu
+                    render: function (data, type, row) {
+                        // ... votre HTML de boutons
+                        return '<div style="white-space: nowrap;">' + data + '</div>';
+                    }
+
+                }
             ],
             responsive: true,
             language: dataTableLangs[currentLang] || dataTableLangs.eus
