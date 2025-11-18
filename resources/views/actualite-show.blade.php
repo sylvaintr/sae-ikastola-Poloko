@@ -5,7 +5,7 @@
         <p class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($actualite->dateP)->format('d/m/Y') }}</p>
         <p class="text-gray-700 mb-3">Type : {{ $actualite->type }}</p>
         <p class="mb-3">{{ $actualite->contenu }}</p>
-        <p class="text-gray-700 mb-3">{{ $actualite->archive }}</p>
+        <p class="text-gray-700 mb-3">{{ $actualite->archive ? "Publication archivée" : ""}}</p>
 
         <div class="mt-4">
             <button class="btn btn-secondary" onclick="history.back();">Retour</a>

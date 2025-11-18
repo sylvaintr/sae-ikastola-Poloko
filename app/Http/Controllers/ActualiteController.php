@@ -40,17 +40,19 @@ class ActualiteController extends Controller
                     $deleteUrl = route('admin.actualites.delete', $row);
                 
                     return '
-                        <a href="'.$showUrl.'" style="color: black;"><i class="bi bi-eye"></i></a>
-                        <a href="'.$editUrl.'" style="color: black;"><i class="bi bi-pencil-fill"></i></a>
-                
-                        <form action="'.$deleteUrl.'" method="POST" style="display:inline;">
-                            '.csrf_field().'
-                            '.method_field('DELETE').'
-                            <button type="submit" style="border: none; padding: 0px"
-                                onclick="return confirm(\'Supprimer cette actualité ?\')">
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </form>
+                        <div class="d-flex align-items-center justify-content-center gap-3">
+                            <a href="'.$showUrl.'" style="color: black;"><i class="bi bi-eye-fill"></i></a>
+                            <a href="'.$editUrl.'" style="color: black;"><i class="bi bi-pencil-square"></i></a>
+                    
+                            <form action="'.$deleteUrl.'" method="POST" style="display:inline;">
+                                '.csrf_field().'
+                                '.method_field('DELETE').'
+                                <button type="submit" style="border: none; padding: 0px"
+                                    onclick="return confirm(\'Supprimer cette actualité ?\')">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </form>
+                        </div>
                     ';
                 })
                 ->rawColumns(['action'])
