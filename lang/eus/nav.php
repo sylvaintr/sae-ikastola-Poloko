@@ -11,4 +11,5 @@ return [
     'connexion' => 'konexioa',
     'francais' => 'frantsesa',
     'basque' => 'euskara',
+    'factures' => 'fakturak',
 ];

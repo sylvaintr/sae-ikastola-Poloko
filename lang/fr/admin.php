@@ -127,7 +127,7 @@ return [
         'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer le compte :name ?',
     ],
     'obligatory_documents' => [
-        'title' => 'Beharrezko dokumentuak',
+        'title' => 'Documents obligatoires',
         'subtitle' => 'Documents requis',
         'description' => 'Cette page permettra de gérer les documents obligatoires.',
         'add_button' => 'Gehitu dokumentu bat',
