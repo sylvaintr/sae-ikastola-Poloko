@@ -70,7 +70,7 @@ class FamilleController extends Controller
         if (!$famille) {
             return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
-      return view('familles.show', compact('famille'));
+      return view('admin.familles.show', compact('famille'));
     // return response()->json($famille);
     }
 
@@ -79,7 +79,7 @@ class FamilleController extends Controller
     {
         $familles = Famille::with(['enfants', 'utilisateurs'])->get();
         //dd($familles);
-      return view('familles.index', compact('familles'));
+      return view('admin.familles.index', compact('familles'));
      // return response()->json($familles);
     }
 

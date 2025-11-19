@@ -2,7 +2,7 @@
     @php($sections = [
         'add_message' => 'admin.messages',
         'accounts' => 'admin.accounts',
-        'families' => 'admin.families',
+        'families' => 'admin.familles.index',
         'classes' => 'admin.classes',
         'invoices' => 'admin.invoices',
         'notifications' => 'admin.notifications',
