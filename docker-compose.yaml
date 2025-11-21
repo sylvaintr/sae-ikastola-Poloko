@@ -28,10 +28,10 @@ services:
     container_name: laravel-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: laravel
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
       TZ: Europe/Paris
     ports:
       - "3306:3306"
@@ -45,8 +45,8 @@ services:
     container_name: laravel-mailpit
     restart: unless-stopped
     ports:
-      - "8025:8025"   # Interface Web
-      - "1025:1025"   # Serveur SMTP
+      - "8025:8025"  
+      - "1025:1025"  
     networks:
       - laravel
 
