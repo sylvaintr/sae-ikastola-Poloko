@@ -1,31 +1,39 @@
 <?php
 
+use App\Http\Controllers\ActualiteController;
+use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\Admin\AccountController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\FactureController;
 use App\Models\Facture;
 
+//Route::get('/', function () {
+//    return view('layouts.app');
+//})->name('home');
 
-Route::get('/', function () {
-    return view('layouts.app');
-})->name('home');
+Route::get('/', [ActualiteController::class, 'index'])->name('home');
+Route::get('/actualite-show/{actualite}', [ActualiteController::class, 'show'])->name('actualite-show');
+
+// Changer de langue
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['fr', 'eus'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-
     Route::middleware(['role:CA'])->group(function () {
 
 
         Route::prefix('admin')->name('admin.')->group(function () {
             $accountRoute = '/{account}';
             Route::view('/', 'admin.index')->name('index');
-            Route::view('/publications', 'admin.messages')->name('messages');
             // Routes gérées par AccountController pour la gestion des comptes
             Route::prefix('comptes')->name('accounts.')->controller(AccountController::class)->group(function () use ($accountRoute) {
                 Route::get('/', 'index')->name('index');
@@ -37,6 +45,7 @@ Route::middleware('auth')->group(function () {
                 Route::patch("{$accountRoute}/valider", 'validateAccount')->name('validate');
                 Route::delete($accountRoute, 'destroy')->name('destroy');
             });
+            Route::view('/demandes', 'admin.invoices')->name('invoices');
             Route::view('/familles', 'admin.families')->name('families');
             Route::view('/classes', 'admin.classes')->name('classes');
             Route::view('/notifications', 'admin.notifications')->name('notifications');
@@ -50,11 +59,24 @@ Route::middleware('auth')->group(function () {
             });
 
 
+
             Route::resource('/facture', FactureController::class);
             Route::get('/factures-data', [FactureController::class, 'facturesData'])->name('factures.data');
             Route::get('/facture/{id}/export', [FactureController::class, 'exportFacture'])->name('facture.export');
             Route::get('/facture/{id}/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
             Route::get('/facture/{id}/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
+
+            Route::middleware('permission:access-gestion-actualite')->group(function () {
+                Route::prefix('/actualite')->name('actualites.')->group(function () {
+                    Route::get('/', [ActualiteController::class, 'actualitesAdmin'])->name('index');
+                    Route::get('/get-datatable', [ActualiteController::class, 'getDatatable'])->name('get-datatable');
+                    Route::get('/create', [ActualiteController::class, 'create'])->name('create');
+                    Route::post('/store', [ActualiteController::class, 'store'])->name('store');
+                    Route::get('/{actualite}/edit', [ActualiteController::class, 'edit'])->name('edit');
+                    Route::put('/{actualite}', [ActualiteController::class, 'update'])->name('update');
+                    Route::delete('/{actualite}', [ActualiteController::class, 'delete'])->name('delete');
+                });
+            });
         });
         Route::get('/presence', function () {
             return view('presence.index');

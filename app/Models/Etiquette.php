@@ -20,7 +20,8 @@ class Etiquette extends Model
 	use HasFactory;
 	protected $table = 'etiquette';
 	protected $primaryKey = 'idEtiquette';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [

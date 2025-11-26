@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('facture', function (Blueprint $table) {
-            $table->integer('idFacture')->primary()->autoIncrement();
+            $table->bigIncrements('idFacture');
             $table->boolean('etat');
             $table->date('dateC');
             $table->boolean('previsionnel');

@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('evenement', function (Blueprint $table) {
-            $table->integer('idEvenement')->primary();
-            $table->string('titre', 20);
-            $table->string('description', 100);
-            $table->boolean('obligatoire');
-            $table->date('dateE');
+        Schema::create('documentobligatoire', function (Blueprint $table) {
+            $table->bigIncrements('idDocumentObligatoire');
+            $table->string('nom', 20)->nullable();
+            $table->boolean('dateE')->nullable();
         });
     }
 
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('evenement');
+        Schema::dropIfExists('documentobligatoire');
     }
 };

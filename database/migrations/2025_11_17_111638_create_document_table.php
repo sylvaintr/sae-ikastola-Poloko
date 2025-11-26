@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('classe', function (Blueprint $table) {
-            $table->integer('idClasse')->primary()->autoIncrement();
-            $table->string('nom', 20);
-            $table->string('niveau', 3);
+        Schema::create('document', function (Blueprint $table) {
+            $table->bigIncrements('idDocument');
+            $table->string('nom', 50);
+            $table->string('chemin', 100);
+            $table->string('type', 5);
+            $table->string('etat', 15);
         });
     }
 
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('classe');
+        Schema::dropIfExists('document');
     }
 };

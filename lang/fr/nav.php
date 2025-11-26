@@ -12,4 +12,5 @@ return [
     'francais' => 'Français',
     'basque' => 'Basque',
     'factures' => 'factures',
+    'aucune_actualite' => 'Aucune actualité disponible pour le moment.',
 ];

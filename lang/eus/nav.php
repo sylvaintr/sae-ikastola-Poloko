@@ -12,4 +12,5 @@ return [
     'francais' => 'frantsesa',
     'basque' => 'euskara',
     'factures' => 'fakturak',
+    'aucune_actualite' => 'Une honetan berririk ez dago eskuragarri.',
 ];

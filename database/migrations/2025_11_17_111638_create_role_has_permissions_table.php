@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('recette', function (Blueprint $table) {
-            $table->integer('idRecette')->primary();
-            $table->string('description', 100);
-            $table->string('prix', 50);
-            $table->string('quantite', 50);
-            $table->integer('idEvenement')->index('idevenement');
+        Schema::create('role_has_permissions', function (Blueprint $table) {
+            $table->unsignedBigInteger('permission_id');
+            $table->integer('idRole')->index('role_has_permissions_idrole_foreign');
+
+            $table->primary(['permission_id', 'idRole']);
         });
     }
 
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('recette');
+        Schema::dropIfExists('role_has_permissions');
     }
 };

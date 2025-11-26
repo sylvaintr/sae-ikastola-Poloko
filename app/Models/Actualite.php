@@ -27,7 +27,8 @@ class Actualite extends Model
 	use HasFactory;
 	protected $table = 'actualite';
 	protected $primaryKey = 'idActualite';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [
@@ -51,11 +52,14 @@ class Actualite extends Model
 	protected $fillable = [
 		'titre',
 		'description',
+		'contenu',
 		'type',
 		'dateP',
 		'archive',
 		'lien',
-		'idUtilisateur'
+		'idUtilisateur',
+		'idDocument',
+		'idEtiquette',
 	];
 
 	/**

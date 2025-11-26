@@ -20,6 +20,7 @@ class Famille extends Model
 	protected $table = 'famille';
 	protected $primaryKey = 'idFamille';
 	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [

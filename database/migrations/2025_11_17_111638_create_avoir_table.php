@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('document', function (Blueprint $table) {
-            $table->integer('idDocument')->primary();
-            $table->string('nom', 50);
-            $table->string('chemin', 100);
-            $table->string('type', 5);
-            $table->string('etat', 15);
+        Schema::create('avoir', function (Blueprint $table) {
+            $table->integer('idUtilisateur')->index();
+            $table->integer('idRole')->index();
+            $table->string('model_type')->index();
+
+            $table->primary(['idUtilisateur', 'idRole', 'model_type']);
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('document');
+        Schema::dropIfExists('avoir');
     }
 };

@@ -12,14 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('actualite', function (Blueprint $table) {
-            $table->integer('idActualite')->primary();
+            $table->bigIncrements('idActualite');
             $table->string('titre', 30)->nullable();
             $table->string('description', 100);
+            $table->text('contenu');
             $table->string('type', 20);
             $table->date('dateP');
             $table->boolean('archive');
             $table->string('lien', 2083)->nullable();
             $table->integer('idUtilisateur')->index('idutilisateur');
+            $table->bigInteger('idDocument')->nullable()->index('iddocument');
+            $table->integer('idEtiquette')->nullable()->index('idetiquette');
         });
     }
 
