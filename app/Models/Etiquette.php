@@ -20,7 +20,7 @@ class Etiquette extends Model
 	use HasFactory;
 	protected $table = 'etiquette';
 	protected $primaryKey = 'idEtiquette';
-	public $incrementing = false;
+	public $incrementing = true;
 	public $timestamps = false;
 
 	protected $casts = [
@@ -44,5 +44,13 @@ class Etiquette extends Model
 	public function actualites()
 	{
 		return $this->belongsToMany(Actualite::class, 'correspondre', 'idEtiquette', 'idActualite');
+	}
+
+	/**
+	 * Relation belongsToMany vers les rôles associés à cette étiquette via la table pivot `posseder`.
+	 */
+	public function roles()
+	{
+		return $this->belongsToMany(Role::class, 'posseder', 'idEtiquette', 'idRole')->using(Posseder::class);
 	}
 }

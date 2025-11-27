@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('document', function (Blueprint $table) {
-            $table->integer('idDocument')->primary()->autoIncrement();
-            $table->string('nom', 50);
-            $table->string('chemin', 100);
-            $table->string('type', 5);
-            $table->string('etat', 15);
+        Schema::create('posseder', function (Blueprint $table) {
+            $table->integer('idRole');
+            $table->integer('idEtiquette');
+
+            // Définir la clé primaire composée
+            $table->primary(['idRole', 'idEtiquette']);
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('document');
+        Schema::dropIfExists('posseder');
     }
 };
