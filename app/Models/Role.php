@@ -50,4 +50,12 @@ class Role extends \Spatie\Permission\Models\Role
 	{
 		return $this->belongsToMany(DocumentObligatoire::class, 'attribuer', 'idRole', 'idDocumentObligatoire');
 	}
+
+	/**
+	 * Relation belongsToMany vers les étiquettes associées à ce rôle via la table pivot `posseder`.
+	 */
+	public function etiquettes()
+	{
+		return $this->belongsToMany(Etiquette::class, 'posseder', 'idRole', 'idEtiquette')->using(Posseder::class);
+	}
 }

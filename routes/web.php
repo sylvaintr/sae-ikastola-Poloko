@@ -6,7 +6,9 @@ use App\Http\Controllers\Admin\AccountController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\FactureController;
-use App\Models\Facture;
+use App\Http\Controllers\ActualiteController;
+use App\Http\Controllers\EtiquetteController;
+
 
 
 Route::get('/', function () {
@@ -49,7 +51,7 @@ Route::middleware('auth')->group(function () {
                 Route::delete('/{obligatoryDocument}', 'destroy')->name('destroy');
             });
 
-
+            Route::get('/actualites', [ActualiteController::class, 'adminIndex'])->name('actualites.index');
             Route::resource('/facture', FactureController::class);
             Route::get('/factures-data', [FactureController::class, 'facturesData'])->name('factures.data');
             Route::get('/facture/{id}/export', [FactureController::class, 'exportFacture'])->name('facture.export');
@@ -66,7 +68,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
         Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
     });
+
+    Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
+        Route::resource('etiquettes', EtiquetteController::class)->except(['show']);
+    });
 });
+
+
+
+
+Route::resource('actualites', ActualiteController::class);
+Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
+    ->name('actualites.detachDocument');
 
 
 require __DIR__ . '/auth.php';

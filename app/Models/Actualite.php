@@ -27,7 +27,7 @@ class Actualite extends Model
 	use HasFactory;
 	protected $table = 'actualite';
 	protected $primaryKey = 'idActualite';
-	public $incrementing = false;
+	public $incrementing = true;
 	public $timestamps = false;
 
 	protected $casts = [
@@ -49,8 +49,13 @@ class Actualite extends Model
 	 * - `idUtilisateur` (int) : identifiant de l'auteur / créateur.
 	 */
 	protected $fillable = [
-		'titre',
-		'description',
+		'idActualite',
+		'titrefr',
+		'titreeus',
+		'descriptionfr',
+		'descriptioneus',
+		'contenufr',
+		'contenueus',
 		'type',
 		'dateP',
 		'archive',
@@ -86,5 +91,14 @@ class Actualite extends Model
 	public function documents()
 	{
 		return $this->belongsToMany(Document::class, 'joindre', 'idActualite', 'idDocument');
+	}
+
+	public function __construct(array $attributes = [])
+	{
+		parent::__construct($attributes);
+
+		// Exemple : valeurs par défaut
+		$this->archive = $this->archive ?? false;
+		$this->dateP = $this->dateP ?? now();
 	}
 }

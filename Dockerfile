@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl gd intl zip bcmath
 
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
 # Installation de Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -19,6 +21,8 @@ WORKDIR /var/www/html
 
 # Copie des fichiers du projet
 COPY . .
+
+RUN php artisan storage:link || true
 
 # Installation dépendances Laravel
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
