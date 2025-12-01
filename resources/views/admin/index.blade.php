@@ -5,6 +5,7 @@
             'accounts' => 'admin.accounts.index',
             'families' => 'admin.families',
             'classes' => 'admin.classes',
+            'obligatory_documents' => 'admin.obligatory_documents.index',
             'invoices' => 'admin.facture.index',
             'notifications' => 'admin.notifications',
         ];
