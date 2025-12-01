@@ -47,7 +47,7 @@
                 <p class="text-capitalize">{{ Lang::get('nav.actualites') }}</p>
             @endif
             @can('gerer-actualites')
-                <a class="mt-2 btn btn-warning " href="{{ route('actualites.create') }}">
+                <a class="mt-2 btn btn-warning mb-3" href="{{ route('actualites.create') }}">
                     + {{ Lang::get('actualite.ajouter_une_actualite', [], 'eus') }}
                     @if (Lang::getLocale() == 'fr')
                         </br>
