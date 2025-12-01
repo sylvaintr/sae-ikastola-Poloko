@@ -23,8 +23,14 @@ class ActualiteController extends Controller
         $actualites = Actualite::with(['etiquettes', 'documents'])
             ->where('archive', false)->where('dateP', '<=', now())->whereIN('type', ['public', Auth::user() ? 'private' : ''])->orderBy('dateP', 'desc')
             ->paginate(10);
-        $test = Posseder::all()->pluck('idEtiquette')->toArray();
+        if(!Auth::check()){
+            $test = Posseder::all()->pluck('idEtiquette')->toArray();
         $etiquettes = Etiquette::all()->whereNotIn('idEtiquette', $test);
+        }
+        else{
+            $etiquettes = Etiquette::all();
+        }
+       
         return view('actualites.index', compact('actualites', 'etiquettes'));
     }
 

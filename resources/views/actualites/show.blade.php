@@ -1,4 +1,7 @@
 <x-app-layout>
+    @vite(['resources/js/actualite.js'])
+
+
     <style>
         /* --- Styles Typographiques --- */
         .actu-title-main {
@@ -57,7 +60,7 @@
         {{-- Bouton Retour --}}
         <div class="mb-4">
             <a href="{{ route('actualites.index') }}" class="text-decoration-none text-secondary hover-underline">
-                <i class="bi bi-arrow-left"></i> Retour à la liste / Itzuli zerrendara
+                <i class="bi bi-arrow-left"></i> {{ Lang::get('actualite.retour_aux_actualites', [], 'eus') }} @if(Lang::getLocale() == 'fr') / {{ __('actualite.retour_aux_actualites') }} @endif
             </a>
         </div>
 
@@ -79,29 +82,28 @@
                 {{-- Titres --}}
                 <h1 class="mb-2">
                     <span class="actu-title-main d-block">{{ $actualite->titreeus }}</span>
-                    @if ($actualite->titrefr)
+                    @if (Lang::getLocale() == 'fr')
                         <span class="fw-light text-secondary fs-4 d-block">{{ $actualite->titrefr }}</span>
                     @endif
                 </h1>
 
                 {{-- Date --}}
                 <p class="actu-date">
-                    Publié le {{ $actualite->dateP->format('d/m/Y') }}
+                    {{ __('actualite.publie_le') }} {{ $actualite->dateP->format('d/m/Y') }}
                     @if ($actualite->type)
                         <span class="badge bg-warning text-dark ms-2">{{ $actualite->type }}</span>
                     @endif
                 </p>
 
                 {{-- Contenu Basque --}}
-                <div class="actu-body-primary">
-                    {!! nl2br(e($actualite->contenueus)) !!}
+                <div class="actu-body-primary" id="contenu-basque">
+
+
                 </div>
 
                 {{-- Contenu Français --}}
-                @if ($actualite->contenufr)
-                    <div class="actu-body-secondary">
-                        {!! nl2br(e($actualite->contenufr)) !!}
-                    </div>
+                @if (Lang::getLocale() == 'fr')
+                    <div class="actu-body-secondary" id="contenu-francais"></div>
                 @endif
 
                 {{-- Lien Externe --}}
@@ -184,4 +186,14 @@
         @endif
 
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            AfficherMarkdownfromTexte(@json($actualite->contenueus), 'contenu-basque')
+            @if (Lang::getLocale() == 'fr')
+                
+            AfficherMarkdownfromTexte(@json($actualite->contenufr), 'contenu-francais')
+            @endif
+        });
+    </script>
+
 </x-app-layout>

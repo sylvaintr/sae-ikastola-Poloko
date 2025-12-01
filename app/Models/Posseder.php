@@ -3,14 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use App\Models\Role;
+use App\Models\Etiquette;
+use App\Models\Actualite;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Posseder extends Pivot
 {
+    use HasFactory;
     protected $table = 'posseder';
+    public $timestamps = false;
 
     protected $casts = [
-        'idUtilisateur' => 'int',
-        'idFamille' => 'int'
+        'idEtiquette' => 'integer',
+        'idRole' => 'integer',
     ];
 
     /**
