@@ -17,6 +17,11 @@ COPY ./docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 # Définition du dossier de travail
 WORKDIR /var/www/html
 
+# Installation de Node.js et de npm
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm
+
 # Copie des fichiers du projet
 COPY . .
 

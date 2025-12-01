@@ -1,0 +1,62 @@
+<x-app-layout>
+    <div class="container py-4">
+
+        <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-4 mb-5">
+            <div>
+                <h1 class="fw-bold display-4 mb-1" style="font-size: 2.5rem;">Eskaera</h1>
+                <p class="text-muted mb-0" style="font-size: 0.9rem;">Demandes</p>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
+                <div class="d-flex flex-column align-items-start">
+                    <a href="{{ route('tache.create') }}" class="btn admin-add-button">
+                        Sortu txartel eskaera
+                    </a>
+                    <p class="text-muted mb-0 admin-button-subtitle">Créer une demande de ticket</p>
+                </div>
+            </div>
+        </div>
+        <div class="card row overflow-auto" style="width: 100%; max-height: 75vh;">
+            <div class="card-body">
+                <table class="table table-bordered datatable-taches">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Titre</th>
+                            <th>Type</th>
+                            <th>Statut</th>
+                            <th style="width:100px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+                
+            var table = $('.datatable-taches').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('tache.get-datatable') }}",
+
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
+                },
+                
+                columns: [
+                    {data: 'dateD', name: 'dateD'},
+                    {data: 'titre', name: 'titre'},
+                    {data: 'type', name: 'type'},
+                    {data: 'etat', name: 'etat'},
+                    {data: 'action', name: 'action', orderable: false, searchable: false},
+                ]
+            });
+
+        });
+
+    </script>
+</x-app-layout>
