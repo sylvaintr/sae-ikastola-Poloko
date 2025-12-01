@@ -8,10 +8,9 @@ services:
       && chmod -R ug+rwX storage bootstrap/cache
       && php-fpm"
     volumes:
-      - .:/var/www/html
-    depends_on:
-      - mysql
-      - mailpit
+      - ./:/var/www/html
+      - /var/www/html/vendor
+      - /var/www/html/node_modules
     networks:
       - laravel
 
@@ -21,7 +20,9 @@ services:
     ports:
       - "80:80"
     volumes:
-      - .:/var/www/html
+      - ./:/var/www/html
+      - /var/www/html/vendor
+      - /var/www/html/node_modules
       - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
@@ -35,8 +36,6 @@ services:
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
       TZ: Europe/Paris
     ports:
       - "3306:3306"

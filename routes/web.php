@@ -4,6 +4,7 @@ use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\DemandeController;
+use App\Http\Controllers\TacheController;
 use App\Http\Controllers\Admin\AccountController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
@@ -177,6 +178,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
         Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
         Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
+    });
+
+
+    Route::prefix('/tache')->name('tache.')->group(function () {
+        Route::get('/', [TacheController::class, 'index'])->name('index');
+        Route::get('/get-datatable', [TacheController::class, 'getDatatable'])->name('get-datatable');
+        Route::get('/create', [TacheController::class, 'create'])->name('create');
+        Route::post('/store', [TacheController::class, 'store'])->name('store');
+        Route::get('/{tache}/edit', [TacheController::class, 'edit'])->name('edit');
+        Route::put('/{tache}', [TacheController::class, 'update'])->name('update');
+        Route::get('/{tache}/show', [TacheController::class, 'show'])->name('show');
+        Route::delete('/{tache}', [TacheController::class, 'delete'])->name('delete');
     });
 
     Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
