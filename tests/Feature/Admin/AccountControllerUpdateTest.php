@@ -43,7 +43,7 @@ class AccountControllerUpdateTest extends TestCase
         $this->assertDatabaseHas('avoir', ['idUtilisateur' => $account->idUtilisateur, 'idRole' => $role->idRole]);
     }
 
-    public function test_update_changes_password_when_provided()
+    public function test_update_does_not_change_password_even_if_payload_contains_password()
     {
         $this->withoutMiddleware();
 
@@ -71,7 +71,7 @@ class AccountControllerUpdateTest extends TestCase
         $controller->update($request, $account);
 
         $fresh = Utilisateur::find($account->idUtilisateur);
-        $this->assertTrue(Hash::check('newsecret', $fresh->mdp));
+        $this->assertTrue(Hash::check('password', $fresh->mdp));
     }
 
     public function test_update_without_password_keeps_existing_password()

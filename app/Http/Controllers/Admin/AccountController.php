@@ -105,27 +105,17 @@ class AccountController extends Controller
 
     public function update(Request $request, Utilisateur $account): RedirectResponse
     {
-        $rules = [
+        $validated = $request->validate([
             'prenom' => ['required', 'string', 'max:15'],
             'nom' => ['required', 'string', 'max:15'],
             'email' => ['required', 'email', 'unique:utilisateur,email,' . $account->idUtilisateur . ',idUtilisateur'],
             'languePref' => ['required', 'string', 'max:17'],
-            'mdp' => ['nullable', 'string', 'min:8'],
             'statutValidation' => ['nullable', 'boolean'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['exists:role,idRole'],
-        ];
-        
-        // Si un mot de passe est fourni, la confirmation est requise
-        if ($request->filled('mdp')) {
-            $rules['mdp_confirmation'] = ['required', 'string', 'same:mdp'];
-        }
-        
-        $validated = $request->validate($rules, [
+        ], [
             'roles.required' => trans('admin.common.roles_required'),
             'roles.min' => trans('admin.common.roles_required'),
-            'mdp_confirmation.required' => 'La confirmation du mot de passe est requise lorsque vous modifiez le mot de passe.',
-            'mdp_confirmation.same' => 'Les mots de passe ne correspondent pas.',
         ]);
 
         $updateData = [
@@ -135,10 +125,6 @@ class AccountController extends Controller
             'languePref' => $validated['languePref'],
             'statutValidation' => $validated['statutValidation'] ?? false,
         ];
-
-        if (!empty($validated['mdp'])) {
-            $updateData['mdp'] = Hash::make($validated['mdp']);
-        }
 
         $account->update($updateData);
 
