@@ -409,6 +409,73 @@
 .presence-search-input {
     min-width: 250px;
 }
+.presence-class-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.presence-selected-classes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 40px;
+    align-items: center;
+}
+.presence-class-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    background: #f5e6d3;
+    border: 1px solid #f0c48a;
+    font-size: 0.9rem;
+    color: #8c4a01;
+}
+.presence-class-chip-remove {
+    border: none;
+    background: transparent;
+    color: #8c4a01;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+}
+.presence-class-chip-remove:hover {
+    color: #5b2f00;
+}
+.presence-classe-search {
+    width: 100%;
+}
+.presence-classe-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    display: none;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1010;
+}
+.presence-classe-suggestions.show {
+    display: block;
+}
+.presence-classe-suggestion {
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+.presence-classe-suggestion:hover {
+    background: #f5e6d3;
+}
 .present-col {
     min-width: 100px;
 }
