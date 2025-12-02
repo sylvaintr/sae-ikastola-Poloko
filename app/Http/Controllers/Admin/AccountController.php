@@ -150,7 +150,7 @@ class AccountController extends Controller
             ->with('status', trans('admin.accounts_page.messages.updated'));
     }
 
-    public function archive(Request $request, Utilisateur $account): RedirectResponse
+    public function archive(Utilisateur $account): RedirectResponse
     {
         if ($account->isArchived()) {
             return redirect()
