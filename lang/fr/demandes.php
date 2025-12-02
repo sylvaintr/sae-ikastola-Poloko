@@ -96,6 +96,7 @@ return [
             'urgency' => 'Trier par urgence',
             'status' => 'Trier par statut',
         ],
+        'urgency_high_hint' => 'Urgence élevée détectée',
     ],
     'modals' => [
         'delete' => [

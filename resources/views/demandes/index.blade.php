@@ -1,3 +1,7 @@
+@php
+    use Illuminate\Support\Str;
+@endphp
+
 <x-app-layout>
     <div class="container py-4 demande-page">
         <div class="demande-toolbar text-end">
@@ -190,7 +194,21 @@
                             <td>{{ optional($demande->dateD)->format('Y-m-d') ?? '—' }}</td>
                             <td>{{ $demande->titre }}</td>
                             <td>{{ $demande->type }}</td>
-                            <td>{{ $demande->urgence ?? '—' }}</td>
+                            @php
+                                $urgNormalized = Str::of($demande->urgence ?? '')
+                                    ->ascii()
+                                    ->lower()
+                                    ->value();
+                                $isHighUrgency = in_array($urgNormalized, ['elevee', 'élevée', 'high', 'haute', 'eleve']);
+                            @endphp
+                            <td class="align-middle">
+                                @if ($isHighUrgency)
+                                    <span class="text-warning me-1" title="{{ __('demandes.table.urgency_high_hint') }}" aria-label="{{ __('demandes.table.urgency_high_hint') }}">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                    </span>
+                                @endif
+                                {{ $demande->urgence ?? '—' }}
+                            </td>
                             <td>{{ $demande->etat }}</td>
                             <td class="text-center">
                                 <div class="d-inline-flex gap-2">

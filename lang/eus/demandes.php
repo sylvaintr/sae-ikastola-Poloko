@@ -102,6 +102,7 @@ return [
             'urgency' => 'Larrialdiaz ordenatu',
             'status' => 'Egoeraz ordenatu',
         ],
+        'urgency_high_hint' => 'Larrialdi maila handia hauteman da',
     ],
     'modals' => [
         'delete' => [
