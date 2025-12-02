@@ -74,5 +74,4 @@ return [
     'en_attente' => 'En attente',
     'accesrefuse' => "Vous n'avez pas la permission d'accéder à cette page.",
     'nonconnecte' => "Vous devez être connecté pour accéder à cette page.",
-
 ];

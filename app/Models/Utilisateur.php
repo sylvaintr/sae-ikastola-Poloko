@@ -24,6 +24,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string|null $email Adresse e‑mail (peut être nulle).
  * @property string $languePref Langue préférée (ex: "fr").
  * @property bool|null $statutValidation Indique si le compte est activé.
+ * @property \Illuminate\Support\Carbon|null $archived_at Date d'archivage éventuelle.
  * @property string|null $remember_token Jeton "remember me" (optionnel).
  * @property Carbon|null $created_at Date de création.
  * @property Carbon|null $updated_at Date de mise à jour.
@@ -38,7 +39,8 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 
 	protected $casts = [
 		'idUtilisateur' => 'int',
-		'statutValidation' => 'bool'
+		'statutValidation' => 'bool',
+		'archived_at' => 'datetime',
 	];
 	/**
 	 * Attributs à cacher lors de la sérialisation (ex: JSON).
@@ -75,6 +77,7 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 		'email',
 		'languePref',
 		'statutValidation',
+		'archived_at',
 		'remember_token'
 	];
 
@@ -152,6 +155,24 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 		$prenom = $this->attributes['prenom'] ?? '';
 		$nom = $this->attributes['nom'] ?? '';
 		return trim($prenom . ' ' . $nom);
+	}
+
+	/**
+	 * Indique si le compte est archivé.
+	 *
+	 * @return bool
+	 */
+	public function getIsArchivedAttribute(): bool
+	{
+		return !is_null($this->archived_at);
+	}
+
+	/**
+	 * Helper explicite pour vérifier l'archivage.
+	 */
+	public function isArchived(): bool
+	{
+		return $this->getIsArchivedAttribute();
 	}
 
 

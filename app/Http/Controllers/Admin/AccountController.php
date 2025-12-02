@@ -25,7 +25,7 @@ class AccountController extends Controller
             });
         }
 
-        $accounts = $query->select('idUtilisateur', 'prenom', 'nom', 'email', 'statutValidation')
+        $accounts = $query->select('idUtilisateur', 'prenom', 'nom', 'email', 'statutValidation', 'archived_at')
             ->orderBy('idUtilisateur')
             ->paginate(5);
 
@@ -70,7 +70,7 @@ class AccountController extends Controller
         $account->email = $validated['email'];
         $account->languePref = $validated['languePref'];
         $account->mdp = Hash::make($validated['mdp']);
-        $account->statutValidation = $validated['statutValidation'] ?? false;
+        $account->statutValidation = $request->boolean('statutValidation');
         $account->save();
 
         // Sync roles with model_type automatically set
@@ -94,8 +94,12 @@ class AccountController extends Controller
         return view('admin.accounts.show', compact('account'));
     }
 
-    public function edit(Utilisateur $account): View
+    public function edit(Utilisateur $account): View|RedirectResponse
     {
+        if ($redirect = $this->redirectIfArchived($account)) {
+            return $redirect;
+        }
+
         $account->load(['rolesCustom' => function($query) {
             $query->select('role.idRole', 'role.name');
         }]);
@@ -105,6 +109,10 @@ class AccountController extends Controller
 
     public function update(Request $request, Utilisateur $account): RedirectResponse
     {
+        if ($redirect = $this->redirectIfArchived($account)) {
+            return $redirect;
+        }
+
         $rules = [
             'prenom' => ['required', 'string', 'max:15'],
             'nom' => ['required', 'string', 'max:15'],
@@ -125,7 +133,7 @@ class AccountController extends Controller
             'nom' => $validated['nom'],
             'email' => $validated['email'],
             'languePref' => $validated['languePref'],
-            'statutValidation' => $validated['statutValidation'] ?? false,
+            'statutValidation' => $request->boolean('statutValidation'),
         ];
 
         $account->update($updateData);
@@ -140,6 +148,34 @@ class AccountController extends Controller
         return redirect()
             ->route('admin.accounts.index')
             ->with('status', trans('admin.accounts_page.messages.updated'));
+    }
+
+    public function archive(Request $request, Utilisateur $account): RedirectResponse
+    {
+        if ($account->isArchived()) {
+            return redirect()
+                ->route('admin.accounts.show', $account)
+                ->with('status', trans('admin.accounts_page.messages.already_archived'));
+        }
+
+        $account->update([
+            'archived_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('admin.accounts.show', $account)
+            ->with('status', trans('admin.accounts_page.messages.archived'));
+    }
+
+    private function redirectIfArchived(Utilisateur $account): ?RedirectResponse
+    {
+        if ($account->isArchived()) {
+            return redirect()
+                ->route('admin.accounts.show', $account)
+                ->with('status', trans('admin.accounts_page.messages.archived_readonly'));
+        }
+
+        return null;
     }
 
     /**
@@ -177,6 +213,10 @@ class AccountController extends Controller
 
     public function validateAccount(Utilisateur $account): RedirectResponse
     {
+        if ($redirect = $this->redirectIfArchived($account)) {
+            return $redirect;
+        }
+
         $account->update(['statutValidation' => true]);
 
         return redirect()
@@ -186,6 +226,10 @@ class AccountController extends Controller
 
     public function destroy(Utilisateur $account): RedirectResponse
     {
+        if ($redirect = $this->redirectIfArchived($account)) {
+            return $redirect;
+        }
+
         $account->delete();
 
         return redirect()

@@ -56,6 +56,7 @@
                         <div class="col-md-6">
                             <label for="statutValidation" class="form-label fw-semibold">{{ __('admin.accounts_page.create.fields.status') }}</label>
                             <div class="form-check form-switch mt-2">
+                                <input type="hidden" name="statutValidation" value="0">
                                 <input id="statutValidation" name="statutValidation" type="checkbox" class="form-check-input" value="1" {{ old('statutValidation', $account->statutValidation) ? 'checked' : '' }}>
                                 <label for="statutValidation" class="form-check-label">Validé</label>
                             </div>
@@ -119,18 +120,32 @@
                         </div>
                     </div>
 
-                    <div class="d-flex gap-3 mt-4 justify-content-end">
-                        <a href="{{ route('admin.accounts.show', $account) }}" class="btn admin-cancel-btn px-4">
-                            {{ __('admin.accounts_page.edit.cancel') }}
-                        </a>
-                        <button type="submit" class="btn fw-semibold px-4 admin-submit-btn">
-                            {{ __('admin.accounts_page.edit.submit') }}
-                        </button>
+                    <div class="d-flex flex-column flex-md-row gap-3 mt-4 align-items-stretch align-items-md-center justify-content-between">
+                        <div>
+                            <button type="button" class="btn btn-outline-danger fw-semibold archive-account-btn d-flex align-items-center gap-2">
+                                <i class="bi bi-archive-fill"></i>
+                                <span>{{ __('admin.accounts_page.actions.archive') }}</span>
+                            </button>
+                        </div>
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{{ route('admin.accounts.show', $account) }}" class="btn admin-cancel-btn px-4">
+                                {{ __('admin.accounts_page.edit.cancel') }}
+                            </a>
+                            <button type="submit" class="btn fw-semibold px-4 admin-submit-btn">
+                                {{ __('admin.accounts_page.edit.submit') }}
+                            </button>
+                        </div>
                     </div>
+                </form>
+                <form id="archive-account-form" action="{{ route('admin.accounts.archive', $account) }}" method="POST" class="d-none">
+                    @csrf
+                    @method('PATCH')
                 </form>
             </div>
         </div>
     </div>
+
+    @include('admin.accounts.partials.archive-modal')
 
     @push('scripts')
     <script>
@@ -414,6 +429,36 @@
             filterRoles('');
             updateEmptyMessage();
         });
+    </script>
+    <script>
+        (function() {
+            const modalEl = document.getElementById('archiveAccountModal');
+            const archiveBtn = document.querySelector('.archive-account-btn');
+            const archiveForm = document.getElementById('archive-account-form');
+            if (!modalEl || !archiveBtn || !archiveForm) {
+                return;
+            }
+
+            const accountName = @json($account->prenom . ' ' . $account->nom);
+            const label = modalEl.querySelector('[data-account-name]');
+            if (label) {
+                label.textContent = accountName;
+            }
+
+            const modal = new bootstrap.Modal(modalEl);
+            const cancelBtn = modalEl.querySelector('.cancel-archive');
+            const confirmBtn = modalEl.querySelector('.confirm-archive');
+
+            archiveBtn.addEventListener('click', function() {
+                modal.show();
+            });
+
+            cancelBtn?.addEventListener('click', () => modal.hide());
+            confirmBtn?.addEventListener('click', () => {
+                archiveForm.submit();
+                modal.hide();
+            });
+        })();
     </script>
     @endpush
 </x-app-layout>
