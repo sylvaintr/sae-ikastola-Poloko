@@ -35,6 +35,11 @@
                                 <input id="classe-search" type="text" class="form-control presence-classe-search" placeholder="{{ __('presence.rechercher_classe') }}" autocomplete="off" />
                                 <div id="classe-suggestions" class="presence-classe-suggestions"></div>
                             </div>
+                            <div class="presence-class-actions">
+                                <button id="select-all-classes" type="button" class="btn btn-outline-warning btn-sm presence-select-all-btn">
+                                    {{ __('presence.selectionner_toutes') }}
+                                </button>
+                            </div>
                             <div id="selected-classes" class="presence-selected-classes"></div>
                         </div>
                     </div>
@@ -81,11 +86,14 @@
         const classeSearchInput = document.getElementById('classe-search');
         const classeSuggestions = document.getElementById('classe-suggestions');
         const classPicker = document.querySelector('.presence-class-picker');
+        const selectAllClassesBtn = document.getElementById('select-all-classes');
         const texts = {
             selectClasses: @json(__('presence.selectionner_classes_hint')),
             noSelection: @json(__('presence.selectionner_classes_hint')),
             noResults: @json(__('presence.aucun_resultat')),
             removeClass: @json(__('presence.retirer_classe')),
+            selectAllClasses: @json(__('presence.selectionner_toutes')),
+            allClassesSelected: @json(__('presence.toutes_selectionnees')),
         };
         let allStudents = [];
         let allClasses = [];
@@ -257,8 +265,21 @@
             await loadStudents();
         }
 
+        function updateSelectAllClassesButton() {
+            if (!selectAllClassesBtn) return;
+            if (!allClasses.length) {
+                selectAllClassesBtn.disabled = true;
+                selectAllClassesBtn.textContent = texts.selectAllClasses;
+                return;
+            }
+            const allSelected = selectedClasses.length === allClasses.length && allClasses.length > 0;
+            selectAllClassesBtn.disabled = allSelected;
+            selectAllClassesBtn.textContent = allSelected ? texts.allClassesSelected : texts.selectAllClasses;
+        }
+
         function renderSelectedClasses() {
             selectedClassesContainer.innerHTML = '';
+            updateSelectAllClassesButton();
             if (selectedClasses.length === 0) {
                 const placeholder = document.createElement('div');
                 placeholder.className = 'text-muted small';
@@ -415,6 +436,16 @@
         searchInput.addEventListener('input', filterAndRenderStudents);
         classeSearchInput.addEventListener('input', () => renderSuggestions(true));
         classeSearchInput.addEventListener('focus', () => renderSuggestions(true));
+        selectAllClassesBtn?.addEventListener('click', () => {
+            if (!allClasses.length) {
+                return;
+            }
+            selectedClasses = [...allClasses];
+            classeSearchInput.value = '';
+            hideSuggestions();
+            renderSelectedClasses();
+            loadStudents();
+        });
 
         const selectAll = document.getElementById('select-all');
         function getAllCheckboxes() { return Array.from(document.querySelectorAll('.presence-checkbox')); }

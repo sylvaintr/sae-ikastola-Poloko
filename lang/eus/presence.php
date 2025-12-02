@@ -13,4 +13,6 @@ return [
     'selectionner_classes_hint' => 'Hautatu gutxienez klase bat ikasleak ikusteko.',
     'aucun_resultat' => 'Ez dago bilaketarekin bat datorren ikaslerik.',
     'retirer_classe' => 'Klasea kendu',
+    'selectionner_toutes' => 'Klase guztiak hautatu',
+    'toutes_selectionnees' => 'Klase guztiak hautatuta daude',
 ];
