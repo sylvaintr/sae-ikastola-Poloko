@@ -105,7 +105,7 @@ class AccountController extends Controller
 
     public function update(Request $request, Utilisateur $account): RedirectResponse
     {
-        $validated = $request->validate([
+        $rules = [
             'prenom' => ['required', 'string', 'max:15'],
             'nom' => ['required', 'string', 'max:15'],
             'email' => ['required', 'email', 'unique:utilisateur,email,' . $account->idUtilisateur . ',idUtilisateur'],
@@ -113,7 +113,9 @@ class AccountController extends Controller
             'statutValidation' => ['nullable', 'boolean'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['exists:role,idRole'],
-        ], [
+        ];
+        
+        $validated = $request->validate($rules, [
             'roles.required' => trans('admin.common.roles_required'),
             'roles.min' => trans('admin.common.roles_required'),
         ]);
