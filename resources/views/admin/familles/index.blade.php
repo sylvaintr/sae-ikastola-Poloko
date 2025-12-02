@@ -6,7 +6,7 @@
             {{-- Champ de recherche utilisateur --}}
             <input type="text" id="searchUser" class="form-control" style="width: 250px;" placeholder="Rechercher un utilisateur">
 
-            <a href="#" class="btn text-white ms-3" style="background-color:#F29201; border-color:#f4a261;">
+            <a href="{{ route('admin.familles.create')}}" class="btn text-white ms-3" style="background-color:#F29201; border-color:#f4a261;">
                 Ajouter une famille
             </a>
         </div>
@@ -55,7 +55,7 @@
                                     </a>
 
                                  
-                                    <a href="#" title="Modifier" class="text-dark">
+                                    <a href="{{ route('admin.familles.edit', $famille->idFamille) }}" title="Modifier" class="text-dark">
                                        <svg width="27" height="27" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                                            <path d="M12.8251 20.4313L21.1455 12.1109C20.0131 11.6397 18.6718 10.8655 17.4034 9.597C16.1347 8.32834 15.3604 6.98689 14.8891 5.85437L6.56867 14.1749C5.9194 14.8242 5.5947 15.1489 5.31551 15.5068C4.98614 15.9291 4.70378 16.3859 4.47338 16.8694C4.27807 17.2792 4.13289 17.7148 3.8425 18.5859L2.31126 23.1797C2.16836 23.6083 2.27992 24.0809 2.59946 24.4006C2.91899 24.7201 3.39163 24.8317 3.82032 24.6888L8.41408 23.1574C9.2852 22.8671 9.72079 22.7219 10.1306 22.5266C10.614 22.2962 11.0709 22.0139 11.4932 21.6845C11.8511 21.4052 12.1759 21.0806 12.8251 20.4313Z" fill="black"/>
                                            <path d="M23.4536 9.8022C25.1812 8.07452 25.1812 5.27342 23.4536 3.54576C21.7259 1.81808 18.9248 1.81808 17.1971 3.54576L16.1992 4.54368C16.2129 4.58494 16.227 4.62677 16.2417 4.66915C16.6075 5.72344 17.2977 7.10551 18.5959 8.40378C19.8942 9.70204 21.2762 10.3922 22.3306 10.758C22.3728 10.7726 22.4144 10.7867 22.4555 10.8003L23.4536 9.8022Z" fill="black"/>
@@ -84,7 +84,7 @@
         </div>
     </div>
 
-    {{-- Script AJAX pour suppression --}}
+    
     <script>
         function deleteFamille(id) {
             if (!confirm("Supprimer cette famille ?")) return;

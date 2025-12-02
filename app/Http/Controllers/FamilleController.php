@@ -73,6 +73,25 @@ class FamilleController extends Controller
       return view('admin.familles.show', compact('famille'));
     // return response()->json($famille);
     }
+   
+     public function create()
+    {
+        return view('admin.familles.create');
+    }
+
+   public function edit($id)
+{
+    // On charge la famille avec les utilisateurs et les pivots (important pour la parité)
+    $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
+    
+    if (!$famille) {
+        return redirect()->route('admin.familles.index');
+    }
+
+    // On retourne la vue 'create' mais AVEC les données de la famille
+    return view('admin.familles.create', compact('famille'));
+}
+
 
     // -------------------- Afficher la liste des familles --------------------
     public function index()

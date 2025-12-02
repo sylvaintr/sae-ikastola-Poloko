@@ -9,24 +9,38 @@ class LierController extends Controller
 {
 
     //---------------------------------- modification parité---------------------------------
-   public function updateParite(Request $request)
-{
-    $request->validate([
-        'idFamille' => 'required|integer|exists:famille,idFamille',
-        'idUtilisateur' => 'required|integer|exists:utilisateur,idUtilisateur',
-        'parite' => 'required|string|max:50',
-    ]);
+  public function updateParite(Request $request)
+    {
+        // 1. Validation
+        $request->validate([
+            'idFamille' => 'required|integer|exists:famille,idFamille',
+            'idUtilisateur' => 'required|integer|exists:utilisateur,idUtilisateur', // C'est le Parent 1
+            'parite' => 'required|numeric|min:0|max:100',
+        ]);
 
-    $updated = DB::table('lier')
-        ->where('idFamille', $request->idFamille)
-        ->where('idUtilisateur', $request->idUtilisateur)
-        ->update(['parite' => $request->parite]);
+        $idFamille = $request->idFamille;
+        $idParent1 = $request->idUtilisateur;
+        
+        // 2. Calcul des parts
+        $partParent1 = $request->parite;
+        $partParent2 = 100 - $partParent1; // Le reste pour l'autre
 
-    if ($updated) {
-        return response()->json(['message' => 'Parité mise à jour avec succès']);
+        // 3. Mise à jour du Parent 1
+        DB::table('lier')
+            ->where('idFamille', $idFamille)
+            ->where('idUtilisateur', $idParent1)
+            ->update(['parite' => $partParent1]);
+
+        // 4. Mise à jour automatique du Parent 2
+        // "Met à jour celui qui est dans la même famille mais qui n'est PAS le parent 1"
+        $updated = DB::table('lier')
+            ->where('idFamille', $idFamille)
+            ->where('idUtilisateur', '!=', $idParent1)
+            ->update(['parite' => $partParent2]);
+
+        return response()->json([
+            'message' => "Répartition mise à jour : {$partParent1}% / {$partParent2}%"
+        ]);
     }
-
-    return response()->json(['message' => 'Lien non trouvé ou pas de modification'], 404);
-}
 }
 

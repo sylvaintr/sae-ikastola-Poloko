@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
+use App\Http\Controllers\LierController;
 Route::get('/', function () {
     return view('layouts.app');
 })->name('home');
@@ -28,9 +29,14 @@ Route::get('/presence', function () {
 })->name('presence.index');
 
 Route::get('/admin/familles', [FamilleController::class, 'index'])->name('admin.familles.index');
-Route::get('/familles/create', [FamilleController::class, 'createView'])->name('admin.familles.create');
+Route::get('/admin/familles/create', [FamilleController::class, 'create'])->name('admin.familles.create');
 Route::get('/admin/familles/{id}', [FamilleController::class, 'show'])->name('admin.familles.show');
-Route::get('/familles/{id}/edit', [FamilleController::class, 'editView'])->name('admin.familles.edit');
+// Route pour afficher la page create avec les données d'une famille (Mode Modif)
+Route::get('/admin/familles/{id}/edit', [FamilleController::class, 'edit'])->name('admin.familles.edit');
+
+// Route AJAX pour sauvegarder la parité via LierController
+Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
+
 Route::put('/familles/{id}', [FamilleController::class, 'update'])->name('admin.familles.update');
 Route::delete('/familles/{id}', [FamilleController::class, 'delete'])->name('admin.familles.delete');
 
