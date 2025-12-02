@@ -291,8 +291,15 @@
             selectedClasses.forEach(cls => {
                 const chip = document.createElement('div');
                 chip.className = 'presence-class-chip';
-                chip.innerHTML = `<span>${cls.nom}</span><button type="button" class="presence-class-chip-remove" aria-label="${texts.removeClass} ${cls.nom}">&times;</button>`;
-                chip.querySelector('button').addEventListener('click', () => removeClass(cls.idClasse));
+                const span = document.createElement('span');
+                span.textContent = cls.nom;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'presence-class-chip-remove';
+                btn.setAttribute('aria-label', `${texts.removeClass} ${cls.nom}`);
+                btn.innerHTML = '&times;';
+                btn.addEventListener('click', () => removeClass(cls.idClasse));
+                chip.append(span, btn);
                 selectedClassesContainer.appendChild(chip);
             });
         }
