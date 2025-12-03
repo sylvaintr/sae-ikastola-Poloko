@@ -121,6 +121,7 @@ class AccountController extends Controller
             'statutValidation' => ['nullable', 'boolean'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['exists:role,idRole'],
+            'mdp' => ['nullable', 'string', 'min:8', 'confirmed'],
         ];
         
         $validated = $request->validate($rules, [
@@ -135,6 +136,10 @@ class AccountController extends Controller
             'languePref' => $validated['languePref'],
             'statutValidation' => $request->boolean('statutValidation'),
         ];
+
+        if (!empty($validated['mdp'])) {
+            $updateData['mdp'] = Hash::make($validated['mdp']);
+        }
 
         $account->update($updateData);
 
