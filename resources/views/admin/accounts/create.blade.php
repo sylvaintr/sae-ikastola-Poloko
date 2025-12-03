@@ -79,6 +79,7 @@
                         <div class="col-md-6">
                             <label for="statutValidation" class="form-label fw-semibold">{{ __('admin.accounts_page.create.fields.status') }}</label>
                             <div class="form-check form-switch mt-2">
+                                <input type="hidden" name="statutValidation" value="0">
                                 <input id="statutValidation" name="statutValidation" type="checkbox" class="form-check-input" value="1" {{ old('statutValidation') ? 'checked' : '' }}>
                                 <label for="statutValidation" class="form-check-label">Validé</label>
                             </div>

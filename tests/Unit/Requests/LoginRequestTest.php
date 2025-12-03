@@ -9,6 +9,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\Utilisateur;
 
 class LoginRequestTest extends TestCase
 {
@@ -30,6 +31,7 @@ class LoginRequestTest extends TestCase
     {
         // Arrange request with credentials
         $email = 'ok+' . uniqid() . '@example.test';
+        Utilisateur::factory()->create(['email' => $email, 'archived_at' => null]);
         $base = HttpRequest::create($this->pathtested, 'POST', ['email' => $email, 'password' => 'secret', 'remember' => '0']);
         $req = LoginRequest::createFromBase($base);
 
@@ -42,6 +44,26 @@ class LoginRequestTest extends TestCase
         $req->authenticate();
 
         $this->addToAssertionCount(1); // authenticate() has no return value; assertions are via mocks
+    }
+
+    public function test_authenticate_rejects_archived_account()
+    {
+        $email = 'archived+' . uniqid() . '@example.test';
+        Utilisateur::factory()->create(['email' => $email, 'archived_at' => now()]);
+        $base = HttpRequest::create($this->pathtested, 'POST', ['email' => $email, 'password' => 'secret']);
+        $req = LoginRequest::createFromBase($base);
+
+        RateLimiter::shouldReceive('tooManyAttempts')->once()->andReturn(false);
+        Auth::shouldReceive('attempt')->never();
+        RateLimiter::shouldReceive('hit')->once()->with($req->throttleKey());
+
+        try {
+            $req->authenticate();
+            $this->fail('Archived account should not authenticate.');
+        } catch (ValidationException $e) {
+            $this->assertArrayHasKey('email', $e->errors());
+            $this->assertEquals(trans('auth.failed'), $e->errors()['email'][0]);
+        }
     }
 
     public function test_ensureIsNotRateLimited_throws_when_rate_limited()

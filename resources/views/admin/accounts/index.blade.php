@@ -54,17 +54,25 @@
                 </thead>
                 <tbody>
                     @forelse ($accounts as $account)
+                        @php
+                            $isArchived = method_exists($account, 'isArchived') ? $account->isArchived() : (bool) $account->archived_at;
+                        @endphp
                         <tr>
                             <td>{{ $account->idUtilisateur }}</td>
                             <td>{{ $account->prenom }}</td>
                             <td>{{ $account->nom }}</td>
                             <td>{{ $account->email ?? '—' }}</td>
                             <td>
-                                @if ($account->statutValidation)
-                                    <span class="badge bg-success">Validé</span>
-                                @else
-                                    <span class="badge bg-secondary">Non validé</span>
-                                @endif
+                                <div class="d-flex flex-column gap-1 align-items-start">
+                                    @if ($account->statutValidation)
+                                        <span class="badge bg-success">{{ __('admin.accounts_page.status.validated') }}</span>
+                                    @else
+                                        <span class="badge bg-secondary">{{ __('admin.accounts_page.status.not_validated') }}</span>
+                                    @endif
+                                    @if ($isArchived)
+                                        <span class="badge bg-dark">{{ __('admin.accounts_page.status.archived') }}</span>
+                                    @endif
+                                </div>
                             </td>
                             <td>
                                 <div class="d-flex align-items-center justify-content-center gap-3">
@@ -72,33 +80,35 @@
                                         title="{{ __('admin.accounts_page.actions.view') }}">
                                         <i class="bi bi-eye-fill"></i>
                                     </a>
-                                    <a href="{{ route('admin.accounts.edit', $account) }}" class="admin-action-link"
-                                        title="{{ __('admin.accounts_page.actions.edit') }}">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
-                                    @if (!$account->statutValidation)
-                                        <form action="{{ route('admin.accounts.validate', $account) }}" method="POST"
-                                            class="d-inline">
+                                    @unless ($isArchived)
+                                        <a href="{{ route('admin.accounts.edit', $account) }}" class="admin-action-link"
+                                            title="{{ __('admin.accounts_page.actions.edit') }}">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        @if (!$account->statutValidation)
+                                            <form action="{{ route('admin.accounts.validate', $account) }}" method="POST"
+                                                class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                    class="admin-action-link admin-validate-link btn btn-link p-0 m-0"
+                                                    title="{{ __('admin.accounts_page.actions.validate') }}">
+                                                    <i class="bi bi-check-circle-fill"></i>
+                                                </button>
+                                            </form>
+                                        @endif
+                                        <form action="{{ route('admin.accounts.destroy', $account) }}" method="POST"
+                                            class="d-inline delete-account-form">
                                             @csrf
-                                            @method('PATCH')
-                                            <button type="submit"
-                                                class="admin-action-link admin-validate-link btn btn-link p-0 m-0"
-                                                title="{{ __('admin.accounts_page.actions.validate') }}">
-                                                <i class="bi bi-check-circle-fill"></i>
+                                            @method('DELETE')
+                                            <button type="button"
+                                                class="admin-action-link btn btn-link p-0 m-0 delete-account-btn"
+                                                data-account-name="{{ $account->prenom }} {{ $account->nom }}"
+                                                title="{{ __('admin.accounts_page.actions.delete') }}">
+                                                <i class="bi bi-trash3-fill"></i>
                                             </button>
                                         </form>
-                                    @endif
-                                    <form action="{{ route('admin.accounts.destroy', $account) }}" method="POST"
-                                        class="d-inline delete-account-form">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button"
-                                            class="admin-action-link btn btn-link p-0 m-0 delete-account-btn"
-                                            data-account-name="{{ $account->prenom }} {{ $account->nom }}"
-                                            title="{{ __('admin.accounts_page.actions.delete') }}">
-                                            <i class="bi bi-trash3-fill"></i>
-                                        </button>
-                                    </form>
+                                    @endunless
                                 </div>
                             </td>
                         </tr>

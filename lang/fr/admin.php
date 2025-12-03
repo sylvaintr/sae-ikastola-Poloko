@@ -62,8 +62,16 @@ return [
             'delete' => $common['delete'],
             'confirm_delete' => $common['delete'],
             'validate' => 'Valider',
+            'archive' => 'Archiver',
+            'confirm_archive' => 'Confirmer l\'archivage',
         ],
         'back' => 'Retour aux comptes',
+        'status' => [
+            'validated' => 'Validé',
+            'not_validated' => 'Non validé',
+            'archived' => 'Archivé',
+            'archived_only_view' => 'Compte archivé — consultation uniquement.',
+        ],
         'show' => [
             'first_name_label' => $common['first_name'],
             'last_name_label' => $common['last_name'],
@@ -72,12 +80,17 @@ return [
             'status_label' => 'Statut',
             'roles_label' => $common['roles'],
             'no_roles' => 'Aucun rôle assigné',
+            'archived_notice' => 'Ce compte est archivé. Seule la consultation est autorisée.',
+            'details_title' => 'Informations du compte',
         ],
         'messages' => [
             'deleted' => 'Le compte a été supprimé avec succès.',
             'updated' => 'Le compte a été mis à jour avec succès.',
             'created' => 'Le compte a été ajouté avec succès.',
             'validated' => 'Le compte a été validé avec succès.',
+            'archived' => 'Le compte a été archivé. Seule la consultation reste possible.',
+            'already_archived' => 'Ce compte est déjà archivé.',
+            'archived_readonly' => 'Ce compte est archivé : seule la consultation est possible.',
         ],
         'edit' => [
             'title' => 'Modifier le compte',
@@ -125,6 +138,7 @@ return [
             'no_match' => 'Les mots de passe ne correspondent pas',
         ],
         'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer le compte :name ?',
+        'archive_confirmation' => 'Êtes-vous sûr de vouloir archiver le compte :name ?',
     ],
     'obligatory_documents' => [
         'title' => 'Documents obligatoires',
