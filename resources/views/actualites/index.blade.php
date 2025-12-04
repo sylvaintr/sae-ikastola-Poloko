@@ -47,40 +47,45 @@
                 <p class="text-capitalize">{{ Lang::get('nav.actualites') }}</p>
             @endif
             @can('gerer-actualites')
-                <a class="mt-2 btn btn-warning mb-3" href="{{ route('actualites.create') }}">
+                <a class="mt-2 btn btn-warning mb-0" href="{{ route('admin.actualites.create') }}">
                     + {{ Lang::get('actualite.ajouter_une_actualite', [], 'eus') }}
+                </a>
                     @if (Lang::getLocale() == 'fr')
                         </br>
-                        <span class="fw-light"> + {{ __('actualite.ajouter_une_actualite') }}</span>
+                        <span class="fw-light"> {{ __('actualite.ajouter_une_actualite') }}</span>
                     @endif
-                </a>
             @endcan
 
 
 
 
-            <div class="dropdown">
-                <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown"
-                    aria-expanded="false" onkeydown="void(0)">
-                    {{ __('actualite.filter') }}
-                </button>
+<div class="dropdown d-flex flex-row-reverse">
+    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown"
+        aria-expanded="false">
+        {{ __('actualite.filter') }}
+    </button>
 
-                <ul class="dropdown-menu">
-                    <form action="{{ route('actualites.index') }}" method="GET" id="filter-form">
-                        @csrf
-                        @foreach ($etiquettes as $etiquette)
-                            <li class="dropdown-item">
-                                <input type="checkbox" class="form-check-input me-2 etiquette-filter"
-                                    value="{{ $etiquette->idEtiquette }}" id="etiquette-{{ $etiquette->idEtiquette }}">
-                                <label for="etiquette-{{ $etiquette->idEtiquette }}">{{ $etiquette->nom }} </label>
-
-                            </li>
-                        @endforeach
-                    </form>
-
-
-                </ul>
-            </div>
+    <ul class="dropdown-menu p-3" style="min-width: 250px;"> 
+        <form action="{{ route('actualites.filter') }}" method="POST" id="filter-form">
+            @csrf
+            @foreach ($etiquettes as $etiquette)
+                
+                <li class="mb-2"> 
+                    <div class="form-check"> 
+                        <input type="checkbox" class="form-check-input etiquette-filter"
+                            name="etiquettes[]" value="{{ $etiquette->idEtiquette }}" id="etiquette-{{ $etiquette->idEtiquette }}"
+                            @if(!empty($selectedEtiquettes) && in_array($etiquette->idEtiquette, (array) $selectedEtiquettes)) checked @endif>
+                        
+                        
+                        <label class="form-check-label" for="etiquette-{{ $etiquette->idEtiquette }}">
+                            {{ $etiquette->nom }}
+                        </label>
+                    </div>
+                </li>
+            @endforeach
+        </form>
+    </ul>
+</div>
 
 
 
@@ -155,3 +160,47 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('filter-form');
+        if (!form) return;
+
+        // Find the dropdown that contains our form
+        var dropdown = form.closest('.dropdown');
+        if (!dropdown) return;
+
+        var initialChecked = new Set();
+
+        function snapshotChecked() {
+            initialChecked.clear();
+            form.querySelectorAll('.etiquette-filter:checked').forEach(function (cb) {
+                initialChecked.add(cb.value);
+            });
+        }
+
+        function currentCheckedSet() {
+            var s = new Set();
+            form.querySelectorAll('.etiquette-filter:checked').forEach(function (cb) {
+                s.add(cb.value);
+            });
+            return s;
+        }
+
+        // On open, take a snapshot of checked values
+        dropdown.addEventListener('show.bs.dropdown', function () {
+            snapshotChecked();
+        });
+
+        // On close, compare and submit only if changed
+        dropdown.addEventListener('hidden.bs.dropdown', function () {
+            var now = currentCheckedSet();
+            var changed = false;
+            if (now.size !== initialChecked.size) changed = true;
+            else {
+                now.forEach(function (v) { if (!initialChecked.has(v)) changed = true; });
+            }
+            if (changed) form.submit();
+        });
+    });
+</script>

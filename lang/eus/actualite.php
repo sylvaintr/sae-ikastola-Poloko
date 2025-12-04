@@ -43,5 +43,9 @@ return [
     'ven' => 'Ol',
     'sam' => 'Lr',
     'dim' => 'Ig',
+    'archiver' => 'Artxibatu',
+    'modifier_actualite' => 'Editatu berria',
+    'mettre_a_jour' => 'Eguneratu',
+    'nouvelle_actualite' => 'Berri berria',
 
 ];

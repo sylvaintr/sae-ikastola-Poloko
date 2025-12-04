@@ -11,27 +11,69 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Yajra\DataTables\Facades\DataTables;
 
 class ActualiteController extends Controller
 {
     /**
      * Affiche la liste des actualités.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Base query: not archived, published date <= now
+        $query = Actualite::with(['etiquettes', 'documents'])
+            ->where('archive', false)
+            ->where('dateP', '<=', now());
 
-        $actualites = Actualite::with(['etiquettes', 'documents'])
-            ->where('archive', false)->where('dateP', '<=', now())->whereIN('type', ['public', Auth::user() ? 'private' : ''])->orderBy('dateP', 'desc')
-            ->paginate(10);
-        if(!Auth::check()){
-            $test = Posseder::all()->pluck('idEtiquette')->toArray();
-        $etiquettes = Etiquette::all()->whereNotIn('idEtiquette', $test);
+        // Types: always include 'public', include 'private' when authenticated
+        $types = ['public'];
+        if (Auth::check()) {
+            $types[] = 'private';
         }
-        else{
+        $query->whereIn('type', $types);
+
+        // Filter by etiquettes if provided (expects array of idEtiquette)
+        // Prefer query string (explicit GET), otherwise fall back to session-stored filter
+        $selectedEtiquettes = $request->query('etiquettes', session('selectedEtiquettes', []));
+        if (!empty($selectedEtiquettes)) {
+            $query->whereHas('etiquettes', function ($q) use ($selectedEtiquettes) {
+                // Qualify column with table name to avoid ambiguous column errors when joining pivot tables
+                $table = $q->getModel()->getTable();
+                $q->whereIn($table . '.idEtiquette', $selectedEtiquettes);
+            });
+        }
+
+        // Pagination (preserve query string so filters remain on pagination links)
+        $actualites = $query->orderBy('dateP', 'desc')->paginate(10)->withQueryString();
+
+        // Etiquettes list (same logic as before)
+        if (!Auth::check()) {
+            $test = Posseder::all()->pluck('idEtiquette')->toArray();
+            $etiquettes = Etiquette::all()->whereNotIn('idEtiquette', $test);
+        } else {
             $etiquettes = Etiquette::all();
         }
-       
-        return view('actualites.index', compact('actualites', 'etiquettes'));
+
+        return view('actualites.index', compact('actualites', 'etiquettes', 'selectedEtiquettes'));
+    }
+
+    /**
+     * Receives POST filter submissions, stores selected etiquettes in session and redirects to home (GET).
+     */
+    public function filter(Request $request)
+    {
+        $selected = $request->input('etiquettes', []);
+
+        // If no etiquettes selected, clear the filter from session to show all
+        if (empty($selected)) {
+            session()->forget('selectedEtiquettes');
+        } else {
+            // Ensure values are integers
+            $selected = array_map('intval', (array) $selected);
+            session(['selectedEtiquettes' => $selected]);
+        }
+
+        return redirect()->route('home');
     }
 
     /**
@@ -80,12 +122,13 @@ class ActualiteController extends Controller
             'idUtilisateur' => Auth::id(),
         ]);
 
-        $actualite->save();
-
+        
         // 2. Gestion des Étiquettes (Relation Pivot)
         if ($request->has('etiquettes')) {
             $actualite->etiquettes()->sync($request->etiquettes);
         }
+        
+        $actualite->save();
 
         // 3. Gestion des Images (Création de Documents et liaison)
         if ($request->hasFile('images')) {
@@ -109,7 +152,7 @@ class ActualiteController extends Controller
             }
         }
 
-        return redirect()->route('actualites.index')->with('success', 'Actualité créée avec succès.');
+        return redirect()->route('home')->with('success', 'Actualité créée avec succès.');
     }
 
     /**
@@ -131,7 +174,7 @@ class ActualiteController extends Controller
             $etiquettes = Etiquette::all();
             return view('actualites.edit', compact('actualite', 'etiquettes'));
         } catch (\Exception $e) {
-            return redirect()->route('actualites.index')->with('error', 'Actualité non trouvée.');
+            return redirect()->route('home')->with('error', 'Actualité non trouvée.');
         }
     }
 
@@ -155,7 +198,7 @@ class ActualiteController extends Controller
         try {
             $actualite = Actualite::findOrFail($id);
         } catch (\Exception $e) {
-            return redirect()->route('actualites.index')->with('error', 'Actualité non trouvée.');
+            return redirect()->route('home')->with('error', 'Actualité non trouvée.');
         }
 
         $actualite->update([
@@ -178,6 +221,8 @@ class ActualiteController extends Controller
             $actualite->etiquettes()->detach();
         }
 
+        $actualite->save();
+
         // Ajout de nouvelles images (sans supprimer les anciennes pour cet exemple)
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
@@ -192,7 +237,7 @@ class ActualiteController extends Controller
                 $document->etat = 'actif';
                 $document->save();
 
-                $actualite->documents()->attach($document->idDocument);
+                $actualitteste->documents()->attach($document->idDocument);
             }
         }
 
@@ -243,5 +288,30 @@ class ActualiteController extends Controller
             ->paginate(20);
 
         return view('actualites.pannel', compact('actualites'));
+    }
+
+    /**
+     * Fournit les données pour DataTables en mode serveur.
+     */
+    public function data() 
+    {
+
+        $query = Actualite::query();
+
+        return DataTables::of($query)
+            ->addColumn('titre', function ($actualite) {
+                return $actualite->titrefr ?? 'Sans titre';
+            })
+            ->addColumn('etiquettes', function ($actualite) {
+                return $actualite->etiquettes->pluck('nom')->join(', ');
+            })
+            ->addColumn('etat', function ($actualite) {
+                return $actualite->archive ? 'Archivée' : 'Active';
+            })
+            ->addColumn('actions', function ($actualite) {
+                return view('actualites.template.colonne-action', compact('actualite'));
+            })
+            ->rawColumns(['actions'])
+            ->make(true);
     }
 }

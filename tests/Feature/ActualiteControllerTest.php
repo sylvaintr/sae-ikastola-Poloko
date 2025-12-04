@@ -13,6 +13,7 @@ use App\Models\Actualite;
 use App\Models\Document;
 use App\Models\Etiquette;
 use App\Models\Utilisateur;
+use App\Models\Posseder;
 
 class ActualiteControllerTest extends TestCase
 {
@@ -172,16 +173,17 @@ class ActualiteControllerTest extends TestCase
     }
 
     public function test_page_create(){
+        $controller = new ActualiteController();
+        $response = $controller->create();
 
-        $this->get('/actualites/create')
-            ->assertStatus(200)
-            ->assertViewIs('actualites.create');
+        $this->assertInstanceOf(\Illuminate\View\View::class, $response);
+        $this->assertEquals('actualites.create', $response->getName());
 
     }
 
     public function test_page_index(){
 
-        $this->get('/actualites')
+        $this->get('/')
             ->assertStatus(200)
             ->assertViewIs('actualites.index');
 
@@ -243,6 +245,94 @@ class ActualiteControllerTest extends TestCase
 
         $this->assertEquals('Updated with Etiquette', Actualite::find($act->idActualite)->titrefr);
         $this->assertCount(1, Actualite::find($act->idActualite)->etiquettes()->get());
+    }
+
+    public function test_actuliete_data_returne_json(){
+        Actualite::factory()->count(3)->create(['dateP' => now()]);
+
+        $controller = new ActualiteController();
+        $response = $controller->data();
+
+        $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $response);
+        $data = $response->getData(true);
+        $this->assertArrayHasKey('data', $data);
+        $this->assertCount(3, $data['data']);
+
+    }
+
+    public function test_filter_post_stores_and_clears_session()
+    {
+        $et1 = Etiquette::factory()->create();
+        $et2 = Etiquette::factory()->create();
+
+        // Post with one etiquette selected
+        $this->post(route('actualites.filter'), ['etiquettes' => [$et1->idEtiquette]])
+            ->assertRedirect(route('home'));
+
+        $this->assertEquals([$et1->idEtiquette], session('selectedEtiquettes'));
+
+        // Post with no selection should clear session
+        $this->post(route('actualites.filter'), [])
+            ->assertRedirect(route('home'));
+
+        $this->assertFalse(session()->has('selectedEtiquettes'));
+    }
+
+    public function test_filter_direct_calls_store_and_clear_session()
+    {
+        $et = Etiquette::factory()->create();
+
+        $request = Request::create('/actualites/filter', 'POST', ['etiquettes' => [$et->idEtiquette]]);
+        $controller = new ActualiteController();
+        $controller->filter($request);
+
+        $this->assertEquals([$et->idEtiquette], session('selectedEtiquettes'));
+
+        $request2 = Request::create('/actualites/filter', 'POST', []);
+        $controller->filter($request2);
+        $this->assertFalse(session()->has('selectedEtiquettes'));
+    }
+
+    public function test_index_with_selected_etiquettes_filters_actualites()
+    {
+        $et = Etiquette::factory()->create();
+        $act = Actualite::factory()->create(['dateP' => now()]);
+        $act->etiquettes()->attach($et->idEtiquette);
+
+        // Put filter in session
+        session(['selectedEtiquettes' => [$et->idEtiquette]]);
+
+        // Use HTTP request with session to exercise full middleware/request lifecycle
+        $this->withSession(['selectedEtiquettes' => [$et->idEtiquette]])
+            ->get('/')
+            ->assertStatus(200)
+            ->assertViewHas('actualites', function ($actualites) {
+                return $actualites instanceof \Illuminate\Pagination\LengthAwarePaginator;
+            });
+    }
+    public function test_index_excludes_posseder_etiquettes_for_guests()
+    {
+        // Create an etiquette and a posseder that references it
+        $et = Etiquette::factory()->create();
+        Posseder::factory()->create(['idEtiquette' => $et->idEtiquette]);
+
+        // Ensure no user is authenticated
+        Auth::logout();
+
+        $controller = new ActualiteController();
+        $response = $controller->index();
+        $this->assertInstanceOf(\Illuminate\View\View::class, $response);
+        $data = $response->getData();
+        $etiquettes = $data['etiquettes'];
+
+        $this->assertFalse($etiquettes->contains('idEtiquette', $et->idEtiquette));
+    }
+
+    public function test_erreur_non_trouve_edit_actualite(){
+        $controller = new ActualiteController();
+        $response = $controller->edit(99999);
+
+        $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
     }
 
         

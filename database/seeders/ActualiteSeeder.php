@@ -13,6 +13,6 @@ class ActualiteSeeder extends Seeder
      */
     public function run(): void
     {
-        Actualite::factory()->count(10)->create();
+        Actualite::factory()->count(11)->create();
     }
 }
