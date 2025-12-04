@@ -8,7 +8,7 @@ import { dataTableLangs } from './app'
 document.addEventListener('DOMContentLoaded', function () {
 
     try {
-        new DataTable('#TableFacture', {
+        new DataTable('#TableEtiquettes', {
             processing: true,
             serverSide: true,
             autoWidth: false,
@@ -43,4 +43,3 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (e) { console.error("DataTable initialization error:", e); }
 
 });
-

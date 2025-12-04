@@ -35,18 +35,15 @@ class EtiquetteController extends Controller
         $validated = $request->validate(
             [
                 'nom' => 'required|string|max:50',
-                'roles' => ['required', 'array', 'min:1'],
+                'roles' => ['nullable', 'array'],
                 'roles.*' => ['exists:role,idRole'],
-            ],
-            [
-                'roles.required' => trans('admin.common.roles_required'),
-                'roles.min' => trans('admin.common.roles_required'),
             ]
         );
 
-        $etiquette = Etiquette::create($validated);
+        $etiquette = Etiquette::create(['nom' => $validated['nom']]);
         $rolesToSync = [];
-        foreach ($validated['roles'] as $roleId) {
+        $roles = $validated['roles'] ?? [];
+        foreach ($roles as $roleId) {
             $rolesToSync[$roleId] = [];
         }
         $etiquette->roles()->sync($rolesToSync);
@@ -80,21 +77,18 @@ class EtiquetteController extends Controller
     {
         $validated = $request->validate([
             'nom' => 'required|string|max:50',
-            'roles' => ['required', 'array', 'min:1'],
+            'roles' => ['nullable', 'array'],
             'roles.*' => ['exists:role,idRole'],
-        ], [
-            'roles.required' => trans('admin.common.roles_required'),
-            'roles.min' => trans('admin.common.roles_required'),
         ]);
 
         $rolesToSync = [];
-        foreach ($validated['roles'] as $roleId) {
+        $roles = $validated['roles'] ?? [];
+        foreach ($roles as $roleId) {
             $rolesToSync[$roleId] = [];
         }
         $etiquette->roles()->sync($rolesToSync);
 
-
-        $etiquette->update($request->all());
+        $etiquette->update(['nom' => $validated['nom']]);
         return redirect()->route('admin.etiquettes.index')->with('success', __('etiquette.successEtiquetteMiseAJour'));
     }
 

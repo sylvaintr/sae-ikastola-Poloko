@@ -37,13 +37,13 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-label small mb-2">
-                                {{ __('admin.accounts_page.create.fields.roles_selected') }} <span
-                                    class="text-danger">*</span></div>
+                                {{ __('admin.accounts_page.create.fields.roles_selected') }}
+                            </div>
                             <div id="selected-roles" class="role-list mt-2">
                                 <div class="role-list-empty-message">Aucun rôle n'a été sélectionné</div>
                             </div>
-                            <div id="roles-error" class="invalid-feedback d-none mt-2">Au moins un rôle doit être
-                                sélectionné.</div>
+                            <div id="roles-error" class="invalid-feedback d-none mt-2">La sélection de rôles est
+                                optionnelle.</div>
                         </div>
                     </div>
 
@@ -52,12 +52,7 @@
                     </div>
                 </div>
 
-                @error('roles')
-                    <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
-                @enderror
-                @error('roles.*')
-                    <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
-                @enderror
+
             </div>
 
 
@@ -149,15 +144,10 @@
 
                 // Valider les rôles
                 function validateRoles() {
-                    if (selectedRoleIds.size === 0) {
-                        rolesError.classList.remove('d-none');
-                        rolesError.classList.add('d-block');
-                        return false;
-                    } else {
-                        rolesError.classList.remove('d-block');
-                        rolesError.classList.add('d-none');
-                        return true;
-                    }
+                    // Roles are optional for an étiquette; always valid client-side.
+                    rolesError.classList.remove('d-block');
+                    rolesError.classList.add('d-none');
+                    return true;
                 }
 
                 // Créer un élément de rôle disponible (optimisé)

@@ -105,7 +105,7 @@
     <div class="container py-5">
         <h2 class="mb-4 fw-bold text-center">{{ __('actualite.nouvelle_actualite') }}</h2>
 
-        <form id="actuForm" action="{{ route('actualites.store') }}" method="POST" enctype="multipart/form-data">
+        <form id="actuForm" action="{{ route('admin.actualites.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             {{-- ... LE DÉBUT DE VOTRE FORMULAIRE (Code inchangé pour les onglets FR/EU) ... --}}
@@ -192,22 +192,18 @@
                                 </select>
                             </div>
 
-                            {{-- ================================================= --}}
-                            {{-- DATEPICKER PERSONNALISÉ (SANS LIBRAIRIE)          --}}
-                            {{-- ================================================= --}}
+
                             <div class="mb-3 position-relative" id="custom-datepicker-wrapper">
                                 <label for="dateP" class="form-label fw-bold">{{ __('actualite.date_publication') }}
                                     <span class="text-danger">*</span></label>
 
-                                {{-- Input : readonly pour empêcher l'écriture manuelle --}}
+
                                 <input type="text" id="dateP" name="dateP"
                                     class="form-control bg-white cursor-pointer" value="{{ date('d/m/Y') }}" readonly
                                     required placeholder="Sélectionner une date" onclick="toggleCalendar()">
 
-                                {{-- Le Widget Calendrier --}}
                                 <div id="calendar-popup" class="datepicker-dropdown">
 
-                                    {{-- En-tête : Flèches et Selects --}}
                                     <div class="datepicker-header">
                                         <button type="button" class="datepicker-nav-btn"
                                             onclick="changeMonth(-1)">&lt;</button>
@@ -221,13 +217,13 @@
                                             onclick="changeMonth(1)">&gt;</button>
                                     </div>
 
-                                    {{-- Grille --}}
+
                                     <div class="datepicker-grid" id="calendar-grid">
-                                        {{-- Jours générés par JS --}}
+
                                     </div>
                                 </div>
                             </div>
-                            {{-- ================================================= --}}
+
 
 
                             <div class="mb-3">

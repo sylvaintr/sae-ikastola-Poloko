@@ -43,6 +43,11 @@ return [
     'ven' => 'Ven',
     'sam' => 'Sam',
     'dim' => 'Dim',
+    'archiver' => 'Archiver',
+    'modifier_actualite' => 'Modifier l\'actualité',
+    'mettre_a_jour' => 'Mettre à jour',
+    'nouvelle_actualite' => 'Nouvelle actualité',
+    'rendu_markdown' => 'Voici le rendu du contenu ',
 
 
 ];

@@ -59,7 +59,7 @@
 
         {{-- Bouton Retour --}}
         <div class="mb-4">
-            <a href="{{ route('actualites.index') }}" class="text-decoration-none text-secondary hover-underline">
+            <a href="{{ route('home') }}" class="text-decoration-none text-secondary hover-underline">
                 <i class="bi bi-arrow-left"></i> {{ Lang::get('actualite.retour_aux_actualites', [], 'eus') }} @if(Lang::getLocale() == 'fr') / {{ __('actualite.retour_aux_actualites') }} @endif
             </a>
         </div>
@@ -90,8 +90,11 @@
                 {{-- Date --}}
                 <p class="actu-date">
                     {{ __('actualite.publie_le') }} {{ $actualite->dateP->format('d/m/Y') }}
+                    @for ($i = 0; $i < $actualite->etiquettes()->count() ; $i++)
+                        <span class="badge bg-warning text-dark ms-2">{{ $actualite->etiquettes[$i]->nom }}</span>
+                    @endfor
                     @if ($actualite->type)
-                        <span class="badge bg-warning text-dark ms-2">{{ $actualite->type }}</span>
+                       <br> <span class="badge bg-secondary mt-3">{{ $actualite->type }}</span>
                     @endif
                 </p>
 
