@@ -9,7 +9,7 @@
 
             <div class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
                 <div class="d-flex flex-column align-items-start">
-                    <a href="{{ route('tache.create') }}" class="btn admin-add-button">
+                    <a href="{{ route('tache.create') }}" class="admin-add-button">
                         Gehitu zeregin bat
                     </a>
                     <p class="text-muted mb-0 admin-button-subtitle">Ajouter une tâche</p>
@@ -35,28 +35,29 @@
         </div>
     </div>
 
-    <script type="text/javascript">
-        $(function () {
-                
-            var table = $('.datatable-taches').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('tache.get-datatable') }}",
+    @push('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
 
-                language: {
-                    url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
-                },
-                
-                columns: [
-                    {data: 'dateD', name: 'dateD'},
-                    {data: 'titre', name: 'titre'},
-                    {data: 'type', name: 'type'},
-                    {data: 'etat', name: 'etat'},
-                    {data: 'action', name: 'action', orderable: false, searchable: false},
-                ]
-            });
+        var table = $('.datatable-taches').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('tache.get-datatable') }}",
 
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
+            },
+                
+            columns: [
+                {data: 'dateD', name: 'dateD'},
+                {data: 'titre', name: 'titre'},
+                {data: 'type', name: 'type'},
+                {data: 'etat', name: 'etat'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ]
         });
-
+    });
     </script>
+    @endpush
+
 </x-app-layout>

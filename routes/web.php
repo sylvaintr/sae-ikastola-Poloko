@@ -80,16 +80,14 @@ Route::middleware('auth')->group(function () {
             });
         });
 
-        Route::prefix('/tache')->name('tache.')->group(function () {
-            Route::get('/', [TacheController::class, 'index'])->name('index');
-            Route::get('/get-datatable', [TacheController::class, 'getDatatable'])->name('get-datatable');
-            Route::get('/create', [TacheController::class, 'create'])->name('create');
-            Route::post('/store', [TacheController::class, 'store'])->name('store');
-            Route::get('/{tache}/edit', [TacheController::class, 'edit'])->name('edit');
-            Route::put('/{tache}', [TacheController::class, 'update'])->name('update');
-            Route::get('/{tache}/show', [TacheController::class, 'show'])->name('show');
-            Route::delete('/{tache}', [TacheController::class, 'delete'])->name('delete');
-        });
+        Route::get('/tache', [TacheController::class, 'index'])->name('tache.index');
+        Route::get('/tache/get-datatable', [TacheController::class, 'getDatatable'])->name('tache.get-datatable');
+        Route::get('/tache/create', [TacheController::class, 'create'])->name('tache.create');
+        Route::post('/tache/store', [TacheController::class, 'store'])->name('tache.store');
+        Route::get('/tache/{tache}/edit', [TacheController::class, 'edit'])->name('tache.edit');
+        Route::put('/tache/{tache}', [TacheController::class, 'update'])->name('tache.update');
+        Route::get('/tache/{tache}/show', [TacheController::class, 'show'])->name('tache.show');
+        Route::delete('/tache/{tache}', [TacheController::class, 'delete'])->name('tache.delete');
 
         Route::get('/presence', function () {
             return view('presence.index');

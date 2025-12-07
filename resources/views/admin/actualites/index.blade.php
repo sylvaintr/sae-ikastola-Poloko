@@ -9,7 +9,7 @@
 
             <div class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
                 <div class="d-flex flex-column align-items-start">
-                    <a href="{{ route('admin.actualites.create') }}" class="btn admin-add-button">
+                    <a href="{{ route('admin.actualites.create') }}" class="admin-add-button">
                         Gehitu mesu bat
                     </a>
                     <p class="text-muted mb-0 admin-button-subtitle">Ajouter une publication</p>
@@ -35,28 +35,28 @@
         </div>
     </div>
 
-    <script type="text/javascript">
-        $(function () {
-                
-            var table = $('.datatable-publications').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('admin.actualites.get-datatable') }}",
+    @push('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
 
-                language: {
-                    url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
-                },
-                
-                columns: [
-                    {data: 'titre', name: 'titre'},
-                    {data: 'type', name: 'type'},
-                    {data: 'dateP', name: 'dateP'},
-                    {data: 'archive', name: 'archive'},
-                    {data: 'action', name: 'action', orderable: false, searchable: false},
-                ]
-            });
-
+        var table = $('.datatable-publications').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('admin.actualites.get-datatable') }}",
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
+            },
+            columns: [
+                {data: 'titre', name: 'titre'},
+                {data: 'type', name: 'type'},
+                {data: 'dateP', name: 'dateP'},
+                {data: 'archive', name: 'archive'},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ]
         });
 
+    });
     </script>
+    @endpush
+
 </x-app-layout>
