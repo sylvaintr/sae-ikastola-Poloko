@@ -2,15 +2,8 @@ import 'bootstrap/dist/js/bootstrap.bundle';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './bootstrap';
 import './children-selector';
-import './forgot-password';
-import Alpine from 'alpinejs';
-globalThis.Alpine = Alpine;
-Alpine.start();
-import * as yup from 'yup';
-
-
-globalThis.yup = yup;
-import './facture-modal';
+import jQuery from 'jquery';
+window.$ = window.jQuery = jQuery;
 
 export const dataTableLangs = {
     fr: {
@@ -42,3 +35,4 @@ export const dataTableLangs = {
         },
     },
 };
+
