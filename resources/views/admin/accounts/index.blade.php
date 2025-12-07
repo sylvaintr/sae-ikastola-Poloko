@@ -25,7 +25,7 @@
                 </div>
 
                 <div class="d-flex flex-column align-items-start">
-                    <a href="{{ route('admin.accounts.create') }}" class="btn admin-add-button">
+                    <a href="{{ route('admin.accounts.create') }}" class="admin-add-button">
                         {{ __('admin.accounts_page.add_button') }}
                     </a>
                     <p class="text-muted mb-0 admin-button-subtitle">{{ __('admin.accounts_page.add_button_subtitle') }}

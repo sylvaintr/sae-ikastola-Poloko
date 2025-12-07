@@ -2,6 +2,8 @@ import 'bootstrap/dist/js/bootstrap.bundle';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './bootstrap';
 import './children-selector';
+import jQuery from 'jquery';
+window.$ = window.jQuery = jQuery;
 
 export const dataTableLangs = {
     fr: {
@@ -33,3 +35,4 @@ export const dataTableLangs = {
         },
     },
 };
+

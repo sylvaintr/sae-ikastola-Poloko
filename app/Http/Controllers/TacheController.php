@@ -52,7 +52,42 @@ class TacheController extends Controller
 
         return view('tache.index');
     }
+
+    public function create()
+    {
+        return "create";
+    }
+
+    public function store()
+    {
+        return "store";
+    }
+
+    public function edit()
+    {
+        return "edit";
+    }
+
+    public function update()
+    {
+        return "update";
+    }
+
+    public function delete(Tache $tache)
+    {
+        try {
+            $tache->delete();
+            return redirect()
+                ->route('tache.index')
+                ->with('success', 'Tâche supprimée avec succès.');
+        } catch (\Exception $e) {
+            return redirect()
+                ->route('tache.index')
+                ->with('error', 'Erreur lors de la suppression.');
+        }
+    }
+
+    public function show() {
+        return "show";
+    }
 }
-
-
-?>

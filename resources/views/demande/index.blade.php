@@ -9,7 +9,7 @@
 
             <div class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
                 <div class="d-flex flex-column align-items-start">
-                    <a href="{{ route('tache.create') }}" class="btn admin-add-button">
+                    <a href="{{ route('tache.create') }}" class="admin-add-button">
                         Sortu txartel eskaera
                     </a>
                     <p class="text-muted mb-0 admin-button-subtitle">Créer une demande de ticket</p>
@@ -35,9 +35,7 @@
         </div>
     </div>
 
-    <script type="text/javascript">
-        $(function () {
-                
+    <script>
             var table = $('.datatable-taches').DataTable({
                 processing: true,
                 serverSide: true,
@@ -55,8 +53,5 @@
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                 ]
             });
-
-        });
-
     </script>
 </x-app-layout>
