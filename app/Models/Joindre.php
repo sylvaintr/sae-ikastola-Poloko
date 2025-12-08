@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 class Joindre extends Model
 {
 	protected $table = 'joindre';
+	protected $primaryKey = null;
 	public $incrementing = false;
 	public $timestamps = false;
 

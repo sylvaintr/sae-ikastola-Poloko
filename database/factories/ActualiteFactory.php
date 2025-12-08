@@ -17,13 +17,14 @@ class ActualiteFactory extends Factory
     public function definition(): array
     {
         return [
-            'titre' => $this->faker->sentence,
-            'description' => $this->faker->paragraph,
-            'type' => $this->faker->word,
-            'dateP' => $this->faker->date,
+            'titre' => substr($this->faker->sentence(3),0,30),
+            'description' => substr($this->faker->sentence(10),0,100),
+            'contenu' => $this->faker->paragraph(3),
+            'type' => $this->faker->randomElement(['Privée', 'Publique']),
+            'dateP' => now(),
             'archive' => $this->faker->boolean,
-            'lien' => $this->faker->url,
-            'idUtilisateur' => $this->faker->numberBetween(1, 50),
+            'lien' => $this->faker->url(),
+            'idUtilisateur' => $this->faker->numberBetween(1, 3),
         ];
     }
 }

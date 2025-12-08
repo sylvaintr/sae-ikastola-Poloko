@@ -1,6 +1,7 @@
 <form
     action="{{ isset($actualite) ? route('admin.actualites.update', $actualite->idActualite) : route('admin.actualites.store') }}"
     method="POST"
+    enctype="multipart/form-data"
 >
     @csrf
     @if(isset($actualite))
@@ -62,6 +63,40 @@
             {{ old('archive', $actualite->archive ?? false) ? 'checked' : '' }}
         >
         <label for="archive" class="form-check-label">Archiver</label>
+    </div>
+
+    @if(isset($actualite) && $actualite->documents->count() > 0)
+    <div class="mb-3">
+        <p>Images liées :</p>
+        <div class="d-flex gap-3" style="flex-wrap: wrap;">
+            @foreach($actualite->documents as $document)
+                <div class="card d-flex text-center">
+                    <div class="card-header">
+                        <img
+                            src="{{ asset('storage/'.$document->chemin) }}"
+                            alt={{ $document->nom }}
+                            style="height:150px; width:auto;"
+                        >
+                    </div>
+                    <div class="card-body">
+                        {{ $document->nom }}
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    <div class="mb-3">
+        <label for="documents" class="form-label">Images (optionnel)</label>
+        <input
+            type="file"
+            name="documents[]"
+            id="documents"
+            class="form-control"
+            multiple
+            accept="image/*"
+        >
     </div>
 
     <div class="mb-3">

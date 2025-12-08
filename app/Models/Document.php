@@ -46,5 +46,6 @@ class Document extends Model
 	public function actualites()
 	{
 		return $this->belongsToMany(Actualite::class, 'joindre', 'idDocument', 'idActualite');
+
 	}
 }

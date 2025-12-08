@@ -39,6 +39,7 @@
         $(function () {
                 
             var table = $('.datatable-publications').DataTable({
+                pageLength: 50,
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('admin.actualites.get-datatable') }}",

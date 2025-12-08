@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Actualite;
+use App\Models\Document;
 use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -84,8 +85,10 @@ class ActualiteController extends Controller
             'type' => 'required|string|in:Privée,Publique',
             'archive' => 'required|boolean',
             'lien' => 'nullable|string|max:2083',
+            'documents' => 'nullable',
+            'documents.*' => 'file|mimes:jpg,jpeg,png,webp,pdf|max:4096',
         ]);
-        Actualite::create([
+        $actualite = Actualite::create([
             'titre' => $validatedData['titre'],
             'description' => $validatedData['description'],
             'contenu' => $validatedData['contenu'],
@@ -95,6 +98,26 @@ class ActualiteController extends Controller
             'dateP' => date('Y-m-d'),
             'idUtilisateur' => auth()->id(),
         ]);
+
+        // Gestion des images si uploadées
+        if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $file) {
+
+                // 1. Stockage physique
+                $path = $file->store('uploads/actualites', 'public');
+
+                // 2. Ajout dans Document
+                $doc = Document::create([
+                    'nom' => $file->getClientOriginalName(),
+                    'chemin' => $path,
+                    'type' => $file->getClientOriginalExtension(),
+                    'etat' => 'actif',
+                ]);
+
+                // 3. Création de la jointure
+                $actualite->documents()->attach($doc->idDocument);
+            }
+        }
 
         return redirect()->route('admin.actualites.index')->with('success', 'Actualité ajoutée avec succès.');
     }
@@ -129,9 +152,28 @@ class ActualiteController extends Controller
                 'type' => 'required|string|in:Privée,Publique',
                 'archive' => 'required|boolean',
                 'lien' => 'nullable|string|max:2083',
+                'documents' => 'nullable',
+                'documents.*' => 'file|mimes:jpg,jpeg,png,webp,pdf|max:4096',
             ]);
         
             $actualite->update($validated);
+
+            // Upload de nouvelles images
+            if ($request->hasFile('documents')) {
+                foreach ($request->file('documents') as $file) {
+
+                    $path = $file->store('uploads/actualites', 'public');
+
+                    $doc = Document::create([
+                        'nom' => $file->getClientOriginalName(),
+                        'chemin' => $path,
+                        'type' => $file->getClientOriginalExtension(),
+                        'etat' => 'actif',
+                    ]);
+
+                    $actualite->documents()->attach($doc->idDocument);
+                }
+            }
         
             return redirect()->route('admin.actualites.index')->with('success', 'Actualité mise à jour avec succès.');
         } catch (\Exception $e) {
