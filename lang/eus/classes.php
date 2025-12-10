@@ -1,0 +1,23 @@
+<?php
+
+return [
+    'title' => 'Ikastaroa',
+    'add' => 'Gehitu klase bat',
+    'nom' => 'Izena',
+    'niveau' => 'Maila',
+    'actions' => 'Ekintzak',
+    'create_intro'        => 'Klase berri baten informazioa bete ezazu behean.',
+    'cancel'              => 'Utzi',
+    'save'                => 'Gorde',
+    'back_to_list' => 'Itzuli klasen zerrendara',
+    'create_title' => 'Klase berria gehitu',
+    'edit_title'   => 'Klasea editatu',
+    'niveau_select_placeholder' => 'Aukeratu maila bat',
+    'niveau_placeholder'        => 'Idatzi maila',
+    'children'                     => 'Ikasleak',
+    'children_search'              => 'Ikasleen artean bilatu',
+    'children_search_placeholder'  => 'Idatzi ikaslearen izena...',
+    'children_selected'            => 'Hautatutako ikasleak',
+    'children_empty'               => 'Oraindik ez da ikaslerik hautatu.',
+    'children_error'               => 'Gutxienez ikasle bat hautatu behar duzu.',
+];

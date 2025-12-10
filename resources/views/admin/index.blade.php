@@ -4,7 +4,7 @@
             'add_message' => 'admin.messages',
             'accounts' => 'admin.accounts.index',
             'families' => 'admin.families',
-            'classes' => 'admin.classes',
+            'classes' => 'admin.classes.index',
             'invoices' => 'admin.facture.index',
             'notifications' => 'admin.notifications',
         ];

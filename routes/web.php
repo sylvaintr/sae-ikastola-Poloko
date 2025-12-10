@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\FactureController;
 use App\Models\Facture;
+use App\Http\Controllers\ClasseController;
 
 
 Route::get('/', function () {
@@ -38,7 +39,19 @@ Route::middleware('auth')->group(function () {
                 Route::delete($accountRoute, 'destroy')->name('destroy');
             });
             Route::view('/familles', 'admin.families')->name('families');
-            Route::view('/classes', 'admin.classes')->name('classes');
+            Route::prefix('classes')->name('classes.')->controller(ClasseController::class)->group(function () use ($accountRoute) {
+                Route::get('/', 'index')->name('index');
+                Route::get('/ajouter', 'create')->name('create');
+                Route::post('/', 'store')->name('store');
+                Route::get('/{classe}/modifier', 'edit')->name('edit');
+                Route::put('/{classe}', 'update')->name('update');
+                Route::delete('/{classe}', 'destroy')->name('destroy');
+
+                // 🔥 route pour DataTable
+                Route::get('/data', 'data')->name('data');
+            });
+
+            // Route::view('/classes', 'admin.classes')->name('classes');
             Route::view('/notifications', 'admin.notifications')->name('notifications');
             Route::prefix('documents-obligatoires')->name('obligatory_documents.')->controller(\App\Http\Controllers\Admin\ObligatoryDocumentController::class)->group(function () {
                 Route::get('/', 'index')->name('index');

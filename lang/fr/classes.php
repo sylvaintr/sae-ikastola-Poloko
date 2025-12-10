@@ -1,0 +1,23 @@
+<?php
+
+return [
+    'title' => 'Classes',
+    'add' => 'Ajouter une classe',
+    'nom' => 'Nom',
+    'niveau' => 'Niveau',
+    'actions' => 'Actions',
+    'create_intro'        => 'Renseignez les informations de la nouvelle classe ci-dessous.',
+    'cancel'              => 'Annuler',
+    'save'                => 'Enregistrer',
+    'back_to_list' => 'Retour à la liste des classes',
+    'create_title' => 'Créer une nouvelle classe',
+    'edit_title'   => 'Modifier la classe',
+    'niveau_select_placeholder' => 'Choisissez un niveau',
+    'niveau_placeholder'        => 'Saisissez un niveau',
+    'children'                     => 'Élèves',
+    'children_search'              => 'Rechercher un élève',
+    'children_search_placeholder'  => 'Tapez le nom d’un élève…',
+    'children_selected'            => 'Élèves sélectionnés',
+    'children_empty'               => 'Aucun élève sélectionné pour le moment.',
+    'children_error'               => 'Veuillez sélectionner au moins un élève.',
+];

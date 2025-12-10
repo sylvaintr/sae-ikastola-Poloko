@@ -21,7 +21,8 @@ class Classe extends Model
 	use HasFactory;
 	protected $table = 'classe';
 	protected $primaryKey = 'idClasse';
-	public $incrementing = false;
+	public $incrementing = true;
+	protected $keyType = 'int';
 	public $timestamps = false;
 
 	protected $casts = [
