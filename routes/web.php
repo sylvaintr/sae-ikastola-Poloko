@@ -33,7 +33,7 @@ Route::get('/admin/familles/create', [FamilleController::class, 'create'])->name
 Route::get('/admin/familles/{id}', [FamilleController::class, 'show'])->name('admin.familles.show');
 // Route pour afficher la page create avec les données d'une famille (Mode Modif)
 Route::get('/admin/familles/{id}/edit', [FamilleController::class, 'edit'])->name('admin.familles.edit');
-
+Route::post('/admin/familles', [FamilleController::class, 'ajouter'])->name('admin.familles.store');
 // Route AJAX pour sauvegarder la parité via LierController
 Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 
