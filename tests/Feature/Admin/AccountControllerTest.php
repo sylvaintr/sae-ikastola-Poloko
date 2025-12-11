@@ -43,7 +43,7 @@ class AccountControllerTest extends TestCase
         $admin->assignRole('CA');
 
         $email = 'jean+' . uniqid() . '@example.test';
-
+        
         $payload = [
             'prenom' => 'Jean',
             'nom' => 'Valjean',
