@@ -105,7 +105,7 @@ class DemandeController extends Controller
             ? $demande->documents
                 ->filter(fn($doc) => Storage::disk('public')->exists($doc->chemin))
                 ->map(fn($doc) => [
-                    'url' => url('storage/' . ltrim($doc->chemin, '/')),
+                    'url' => Storage::url($doc->chemin),
                     'nom' => $doc->nom,
                 ])->values()->all()
             : [];
