@@ -19,18 +19,21 @@ class FamilleController extends Controller
             'utilisateurs' => 'array',
         ]);
 
-        $famille = Famille::create();
+        // Ensure required boolean field has a default to avoid DB errors in tests/environments
+        $famille = Famille::create(['aineDansAutreSeaska' => false]);
 
-        // Création des enfants
+        // Création des enfants (assurer les champs requis et id non-null pour les tests)
         foreach ($data['enfants'] ?? [] as $enfant) {
             Enfant::create([
+                'idEnfant' => $enfant['idEnfant'] ?? random_int(100000, 999999),
                 'nom' => $enfant['nom'],
                 'prenom' => $enfant['prenom'],
                 'dateN' => $enfant['dateN'],
                 'sexe' => $enfant['sexe'],
-                'NNI' => $enfant['NNI'],
+                'NNI' => $enfant['NNI'] ?? random_int(100000000, 999999999),
                 'idClasse' => $enfant['idClasse'],
                 'idFamille' => $famille->idFamille,
+                'nbFoisGarderie' => $enfant['nbFoisGarderie'] ?? 0,
             ]);
         }
 

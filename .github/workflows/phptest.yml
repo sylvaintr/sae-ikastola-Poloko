@@ -25,29 +25,26 @@ jobs:
           --health-retries=3
 
     steps:
-      # Étape 1 : Récupérer le code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Étape 2 : Installer PHP + extensions + Xdebug pour la couverture
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.3'
           extensions: mbstring, bcmath, pdo_mysql, xdebug
           coverage: xdebug
 
-      # Étape 3 : Installer les dépendances Composer
       - name: Install dependencies
         run: composer install --no-progress --prefer-dist --no-interaction
 
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+
       - run: npm ci
       - run: npm run build
 
-      # Étape 4 : Préparer Laravel
       - name: Copy .env
         run: cp .env.example .env
 
@@ -64,18 +61,53 @@ jobs:
           DB_PASSWORD: root
         run: php artisan migrate --force
 
-      # Étape 5 : Exécuter les tests + générer les rapports
+      # Install xmllint
+      - name: Install xmllint
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
       - name: Run tests with coverage and TestDox reports
         run: |
           mkdir -p build/reports
           ./vendor/bin/phpunit \
-            --coverage-html build/reports/coverage \
+            --coverage-xml build/reports/coverage \
+            --coverage-html build/reports/coverage/html \
             --testdox-html build/reports/testdox.html \
             --log-junit build/reports/junit.xml
 
-      # Étape 6 : Publier les rapports comme artefacts GitHub
-      - name: Upload test reports
-        uses: actions/upload-artifact@v4
+      - name: Fail if coverage is not 100%
+        run: |
+          XML=build/reports/coverage/index.xml
+          COVERAGE=$(xmllint --xpath "string(/*[local-name()='phpunit']/*[local-name()='project']/*[local-name()='directory']/*[local-name()='totals']/*[local-name()='lines']/@percent)" "$XML")
+          PERCENT=$(printf "%.0f" "$COVERAGE")
+
+          echo "Couverture détectée : $PERCENT%"
+
+          if [ "$PERCENT" -lt 100 ]; then
+            echo "❌ La couverture doit être à 100% — Actuellement : $PERCENT%"
+            exit 1
+          fi
+
+          echo "✅ Couverture OK à 100%"
+
+
+      - name: Clean directory on server
+        uses: appleboy/ssh-action@v0.1.7
         with:
-          name: php-test-reports
-          path: build/reports/
+          host: ${{ secrets.SERVER_HOST_RECETTE }}
+          username: ${{ secrets.SERVER_USER_RECETTE }}
+          password: ${{ secrets.SERVER_PASSWORD_RECETTE }}
+          port: 22
+          script: |
+            cd ${{ secrets.COVERAGE_SERVER_PATH_RECETTE }}
+            rm -rf *
+
+      - name: Upload coverage to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST_RECETTE }}
+          username: ${{ secrets.SERVER_USER_RECETTE }}
+          password: ${{ secrets.SERVER_PASSWORD_RECETTE }}
+          port: 22
+          source: "build/reports/coverage/*"
+          target: ${{ secrets.COVERAGE_SERVER_PATH_RECETTE }}
+

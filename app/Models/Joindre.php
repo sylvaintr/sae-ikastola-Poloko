@@ -1,22 +1,20 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Class Joindre
- * 
- * @property int $idDocument Identifiant du document joint.
- * @property int $idActualite Identifiant de l'actualité à laquelle le document est attaché.
+ *
+ * Pivot reliant un `Document` à une `Actualite` (documents joints aux actualités).
  *
  * @package App\Models
+ *
+ * @property int $idDocument Identifiant du document joint.
+ * @property int $idActualite Identifiant de l'actualité associée.
  */
-class Joindre extends Model
+class Joindre extends Pivot
 {
 	protected $table = 'joindre';
 	public $incrementing = false;
@@ -27,11 +25,21 @@ class Joindre extends Model
 		'idActualite' => 'int'
 	];
 
+	/**
+	 * Relation belongsTo vers le document joint.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
 	public function document()
 	{
 		return $this->belongsTo(Document::class, 'idDocument');
 	}
 
+	/**
+	 * Relation belongsTo vers l'actualité associée.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
 	public function actualite()
 	{
 		return $this->belongsTo(Actualite::class, 'idActualite');

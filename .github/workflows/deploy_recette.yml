@@ -38,3 +38,5 @@ jobs:
             npm ci
             npm run build
             php artisan view:cache
+            doxygen Doxyfile
+            

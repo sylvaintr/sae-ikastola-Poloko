@@ -1,0 +1,58 @@
+services:
+  app:
+    build: .
+    container_name: laravel-app
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - mysql
+      - mailpit
+    networks:
+      - laravel
+
+  nginx:
+    image: nginx:latest
+    container_name: laravel-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - laravel
+
+  mysql:
+    image: mysql:8.3
+    container_name: laravel-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: Europe/Paris
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - laravel
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: laravel-mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"  
+      - "1025:1025"  
+    networks:
+      - laravel
+
+networks:
+  laravel:
+    driver: bridge
+
+volumes:
+  mysql_data:
