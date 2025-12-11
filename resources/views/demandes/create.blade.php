@@ -127,12 +127,24 @@
                 reader.onload = (event) => {
                     const col = document.createElement('div');
                     col.className = 'col-md-3';
-                    col.innerHTML = `
-                        <div class="demande-photo-thumb">
-                            <img src="${event.target.result}" alt="${file.name}">
-                        </div>
-                        <div class="small text-muted text-truncate">${file.name}</div>
-                    `;
+                    // Create the thumb container
+                    const thumbDiv = document.createElement('div');
+                    thumbDiv.className = 'demande-photo-thumb';
+
+                    // Create the image element
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.setAttribute('alt', file.name);
+                    thumbDiv.appendChild(img);
+
+                    // Create the file name display
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'small text-muted text-truncate';
+                    nameDiv.textContent = file.name;
+
+                    // Append to col
+                    col.appendChild(thumbDiv);
+                    col.appendChild(nameDiv);
                     preview.appendChild(col);
                 };
                 reader.readAsDataURL(file);
