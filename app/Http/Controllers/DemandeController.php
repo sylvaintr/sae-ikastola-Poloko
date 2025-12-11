@@ -97,7 +97,7 @@ class DemandeController extends Controller
         $demande->loadMissing(['documents', 'historiques']);
 
         $metadata = [
-            'reporter' => 'Maite Larranaga',
+            'reporter' => $demande->user->name ?? $demande->reporter_name ?? 'Inconnu',
             'report_date' => optional($demande->dateD)->translatedFormat('d F Y') ?? now()->translatedFormat('d F Y'),
         ];
 
