@@ -29,4 +29,21 @@ class UtilisateurController extends Controller
 
         return response()->json($users);
     }
+
+    public function search(Request $request)
+    {
+        $search = $request->get('q', '');
+
+        if (strlen($search) < 2) {
+            return response()->json([]);
+        }
+
+        $users = Utilisateur::query()
+            ->where('nom', 'LIKE', "%{$search}%")
+            ->orWhere('email', 'LIKE', "%{$search}%")
+            ->limit(10)
+            ->get(['idUtilisateur', 'nom', 'prenom', 'email']);
+
+        return response()->json($users);
+    }
 }

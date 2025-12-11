@@ -16,22 +16,20 @@
                 </div>
             </div>
         </div>
-        <div class="card row overflow-auto" style="width: 100%; max-height: 75vh;">
-            <div class="card-body">
-                <table class="table table-bordered datatable-publications">
+        <div class="row overflow-auto" style="width: 100%; max-height: 75vh;">
+                <table class="table align-middle admin-table datatable-publications">
                     <thead>
                         <tr>
-                            <th>Titre</th>
-                            <th>Type</th>
-                            <th>Date publication</th>
-                            <th>Etat</th>
-                            <th style="width:100px;">Actions</th>
+                            <th scope="col"><span class="admin-table-heading">Titre</span></th>
+                            <th scope="col"><span class="admin-table-heading">Type</span></th>
+                            <th scope="col"><span class="admin-table-heading">Date publication</span></th>
+                            <th scope="col"><span class="admin-table-heading">Etat</span></th>
+                            <th scope="col" style="width:100px;"><span class="admin-table-heading">Actions</span></th>
                         </tr>
                     </thead>
                     <tbody>
                     </tbody>
                 </table>
-            </div>
         </div>
     </div>
 
@@ -40,9 +38,15 @@
     document.addEventListener('DOMContentLoaded', function() {
 
         var table = $('.datatable-publications').DataTable({
+            pagination: false,
             processing: true,
             serverSide: true,
             ajax: "{{ route('admin.actualites.get-datatable') }}",
+
+            lengthChange: false,
+            pageLength: 50,
+            autoWidth: false,
+
             language: {
                 url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
             },

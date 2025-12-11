@@ -5,6 +5,7 @@ use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\TacheController;
+use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\Admin\AccountController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FactureController;
@@ -88,6 +89,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/tache/{tache}', [TacheController::class, 'update'])->name('tache.update');
         Route::get('/tache/{tache}/show', [TacheController::class, 'show'])->name('tache.show');
         Route::delete('/tache/{tache}', [TacheController::class, 'delete'])->name('tache.delete');
+
+        // Recherche des utilisateurs
+        Route::get('/users/search', [UtilisateurController::class, 'search'])->name('users.search');
 
         Route::get('/presence', function () {
             return view('presence.index');
