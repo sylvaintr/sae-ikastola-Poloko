@@ -56,6 +56,11 @@ return [
     'alt_gallery_image' => 'Image de la galerie',
 
     'pas_image' => 'Aucune image',
+    'visibilite' => 'Visibilité',
+    'all_types' => 'Tous les types',
+    'reset' => 'Réinitialiser les filtres',
+    'active' => 'Actives',
+    'archived' => 'Archivées',
 
 
 ];

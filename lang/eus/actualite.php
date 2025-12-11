@@ -56,7 +56,7 @@ return [
     'alt_gallery_image' => 'Galeria irudia',
     'pas_image' => 'Irudirik ez',
 
-    'all' => 'Denak',
+    'visibilite' => 'Ikusgarritasuna',
     'all_types' => 'Mota guztiak',
     'reset' => 'Berrezarri',
     'active' => 'Aktiboa',

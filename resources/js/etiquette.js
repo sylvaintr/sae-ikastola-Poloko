@@ -2,7 +2,7 @@ import DataTable from 'datatables.net-dt';
 import 'datatables.net-responsive-dt';
 import { dataTableLangs } from './app'
 
-window.afficherDataTableEtiquettes = function(id) {
+globalThis.afficherDataTableEtiquettes = function(id) {
     try {
         const table = new DataTable('#' + id, {
             processing: true,

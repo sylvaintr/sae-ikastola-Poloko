@@ -28,5 +28,6 @@ return [
     'aucun_roles_associes' => 'Etiketa honi ez dago rolik lotuta.',
     'etiquette_non_associee' => 'Etiketa hau ez dago rolik lotuta.',
     'etiquette_associee' => 'Etiketa hau rol hauekin lotuta dago:',
+    'all_roles' => 'Denak rolak',
 
 ];

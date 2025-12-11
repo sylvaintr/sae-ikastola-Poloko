@@ -40,14 +40,14 @@
             </div>
             <div class="col-sm-3">
                 <select id="filter-etat" class="form-select">
-                    <option value="">{{ __('actualite.all') ?? 'Tous' }}</option>
-                    <option value="active">{{ __('actualite.active') ?? 'Active' }}</option>
-                    <option value="archived">{{ __('actualite.archived') ?? 'Archivée' }}</option>
+                    <option value="">{{ __('actualite.visibilite') }}</option>
+                    <option value="active">{{ __('actualite.active')  }}</option>
+                    <option value="archived">{{ __('actualite.archived') }}</option>
                 </select>
             </div>
             <div class="col-sm-4">
                 <select id="filter-etiquette" class="form-select">
-                    <option value="">{{ __('etiquette.all') ?? 'Toutes les étiquettes' }}</option>
+                    <option value="">{{ __('etiquette.all')}}</option>
                     @foreach($etiquettes as $et)
                         <option value="{{ $et->idEtiquette }}">{{ $et->nom }}</option>
                     @endforeach
@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <table class="table table-hover align-middle mb-0" id="TableActualites" style="width:100%">
+        <table class="table table-hover align-middle mb-0" id="TableActualites" style="width:100%" data-ajax-url="{{ route('admin.actualites.data') }}">
             <thead class="bg-light">
                 <tr>
                     <th>{{ Lang::get('actualite.titre', [], 'eus') }}

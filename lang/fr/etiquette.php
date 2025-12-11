@@ -28,5 +28,6 @@ return [
     'aucun_roles_associes' => 'Aucun rôle associé à cette étiquette.',
     'etiquette_non_associee' => 'Cette étiquette n\'est associée à aucun rôle.',
     'etiquette_associee' => 'Cette étiquette est associée aux rôles suivants :',
+    'all_roles' => 'Tous les rôles',
    
 ];

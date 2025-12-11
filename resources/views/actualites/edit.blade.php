@@ -350,13 +350,14 @@
                                         <div class="d-flex flex-wrap gap-3">
                                             @foreach ($actualite->documents->where('type', 'image') as $doc)
                                                 <div class="existing-image-container">
-                                                    {{-- L'image déclenche maintenant la fonction openZoomImage --}}
-                                                    <img src="{{ asset('storage/' . $doc->chemin) }}"
-                                                        class="rounded shadow-sm border clickable-image"
-                                                        style="width: 70px; height: 70px; object-fit: cover;"
-                                                        onclick="openZoomImage(this.src)"
-                                                        onkeydown="if(event.key === 'Enter' || event.key === ' ') { openZoomImage(this.src); event.preventDefault(); }"
-                                                        role="button" tabindex="0" aria-label="Agrandir l'image" alt="Actualité">
+                                                    {{-- L'image déclenche maintenant la fonction openZoomImage via un vrai bouton (accessible) --}}
+                                                    <button type="button" class="p-0 border-0 bg-transparent clickable-image"
+                                                        onclick="openZoomImage('{{ asset('storage/' . $doc->chemin) }}')"
+                                                        title="Agrandir l'image" aria-label="Agrandir l'image">
+                                                        <img alt="Actualité" src="{{ asset('storage/' . $doc->chemin) }}"
+                                                            class="rounded shadow-sm border"
+                                                            style="width: 70px; height: 70px; object-fit: cover;">
+                                                    </button>
 
                                                     {{-- Bouton suppression déclenche la Modale Bootstrap --}}
                                                     <button type="button" class="btn-delete-image"

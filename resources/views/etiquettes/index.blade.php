@@ -23,19 +23,17 @@
         {{-- Filters for etiquettes table --}}
         @php $roles = \App\Models\Role::all(); @endphp
         <div class="row mb-3 g-2">
-            <div class="col-sm-6">
-                <input id="filter-etiquette-name" type="text" class="form-control" placeholder="{{ __('etiquette.search_placeholder') ?? 'Rechercher une étiquette' }}">
-            </div>
+            
             <div class="col-sm-4">
                 <select id="filter-role" class="form-select">
-                    <option value="">{{ __('common.all') ?? 'Tous les rôles' }}</option>
+                    <option value="">{{ __('etiquette.all_roles')  }}</option>
                     @foreach($roles as $r)
                         <option value="{{ $r->idRole }}">{{ $r->name ?? $r->display_name ?? $r->idRole }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-sm-2 d-flex">
-                <button id="reset-etiquette-filters" class="btn btn-outline-secondary ms-auto">{{ __('common.reset') ?? 'Réinitialiser' }}</button>
+                <button id="reset-etiquette-filters" class="btn btn-outline-secondary ms-auto">{{ __('actualite.reset') ?? 'Réinitialiser' }}</button>
             </div>
         </div>
 

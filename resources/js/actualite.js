@@ -3,27 +3,30 @@ import DataTable from 'datatables.net-dt';
 import 'datatables.net-responsive-dt';
 import { dataTableLangs } from './app'
 
-window.AfficherMarkdownfromBalise = function(idinput, idoutput) {
+globalThis.AfficherMarkdownfromBalise = function(idinput, idoutput) {
     const md = document.getElementById(idinput).value;
     document.getElementById(idoutput).innerHTML = marked.parse(md);
 }
 
-window.AfficherMarkdownfromTexte = function(texte, idoutput) {
+globalThis.AfficherMarkdownfromTexte = function(texte, idoutput) {
     document.getElementById(idoutput).innerHTML = marked.parse(texte);
 }
 
 
-window.afficherDataTable = function(id) {
+globalThis.afficherDataTable = function(id) {
     
   
 
     try {
+        const tableEl = document.getElementById(id);
+        const ajaxUrl = (tableEl && tableEl.dataset && tableEl.dataset.ajaxUrl) ? tableEl.dataset.ajaxUrl : (location.pathname + "/data");
+
         const table = new DataTable('#' + id, {
             processing: true,
             serverSide: true,
             autoWidth: false,
             ajax: {
-                url: location.pathname + "/data",
+                url: ajaxUrl,
                 data: function(d) {
                     // read filter controls if present
                     const typeEl = document.getElementById('filter-type');
@@ -32,6 +35,24 @@ window.afficherDataTable = function(id) {
                     if (typeEl) d.type = typeEl.value;
                     if (etatEl) d.etat = etatEl.value;
                     if (etiquetteEl) d.etiquette = etiquetteEl.value;
+                },
+                error: function(xhr, status, error) {
+                    try {
+                        const ct = xhr.getResponseHeader && xhr.getResponseHeader('content-type');
+                        // If server returned an HTML page (likely a login redirect), go to login.
+                        if (ct && ct.includes('text/html')) {
+                            window.location = '/login';
+                            return;
+                        }
+                        // If status indicates unauthorized/forbidden, redirect to login as well
+                        if (xhr.status === 401 || xhr.status === 403) {
+                            window.location = '/login';
+                            return;
+                        }
+                    } catch (e) {
+                        console.error('Error handling DataTable ajax error:', e);
+                    }
+                    console.error('DataTable AJAX error:', status, error, xhr);
                 }
             },
             columns: [
