@@ -1346,6 +1346,84 @@
     padding: 0.625rem 0.5rem;
 }
 
+/* Force un rendu stable des colonnes */
+table.dataTable {
+  table-layout: fixed;
+}
+
+table.dataTable th, table.dataTable td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Empêche le "shift" causé par l'apparition de la scrollbar */
+.row.overflow-auto {
+  scrollbar-gutter: stable;
+}
+
+/* Processing en overlay pour ne rien pousser dans le tbody */
+.dataTables_processing {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 100;
+  background: transparent !important;
+  color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Container */
+.admin-search-user-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Dropdown */
+.admin-search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-top: 6px;
+    z-index: 50;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    display: none;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+/* Résultat */
+.admin-search-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f1f1;
+    transition: all 0.15s ease;
+}
+
+.admin-search-item:last-child {
+    border-bottom: none;
+}
+
+.admin-search-item:hover {
+    background-color: #f29201;
+    color: #fff;
+    transform: translateX(2px);
+}
+
+.admin-search-item.disabled {
+    color: #999;
+    background: #fafafa;
+    cursor: default;
+    font-style: italic;
+}
+
+
 /* Version mobile de la pagination */
 @media (max-width: 575.98px) {
     .admin-pagination-container {
