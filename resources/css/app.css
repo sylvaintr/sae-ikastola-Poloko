@@ -372,6 +372,18 @@
     color: #fff;
 }
 
+.demande-link-primary {
+    color: #F29201;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.demande-link-primary:hover,
+.demande-link-primary:focus {
+    color: #d67c00;
+    text-decoration: underline;
+}
+
 .demande-filter-toggle {
     border: none;
     background: transparent;

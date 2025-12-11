@@ -262,6 +262,10 @@ return [
     'show' => [
         'type_default' => 'Gertakaria',
         'reported_by' => ':name jakinarazia • :date',
+        'back' => [
+            'eu' => 'Itzuli eskaeretara',
+            'fr' => 'Retour aux demandes',
+        ],
     ],
     'messages' => [
         'created' => 'Demande créée avec succès.',

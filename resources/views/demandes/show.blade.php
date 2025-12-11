@@ -1,5 +1,14 @@
 <x-app-layout>
     <div class="container py-4 demande-show-page">
+        <div class="mb-4">
+            <a href="{{ route('demandes.index') }}" class="d-inline-flex align-items-center gap-2 fw-semibold demande-link-primary">
+                <i class="bi bi-arrow-left"></i>
+                <span class="d-flex flex-column lh-sm">
+                    <span>{{ __('demandes.show.back.eu') }}</span>
+                    <small class="text-muted">{{ __('demandes.show.back.fr') }}</small>
+                </span>
+            </a>
+        </div>
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-4 mb-5">
             <div>
                 <h1 class="fw-bold mb-1">{{ $demande->titre }}</h1>
