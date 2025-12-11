@@ -19,7 +19,7 @@ globalThis.afficherDataTable = function(id) {
 
     try {
         const tableEl = document.getElementById(id);
-        const ajaxUrl = (tableEl && tableEl.dataset && tableEl.dataset.ajaxUrl) ? tableEl.dataset.ajaxUrl : (location.pathname + "/data");
+        const ajaxUrl = (tableEl?.dataset?.ajaxUrl) ? tableEl.dataset.ajaxUrl : (location.pathname + "/data");
 
         const table = new DataTable('#' + id, {
             processing: true,
@@ -38,15 +38,15 @@ globalThis.afficherDataTable = function(id) {
                 },
                 error: function(xhr, status, error) {
                     try {
-                        const ct = xhr.getResponseHeader && xhr.getResponseHeader('content-type');
+                        const ct =   xhr?.getResponseHeader('content-type');
                         // If server returned an HTML page (likely a login redirect), go to login.
-                        if (ct && ct.includes('text/html')) {
-                            window.location = '/login';
+                        if (ct?.includes('text/html')) {
+                            globalThis.location = '/login';
                             return;
                         }
                         // If status indicates unauthorized/forbidden, redirect to login as well
                         if (xhr.status === 401 || xhr.status === 403) {
-                            window.location = '/login';
+                            globalThis.location = '/login';
                             return;
                         }
                     } catch (e) {
