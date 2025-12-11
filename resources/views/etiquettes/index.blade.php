@@ -22,7 +22,10 @@
 
         {{-- Filters for etiquettes table --}}
         @php $roles = \App\Models\Role::all(); @endphp
-        <div class="row mb-3 g-2">
+        <div class="d-flex flex-row-reverse row mb-3 g-2">
+            <div class="col-sm-2 d-flex">
+                <button id="reset-etiquette-filters" class="btn btn-outline-secondary ms-auto">{{ __('actualite.reset') ?? 'Réinitialiser' }}</button>
+            </div>
             
             <div class="col-sm-4">
                 <select id="filter-role" class="form-select">
@@ -31,9 +34,6 @@
                         <option value="{{ $r->idRole }}">{{ $r->name ?? $r->display_name ?? $r->idRole }}</option>
                     @endforeach
                 </select>
-            </div>
-            <div class="col-sm-2 d-flex">
-                <button id="reset-etiquette-filters" class="btn btn-outline-secondary ms-auto">{{ __('actualite.reset') ?? 'Réinitialiser' }}</button>
             </div>
         </div>
 

@@ -14,15 +14,15 @@
             </h2>
             <div>
                 <a href="{{ route('admin.actualites.create') }}" class="btn btn-orange">
-                    <i class="bi bi-plus-circle"></i> {{ Lang::get('actualite.ajouter_une_actualite', [], 'eus') }}
+                    {{ Lang::get('actualite.ajouter_une_actualite', [], 'eus') }}
                     @if (Lang::getLocale() == 'fr')
                         <span class="fw-light ms-2">{{ Lang::get('actualite.ajouter_une_actualite') }}</span>
                     @endif
                 </a>
-                <a href="{{ route('admin.etiquettes.create') }}" class="btn btn-orange">
-                    <i class="bi bi-plus-circle"></i> {{ Lang::get('etiquette.nouvelle', [], 'eus') }}
+                <a href="{{ route('admin.etiquettes.index') }}" class="btn btn-orange">
+                   {{ Lang::get('etiquette.gerer_les_etiquettes', [], 'eus') }}
                     @if (Lang::getLocale() == 'fr')
-                        <span class="fw-light ms-2">{{ Lang::get('etiquette.nouvelle') }}</span>
+                        <span class="fw-light ms-2">{{ Lang::get('etiquette.gerer_les_etiquettes') }}</span>
                     @endif
                 </a>
             </div>

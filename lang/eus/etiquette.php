@@ -29,5 +29,6 @@ return [
     'etiquette_non_associee' => 'Etiketa hau ez dago rolik lotuta.',
     'etiquette_associee' => 'Etiketa hau rol hauekin lotuta dago:',
     'all_roles' => 'Denak rolak',
+    'gerer_les_etiquettes' => 'Kudeatu etiketak',
 
 ];

@@ -81,7 +81,7 @@ class ActualiteController extends Controller
      * Enregistre une actualité.
      * Utilise StoreActualiteRequest pour la validation et la conversion de date.
      */
-    public function store(Request|StoreActualiteRequest $request)
+    public function store(Request $request)
     {
         // Support both StoreActualiteRequest and plain Request in tests
         if (method_exists($request, 'validated')) {
@@ -132,7 +132,7 @@ class ActualiteController extends Controller
      * Met à jour l'actualité.
      * On réutilise StoreActualiteRequest car les règles sont identiques.
      */
-    public function update(Request|StoreActualiteRequest $request, $id)
+    public function update(Request $request, $id)
     {
         try {
             $actualite = Actualite::findOrFail($id);
