@@ -19,18 +19,23 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::middleware('can:access-demande')->group(function () {
-        Route::get('/demande', [DemandeController::class, 'index'])->name('demandes.index');
-        Route::get('/demande/create', [DemandeController::class, 'create'])->name('demandes.create');
-        Route::get('/demande/{demande}', [DemandeController::class, 'show'])->name('demandes.show');
-        Route::get('/demande/{demande}/edit', [DemandeController::class, 'edit'])->name('demandes.edit');
-        Route::put('/demande/{demande}', [DemandeController::class, 'update'])->name('demandes.update');
-        Route::post('/demande', [DemandeController::class, 'store'])->name('demandes.store');
-        Route::patch('/demande/{demande}/valider', [DemandeController::class, 'validateDemande'])->name('demandes.validate');
-        Route::delete('/demande/{demande}', [DemandeController::class, 'destroy'])->name('demandes.destroy');
-        Route::get('/demande/{demande}/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('demandes.historique.create');
-        Route::post('/demande/{demande}/historique', [DemandeController::class, 'storeHistorique'])->name('demandes.historique.store');
-    });
+    Route::middleware('can:access-demande')
+        ->prefix('demande')
+        ->name('demandes.')
+        ->group(function () {
+            Route::get('/', [DemandeController::class, 'index'])->name('index');
+            Route::get('/create', [DemandeController::class, 'create'])->name('create');
+            Route::post('/', [DemandeController::class, 'store'])->name('store');
+
+            Route::get('/{demande}', [DemandeController::class, 'show'])->name('show');
+            Route::get('/{demande}/edit', [DemandeController::class, 'edit'])->name('edit');
+            Route::put('/{demande}', [DemandeController::class, 'update'])->name('update');
+            Route::patch('/{demande}/valider', [DemandeController::class, 'validateDemande'])->name('validate');
+            Route::delete('/{demande}', [DemandeController::class, 'destroy'])->name('destroy');
+
+            Route::get('/{demande}/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
+            Route::post('/{demande}/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
+        });
 
     Route::middleware(['role:CA'])->group(function () {
         Route::prefix('admin')->name('admin.')->group(function () {

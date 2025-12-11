@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * Class Tache
  *
- * Représente une tâche / action à réaliser (peut être liée à un événement).  
+ * Représente une tâche / action à réaliser (peut être liée à un événement).
  *
  * @package App\Models
  *
@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property Carbon|null $dateF Date de fin (optionnelle).
  * @property float|null $montantP Montant prévu (optionnel).
  * @property float|null $montantR Montant réel (optionnel).
- * @property int|null $idEvenement Référence à un événement (optionnelle).    
+ * @property int|null $idEvenement Référence à un événement (optionnelle).
  */
 class Tache extends Model
 {

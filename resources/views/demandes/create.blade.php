@@ -33,12 +33,12 @@
             @endif
             <div class="demande-field-row">
                 <div class="demande-field-col flex-grow-1">
-                    <label class="form-label">{{ __('demandes.form.labels.title.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.title.fr') }}</small></label>
-                    <input type="text" name="titre" class="form-control" value="{{ old('titre', $demande->titre ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>
+                    <label for="demande-title" class="form-label">{{ __('demandes.form.labels.title.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.title.fr') }}</small></label>
+                    <input id="demande-title" type="text" name="titre" class="form-control" value="{{ old('titre', $demande->titre ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>
                 </div>
                 <div class="demande-field-col demande-field-sm">
-                    <label class="form-label">{{ __('demandes.form.labels.urgency.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.urgency.fr') }}</small></label>
-                    <select name="urgence" class="form-select" required>
+                    <label for="demande-urgency" class="form-label">{{ __('demandes.form.labels.urgency.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.urgency.fr') }}</small></label>
+                    <select id="demande-urgency" name="urgence" class="form-select" required>
                         @foreach ($urgences as $urgence)
                             <option value="{{ $urgence }}" @selected(old('urgence', $demande->urgence ?? '') === $urgence)>{{ $urgence }}</option>
                         @endforeach
@@ -48,15 +48,15 @@
 
             <div class="demande-field-row">
                 <div class="demande-field-col w-100">
-                    <label class="form-label">{{ __('demandes.form.labels.description.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.description.fr') }}</small></label>
-                    <textarea name="description" rows="4" class="form-control" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>{{ old('description', $demande->description ?? '') }}</textarea>
+                    <label for="demande-description" class="form-label">{{ __('demandes.form.labels.description.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.description.fr') }}</small></label>
+                    <textarea id="demande-description" name="description" rows="4" class="form-control" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>{{ old('description', $demande->description ?? '') }}</textarea>
                 </div>
             </div>
 
             <div class="demande-field-row">
                 <div class="demande-field-col flex-grow-1">
-                    <label class="form-label">{{ __('demandes.form.labels.type.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.type.fr') }}</small></label>
-                    <input type="text" name="type" class="form-control" list="types-list" value="{{ old('type', $demande->type ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>
+                    <label for="demande-type" class="form-label">{{ __('demandes.form.labels.type.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.type.fr') }}</small></label>
+                    <input id="demande-type" type="text" name="type" class="form-control" list="types-list" value="{{ old('type', $demande->type ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>
                     <datalist id="types-list">
                         @foreach ($types as $type)
                             <option value="{{ $type }}"></option>
@@ -64,8 +64,8 @@
                     </datalist>
                 </div>
                 <div class="demande-field-col demande-field-sm">
-                    <label class="form-label">{{ __('demandes.form.labels.planned_expense.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.planned_expense.fr') }}</small></label>
-                    <input type="number" step="0.01" min="0" name="montantP" class="form-control"
+                    <label for="demande-planned-expense" class="form-label">{{ __('demandes.form.labels.planned_expense.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.planned_expense.fr') }}</small></label>
+                    <input id="demande-planned-expense" type="number" step="0.01" min="0" name="montantP" class="form-control"
                         value="{{ old('montantP', $demande->montantP ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : '' }}>
                 </div>
             </div>
@@ -73,9 +73,9 @@
             @if(!$isEdit)
                 <div class="demande-field-row photo-row align-items-center">
                     <div class="demande-field-col flex-grow-1 d-flex align-items-center gap-4">
-                    <label class="form-label mb-0">{{ __('demandes.form.labels.photo.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.photo.fr') }}</small></label>
+                    <label for="photos-input" class="form-label mb-0">{{ __('demandes.form.labels.photo.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.photo.fr') }}</small></label>
                         <div class="d-flex flex-column">
-                            <label class="demande-upload-btn mb-0">
+                            <label for="photos-input" class="demande-upload-btn mb-0">
                             <input id="photos-input" type="file" name="photos[]" class="d-none" accept=".jpg,.jpeg,.png" multiple>
                             {{ __('demandes.form.buttons.upload.eu') }}
                             </label>

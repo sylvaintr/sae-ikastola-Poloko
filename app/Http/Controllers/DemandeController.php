@@ -6,10 +6,16 @@ use App\Models\Document;
 use App\Models\Tache;
 use App\Models\TacheHistorique;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
 class DemandeController extends Controller
 {
+    private const DEFAULT_TYPES = ['Réparation', 'Ménage', 'Maintenance'];
+    private const STATUS_TERMINE = 'Terminé';
+    private const DEFAULT_ETATS = ['En attente', 'En cours', self::STATUS_TERMINE];
+    private const DEFAULT_URGENCES = ['Faible', 'Moyenne', 'Élevée'];
+
     public function index(Request $request)
     {
         $filters = [
@@ -71,32 +77,18 @@ class DemandeController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $types = Tache::select('type')->distinct()->orderBy('type')->pluck('type')->filter();
-        if ($types->isEmpty()) {
-            $types = collect(['Réparation', 'Ménage', 'Maintenance']);
-        }
-
-        $etats = Tache::select('etat')->distinct()->orderBy('etat')->pluck('etat')->filter();
-        if ($etats->isEmpty()) {
-            $etats = collect(['En attente', 'En cours', 'Terminé']);
-        }
-
-        $urgences = Tache::select('urgence')->distinct()->orderBy('urgence')->pluck('urgence')->filter();
-        if ($urgences->isEmpty()) {
-            $urgences = collect(['Faible', 'Moyenne', 'Élevée']);
-        }
+        $types = $this->loadOrDefault('type', collect(self::DEFAULT_TYPES));
+        $etats = $this->loadOrDefault('etat', collect(self::DEFAULT_ETATS));
+        $urgences = $this->loadOrDefault('urgence', collect(self::DEFAULT_URGENCES));
 
         return view('demandes.index', compact('demandes', 'filters', 'types', 'etats', 'urgences'));
     }
 
     public function create()
     {
-        $types = Tache::select('type')->distinct()->orderBy('type')->pluck('type')->filter();
-        if ($types->isEmpty()) {
-            $types = collect(['Réparation', 'Ménage', 'Maintenance']);
-        }
+        $types = $this->loadOrDefault('type', collect(self::DEFAULT_TYPES));
 
-        $urgences = ['Faible', 'Moyenne', 'Élevée'];
+        $urgences = self::DEFAULT_URGENCES;
         return view('demandes.create', compact('types', 'urgences'));
     }
 
@@ -156,7 +148,7 @@ class DemandeController extends Controller
 
     public function edit(Tache $demande)
     {
-        if ($demande->etat === 'Terminé') {
+        if ($demande->etat === self::STATUS_TERMINE) {
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
         }
 
@@ -175,7 +167,7 @@ class DemandeController extends Controller
 
     public function update(Request $request, Tache $demande)
     {
-        if ($demande->etat === 'Terminé') {
+        if ($demande->etat === self::STATUS_TERMINE) {
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
         }
 
@@ -195,6 +187,13 @@ class DemandeController extends Controller
         $demande->update($updates);
 
         return to_route('demandes.show', $demande)->with('status', __('demandes.messages.updated'));
+    }
+
+    private function loadOrDefault(string $column, Collection $fallback): Collection
+    {
+        $values = Tache::select($column)->distinct()->orderBy($column)->pluck($column)->filter();
+
+        return $values->isEmpty() ? $fallback : $values;
     }
 
     protected function storePhotos(Tache $demande, array $files): void
@@ -248,7 +247,7 @@ class DemandeController extends Controller
 
     public function createHistorique(Tache $demande)
     {
-        if ($demande->etat === 'Terminé') {
+        if ($demande->etat === self::STATUS_TERMINE) {
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_locked'));
         }
 
@@ -257,7 +256,7 @@ class DemandeController extends Controller
 
     public function storeHistorique(Request $request, Tache $demande)
     {
-        if ($demande->etat === 'Terminé') {
+        if ($demande->etat === self::STATUS_TERMINE) {
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_locked'));
         }
 
@@ -282,7 +281,7 @@ class DemandeController extends Controller
 
     public function validateDemande(Tache $demande)
     {
-        $demande->update(['etat' => 'Terminé']);
+        $demande->update(['etat' => self::STATUS_TERMINE]);
 
         TacheHistorique::create([
             'idTache' => $demande->idTache,

@@ -51,8 +51,8 @@
                         <div class="dropdown-menu dropdown-menu-end demande-filter-panel p-3"
                             aria-labelledby="filterDropdown">
                             <div class="mb-3">
-                                <label class="form-label small text-muted">{{ __('demandes.filters.status.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.status.fr') }}</small></label>
-                                <select class="form-select" name="etat">
+                                <label for="filter-etat" class="form-label small text-muted">{{ __('demandes.filters.status.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.status.fr') }}</small></label>
+                                <select id="filter-etat" class="form-select" name="etat">
                                     <option value="all" @selected($filters['etat'] === 'all')>{{ __('demandes.filters.options.all_status') }}</option>
                                     @foreach ($etats as $etat)
                                         <option value="{{ $etat }}" @selected($filters['etat'] === $etat)>{{ $etat }}</option>
@@ -60,8 +60,8 @@
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small text-muted">{{ __('demandes.filters.type.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.type.fr') }}</small></label>
-                                <select class="form-select" name="type">
+                                <label for="filter-type" class="form-label small text-muted">{{ __('demandes.filters.type.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.type.fr') }}</small></label>
+                                <select id="filter-type" class="form-select" name="type">
                                     <option value="all" @selected($filters['type'] === 'all')>{{ __('demandes.filters.options.all_types') }}</option>
                                     @foreach ($types as $type)
                                         <option value="{{ $type }}" @selected($filters['type'] === $type)>{{ $type }}</option>
@@ -69,8 +69,8 @@
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small text-muted">{{ __('demandes.filters.urgency.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.urgency.fr') }}</small></label>
-                                <select class="form-select" name="urgence">
+                                <label for="filter-urgence" class="form-label small text-muted">{{ __('demandes.filters.urgency.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.urgency.fr') }}</small></label>
+                                <select id="filter-urgence" class="form-select" name="urgence">
                                     <option value="all" @selected($filters['urgence'] === 'all')>{{ __('demandes.filters.options.all_urgencies') }}</option>
                                     @foreach ($urgences as $urgence)
                                         <option value="{{ $urgence }}" @selected($filters['urgence'] === $urgence)>{{ $urgence }}</option>
@@ -79,12 +79,12 @@
                             </div>
                             <div class="row g-2">
                                 <div class="col-6">
-                                    <label class="form-label small text-muted">{{ __('demandes.filters.date_min.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.date_min.fr') }}</small></label>
-                                    <input type="date" class="form-control" name="date_from" value="{{ $filters['date_from'] }}">
+                                    <label for="filter-date-from" class="form-label small text-muted">{{ __('demandes.filters.date_min.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.date_min.fr') }}</small></label>
+                                    <input id="filter-date-from" type="date" class="form-control" name="date_from" value="{{ $filters['date_from'] }}">
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label small text-muted">{{ __('demandes.filters.date_max.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.date_max.fr') }}</small></label>
-                                    <input type="date" class="form-control" name="date_to" value="{{ $filters['date_to'] }}">
+                                    <label for="filter-date-to" class="form-label small text-muted">{{ __('demandes.filters.date_max.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.date_max.fr') }}</small></label>
+                                    <input id="filter-date-to" type="date" class="form-control" name="date_to" value="{{ $filters['date_to'] }}">
                                 </div>
                             </div>
                             <div class="d-flex gap-2 mt-3">

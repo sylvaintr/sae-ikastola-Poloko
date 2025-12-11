@@ -266,6 +266,7 @@ return [
             'eu' => 'Itzuli eskaeretara',
             'fr' => 'Retour aux demandes',
         ],
+        'photo_alt' => 'Illustration :name',
     ],
     'messages' => [
         'created' => 'Demande créée avec succès.',

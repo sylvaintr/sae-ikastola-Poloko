@@ -266,6 +266,7 @@ return [
             'eu' => 'Itzuli eskaeretara',
             'fr' => 'Retour aux demandes',
         ],
+        'photo_alt' => 'Irudia :name',
     ],
     'messages' => [
         'created' => 'Demande créée avec succès.',
