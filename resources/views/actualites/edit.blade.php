@@ -140,12 +140,26 @@
     </style>
 
     <div class="container py-5">
-        <h2 class="mb-4 fw-bold text-center">{{ __('actualite.modifier_actualite') }}</h2>
+        <h2 class="mb-4 fw-bold text-center">{{ Lang::get('actualite.modifier_actualite', [], 'eus') }}
+            @if (Lang::getLocale() == 'fr')
+                <p class="fw-light mb-0">{{ __('actualite.modifier_actualite') }}</p>
+            @endif
+        </h2>
 
         <form id="actuForm" action="{{ route('admin.actualites.update', $actualite->idActualite) }}" method="POST"
             enctype="multipart/form-data">
             @csrf
             @method('PUT')
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <div class="row">
                 {{-- COLONNE GAUCHE (FR/EU) --}}
@@ -176,41 +190,59 @@
                                 {{-- FR --}}
                                 <div class="tab-pane fade show active" id="fr">
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.titre') }} (FR) <span
+                                        <label for="titrefr" class="form-label">{{ __('actualite.titre') }} (FR) <span
                                                 class="text-danger">*</span></label>
-                                        <input type="text" name="titrefr" class="form-control" maxlength="30"
+                                        <input type="text" name="titrefr" id="titrefr" class="form-control @error('titrefr') is-invalid @enderror" maxlength="30"
                                             value="{{ old('titrefr', $actualite->titrefr) }}" required>
+                                        @error('titrefr')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.description') }} (FR) <span
+                                        <label for="descriptionfr" class="form-label">{{ __('actualite.description') }} (FR) <span
                                                 class="text-danger">*</span></label>
-                                        <textarea name="descriptionfr" class="form-control" maxlength="100" rows="2" required>{{ old('descriptionfr', $actualite->descriptionfr) }}</textarea>
+                                        <textarea name="descriptionfr" id="descriptionfr" class="form-control @error('descriptionfr') is-invalid @enderror" maxlength="100" rows="2" required>{{ old('descriptionfr', $actualite->descriptionfr) }}</textarea>
+                                        @error('descriptionfr')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.contenu') }} (FR) <span
+                                        <label for="contenufr" class="form-label">{{ __('actualite.contenu') }} (FR) <span
                                                 class="text-danger">*</span></label>
-                                        <textarea id="contenufr" name="contenufr" class="form-control mb-3" rows="6" required>{{ old('contenufr', $actualite->contenufr) }}</textarea>
+                                        <textarea id="contenufr" name="contenufr" class="form-control mb-3 @error('contenufr') is-invalid @enderror" rows="6" required>{{ old('contenufr', $actualite->contenufr) }}</textarea>
+                                        @error('contenufr')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                         <p> {{ __('actualite.rendu_markdown') }} :</p>
                                         <div id="renducontenufr"></div>
                                     </div>
                                 </div>
-                                {{-- EU --}}
+                                {{-- EUS --}}
                                 <div class="tab-pane fade" id="eus">
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.titre') }} (EUS) <span
+                                        <label for="titreeus" class="form-label">{{ __('actualite.titre') }} (EUS) <span
                                                 class="text-danger">*</span></label>
-                                        <input type="text" name="titreeus" class="form-control" maxlength="30"
+                                        <input type="text" name="titreeus" id="titreeus" class="form-control @error('titreeus') is-invalid @enderror" maxlength="30"
                                             value="{{ old('titreeus', $actualite->titreeus) }}" required>
+                                        @error('titreeus')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.description') }} (EUS) <span
+                                        <label for="descriptioneus" class="form-label">{{ __('actualite.description') }} (EUS) <span
                                                 class="text-danger">*</span></label>
-                                        <textarea name="descriptioneus" class="form-control" maxlength="100" rows="2" required>{{ old('descriptioneus', $actualite->descriptioneus) }}</textarea>
+                                        <textarea name="descriptioneus" id="descriptioneus" class="form-control @error('descriptioneus') is-invalid @enderror" maxlength="100" rows="2" required>{{ old('descriptioneus', $actualite->descriptioneus) }}</textarea>
+                                        @error('descriptioneus')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.contenu') }} (EUS) <span
+                                        <label for="contenueus" class="form-label">{{ __('actualite.contenu') }} (EUS) <span
                                                 class="text-danger">*</span></label>
-                                        <textarea id="contenueus" name="contenueus" class="form-control" rows="6" required>{{ old('contenueus', $actualite->contenueus) }}</textarea>
+                                        <textarea id="contenueus" name="contenueus" class="form-control @error('contenueus') is-invalid @enderror" rows="6" required>{{ old('contenueus', $actualite->contenueus) }}</textarea>
+                                        @error('contenueus')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                         <p> {{ __('actualite.rendu_markdown') }} :</p>
                                         <div id="renducontenueus"></div>
                                     </div>
@@ -228,7 +260,7 @@
 
                             <div class="mb-3">
                                 <label for="type" class="form-label fw-bold">{{ __('actualite.type') }}</label>
-                                <select id="type" name="type" class="form-select">
+                                <select id="type" name="type" class="form-select @error('type') is-invalid @enderror">
                                     <option value="public"
                                         {{ old('type', $actualite->type) == 'public' ? 'selected' : '' }}>
                                         {{ __('actualite.public') }}</option>
@@ -236,6 +268,9 @@
                                         {{ old('type', $actualite->type) == 'private' ? 'selected' : '' }}>
                                         {{ __('actualite.prive') }}</option>
                                 </select>
+                                @error('type')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             {{-- DATEPICKER --}}
@@ -243,9 +278,12 @@
                                 <label for="dateP" class="form-label fw-bold">{{ __('actualite.date_publication') }}
                                     <span class="text-danger">*</span></label>
                                 <input type="text" id="dateP" name="dateP"
-                                    class="form-control bg-white cursor-pointer"
+                                    class="form-control bg-white cursor-pointer @error('dateP') is-invalid @enderror"
                                     value="{{ old('dateP', $actualite->dateP ? $actualite->dateP->format('d/m/Y') : date('d/m/Y')) }}"
                                     readonly required placeholder="Sélectionner une date" onclick="toggleCalendar()">
+                                @error('dateP')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                                 <div id="calendar-popup" class="datepicker-dropdown">
                                     <div class="datepicker-header">
                                         <button type="button" class="datepicker-nav-btn"
@@ -266,8 +304,11 @@
                             <div class="mb-3">
                                 <label for="lien"
                                     class="form-label fw-bold">{{ __('actualite.lien_externe') }}</label>
-                                <input type="url" id="lien" name="lien" class="form-control"
+                                <input type="url" id="lien" name="lien" class="form-control @error('lien') is-invalid @enderror"
                                     value="{{ old('lien', $actualite->lien) }}" placeholder="https://...">
+                                @error('lien')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="mb-3 form-check">
@@ -278,7 +319,7 @@
 
                             {{-- ETIQUETTES --}}
                             <div class="mb-3 position-relative">
-                                <label class="form-label fw-bold">{{ __('actualite.etiquettes') }}</label>
+                                <label for="real-tag-select" class="form-label fw-bold">{{ __('actualite.etiquettes') }}</label>
                                 <select name="etiquettes[]" id="real-tag-select" multiple class="d-none">
                                     @foreach ($etiquettes as $tag)
                                         <option value="{{ $tag->idEtiquette }}"
@@ -286,18 +327,21 @@
                                             {{ $tag->nom }}</option>
                                     @endforeach
                                 </select>
-                                <div class="form-control p-2" style="min-height: 45px;">
+                                <div class="form-control p-2 @error('etiquettes') is-invalid @enderror" style="min-height: 45px;">
                                     <div id="selected-tags-container" class="d-flex flex-wrap gap-1 mb-1"></div>
                                     <input type="text" id="tag-search-input" class="border-0 w-100 p-0"
-                                        style="outline: none;" placeholder="Rechercher...">
+                                        style="outline: none;" placeholder="{{ __('actualite.tag_search_placeholder') }}">
                                 </div>
                                 <div id="tag-suggestions" class="list-group position-absolute w-100 shadow mt-1"
                                     style="display: none; z-index: 1000;"></div>
+                                @error('etiquettes')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             {{-- IMAGES --}}
                             <div class="mb-4">
-                                <label class="form-label fw-bold">{{ __('actualite.images') }}</label>
+                                <label for="images" class="form-label fw-bold">{{ __('actualite.images') }}</label>
 
                                 {{-- IMAGES EXISTANTES --}}
                                 @if ($actualite->documents->where('type', 'image')->count() > 0)
@@ -310,7 +354,9 @@
                                                     <img src="{{ asset('storage/' . $doc->chemin) }}"
                                                         class="rounded shadow-sm border clickable-image"
                                                         style="width: 70px; height: 70px; object-fit: cover;"
-                                                        onclick="openZoomImage(this.src)">
+                                                        onclick="openZoomImage(this.src)"
+                                                        onkeydown="if(event.key === 'Enter' || event.key === ' ') { openZoomImage(this.src); event.preventDefault(); }"
+                                                        role="button" tabindex="0" aria-label="Agrandir l'image" alt="Actualité">
 
                                                     {{-- Bouton suppression déclenche la Modale Bootstrap --}}
                                                     <button type="button" class="btn-delete-image"
@@ -325,6 +371,22 @@
 
                                 <input type="file" id="images" name="images[]" class="form-control mb-2"
                                     multiple accept="image/*">
+
+                                {{-- Message d'erreur serveur pour images trop lourdes ou autres erreurs de validation --}}
+                                @if ($errors->has('images') || $errors->has('images.*'))
+                                    <div class="alert alert-danger mt-2">
+                                        @foreach ($errors->get('images') as $err)
+                                            <div>{{ $err }}</div>
+                                        @endforeach
+                                        @foreach ($errors->get('images.*') as $err)
+                                            <div>{{ $err }}</div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                {{-- Message d'erreur client (taille) --}}
+                                <div id="image-error" class="alert alert-danger mt-2 d-none" role="alert"></div>
+
                                 <div id="image-preview-container" class="row g-2 bg-white p-2 rounded border"
                                     style="display:none;"></div>
                             </div>
@@ -362,7 +424,7 @@
 
                         {{-- L'IMAGE --}}
                         <img id="modalImageFull" src="" class="img-fluid rounded shadow"
-                            style="max-height: 90vh;">
+                            style="max-height: 90vh;" alt="Agrandie">
 
                         {{-- LE BOUTON : Placé APRES l'image dans le code pour le z-index naturel --}}
                         {{-- J'ai ajouté un petit fond noir semi-transparent pour qu'on voie la croix même sur une image blanche --}}
@@ -383,18 +445,17 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold text-danger">Supprimer l'image ?</h5>
+                    <h5 class="modal-title fw-bold text-danger">{{ __('actualite.supprimer_image') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Voulez-vous vraiment retirer cette image de l'article ?</p>
-                    <p class="small text-muted mb-0">Cette action est irréversible.</p>
+                    <p>{{ __('actualite.confirmer_retrait_image') }}</p>
+                    <p class="small text-muted mb-0">{{ __('actualite.action_irreversible') }}</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('actualite.annuler') }}</button>
                     {{-- Le bouton de confirmation qui soumettra le formulaire --}}
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Confirmer la
-                        suppression</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">{{ __('actualite.confirmer_suppression') }}</button>
                 </div>
             </div>
         </div>
@@ -607,31 +668,50 @@
                 }
             };
 
-            tagSearchInput.addEventListener('input', function() {
-                const query = this.value.toLowerCase();
+            function showTagSuggestions(list) {
                 tagSuggestions.innerHTML = '';
-                if (query.length === 0) {
+                if (!list || list.length === 0) {
                     tagSuggestions.style.display = 'none';
                     return;
                 }
-                const filtered = allTags.filter(t => t.name.toLowerCase().includes(query) && !t.selected);
-                if (filtered.length > 0) {
-                    tagSuggestions.style.display = 'block';
-                    filtered.forEach(tag => {
-                        const btn = document.createElement('button');
-                        btn.type = 'button';
-                        btn.className = 'list-group-item list-group-item-action';
-                        btn.innerText = tag.name;
-                        btn.onclick = () => {
-                            toggleTag(tag.id);
-                            tagSearchInput.focus();
-                        };
-                        tagSuggestions.appendChild(btn);
-                    });
-                } else {
+                tagSuggestions.style.display = 'block';
+                list.forEach(tag => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'list-group-item list-group-item-action';
+                    btn.innerText = tag.name;
+                    btn.onclick = () => {
+                        toggleTag(tag.id);
+                        tagSearchInput.focus();
+                    };
+                    tagSuggestions.appendChild(btn);
+                });
+            }
+
+            tagSearchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                if (query.length === 0) {
                     tagSuggestions.style.display = 'none';
+                    tagSuggestions.innerHTML = '';
+                    return;
+                }
+                const filtered = allTags.filter(t => t.name.toLowerCase().includes(query) && !t.selected);
+                showTagSuggestions(filtered);
+            });
+
+            tagSearchInput.addEventListener('focus', function() {
+                const available = allTags.filter(t => !t.selected);
+                showTagSuggestions(available);
+            });
+
+            tagSearchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (this.value.trim().length === 0) {
+                    const available = allTags.filter(t => !t.selected);
+                    showTagSuggestions(available);
                 }
             });
+
             document.addEventListener('click', e => {
                 if (!tagSearchInput.contains(e.target) && !tagSuggestions.contains(e.target)) tagSuggestions
                     .style.display = 'none';
@@ -643,13 +723,39 @@
 
             imageInput.addEventListener('change', function() {
                 previewContainer.innerHTML = '';
-                if (this.files.length > 0) {
-                    previewContainer.style.display = 'flex';
-                    previewContainer.style.flexWrap = 'wrap';
-                } else {
+                const maxBytes = 2048 * 1024; // 2MB en octets (correspond au max de la validation)
+                const tooLarge = [];
+
+                if (this.files.length === 0) {
                     previewContainer.style.display = 'none';
+                    document.getElementById('image-error').classList.add('d-none');
+                    validateForm();
                     return;
                 }
+
+                Array.from(this.files).forEach(file => {
+                    if (file.size > maxBytes) {
+                        tooLarge.push({ name: file.name, size: file.size });
+                    }
+                });
+
+                const imageErrorEl = document.getElementById('image-error');
+                if (tooLarge.length > 0) {
+                    // Afficher message d'erreur et désactiver le bouton de soumission
+                    const list = tooLarge.map(f => `${f.name} (${Math.round(f.size / 1024)} KB)`).join(', ');
+                    const imgTooLargeTpl = {!! json_encode(__('actualite.images_trop_lourdes', ['list' => '__LIST__', 'max' => '__MAX__'])) !!};
+                    imageErrorEl.textContent = imgTooLargeTpl.replace('__LIST__', list).replace('__MAX__', '2048');
+                    imageErrorEl.classList.remove('d-none');
+                    submitBtn.disabled = true;
+                    previewContainer.style.display = 'none';
+                    return;
+                } else {
+                    imageErrorEl.classList.add('d-none');
+                    submitBtn.disabled = false;
+                }
+
+                previewContainer.style.display = 'flex';
+                previewContainer.style.flexWrap = 'wrap';
                 Array.from(this.files).forEach(file => {
                     if (file.type.startsWith('image/')) {
                         const reader = new FileReader();
@@ -674,6 +780,7 @@
                         reader.readAsDataURL(file);
                     }
                 });
+                validateForm();
             });
 
             // --- VALIDATION ---

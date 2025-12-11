@@ -2,44 +2,53 @@ import DataTable from 'datatables.net-dt';
 import 'datatables.net-responsive-dt';
 import { dataTableLangs } from './app'
 
-
-
-
-document.addEventListener('DOMContentLoaded', function () {
-
+window.afficherDataTableEtiquettes = function(id) {
     try {
-        new DataTable('#TableEtiquettes', {
+        const table = new DataTable('#' + id, {
             processing: true,
             serverSide: true,
             autoWidth: false,
-            ajax: location.pathname + "s-data",
+            ajax: {
+                url: location.pathname + "/data",
+                data: function(d) {
+                    const nameEl = document.getElementById('filter-etiquette-name');
+                    const roleEl = document.getElementById('filter-role');
+                    if (nameEl) d.name = nameEl.value;
+                    if (roleEl) d.role = roleEl.value;
+                }
+            },
             columns: [
-                { data: 'idFacture', name: 'idFacture', className: 'all dt-left' },
-                { data: 'titre', name: 'titre' },
-                { data: 'etat', name: 'etat' },
-                { data: 'idFamille', name: 'idFamille', className: 'dt-left' },
+                { data: 'idEtiquette', name: 'idEtiquette' , className: 'dt-left'},
+                { data: 'nom', name: 'nom' },
+                { data: 'roles', name: 'roles', className: 'dt-left' },
                 {
-                    data: 'dateC',
-                    name: 'dateC',
-                    render: function (data) {
-                        const date = new Date(data);
-                        return date.toLocaleDateString();
-                    }
-                },
-                {
-                    data: 'actions', name: 'actions', orderable: false,
-                    searchable: false, className: 'all',
-                    width: '1%', // Astuce pour "coller" au contenu
+                    data: 'actions', 
+                    name: 'actions', 
+                    orderable: false,
+                    searchable: false, 
+                    className: 'all',
+                    width: '1%',
                     render: function (data, type, row) {
-                        // ... votre HTML de boutons
                         return '<div style="white-space: nowrap;">' + data + '</div>';
                     }
-
                 }
             ],
             responsive: true,
             language: dataTableLangs[currentLang] || dataTableLangs.eus
         });
-    } catch (e) { console.error("DataTable initialization error:", e); }
 
-});
+        // wire filter controls
+        const nameEl = document.getElementById('filter-etiquette-name');
+        const roleEl = document.getElementById('filter-role');
+        const resetBtn = document.getElementById('reset-etiquette-filters');
+        if (nameEl) nameEl.addEventListener('input', () => table.ajax.reload());
+        if (roleEl) roleEl.addEventListener('change', () => table.ajax.reload());
+        if (resetBtn) resetBtn.addEventListener('click', () => {
+            if (nameEl) nameEl.value = '';
+            if (roleEl) roleEl.value = '';
+            table.ajax.reload();
+        });
+    } catch (e) { 
+        console.error("DataTable initialization error:", e); 
+    }
+}

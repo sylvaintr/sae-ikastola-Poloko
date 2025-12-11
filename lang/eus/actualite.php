@@ -48,4 +48,19 @@ return [
     'mettre_a_jour' => 'Eguneratu',
     'nouvelle_actualite' => 'Berri berria',
 
+    // Argazkien errore mezuak
+    'images_trop_lourdes' => 'Fitxategi(ak) gehiegi tamainakoak: __LIST__. Onartutako tamaina maximoa: __MAX__ KB.',
+
+    'tag_search_placeholder' => 'Bilatu...',
+    'alt_main_image' => 'Irudi nagusia: __TITLE__',
+    'alt_gallery_image' => 'Galeria irudia',
+    'pas_image' => 'Irudirik ez',
+
+    'all' => 'Denak',
+    'all_types' => 'Mota guztiak',
+    'reset' => 'Berrezarri',
+    'active' => 'Aktiboa',
+    'archived' => 'Artxibatua',
+ 
+
 ];

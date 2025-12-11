@@ -65,13 +65,13 @@
         {{ __('actualite.filter') }}
     </button>
 
-    <ul class="dropdown-menu p-3" style="min-width: 250px;"> 
+    <ul class="dropdown-menu p-3" style="min-width: 250px;">
         <form action="{{ route('actualites.filter') }}" method="POST" id="filter-form">
             @csrf
             @foreach ($etiquettes as $etiquette)
                 
-                <li class="mb-2"> 
-                    <div class="form-check"> 
+                <li class="mb-2">
+                    <div class="form-check">
                         <input type="checkbox" class="form-check-input etiquette-filter"
                             name="etiquettes[]" value="{{ $etiquette->idEtiquette }}" id="etiquette-{{ $etiquette->idEtiquette }}"
                             @if(!empty($selectedEtiquettes) && in_array($etiquette->idEtiquette, (array) $selectedEtiquettes)) checked @endif>
@@ -136,11 +136,14 @@
                             @endphp
 
                             @if ($image)
-                                <img src="{{ asset('storage/' . $image->chemin) }}" alt="{{ $actualite->titre }}">
+                                @php
+                                    $altTitle = Lang::getLocale() == 'fr' ? $actualite->titrefr : $actualite->titreeus;
+                                @endphp
+                                <img src="{{ asset('storage/' . $image->chemin) }}" alt="{{ $altTitle }}">
                             @else
                                 <div class="bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center rounded-4"
                                     style="height: 250px; border-radius: 15px;">
-                                    <span class="text-muted">Pas d'image / Irudi gabe</span>
+                                    <span class="text-muted">{{  Lang::get('actualite.pas_image', [], 'eus') }}</span>
                                 </div>
                             @endif
                         </div>

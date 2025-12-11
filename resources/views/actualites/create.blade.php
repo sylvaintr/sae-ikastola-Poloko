@@ -103,10 +103,24 @@
     </style>
 
     <div class="container py-5">
-        <h2 class="mb-4 fw-bold text-center">{{ __('actualite.nouvelle_actualite') }}</h2>
+        <h2 class="mb-4 fw-bold text-center">{{ Lang::get('actualite.nouvelle_actualite', [], 'eus') }}
+            @if (Lang::getLocale() == 'fr')
+                <p class="fw-light mb-0">{{ __('actualite.nouvelle_actualite') }}</p>
+            @endif
+        </h2>
 
         <form id="actuForm" action="{{ route('admin.actualites.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             {{-- ... LE DÉBUT DE VOTRE FORMULAIRE (Code inchangé pour les onglets FR/EU) ... --}}
             <div class="row">
@@ -137,39 +151,57 @@
                             <div class="tab-content">
                                 <div class="tab-pane fade show active" id="fr">
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.titre') }} (FR) <span
+                                        <label for="titrefr" class="form-label">{{ __('actualite.titre') }} (FR) <span
                                                 class="text-danger">*</span></label>
-                                        <input type="text" name="titrefr" class="form-control" maxlength="30"
+                                        <input type="text" name="titrefr" class="form-control @error('titrefr') is-invalid @enderror" maxlength="30"
                                             required>
+                                        @error('titrefr')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.description') }} (FR) <span
+                                        <label for="descriptionfr" class="form-label">{{ __('actualite.description') }} (FR) <span
                                                 class="text-danger">*</span></label>
-                                        <textarea name="descriptionfr" class="form-control" maxlength="100" rows="2" required></textarea>
+                                        <textarea name="descriptionfr" class="form-control @error('descriptionfr') is-invalid @enderror" maxlength="100" rows="2" required></textarea>
+                                        @error('descriptionfr')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.contenu') }} (FR) <span
+                                        <label for="contenufr" class="form-label">{{ __('actualite.contenu') }} (FR) <span
                                                 class="text-danger">*</span></label>
-                                        <textarea id="contenufr" name="contenufr" class="form-control mb-3" rows="6" required></textarea>
+                                        <textarea id="contenufr" name="contenufr" class="form-control mb-3 @error('contenufr') is-invalid @enderror" rows="6" required></textarea>
+                                        @error('contenufr')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                         <div id="renducontenufr"></div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="eus">
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.titre') }} (EUS) <span
+                                        <label for="titreeus" class="form-label">{{ __('actualite.titre') }} (EUS) <span
                                                 class="text-danger">*</span></label>
-                                        <input type="text" name="titreeus" class="form-control" maxlength="30"
+                                        <input type="text" name="titreeus" class="form-control @error('titreeus') is-invalid @enderror" maxlength="30"
                                             required>
+                                        @error('titreeus')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.description') }} (EUS) <span
+                                        <label for="descriptioneus" class="form-label">{{ __('actualite.description') }} (EUS) <span
                                                 class="text-danger">*</span></label>
-                                        <textarea name="descriptioneus" class="form-control" maxlength="100" rows="2" required></textarea>
+                                        <textarea name="descriptioneus" class="form-control @error('descriptioneus') is-invalid @enderror" maxlength="100" rows="2" required></textarea>
+                                        @error('descriptioneus')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('actualite.contenu') }} (EUS) <span
+                                        <label for="contenueus" class="form-label">{{ __('actualite.contenu') }} (EUS) <span
                                                 class="text-danger">*</span></label>
-                                        <textarea id="contenueus" name="contenueus" class="form-control" rows="6" required></textarea>
+                                        <textarea id="contenueus" name="contenueus" class="form-control @error('contenueus') is-invalid @enderror" rows="6" required></textarea>
+                                        @error('contenueus')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
                                         <div id="renducontenueus"></div>
                                     </div>
                                 </div>
@@ -186,10 +218,13 @@
 
                             <div class="mb-3">
                                 <label for="type" class="form-label fw-bold">{{ __('actualite.type') }}</label>
-                                <select id="type" name="type" class="form-select">
+                                <select id="type" name="type" class="form-select @error('type') is-invalid @enderror">
                                     <option value="public">{{ __('actualite.public') }}</option>
                                     <option value="private">{{ __('actualite.prive') }}</option>
                                 </select>
+                                @error('type')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
 
 
@@ -199,8 +234,11 @@
 
 
                                 <input type="text" id="dateP" name="dateP"
-                                    class="form-control bg-white cursor-pointer" value="{{ date('d/m/Y') }}" readonly
+                                    class="form-control bg-white cursor-pointer @error('dateP') is-invalid @enderror" value="{{ date('d/m/Y') }}" readonly
                                     required placeholder="Sélectionner une date" onclick="toggleCalendar()">
+                                @error('dateP')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
 
                                 <div id="calendar-popup" class="datepicker-dropdown">
 
@@ -229,32 +267,54 @@
                             <div class="mb-3">
                                 <label for="lien"
                                     class="form-label fw-bold">{{ __('actualite.lien_externe') }}</label>
-                                <input type="url" id="lien" name="lien" class="form-control"
+                                <input type="url" id="lien" name="lien" class="form-control @error('lien') is-invalid @enderror"
                                     placeholder="https://...">
+                                @error('lien')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             {{-- ETIQUETTES (Code précédent conservé) --}}
                             <div class="mb-3 position-relative">
-                                <label class="form-label fw-bold">{{ __('actualite.etiquettes') }}</label>
+                                <label for="real-tag-select" class="form-label fw-bold">{{ __('actualite.etiquettes') }}</label>
                                 <select name="etiquettes[]" id="real-tag-select" multiple class="d-none">
                                     @foreach ($etiquettes as $tag)
                                         <option value="{{ $tag->idEtiquette }}">{{ $tag->nom }}</option>
                                     @endforeach
                                 </select>
-                                <div class="form-control p-2" style="min-height: 45px;">
+                                <div class="form-control p-2 @error('etiquettes') is-invalid @enderror" style="min-height: 45px;">
                                     <div id="selected-tags-container" class="d-flex flex-wrap gap-1 mb-1"></div>
                                     <input type="text" id="tag-search-input" class="border-0 w-100 p-0"
-                                        style="outline: none;" placeholder="Rechercher...">
+                                        style="outline: none;" placeholder="{{ __('actualite.tag_search_placeholder') }}">
                                 </div>
+                                @error('etiquettes')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                                 <div id="tag-suggestions" class="list-group position-absolute w-100 shadow mt-1"
                                     style="display: none; z-index: 1000;"></div>
                             </div>
 
                             {{-- IMAGES (Code précédent conservé) --}}
                             <div class="mb-4">
-                                <label class="form-label fw-bold">{{ __('actualite.images') }}</label>
+                                <label for="images" class="form-label fw-bold">{{ __('actualite.images') }}</label>
                                 <input type="file" id="images" name="images[]" class="form-control mb-2"
                                     multiple accept="image/*">
+
+                                {{-- Message d'erreur serveur pour images trop lourdes ou autres erreurs de validation --}}
+                                @if ($errors->has('images') || $errors->has('images.*'))
+                                    <div class="alert alert-danger mt-2">
+                                        @foreach ($errors->get('images') as $err)
+                                            <div>{{ $err }}</div>
+                                        @endforeach
+                                        @foreach ($errors->get('images.*') as $err)
+                                            <div>{{ $err }}</div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                {{-- Message d'erreur client (taille) --}}
+                                <div id="image-error" class="alert alert-danger mt-2 d-none" role="alert"></div>
+
                                 <div id="image-preview-container" class="row g-2 bg-white p-2 rounded border"
                                     style="display:none;"></div>
                             </div>
@@ -278,7 +338,7 @@
                     <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
                         data-bs-dismiss="modal"></button>
                     <img id="modalImageFull" src="" class="img-fluid rounded shadow"
-                        style="max-height: 90vh;">
+                        style="max-height: 90vh;" alt="Agrandie">
                 </div>
             </div>
         </div>
@@ -428,7 +488,7 @@
                     if (dateInput.value) {
                         const parsed = parseDateFR(dateInput.value);
                         // On met à jour la vue sur la date de l'input
-                        currentDate = new Date(parsed); 
+                        currentDate = new Date(parsed);
                         selectedDate = parsed;
                     }
                     renderCalendar();
@@ -510,21 +570,45 @@
                 if (tag) { tag.selected = !tag.selected; renderTags(); tagSearchInput.value = ''; tagSuggestions.style.display = 'none'; }
             };
 
+            function showTagSuggestions(list) {
+                tagSuggestions.innerHTML = '';
+                if (!list || list.length === 0) {
+                    tagSuggestions.style.display = 'none';
+                    return;
+                }
+                tagSuggestions.style.display = 'block';
+                list.forEach(tag => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'list-group-item list-group-item-action';
+                    btn.innerText = tag.name;
+                    btn.onclick = () => { toggleTag(tag.id); tagSearchInput.focus(); };
+                    tagSuggestions.appendChild(btn);
+                });
+            }
+
             tagSearchInput.addEventListener('input', function() {
                 const query = this.value.toLowerCase();
-                tagSuggestions.innerHTML = '';
-                if (query.length === 0) { tagSuggestions.style.display = 'none'; return; }
+                if (query.length === 0) {
+                    tagSuggestions.style.display = 'none';
+                    tagSuggestions.innerHTML = '';
+                    return;
+                }
                 const filtered = allTags.filter(t => t.name.toLowerCase().includes(query) && !t.selected);
-                if (filtered.length > 0) {
-                    tagSuggestions.style.display = 'block';
-                    filtered.forEach(tag => {
-                        const btn = document.createElement('button');
-                        btn.type = 'button'; btn.className = 'list-group-item list-group-item-action';
-                        btn.innerText = tag.name;
-                        btn.onclick = () => { toggleTag(tag.id); tagSearchInput.focus(); };
-                        tagSuggestions.appendChild(btn);
-                    });
-                } else { tagSuggestions.style.display = 'none'; }
+                showTagSuggestions(filtered);
+            });
+
+            tagSearchInput.addEventListener('focus', function() {
+                const available = allTags.filter(t => !t.selected);
+                showTagSuggestions(available);
+            });
+
+            tagSearchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (this.value.trim().length === 0) {
+                    const available = allTags.filter(t => !t.selected);
+                    showTagSuggestions(available);
+                }
             });
 
             document.addEventListener('click', e => {
@@ -542,9 +626,38 @@
 
             imageInput.addEventListener('change', function() {
                 previewContainer.innerHTML = '';
-                if (this.files.length > 0) { previewContainer.style.display = 'flex'; previewContainer.style.flexWrap = 'wrap'; } 
-                else { previewContainer.style.display = 'none'; return; }
+                const maxBytes = 2048 * 1024; // 2MB
+                const tooLarge = [];
 
+                if (this.files.length === 0) {
+                    previewContainer.style.display = 'none';
+                    document.getElementById('image-error').classList.add('d-none');
+                    validateForm();
+                    return;
+                }
+
+                Array.from(this.files).forEach(file => {
+                    if (file.size > maxBytes) {
+                        tooLarge.push({ name: file.name, size: file.size });
+                    }
+                });
+
+                const imageErrorEl = document.getElementById('image-error');
+                if (tooLarge.length > 0) {
+                    const list = tooLarge.map(f => `${f.name} (${Math.round(f.size / 1024)} KB)`).join(', ');
+                    const imgTooLargeTpl = {!! json_encode(__('actualite.images_trop_lourdes', ['list' => '__LIST__', 'max' => '__MAX__'])) !!};
+                    imageErrorEl.textContent = imgTooLargeTpl.replace('__LIST__', list).replace('__MAX__', '2048');
+                    imageErrorEl.classList.remove('d-none');
+                    submitBtn.disabled = true;
+                    previewContainer.style.display = 'none';
+                    return;
+                } else {
+                    imageErrorEl.classList.add('d-none');
+                    submitBtn.disabled = false;
+                }
+
+                previewContainer.style.display = 'flex';
+                previewContainer.style.flexWrap = 'wrap';
                 Array.from(this.files).forEach(file => {
                     if (file.type.startsWith('image/')) {
                         const reader = new FileReader();
@@ -560,6 +673,7 @@
                         reader.readAsDataURL(file);
                     }
                 });
+                validateForm();
             });
 
 

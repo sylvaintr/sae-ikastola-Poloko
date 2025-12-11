@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Etiquette;
 use App\Models\Role;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 
 class EtiquetteController extends Controller
@@ -99,5 +100,95 @@ class EtiquetteController extends Controller
     {
         $etiquette->delete();
         return redirect()->route('admin.etiquettes.index')->with('success', __('etiquette.successEtiquetteSupprimee'));
+    }
+
+    /**
+     * Fournit les données pour DataTables en mode serveur.
+     */
+    public function data(Request $request = null)
+    {
+        // accept filters from DataTable (name, role)
+        $request = $request ?? request();
+        $query = Etiquette::with('roles');
+        if ($request->filled('name')) {
+            $like = "%{$request->input('name')}%";
+            $query->where('nom', 'like', $like);
+        }
+        if ($request->filled('role')) {
+            $roleId = (int)$request->input('role');
+            if ($roleId) {
+                $query->whereHas('roles', function ($q) use ($roleId) {
+                    $this->applyRoleWhereHas($q, $roleId);
+                });
+            }
+        }
+
+        return DataTables::of($query)
+            ->addColumn('idEtiquette', function ($etiquette) {
+                return $this->columnIdEtiquette($etiquette);
+            })
+            ->addColumn('nom', function ($etiquette) {
+                return $this->columnNom($etiquette);
+            })
+            ->addColumn('roles', function ($etiquette) {
+                return $this->columnRolesText($etiquette);
+            })
+            ->addColumn('actions', function ($etiquette) {
+                return $this->columnActionsHtml($etiquette);
+            })
+            // Allow searching on the virtual 'roles' column by relation
+            ->filterColumn('roles', [$this, 'filterColumnRolesCallback'])
+            ->rawColumns(['actions'])
+            ->make(true);
+    }
+
+    /**
+     * Apply a where condition on the related roles query by idRole.
+     * Made public so we can unit test the logic used inside closures.
+     */
+    public function applyRoleWhereHas($q, int $roleId)
+    {
+        $table = $q->getModel()->getTable();
+        $q->where($table . '.idRole', $roleId);
+    }
+
+    /**
+     * Extracted logic for filtering the virtual 'roles' column by keyword.
+     */
+    public function filterRolesColumnByKeyword($query, string $keyword)
+    {
+        $like = "%{$keyword}%";
+        $query->whereHas('roles', function ($q) use ($like) {
+            $q->where('name', 'like', $like)->orWhere('display_name', 'like', $like);
+        });
+    }
+
+    /**
+     * Column extractors — separated from closures so unit tests can call them directly.
+     */
+    public function columnIdEtiquette($etiquette)
+    {
+        return $etiquette->idEtiquette;
+    }
+
+    public function columnNom($etiquette)
+    {
+        return $etiquette->nom;
+    }
+
+    public function columnRolesText($etiquette)
+    {
+        return $etiquette->roles->pluck('name')->join(', ');
+    }
+
+    public function columnActionsHtml($etiquette)
+    {
+        return view('etiquettes.template.colonne-action', compact('etiquette'));
+    }
+
+    /** Callable used by DataTables filter registration so it can be unit-tested. */
+    public function filterColumnRolesCallback($query, string $keyword)
+    {
+        $this->filterRolesColumnByKeyword($query, $keyword);
     }
 }

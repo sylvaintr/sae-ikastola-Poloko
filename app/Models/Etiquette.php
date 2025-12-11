@@ -38,7 +38,6 @@ class Etiquette extends Model
 
 	/**
 	 * Relation belongsToMany vers les actualités associées à cette étiquette via la table pivot `correspondre`.
-	 * 
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
 	public function actualites()
