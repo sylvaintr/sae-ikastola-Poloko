@@ -202,13 +202,12 @@ class DemandeController extends Controller
             return;
         }
 
-        $nextId = (Document::max('idDocument') ?? 0) + 1;
+        // Let the database auto-increment idDocument
 
         foreach ($files as $file) {
             $path = $file->store('demandes', 'public');
 
             Document::create([
-                'idDocument' => $nextId++,
                 'idTache' => $demande->idTache,
                 'nom' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
                 'chemin' => $path,
