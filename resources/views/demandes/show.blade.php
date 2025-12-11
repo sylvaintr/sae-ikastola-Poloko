@@ -106,7 +106,12 @@
                                     <td>{{ $item->responsable ?? '—' }}</td>
                                     <td>{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}</td>
                                     <td class="text-center">
-                                        <button type="button" class="btn demande-action-btn history-view-btn" data-description="{{ $item->description ?? '—' }}" data-titre="{{ $item->titre }}" data-date="{{ optional($item->date_evenement)->format('d/m/Y') ?? '—' }}" data-depense="{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}" title="{{ __('demandes.actions.view') }}">
+                                        <button type="button" class="btn demande-action-btn history-view-btn"
+                                            data-description="{{ $item->description ?? '—' }}"
+                                            data-titre="{{ $item->titre }}"
+                                            data-date="{{ optional($item->date_evenement)->format('d/m/Y') ?? '—' }}"
+                                            data-depense="{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}"
+                                            title="{{ __('demandes.actions.view') }}">
                                             <i class="bi bi-eye"></i>
                                         </button>
                                     </td>
