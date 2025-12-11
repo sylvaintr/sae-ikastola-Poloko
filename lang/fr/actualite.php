@@ -49,5 +49,13 @@ return [
     'nouvelle_actualite' => 'Nouvelle actualité',
     'rendu_markdown' => 'Voici le rendu du contenu ',
 
+    // Messages d'erreur pour les images
+    'images_trop_lourdes' => 'Fichier(s) trop volumineux : __LIST__. Taille maximale autorisée : __MAX__ KB.',
+    'tag_search_placeholder' => 'Rechercher...',
+    'alt_main_image' => 'Image principale : __TITLE__',
+    'alt_gallery_image' => 'Image de la galerie',
+
+    'pas_image' => 'Aucune image',
+
 
 ];

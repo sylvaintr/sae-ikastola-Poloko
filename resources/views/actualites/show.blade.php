@@ -113,7 +113,7 @@
                 @if ($actualite->lien)
                     <div class="mt-4 pt-3">
                         <a href="{{ $actualite->lien }}" target="_blank" class="btn btn-outline-dark">
-                            Voir le lien associé <i class="bi bi-box-arrow-up-right ms-1"></i>
+                            {{ Lang::get('actualite.lien_externe', [], 'eus') }} @if(Lang::getLocale() == 'fr') / {{ __('actualite.lien_externe') }} @endif <i class="bi bi-box-arrow-up-right ms-1"></i>
                         </a>
                     </div>
                 @endif
@@ -124,7 +124,10 @@
             <div class="col-lg-5 mb-4 mb-lg-0 order-1 order-lg-2">
                 @if ($mainImage)
                     <div class="sticky-top" style="top: 20px; z-index: 1;">
-                        <img src="{{ asset('storage/' . $mainImage->chemin) }}" class="main-image" alt="premiere">
+                        @php
+                            $mainAlt = Lang::getLocale() == 'fr' ? ($actualite->titrefr ?? $mainImage->nom) : ($actualite->titreeus ?? $mainImage->nom);
+                        @endphp
+                        <img src="{{ asset('storage/' . $mainImage->chemin) }}" class="main-image" alt="{{ $mainAlt }}">
                         <p class="text-center text-muted small mt-2 fst-italic">
                             {{ $mainImage->nom }}
                         </p>
@@ -144,7 +147,7 @@
         @if ($galleryImages->count() > 0)
             <div class="row mt-5 pt-5 border-top">
                 <div class="col-12">
-                    <h3 class="fw-bold mb-4">Galerie Photos / Argazki Galeria</h3>
+                    <h3 class="fw-bold mb-4">{{ Lang::get('actualite.images', [], 'eus') }} @if(Lang::getLocale() == 'fr') / {{ __('actualite.images') }} @endif</h3>
                 </div>
 
                 {{-- On centre le carousel et on limite sa largeur pour l'esthétique --}}
@@ -164,8 +167,11 @@
                         <div class="carousel-inner">
                             @foreach ($galleryImages as $image)
                                 <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                                    @php
+                                        $galleryAlt = Lang::getLocale() == 'fr' ? __('actualite.alt_gallery_image') : __('actualite.alt_gallery_image');
+                                    @endphp
                                     <img src="{{ asset('storage/' . $image->chemin) }}" class="d-block w-100"
-                                        alt="Galerie">
+                                        alt="{{ $galleryAlt }}">
                                 </div>
                             @endforeach
                         </div>

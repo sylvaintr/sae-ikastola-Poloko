@@ -18,11 +18,22 @@ window.afficherDataTable = function(id) {
   
 
     try {
-        new DataTable('#' + id, {
+        const table = new DataTable('#' + id, {
             processing: true,
             serverSide: true,
             autoWidth: false,
-            ajax: location.pathname + "/data",
+            ajax: {
+                url: location.pathname + "/data",
+                data: function(d) {
+                    // read filter controls if present
+                    const typeEl = document.getElementById('filter-type');
+                    const etatEl = document.getElementById('filter-etat');
+                    const etiquetteEl = document.getElementById('filter-etiquette');
+                    if (typeEl) d.type = typeEl.value;
+                    if (etatEl) d.etat = etatEl.value;
+                    if (etiquetteEl) d.etiquette = etiquetteEl.value;
+                }
+            },
             columns: [
                 { data: 'titre', name: 'titre' },
                 { data: 'etiquettes', name: 'etiquettes', className: 'dt-left' },
@@ -48,6 +59,21 @@ window.afficherDataTable = function(id) {
             ],
             responsive: true,
             language: dataTableLangs[currentLang] || dataTableLangs.eus
+        });
+
+        // Wire filter controls to reload the datatable
+        const typeEl = document.getElementById('filter-type');
+        const etatEl = document.getElementById('filter-etat');
+        const etiquetteEl = document.getElementById('filter-etiquette');
+        const resetBtn = document.getElementById('reset-filters');
+        if (typeEl) typeEl.addEventListener('change', () => table.ajax.reload());
+        if (etatEl) etatEl.addEventListener('change', () => table.ajax.reload());
+        if (etiquetteEl) etiquetteEl.addEventListener('change', () => table.ajax.reload());
+        if (resetBtn) resetBtn.addEventListener('click', () => {
+            if (typeEl) typeEl.value = '';
+            if (etatEl) etatEl.value = '';
+            if (etiquetteEl) etiquetteEl.value = '';
+            table.ajax.reload();
         });
 
 

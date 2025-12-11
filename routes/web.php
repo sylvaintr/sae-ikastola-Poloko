@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
         Route::resource('etiquettes', EtiquetteController::class)->except(['show']);
+        Route::get('/etiquettes/data', [EtiquetteController::class, 'data'])->name('etiquettes.data');
     });
 
     Route::middleware(['permission:gerer-actualites'])->name('admin.')->group(function () {
@@ -84,6 +85,13 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/actualites/{id}', [ActualiteController::class, 'show'])->name('actualites.show');
+
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['fr', 'eus'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');
 
 
 require __DIR__ . '/auth.php';

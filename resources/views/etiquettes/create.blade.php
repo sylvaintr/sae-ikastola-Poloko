@@ -1,71 +1,75 @@
 <x-app-layout>
-    <div class="container py-5">
-        <a href="{{ route('admin.etiquettes.index') }}"
-            class="admin-back-link mb-4 d-inline-flex align-items-center gap-2">
+    <div class="container py-4">
+        <a href="{{ route('admin.etiquettes.index') }}" class="admin-back-link mb-4 d-inline-flex align-items-center gap-2">
             <i class="bi bi-arrow-left"></i>
             <span>{{ __('etiquette.retour') }}</span>
         </a>
 
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h1 class="h4 fw-bold mb-4">{{ Lang::get('etiquette.nouvelle', [], 'eus') }}
+                    @if (Lang::getLocale() == 'fr')
+                        <p class="fw-light mb-0">{{ Lang::get('etiquette.nouvelle') }}</p>
+                    @endif
+                </h1>
 
-        <h2 class="mb-4 fw-bold text-center">Nouvelle étiquette</h2>
+                <form action="{{ route('admin.etiquettes.store') }}" method="POST" enctype="multipart/form-data" class="admin-form">
+                    @csrf
 
-        <form action="{{ route('admin.etiquettes.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <label for="nom" class="form-label fw-bold">Nom de l'étiquette</label>
-            <input type="text" name="nom" id="nom" class="form-control mb-3" value="{{ old('nom') }}"
-                required maxlength="50">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label for="nom" class="form-label fw-semibold">{{ __('etiquette.nom_etiquette') }}</label>
+                            <input type="text" name="nom" id="nom" class="form-control @error('nom') is-invalid @enderror" value="{{ old('nom') }}" required maxlength="50">
+                            @error('nom')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
-            <div class="col-12">
-                <div class="form-label fw-semibold mb-2">{{ __('admin.accounts_page.create.fields.roles') }}</div>
-
-                <div class="role-selector-container">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="role-search"
-                                class="form-label small">{{ __('admin.accounts_page.create.fields.roles_search') }}</label>
-                            <input type="text" id="role-search" class="form-control"
-                                placeholder="{{ __('admin.accounts_page.create.fields.roles_search_placeholder') }}">
-                            <div id="available-roles" class="role-list mt-2">
-                                @foreach ($roles as $role)
-                                    <div class="role-item" data-role-id="{{ $role->idRole }}"
-                                        data-role-name="{{ $role->name }}">
-                                        <span>{{ $role->name }}</span>
-                                        <i class="bi bi-plus-circle"></i>
+                        <div class="col-12">
+                            <div class="form-label fw-semibold mb-2">{{ __('admin.accounts_page.create.fields.roles') }}</div>
+                            <div class="role-selector-container">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="role-search" class="form-label small">{{ __('admin.accounts_page.create.fields.roles_search') }}</label>
+                                        <input type="text" id="role-search" class="form-control" placeholder="{{ __('admin.accounts_page.create.fields.roles_search_placeholder') }}">
+                                        <div id="available-roles" class="role-list mt-2">
+                                            @foreach ($roles as $role)
+                                                <div class="role-item" data-role-id="{{ $role->idRole }}" data-role-name="{{ $role->name }}">
+                                                    <span>{{ $role->name }}</span>
+                                                    <i class="bi bi-plus-circle"></i>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
-                                @endforeach
+                                    <div class="col-md-6">
+                                        <div class="form-label small mb-2">{{ __('admin.accounts_page.create.fields.roles_selected') }} </div>
+                                        <div id="selected-roles" class="role-list mt-2">
+                                            <div class="role-list-empty-message">{{ __('etiquette.aucun_roles_selectionne')}}</div>
+                                        </div>
+                                        <div id="roles-error" class="invalid-feedback d-none mt-2">{{ __('etiquette.selection_roles_optionnelle') }}</div>
+                                    </div>
+                                </div>
+                                <div id="role-inputs"></div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-label small mb-2">
-                                {{ __('admin.accounts_page.create.fields.roles_selected') }}
-                            </div>
-                            <div id="selected-roles" class="role-list mt-2">
-                                <div class="role-list-empty-message">Aucun rôle n'a été sélectionné</div>
-                            </div>
-                            <div id="roles-error" class="invalid-feedback d-none mt-2">La sélection de rôles est
-                                optionnelle.</div>
+                            @error('roles')
+                                <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
+                            @enderror
+                            @error('roles.*')
+                                <div class="invalid-feedback d-block mt-2">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
-                    <div id="role-inputs">
-                        {{-- Les inputs seront ajoutés dynamiquement par JavaScript --}}
+                    <div class="d-flex gap-3 mt-4 justify-content-end">
+                        <a href="{{ route('admin.etiquettes.index') }}" class="btn admin-cancel-btn px-4">{{ __('etiquette.annuler') }}</a>
+                        <button type="submit" class="btn fw-semibold px-4 admin-submit-btn">{{ __('etiquette.publier') }}</button>
                     </div>
-                </div>
-
-
+                </form>
             </div>
-
-
-
-
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary py-2">Publier l'Étiquette</button>
-            </div>
-
-        </form>
+        </div>
     </div>
 
-    @push('scripts')
+    
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const roleSearch = document.getElementById('role-search');
@@ -337,5 +341,5 @@
 
             });
         </script>
-    @endpush
+    
 </x-app-layout>

@@ -5,9 +5,6 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\EtiquetteController;
 use App\Models\Etiquette;
@@ -55,7 +52,7 @@ class EtiquetteControllerTest extends TestCase
         $request = Request::create('/admin/etiquettes', 'POST', $params);
 
         $controller = new EtiquetteController();
-        $resp = $controller->store($request);
+        $controller->store($request);
 
         $this->assertTrue(Etiquette::where('nom', 'Tag Test')->exists());
         $et = Etiquette::where('nom', 'Tag Test')->first();
@@ -90,7 +87,7 @@ class EtiquetteControllerTest extends TestCase
         $request = Request::create('/admin/etiquettes/'.$et->idEtiquette, 'PUT', $params);
 
         $controller = new EtiquetteController();
-        $resp = $controller->update($request, $et);
+        $controller->update($request, $et);
 
         $et->refresh();
         $this->assertEquals('NewName', $et->nom);
