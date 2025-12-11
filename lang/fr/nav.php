@@ -12,4 +12,5 @@ return [
     'connexion' => 'Connexion',
     'francais' => 'Français',
     'basque' => 'Basque',
+    'factures' => 'factures',
 ];

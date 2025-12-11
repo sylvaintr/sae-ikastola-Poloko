@@ -27,13 +27,24 @@
         </div>
         <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <div>
-                        <div class="small text-muted">{{ __('presence.classe') }}</div>
-                        <select id="classe-select" class="form-select presence-classe-select"></select>
+                <div class="d-flex flex-column flex-lg-row gap-3 justify-content-between mb-3">
+                    <div class="flex-grow-1">
+                        <div class="small text-muted">{{ __('presence.classes') }}</div>
+                        <div class="presence-class-picker">
+                            <div class="position-relative">
+                                <input id="classe-search" type="text" class="form-control presence-classe-search" placeholder="{{ __('presence.rechercher_classe') }}" autocomplete="off" />
+                                <div id="classe-suggestions" class="presence-classe-suggestions"></div>
+                            </div>
+                            <div class="presence-class-actions">
+                                <button id="select-all-classes" type="button" class="btn btn-outline-warning btn-sm presence-select-all-btn">
+                                    {{ __('presence.selectionner_toutes') }}
+                                </button>
+                            </div>
+                            <div id="selected-classes" class="presence-selected-classes"></div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="small text-muted">&nbsp;</div>
+                    <div class="flex-grow-1 flex-lg-auto">
+                        <div class="small text-muted">{{ __('presence.rechercher_eleve') }}</div>
                         <input id="search-student" type="text" class="form-control presence-search-input" placeholder="{{ __('presence.rechercher_eleve') }}" />
                     </div>
                 </div>
@@ -68,14 +79,31 @@
         const out = document.getElementById('display-date');
         const btn = document.getElementById('open-date');
         const calendarDropdown = document.getElementById('custom-calendar');
-        const classeSelect = document.getElementById('classe-select');
         const studentsList = document.getElementById('students-list');
         const searchInput = document.getElementById('search-student');
         const activiteTabs = document.querySelectorAll('.activite-tab');
+        const selectedClassesContainer = document.getElementById('selected-classes');
+        const classeSearchInput = document.getElementById('classe-search');
+        const classeSuggestions = document.getElementById('classe-suggestions');
+        const classPicker = document.querySelector('.presence-class-picker');
+        const selectAllClassesBtn = document.getElementById('select-all-classes');
+        const texts = {
+            selectClasses: @json(__('presence.selectionner_classes_hint')),
+            noSelection: @json(__('presence.selectionner_classes_hint')),
+            noResults: @json(__('presence.aucun_resultat')),
+            removeClass: @json(__('presence.retirer_classe')),
+            selectAllClasses: @json(__('presence.selectionner_toutes')),
+            allClassesSelected: @json(__('presence.toutes_selectionnees')),
+        };
         let allStudents = [];
+        let allClasses = [];
+        let selectedClasses = [];
         let currentDate = new Date(input.value);
         let calendarVisible = false;
         let currentActivite = 'cantine';
+        let lastPresentSet = new Set();
+
+        classeSearchInput.disabled = true;
 
         function formatDateToYYYYMMDD(date) {
             const year = date.getFullYear();
@@ -100,7 +128,6 @@
             today.setHours(0, 0, 0, 0);
             
             const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
             const startDate = new Date(firstDay);
             startDate.setDate(startDate.getDate() - startDate.getDay());
             
@@ -212,69 +239,199 @@
                 calendarDropdown.classList.remove('show');
                 calendarVisible = false;
             }
+            if (classPicker && !classPicker.contains(e.target)) {
+                hideSuggestions();
+            }
         });
 
-        input.addEventListener('change', render);
+        input.addEventListener('change', () => {
+            render();
+            loadStatus();
+        });
         render();
 
-        
         async function fetchJson(url) {
             const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
             return await res.json();
         }
 
         async function loadClasses() {
-            const classes = await fetchJson('{{ route('presence.classes') }}');
-            classeSelect.innerHTML = '';
-            for (const c of classes) {
-                const opt = document.createElement('option');
-                opt.value = c.idClasse;
-                opt.textContent = `${c.nom}`.trim();
-                classeSelect.appendChild(opt);
+            allClasses = await fetchJson('{{ route('presence.classes') }}');
+            if (allClasses.length) {
+                selectedClasses = [allClasses[0]];
+                classeSearchInput.disabled = false;
             }
-            if (classes.length) {
-                await loadStudents(classes[0].idClasse);
-            }
+            renderSelectedClasses();
+            await loadStudents();
         }
 
-        async function loadStudents(classeId) {
-            const students = await fetchJson('{{ route('presence.students') }}' + `?classe_id=${classeId}`);
+        function updateSelectAllClassesButton() {
+            if (!selectAllClassesBtn) return;
+            if (!allClasses.length) {
+                selectAllClassesBtn.disabled = true;
+                selectAllClassesBtn.textContent = texts.selectAllClasses;
+                return;
+            }
+            const allSelected = selectedClasses.length === allClasses.length && allClasses.length > 0;
+            selectAllClassesBtn.disabled = allSelected;
+            selectAllClassesBtn.textContent = allSelected ? texts.allClassesSelected : texts.selectAllClasses;
+        }
+
+        function renderSelectedClasses() {
+            selectedClassesContainer.innerHTML = '';
+            updateSelectAllClassesButton();
+            if (selectedClasses.length === 0) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'text-muted small';
+                placeholder.textContent = texts.selectClasses;
+                selectedClassesContainer.appendChild(placeholder);
+                return;
+            }
+
+            selectedClasses.forEach(cls => {
+                const chip = document.createElement('div');
+                chip.className = 'presence-class-chip';
+                const span = document.createElement('span');
+                span.textContent = cls.nom;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'presence-class-chip-remove';
+                btn.setAttribute('aria-label', `${texts.removeClass} ${cls.nom}`);
+                btn.innerHTML = '&times;';
+                btn.addEventListener('click', () => removeClass(cls.idClasse));
+                chip.append(span, btn);
+                selectedClassesContainer.appendChild(chip);
+            });
+        }
+
+        function hideSuggestions() {
+            classeSuggestions.classList.remove('show');
+            classeSuggestions.innerHTML = '';
+        }
+
+        function renderSuggestions(showAll = false) {
+            if (!allClasses.length) {
+                hideSuggestions();
+                return;
+            }
+            const query = normalizeText((classeSearchInput.value || '').trim());
+            const available = allClasses.filter(c => !selectedClasses.some(sel => Number(sel.idClasse) === Number(c.idClasse)));
+            let matches = available;
+            if (query) {
+                matches = available.filter(c => {
+                    const nom = normalizeText(c.nom || '');
+                    const niveau = normalizeText(c.niveau || '');
+                    return nom.includes(query) || niveau.includes(query);
+                });
+            } else if (!showAll) {
+                matches = available.slice(0, 5);
+            }
+
+            if (!matches.length) {
+                hideSuggestions();
+                return;
+            }
+
+            classeSuggestions.innerHTML = '';
+            matches.slice(0, 8).forEach(cls => {
+                const option = document.createElement('button');
+                option.type = 'button';
+                option.className = 'presence-classe-suggestion';
+                option.textContent = cls.nom;
+                option.addEventListener('click', () => addClassById(cls.idClasse));
+                classeSuggestions.appendChild(option);
+            });
+            classeSuggestions.classList.add('show');
+        }
+
+        function addClassById(id) {
+            const cls = allClasses.find(c => Number(c.idClasse) === Number(id));
+            if (!cls || selectedClasses.some(item => Number(item.idClasse) === Number(cls.idClasse))) {
+                hideSuggestions();
+                return;
+            }
+            selectedClasses = [...selectedClasses, cls];
+            classeSearchInput.value = '';
+            hideSuggestions();
+            renderSelectedClasses();
+            loadStudents();
+        }
+
+        function removeClass(id) {
+            selectedClasses = selectedClasses.filter(cls => Number(cls.idClasse) !== Number(id));
+            renderSelectedClasses();
+            loadStudents();
+        }
+
+        async function loadStudents() {
+            if (!selectedClasses.length) {
+                allStudents = [];
+                filterAndRenderStudents();
+                await loadStatus();
+                return;
+            }
+
+            const params = new URLSearchParams();
+            selectedClasses.forEach(cls => params.append('classe_ids[]', cls.idClasse));
+            const students = await fetchJson(`{{ route('presence.students') }}?${params.toString()}`);
             allStudents = students;
             filterAndRenderStudents();
+            await loadStatus();
+        }
+
+        function renderStudentsPlaceholder(message) {
+            studentsList.innerHTML = `<div class="text-muted text-center py-4">${message}</div>`;
         }
 
         function filterAndRenderStudents() {
             const query = (searchInput.value || '').trim();
             const normalizedQuery = normalizeText(query);
-            const filtered = query 
+
+            if (!selectedClasses.length) {
+                renderStudentsPlaceholder(texts.noSelection);
+                updateSelectAllState();
+                return;
+            }
+
+            const filtered = normalizedQuery
                 ? allStudents.filter(s => {
                     const prenomNorm = normalizeText(s.prenom || '');
                     const nomNorm = normalizeText(s.nom || '');
                     const fullNorm = normalizeText(`${s.prenom} ${s.nom}`);
-                    return prenomNorm.includes(normalizedQuery) || 
-                           nomNorm.includes(normalizedQuery) ||
-                           fullNorm.includes(normalizedQuery);
+                    const classeNorm = normalizeText(s.classe_nom || '');
+                    return prenomNorm.includes(normalizedQuery) ||
+                        nomNorm.includes(normalizedQuery) ||
+                        fullNorm.includes(normalizedQuery) ||
+                        classeNorm.includes(normalizedQuery);
                 })
                 : allStudents;
+
+            if (!filtered.length) {
+                renderStudentsPlaceholder(texts.noResults);
+                updateSelectAllState();
+                return;
+            }
 
             studentsList.innerHTML = '';
             for (const s of filtered) {
                 const row = document.createElement('div');
                 row.className = 'd-flex align-items-center justify-content-between py-2 border-bottom student-row';
                 row.setAttribute('data-eleve-id', s.idEnfant);
+                const initial = (s.prenom || s.nom || 'U').toString().charAt(0).toUpperCase();
+                const classeInfo = s.classe_nom ? ` <span class="text-muted small ms-2">(${s.classe_nom})</span>` : '';
                 row.innerHTML = `<div class="d-flex align-items-center">
                         <div class="avatar-circle me-3">
-                            <span class="text-dark">${(s.prenom || s.nom || 'U').toString().charAt(0).toUpperCase()}</span>
+                            <span class="text-dark">${initial}</span>
                         </div>
-                        <div>${s.prenom} ${s.nom}</div>
+                        <div>${s.prenom} ${s.nom}${classeInfo}</div>
                     </div>
-                    <div class="d-flex align-items-center justify-content-center present-col"><input class="presence-checkbox checkbox-lg" type="checkbox" data-eleve-id="${s.idEnfant}" /></div>`;
+                    <div class="d-flex align-items-center justify-content-center present-col">
+                        <input class="presence-checkbox checkbox-lg" type="checkbox" data-eleve-id="${s.idEnfant}" />
+                    </div>`;
                 studentsList.appendChild(row);
             }
-            updateSelectAllState();
             attachCheckboxListeners();
-            // Recharger le statut après filtrage pour maintenir les cases cochées
-            loadStatus();
+            applyStatusToCheckboxes();
         }
 
         function normalizeText(text) {
@@ -284,11 +441,17 @@
         }
 
         searchInput.addEventListener('input', filterAndRenderStudents);
-
-        classeSelect?.addEventListener('change', async function() {
-            const v = this.value;
-            searchInput.value = '';
-            if (v) { await loadStudents(v); }
+        classeSearchInput.addEventListener('input', () => renderSuggestions(true));
+        classeSearchInput.addEventListener('focus', () => renderSuggestions(true));
+        selectAllClassesBtn?.addEventListener('click', () => {
+            if (!allClasses.length) {
+                return;
+            }
+            selectedClasses = [...allClasses];
+            classeSearchInput.value = '';
+            hideSuggestions();
+            renderSelectedClasses();
+            loadStudents();
         });
 
         const selectAll = document.getElementById('select-all');
@@ -299,33 +462,42 @@
             selectAll.checked = boxes.every(cb => cb.checked);
         }
         function attachCheckboxListeners() { getAllCheckboxes().forEach(cb => cb.addEventListener('change', updateSelectAllState)); }
-        selectAll.addEventListener('change', function() { getAllCheckboxes().forEach(cb => cb.checked = selectAll.checked); });
+        selectAll.addEventListener('change', function() {
+            getAllCheckboxes().forEach(cb => cb.checked = selectAll.checked);
+            updateSelectAllState();
+        });
 
-        async function loadStatus() {
-            const classeId = classeSelect.value;
-            const date = input.value;
-            if (!classeId || !date) return;
-            const res = await fetch(`{{ route('presence.status') }}?classe_id=${classeId}&date=${date}&activite=${currentActivite}`, { headers: { 'Accept': 'application/json' } });
-            const data = await res.json();
-            const presentSet = new Set(data.presentIds || []);
+        function applyStatusToCheckboxes() {
             getAllCheckboxes().forEach(cb => {
                 const id = parseInt(cb.getAttribute('data-eleve-id'));
-                cb.checked = presentSet.has(id);
+                cb.checked = lastPresentSet.has(id);
             });
             updateSelectAllState();
         }
 
-        // Recharger le statut quand la date change
-        input.addEventListener('change', loadStatus);
+        async function loadStatus() {
+            const date = input.value;
+            if (!date || !selectedClasses.length) {
+                lastPresentSet = new Set();
+                applyStatusToCheckboxes();
+                return;
+            }
+            const params = new URLSearchParams();
+            selectedClasses.forEach(cls => params.append('classe_ids[]', cls.idClasse));
+            params.append('date', date);
+            params.append('activite', currentActivite);
+            const res = await fetch(`{{ route('presence.status') }}?${params.toString()}`, { headers: { 'Accept': 'application/json' } });
+            const data = await res.json();
+            lastPresentSet = new Set((data.presentIds || []).map(Number));
+            applyStatusToCheckboxes();
+        }
 
-        // Gestion des onglets d'activité
         activiteTabs.forEach(tab => {
             tab.addEventListener('click', function(e) {
                 e.preventDefault();
                 const activite = this.getAttribute('data-activite');
                 if (activite === currentActivite) return;
                 
-                // Mettre à jour l'onglet actif
                 activiteTabs.forEach(t => {
                     t.classList.remove('active', 'fw-bold', 'text-warning');
                     t.classList.add('text-secondary');
@@ -333,19 +505,13 @@
                 this.classList.add('active', 'fw-bold', 'text-warning');
                 this.classList.remove('text-secondary');
                 
-                // Changer l'activité courante
                 currentActivite = activite;
-                
-                // Recharger les données pour la nouvelle activité
                 loadStatus();
             });
         });
 
-        // Fonction pour afficher la notification de succès
         function showSuccessNotification() {
             const container = document.getElementById('notification-container');
-            
-            // Créer l'élément de notification
             const notification = document.createElement('div');
             notification.className = 'alert alert-success alert-dismissible fade show shadow';
             notification.style.minWidth = '300px';
@@ -355,32 +521,22 @@
                 <strong>Succès !</strong> Les présences ont été enregistrées avec succès.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             `;
-            
-            // Ajouter au conteneur
             container.innerHTML = '';
             container.appendChild(notification);
-            
-            // Supprimer automatiquement après 4 secondes
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.classList.remove('show');
-                    setTimeout(() => {
-                        if (notification.parentNode) {
-                            notification.remove();
-                        }
-                    }, 300);
+                    setTimeout(() => notification.remove(), 300);
                 }
             }, 4000);
         }
 
-        // Enregistrer
         const saveBtn = document.getElementById('save-presences');
         saveBtn.addEventListener('click', async function() {
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const items = getAllCheckboxes().map(cb => ({ idEnfant: parseInt(cb.getAttribute('data-eleve-id')), present: cb.checked }));
             const payload = { date: input.value, activite: currentActivite, items };
             
-            // Désactiver le bouton pendant l'envoi
             saveBtn.disabled = true;
             const originalText = saveBtn.textContent;
             saveBtn.textContent = 'Enregistrement...';
@@ -393,16 +549,13 @@
                 });
                 
                 if (res.ok) {
-                    // Afficher la notification de succès
                     showSuccessNotification();
                 } else {
-                    // En cas d'erreur, on pourrait afficher une notification d'erreur
                     console.error('Erreur lors de l\'enregistrement');
                 }
             } catch (error) {
                 console.error('Erreur:', error);
             } finally {
-                // Réactiver le bouton après un court délai
                 setTimeout(() => {
                     saveBtn.disabled = false;
                     saveBtn.textContent = originalText;
@@ -410,8 +563,8 @@
             }
         });
 
-        // init
-        loadClasses().then(loadStatus);
+        renderSelectedClasses();
+        loadClasses();
     })();
 </script>
 
