@@ -59,6 +59,8 @@ class FactureController extends Controller
             'montantparticipation' => $montants['montantparticipation'] ?? 0,
             'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
             'montanttotal' => $montants['montanttotal'] ?? 0,
+            'totalPrevisionnel' => $montants['totalPrevisionnel'] ?? 0,
+            
         ]);
     }
 
@@ -73,9 +75,6 @@ class FactureController extends Controller
         return DataTables::of($query)
             ->addColumn('titre', function ($facture) {
                 return "Facture {$facture->idFacture}";
-            })
-            ->addColumn('etat', function ($facture) {
-                return $facture->etat ? 'Vérifiée' : 'Brouillon';
             })
             ->addColumn('actions', function ($facture) {
                 return view('facture.template.colonne-action', compact('facture'));
@@ -92,6 +91,8 @@ class FactureController extends Controller
      */
     public function exportFacture(string $id, bool $returnBinary = false): Response|RedirectResponse|string
     {
+      
+
 
         $montants = $this->calculerMontantFacture($id);
         if ($montants instanceof RedirectResponse) {
@@ -100,7 +101,9 @@ class FactureController extends Controller
 
         $facture = $montants['facture'];
 
+        if($facture->etat == 'manuel'){
 
+        }
 
         $content = view('facture.template.facture-html', [
             'facture' => $montants['facture'],
@@ -110,10 +113,11 @@ class FactureController extends Controller
             'montantparticipation' => $montants['montantparticipation'] ?? 0,
             'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
             'montangarderie' => $montants['montangarderie'] ?? 0,
-            'montanttotal' => $montants['montanttotal'] ?? 0
+            'montanttotal' => $montants['montanttotal'] ?? 0,
+            'totalPrevisionnel' => $montants['totalPrevisionnel'] ?? 0,
         ])->render();
         $htmlInlined = CssInliner::fromHtml($content)->inlineCss()->render();
-        if (is_object($facture) && $facture->etat) {
+        if (is_object($facture) && $facture->etat === 'verifier') {
 
             $options = new Options();
             $options->set('isHtml5ParserEnabled', true);
@@ -136,7 +140,8 @@ class FactureController extends Controller
                 ->header('Content-Type', 'application/pdf')
                 ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.pdf"');
         } else {
-
+            
+            
             $reponce = response($htmlInlined, 200)
                 ->header('Content-Type', 'application/vnd.ms-word')
                 ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.doc"');
@@ -237,11 +242,12 @@ class FactureController extends Controller
         // calcul du montant de la garderie
         $montangarderie = 0;
         $nbfoisgarderie = 0;
+        $montangarderieprev = 0;
         /** @var Enfant $enfant */
         foreach ($enfants as $enfant) {
-            if ($facture->previsionnel) {
-                $nbfoisgarderie = $enfant->nbFoisGarderie;
-            } else {
+            
+                $montangarderieprev = $enfant->nbFoisGarderie;
+           
                 $debutMois = $facture->dateC->copy()->startOfMonth();
                 $finMois = $facture->dateC->copy()->endOfMonth();
 
@@ -253,19 +259,22 @@ class FactureController extends Controller
                         $query->where('activite', 'like', '%garderie%');
                     })
                     ->count();
-            }
+            
 
             if ($nbfoisgarderie > 0 && $nbfoisgarderie <= 8) {
+                $montangarderieprev += 10;
                 $montangarderie += 10;
             } elseif ($nbfoisgarderie > 8) {
+                $montangarderieprev += 20;
                 $montangarderie += 20;
             } else {
+                $montangarderieprev += 0;
                 $montangarderie += 0;
             }
         }
 
-        $montanttotal = $montangarderie + $montantcotisation + $montantparticipation + $montantparticipationSeaska;
-
+        $montanttotal =   ( $facture->etat !=='verifier' ? $montangarderie : $montangarderieprev )+ $montantcotisation + $montantparticipation + $montantparticipationSeaska;
+        $montanttotalprev =   $montangarderieprev + $montantcotisation + $montantparticipation + $montantparticipationSeaska;
         return [
             'facture' => $facture,
             'famille' => $famille,
@@ -275,6 +284,25 @@ class FactureController extends Controller
             'montantparticipationSeaska' => $montantparticipationSeaska,
             'montangarderie' => $montangarderie,
             'montanttotal' => $montanttotal,
+            'totalPrevisionnel' => $montanttotalprev,
         ];
+    }
+
+
+    public function updateEtat(Request $request, string $id): RedirectResponse
+    {
+        $facture = Facture::find($id ?? null);
+        if ($facture === null) {
+            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
+        }
+
+        $request->validate([
+            'facture' => 'required|file|mimes:doc,docx,odt'
+        ]);
+
+        $facture->etat = $request->input('etat');
+        $facture->save();
+
+        return redirect()->route('admin.facture.index')->with('success', 'facture.etatupdatesuccess');
     }
 }

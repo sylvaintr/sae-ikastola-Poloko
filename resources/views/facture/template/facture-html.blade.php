@@ -162,50 +162,50 @@
     <table style="width: 100%;">
         <tr>
             <th style="width: 15%; text-align: center; padding: 4pt;">2025.09.13</th>
-            <th style="width: 32%; text-align: center; padding: 4pt;">&lt;&lt;Total&gt;&gt; € - eusko</th>
+            <th style="width: 32%; text-align: center; padding: 4pt;"> {{$totalPrevisionnel}} € - eusko</th>
             <th style="width: 6%; border: none;"></th>
             <th style="width: 15%; text-align: center; padding: 4pt;">2026.03.13</th>
-            <th style="width: 32%; text-align: center; padding: 4pt;">&lt;&lt;Total&gt;&gt; € - eusko</th>
+            <th style="width: 32%; text-align: center; padding: 4pt;"> {{$totalPrevisionnel}} € - eusko</th>
         </tr>
         <tr>
             <td style="text-align: center; padding: 4pt;">2025.10.13</td>
-            <td style="text-align: center; padding: 4pt;">&lt;&lt;Total&gt;&gt; € - eusko</td>
+            <td style="text-align: center; padding: 4pt;">{{$totalPrevisionnel}} € - eusko</td>
             <td style="border: none;"></td>
             <td style="text-align: center; padding: 4pt;">2026.04.13</td>
-            <td style="text-align: center; padding: 4pt;">&lt;&lt;Total&gt;&gt; € - eusko</td>
+            <td style="text-align: center; padding: 4pt;">{{$totalPrevisionnel}} € - eusko</td>
         </tr>
         <tr>
             <td style="text-align: center; padding: 4pt;">2025.11.13</td>
-            <td style="text-align: center; padding: 4pt;">&lt;&lt;Total&gt;&gt; € - eusko</td>
+            <td style="text-align: center; padding: 4pt;">{{$totalPrevisionnel}} € - eusko</td>
             <td style="border: none;"></td>
             <td style="text-align: center; padding: 4pt;">2026.05.13</td>
-            <td style="text-align: center; padding: 4pt;">&lt;&lt;Total&gt;&gt; € - eusko</td>
+            <td style="text-align: center; padding: 4pt;">{{$totalPrevisionnel}} € - eusko</td>
         </tr>
         <tr>
             <td style="text-align: center; padding: 4pt;">2025.12.13</td>
-            <td style="text-align: center; padding: 4pt;">&lt;&lt;Total&gt;&gt; € - eusko</td>
+            <td style="text-align: center; padding: 4pt;">{{$totalPrevisionnel}} € - eusko</td>
             <td style="border: none;"></td>
             <td style="text-align: center; padding: 4pt;">2026.06.13</td>
-            <td style="text-align: center; padding: 4pt;">&lt;&lt;Total&gt;&gt; € - eusko</td>
+            <td style="text-align: center; padding: 4pt;">{{$totalPrevisionnel}} € - eusko</td>
         </tr>
         <tr>
             <td style="text-align: center; padding: 4pt;">2026.01.13</td>
-            <td style="text-align: center; padding: 4pt;">&lt;&lt;Total&gt;&gt; € - eusko</td>
+            <td style="text-align: center; padding: 4pt;">{{$totalPrevisionnel}} € - eusko</td>
             <td style="border: none;"></td>
             <td style="text-align: center; padding: 4pt;">2026.07.13</td>
-            <td style="text-align: center; padding: 4pt;">&lt;&lt;Total&gt;&gt; € - eusko</td>
+            <td style="text-align: center; padding: 4pt;">{{$totalPrevisionnel}} € - eusko</td>
         </tr>
         <tr>
             <td style="text-align: center; padding: 4pt; color: #974705;">2026.02.13</td>
             <td style="text-align: center; padding: 4pt;">
-                &lt;&lt;Total&gt;&gt; € - eusko<br>
+                {{$totalPrevisionnel}} € - eusko<br>
                 <span style="font-size: 9pt;">+/- <span style="color: #AA4512;">ERREGULARTZEA</span> – <span
                         style="color: #ED8D5C;">REGULARISATION</span></span>
             </td>
             <td style="border: none;"></td>
             <td style="text-align: center; padding: 4pt; color: #974705;">2026.08.13</td>
             <td style="text-align: center; padding: 4pt;">
-                &lt;&lt;Total&gt;&gt; € - eusko<br>
+                {{$totalPrevisionnel}} € - eusko<br>
                 <span style="font-size: 9pt;">+/- <span style="color: #AA4512;">ERREGULARTZEA</span> – <span
                         style="color: #ED8D5C;">REGULARISATION</span></span>
             </td>
