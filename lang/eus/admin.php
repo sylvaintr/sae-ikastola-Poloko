@@ -62,8 +62,16 @@ return [
             'delete' => $common['delete'],
             'confirm_delete' => $common['delete'],
             'validate' => 'Balioztatu',
+            'archive' => 'Artxibatu',
+            'confirm_archive' => 'Artxiboa berretsi',
         ],
         'back' => 'Itzuli kontuetara',
+        'status' => [
+            'validated' => 'Balioztatua',
+            'not_validated' => 'Balioztatu gabe',
+            'archived' => 'Artxibatua',
+            'archived_only_view' => 'Kontu artxibatua — kontsulta soilik.',
+        ],
         'show' => [
             'first_name_label' => $common['first_name'],
             'last_name_label' => $common['last_name'],
@@ -72,12 +80,17 @@ return [
             'status_label' => 'Egoera',
             'roles_label' => $common['roles'],
             'no_roles' => 'Ez dago esleituriko rolarik',
+            'archived_notice' => 'Kontu hau artxibatuta dago. Kontsulta bakarrik baimenduta dago.',
+            'details_title' => 'Kontuaren informazioa',
         ],
         'messages' => [
             'deleted' => 'Kontua behar bezala ezabatu da.',
             'updated' => 'Kontua arrakastaz eguneratu da.',
             'created' => 'Kontua arrakastaz gehitu da.',
             'validated' => 'Kontua arrakastaz balioztatu da.',
+            'archived' => 'Kontua artxibatu da. Kontsulta bakarrik baimenduta dago.',
+            'already_archived' => 'Kontu hau jada artxibatuta dago.',
+            'archived_readonly' => 'Kontu hau artxibatuta dago: kontsulta soilik baimenduta.',
         ],
         'edit' => [
             'title' => 'Kontua aldatu',
@@ -125,6 +138,7 @@ return [
             'no_match' => 'Pasahitzak ez datoz bat',
         ],
         'delete_confirmation' => 'Ziur zaude :name kontua ezabatu nahi duzula ?',
+        'archive_confirmation' => 'Ziur zaude :name kontua artxibatu nahi duzula ?',
     ],
     'obligatory_documents' => [
         'title' => 'Beharrezko dokumentuak',

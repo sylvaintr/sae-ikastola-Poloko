@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
                 Route::get("{$accountRoute}/modifier", 'edit')->name('edit');
                 Route::put($accountRoute, 'update')->name('update');
                 Route::patch("{$accountRoute}/valider", 'validateAccount')->name('validate');
+                Route::patch("{$accountRoute}/archiver", 'archive')->name('archive');
                 Route::delete($accountRoute, 'destroy')->name('destroy');
             });
             Route::view('/demandes', 'admin.invoices')->name('invoices');
