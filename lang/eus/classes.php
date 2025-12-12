@@ -26,4 +26,12 @@ return [
     'child_birthdate' => 'Jaiotze data',
     'child_gender'   => 'Sexua',
     'child_nni'      => 'NNI',
+    'action_view'   => 'Ikusi',
+    'action_edit'   => 'Aldatu',
+    'action_delete' => 'Ezabatu',
+    'confirm_delete' => 'Klase hau ezabatu?',
+    'created_success'   => 'Klasea ongi sortu da.',
+    'updated_success'   => 'Klasea ongi eguneratu da.',
+    'deleted_success'   => 'Klasea ongi ezabatu da.',
+    'students_badge' => '{1} :count ikasle|[2,*] :count ikasle',
 ];

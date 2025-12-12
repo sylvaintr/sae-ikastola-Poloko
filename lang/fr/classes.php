@@ -26,4 +26,13 @@ return [
     'child_birthdate' => 'Date de naissance',
     'child_gender'   => 'Sexe',
     'child_nni'      => 'NNI',
+    'action_view'   => 'Voir',
+    'action_edit'   => 'Modifier',
+    'action_delete' => 'Supprimer',
+    'confirm_delete' => 'Supprimer cette classe ?',
+    'created_success'   => 'La classe a bien été créée.',
+    'updated_success'   => 'La classe a bien été modifiée.',
+    'deleted_success'   => 'La classe a bien été supprimée.',
+    'students_badge' => '{1} :count élève|[2,*] :count élèves',
+
 ];

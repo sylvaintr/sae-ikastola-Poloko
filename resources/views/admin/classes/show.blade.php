@@ -97,8 +97,9 @@
                     </span>
 
                     <span class="badge bg-warning text-dark">
-                        {{ $classe->enfants->count() }} {{ Str::plural('élève', $classe->enfants->count()) }}
+                        {{ trans_choice('classes.students_badge', $classe->enfants->count(), ['count' => $classe->enfants->count()]) }}
                     </span>
+
                 </h2>
 
                 @if ($classe->enfants->isEmpty())

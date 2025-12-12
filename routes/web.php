@@ -40,7 +40,8 @@ Route::middleware('auth')->group(function () {
                 Route::delete($accountRoute, 'destroy')->name('destroy');
             });
             Route::view('/familles', 'admin.families')->name('families');
-            Route::prefix('classes')->name('classes.')->controller(ClasseController::class)->group(function () use ($accountRoute) {
+
+            Route::prefix('classes')->name('classes.')->controller(ClasseController::class)->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('/data', 'data')->name('data');
                 Route::get('/ajouter', 'create')->name('create');
@@ -51,7 +52,6 @@ Route::middleware('auth')->group(function () {
                 Route::get('/{classe}', 'show')->name('show');
             });
 
-            // Route::view('/classes', 'admin.classes')->name('classes');
             Route::view('/notifications', 'admin.notifications')->name('notifications');
             Route::prefix('documents-obligatoires')->name('obligatory_documents.')->controller(\App\Http\Controllers\Admin\ObligatoryDocumentController::class)->group(function () {
                 Route::get('/', 'index')->name('index');

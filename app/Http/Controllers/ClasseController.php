@@ -6,6 +6,8 @@ use App\Models\Classe;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\Enfant;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class ClasseController extends Controller
 {
@@ -20,35 +22,15 @@ class ClasseController extends Controller
 
         return DataTables::of($query)
             ->addColumn('actions', function ($classe) {
-                $showUrl   = route('admin.classes.show', $classe);
-                $editUrl   = route('admin.classes.edit', $classe);
-                $deleteUrl = route('admin.classes.destroy', $classe);
-
-                return '
-        <a href="' . $showUrl . '" class="text-decoration-none text-black me-2" title="Voir">
-            <i class="bi bi-eye-fill"></i>
-        </a>
-
-        <a href="' . $editUrl . '" class="text-decoration-none text-black me-2" title="Modifier">
-            <i class="bi bi-pencil-fill"></i>
-        </a>
-
-        <form action="' . $deleteUrl . '" method="POST" class="d-inline"
-            onsubmit="return confirm(\'Supprimer cette classe ?\');">
-            ' . csrf_field() . method_field('DELETE') . '
-            <button type="submit" class="btn btn-link p-0 text-black" title="Supprimer">
-                <i class="bi bi-trash-fill"></i>
-            </button>
-        </form>
-    ';
+                return view('admin.classes.partials.actions', compact('classe'))->render();
             })
             ->rawColumns(['actions'])
             ->make(true);
     }
 
+
     public function show(Classe $classe)
     {
-        // On charge les élèves de la classe, triés par prénom puis nom
         $classe->load(['enfants' => function ($q) {
             $q->orderBy('prenom')->orderBy('nom');
         }]);
@@ -59,7 +41,6 @@ class ClasseController extends Controller
 
     public function create()
     {
-        // On ne récupère que les enfants qui n'ont pas de classe
         $children = Enfant::whereNull('idClasse')
             ->orderBy('prenom')
             ->orderBy('nom')
@@ -78,28 +59,29 @@ class ClasseController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nom'        => 'required|string|max:255',
-            'niveau'     => 'required|string|max:50',
-            'children'   => 'required|array',
-            'children.*' => 'exists:enfant,idEnfant,idClasse,NULL',
+            'nom'      => 'required|string|max:255',
+            'niveau'   => 'required|string|max:50',
+            'children' => 'required|array',
+            'children.*' => [
+                'required',
+                Rule::exists('enfant', 'idEnfant')
+                    ->whereNull('idClasse'),
+            ],
         ]);
 
-        // Création de la classe
         $classe = Classe::create($request->only('nom', 'niveau'));
 
-        // Associer les enfants à cette classe (maj du champ idClasse)
         Enfant::whereIn('idEnfant', $request->children)
             ->update(['idClasse' => $classe->idClasse]);
 
         return redirect()
             ->route('admin.classes.index')
-            ->with('success', 'La classe a bien été créée.');
+            ->with('success', __('classes.created_success'));
     }
 
 
     public function edit(Classe $classe)
     {
-        // Enfants sans classe OU déjà dans cette classe
         $children = Enfant::whereNull('idClasse')
             ->orWhere('idClasse', $classe->idClasse)
             ->orderBy('prenom')
@@ -121,15 +103,47 @@ class ClasseController extends Controller
     public function update(Request $request, Classe $classe)
     {
         $request->validate([
-            'nom'    => 'required|string|max:255',
-            'niveau' => 'required|string|max:50',
+            'nom'      => 'required|string|max:255',
+            'niveau'   => 'required|string|max:50',
+            'children' => 'required|array',
+            'children.*' => [
+                'required',
+                Rule::exists('enfant', 'idEnfant')->where(function ($query) use ($classe) {
+                    $query->whereNull('idClasse')
+                        ->orWhere('idClasse', $classe->idClasse);
+                }),
+            ],
         ]);
 
-        $classe->update($request->only('nom', 'niveau'));
+        DB::transaction(function () use ($request, $classe) {
+            // 1) MAJ des infos de la classe
+            $classe->update($request->only('nom', 'niveau'));
+
+            // 2) Liste des enfants sélectionnés dans le formulaire
+            $selectedIds = $request->input('children', []);
+
+            // 3) Liste des enfants actuellement dans cette classe
+            $currentIds = $classe->enfants()->pluck('idEnfant')->toArray();
+
+            // 4) Ceux qu'on enlève de la classe
+            $toDetach = array_diff($currentIds, $selectedIds);
+            // 5) Ceux qu'on ajoute à la classe
+            $toAttach = array_diff($selectedIds, $currentIds);
+
+            if (!empty($toDetach)) {
+                Enfant::whereIn('idEnfant', $toDetach)
+                    ->update(['idClasse' => null]);
+            }
+
+            if (!empty($toAttach)) {
+                Enfant::whereIn('idEnfant', $toAttach)
+                    ->update(['idClasse' => $classe->idClasse]);
+            }
+        });
 
         return redirect()
             ->route('admin.classes.index')
-            ->with('success', 'La classe a bien été modifiée.');
+            ->with('success', __('classes.updated_success'));
     }
 
 
@@ -141,6 +155,6 @@ class ClasseController extends Controller
 
         return redirect()
             ->route('admin.classes.index')
-            ->with('success', 'La classe a bien été supprimée.');
+            ->with('success', __('classes.deleted_success'));
     }
 }
