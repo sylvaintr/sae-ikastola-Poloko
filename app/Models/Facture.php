@@ -29,7 +29,7 @@ class Facture extends Model
 
 	protected $casts = [
 		'idFacture' => 'int',
-		'etat' => 'bool',
+		'etat' => 'string',
 		'dateC' => 'datetime',
 		'previsionnel' => 'bool',
 		'idUtilisateur' => 'int',

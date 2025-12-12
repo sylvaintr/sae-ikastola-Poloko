@@ -1,5 +1,19 @@
 <x-app-layout>
-    <div class="container py-4">
+    <style>
+        /* Cache les flèches de tri sur la ligne des filtres */
+        .filters th {
+            background-image: none !important;
+            pointer-events: none;
+            /* Empêche le tri accidentel */
+        }
+
+        /* Réactive les événements pour les inputs à l'intérieur */
+        .filters th input,
+        .filters th select {
+            pointer-events: auto;
+        }
+    </style>
+    <div class="container">
         <div>
             <h1 class="text-capitalize mb-0">{{ Lang::get('nav.factures', [], 'eus') }}</h1>
             @if (Lang::getLocale() == 'fr')
@@ -7,7 +21,26 @@
             @endif
         </div>
 
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="filtreEtat" class="form-label">
+                    {{ Lang::get('facture.etat', [], 'eus') }}
+                    @if (Lang::getLocale() == 'fr')
+                        / {{ Lang::get('facture.etat') }}
+                    @endif
+                </label>
 
+                <select id="filtreEtat" class="form-select">
+                    <option value="">-- Tous les états --</option>
+                    <option value="manuel">manuel</option>
+                    <option value="verifier">En attente</option>
+                    <option value="brouillon">brouillon</option>
+
+                </select>
+            </div>
+        </div>
+
+        
 
         <div class="table-responsive">
             <table id="TableFacture" class="table table-striped nowrap dt-left" style="width:100%">

@@ -1,7 +1,7 @@
 <a href="{{ route('admin.facture.show', $facture->idFacture) }}" class="text-decoration-none text-black"><i
         class="bi bi-eye me-3"></i></a>
 
-@if (!$facture->etat)
+@if ($facture->etat !== 'verifier')
     <i class="bi bi-pencil-fill me-3"></i>
     <a href="#" class="text-decoration-none text-black" data-bs-toggle="modal"
         data-bs-target="#modal-{{ $facture->idFacture }}">
