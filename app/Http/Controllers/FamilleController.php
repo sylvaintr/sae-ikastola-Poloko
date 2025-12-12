@@ -10,8 +10,10 @@ use App\Models\Utilisateur;
 class FamilleController extends Controller
 {
     private const FAMILLE_NOT_FOUND = 'Famille non trouvée';
+    
 
     // -------------------- Ajout d'une famille avec ses parents et enfants --------------------
+   // -------------------- Ajout d'une famille --------------------
     public function ajouter(Request $request)
     {
         $data = $request->validate([
@@ -21,33 +23,43 @@ class FamilleController extends Controller
 
         $famille = Famille::create();
 
-        // Création des enfants
-        foreach ($data['enfants'] ?? [] as $enfant) {
-            Enfant::create([
-                'nom' => $enfant['nom'],
-                'prenom' => $enfant['prenom'],
-                'dateN' => $enfant['dateN'],
-                'sexe' => $enfant['sexe'],
-                'NNI' => $enfant['NNI'],
-                'idClasse' => $enfant['idClasse'],
-                'idFamille' => $famille->idFamille,
-            ]);
+        // Gestion des enfants : Lier existant OU Créer nouveau
+        foreach ($data['enfants'] ?? [] as $enfantData) {
+            // SI on reçoit un ID (cas de votre nouvelle vue), on LIE l'existant
+            if (isset($enfantData['idEnfant'])) {
+                Enfant::where('idEnfant', $enfantData['idEnfant'])
+                      ->update(['idFamille' => $famille->idFamille]);
+            } 
+            // SINON on crée (cas classique ou création manuelle)
+            else {
+                Enfant::create([
+                    'nom' => $enfantData['nom'],
+                    'prenom' => $enfantData['prenom'],
+                    'dateN' => $enfantData['dateN'],
+                    'sexe' => $enfantData['sexe'],
+                    'NNI' => $enfantData['NNI'],
+                    'idClasse' => $enfantData['idClasse'],
+                    'idFamille' => $famille->idFamille,
+                ]);
+            }
         }
 
-        // Lier les utilisateurs avec la famille
+        // Lier les utilisateurs (Parents)
         foreach ($data['utilisateurs'] ?? [] as $userData) {
             if (isset($userData['idUtilisateur'])) {
                 $famille->utilisateurs()->attach($userData['idUtilisateur'], [
                     'parite' => $userData['parite'] ?? null,
                 ]);
-            } else {
+            } 
+            // J'ai laissé votre bloc "else" de création de user si vous en avez besoin, 
+            // mais pour votre cas actuel (sélection), c'est le "if" qui servira.
+             else {
                 $newUser = Utilisateur::create([
                     'nom' => $userData['nom'],
                     'prenom' => $userData['prenom'],
                     'mdp' => $userData['mdp'] ?? bcrypt('defaultpassword'),
                     'languePref' => $userData['languePref'] ?? 'fr',
                 ]);
-
                 $famille->utilisateurs()->attach($newUser->idUtilisateur, [
                     'parite' => $userData['parite'] ?? null,
                 ]);
@@ -74,9 +86,17 @@ class FamilleController extends Controller
     // return response()->json($famille);
     }
    
-     public function create()
+    public function create()
     {
-        return view('admin.familles.create');
+        // On récupère les utilisateurs qui n'ont pas encore de famille (optionnel, ou all())
+        // Assurez-vous que la relation 'familles' est définie dans le modèle Utilisateur
+        // Sinon utilisez Utilisateur::all();
+        $tousUtilisateurs = Utilisateur::doesntHave('familles')->get(); 
+        
+        // On récupère les enfants qui n'ont pas de famille (idFamille est NULL)
+        $tousEnfants = Enfant::whereNull('idFamille')->get();
+
+        return view('admin.familles.create', compact('tousUtilisateurs', 'tousEnfants'));
     }
 
    public function edit($id)
