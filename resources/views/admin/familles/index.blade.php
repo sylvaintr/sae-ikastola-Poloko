@@ -2,7 +2,6 @@
     <div class="container mt-4">
         <h2 class="mb-4 fw-bolder">Familles</h2>
 
-        {{-- Barre d'outils --}}
         <div class="d-flex justify-content-end align-items-center mb-4">
             <input type="text" id="searchUser" class="form-control" style="width: 250px;" placeholder="Rechercher un utilisateur">
 
@@ -11,7 +10,7 @@
             </a>
         </div>
 
-        {{-- Tableau --}}
+      
         <div class="mt-5">
             <table class="table table-borderless">
                 <thead class="table-light">
@@ -47,7 +46,7 @@
                             <td class="text-center align-middle">
                                 <div class="d-flex justify-content-center gap-3 align-items-center">
                                
-                                    {{-- 1. VOIR (Show) --}}
+                                    
                                     <a href="{{ route('admin.familles.show', $famille->idFamille) }}" title="Voir" class="text-dark">
                                         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M28 14C28 14 22.75 4.375 14 4.375C5.25 4.375 0 14 0 14C0 14 5.25 23.625 14 23.625C22.75 23.625 28 14 28 14ZM2.05275 14C2.89762 12.713 3.87094 11.5151 4.95775 10.4247C7.21 8.169 10.29 6.125 14 6.125C17.71 6.125 20.7882 8.169 23.044 10.4247C24.1308 11.5151 25.1041 12.713 25.949 14C25.8487 14.1517 25.7349 14.3197 25.6077 14.504C25.0215 15.344 24.1553 16.464 23.044 17.5753C20.7882 19.831 17.7083 21.875 14 21.875C10.2917 21.875 7.21175 19.831 4.956 17.5753C3.86919 16.4849 2.89762 15.287 2.05275 14Z" fill="black"/>
@@ -55,7 +54,7 @@
                                         </svg>
                                     </a>
 
-                                    {{-- 2. MODIFIER (Edit) --}}
+                                    
                                     <a href="{{ route('admin.familles.edit', $famille->idFamille) }}" title="Modifier" class="text-dark">
                                         <svg width="27" height="27" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M12.8251 20.4313L21.1455 12.1109C20.0131 11.6397 18.6718 10.8655 17.4034 9.597C16.1347 8.32834 15.3604 6.98689 14.8891 5.85437L6.56867 14.1749C5.9194 14.8242 5.5947 15.1489 5.31551 15.5068C4.98614 15.9291 4.70378 16.3859 4.47338 16.8694C4.27807 17.2792 4.13289 17.7148 3.8425 18.5859L2.31126 23.1797C2.16836 23.6083 2.27992 24.0809 2.59946 24.4006C2.91899 24.7201 3.39163 24.8317 3.82032 24.6888L8.41408 23.1574C9.2852 22.8671 9.72079 22.7219 10.1306 22.5266C10.614 22.2962 11.0709 22.0139 11.4932 21.6845C11.8511 21.4052 12.1759 21.0806 12.8251 20.4313Z" fill="black"/>
@@ -63,7 +62,7 @@
                                         </svg>
                                     </a>
                                 
-                                    {{-- 3. SUPPRIMER (Delete) - Avec l'action JS pour la Modale --}}
+                                   
                                     <button type="button" title="Supprimer" class="border-0 bg-transparent text-dark"
                                             onclick="prepareDelete({{ $famille->idFamille }})">
                                         <svg width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -83,7 +82,7 @@
         </div>
     </div>
 
-    {{-- MODALE DE CONFIRMATION DE SUPPRESSION --}}
+    
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
@@ -113,7 +112,7 @@
 
     {{-- SCRIPTS JS --}}
     <script>
-        // --- 1. Gestion de la Suppression (Modale) ---
+     
         let idToDelete = null;
         let deleteModalInstance = null;
 
@@ -121,13 +120,13 @@
             deleteModalInstance = new bootstrap.Modal(document.getElementById('deleteModal'));
         });
 
-        // Appelé par l'icône corbeille
+        
         function prepareDelete(id) {
             idToDelete = id;
             deleteModalInstance.show();
         }
 
-        // Appelé par le bouton rouge dans la modale
+        
         document.getElementById('btnConfirmDelete').addEventListener('click', function() {
             if (!idToDelete) return;
 
@@ -152,7 +151,7 @@
                 const row = document.getElementById(`famille-row-${idToDelete}`);
                 if (row) row.remove();
                 
-                // Reset bouton
+                
                 btn.innerText = originalText;
                 btn.disabled = false;
                 idToDelete = null;
@@ -166,7 +165,7 @@
             });
         });
 
-        // --- 2. Gestion de la Recherche (Mise à jour pour inclure prepareDelete dans le HTML généré) ---
+       
         document.addEventListener('DOMContentLoaded', () => {
             const input = document.getElementById('searchUser');
             const tbody = document.getElementById('famillesTableBody');
@@ -200,7 +199,7 @@
                         const parent2 = famille.utilisateurs[1] || {};
                         const enfantsCount = famille.enfants ? famille.enfants.length : 0;
 
-                        // IMPORTANT : On remet les icônes originales et la fonction prepareDelete() ici aussi
+                       
                         tbody.insertAdjacentHTML('beforeend', `
                             <tr id="famille-row-${famille.idFamille}">
                                 <td class="text-center align-middle">

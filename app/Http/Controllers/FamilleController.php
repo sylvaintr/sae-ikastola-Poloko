@@ -11,10 +11,9 @@ class FamilleController extends Controller
 {
     private const FAMILLE_NOT_FOUND = 'Famille non trouvée';
     
-
-    // -------------------- Ajout d'une famille avec ses parents et enfants --------------------
+  
    // -------------------- Ajout d'une famille --------------------
-    public function ajouter(Request $request)
+   public function ajouter(Request $request)
     {
         $data = $request->validate([
             'enfants' => 'array',
@@ -23,14 +22,14 @@ class FamilleController extends Controller
 
         $famille = Famille::create();
 
-        // Gestion des enfants : Lier existant OU Créer nouveau
         foreach ($data['enfants'] ?? [] as $enfantData) {
-            // SI on reçoit un ID (cas de votre nouvelle vue), on LIE l'existant
+            
+           
             if (isset($enfantData['idEnfant'])) {
                 Enfant::where('idEnfant', $enfantData['idEnfant'])
                       ->update(['idFamille' => $famille->idFamille]);
             } 
-            // SINON on crée (cas classique ou création manuelle)
+       
             else {
                 Enfant::create([
                     'nom' => $enfantData['nom'],
@@ -44,16 +43,16 @@ class FamilleController extends Controller
             }
         }
 
-        // Lier les utilisateurs (Parents)
+       
         foreach ($data['utilisateurs'] ?? [] as $userData) {
+            
             if (isset($userData['idUtilisateur'])) {
                 $famille->utilisateurs()->attach($userData['idUtilisateur'], [
                     'parite' => $userData['parite'] ?? null,
                 ]);
             } 
-            // J'ai laissé votre bloc "else" de création de user si vous en avez besoin, 
-            // mais pour votre cas actuel (sélection), c'est le "if" qui servira.
-             else {
+          
+            else {
                 $newUser = Utilisateur::create([
                     'nom' => $userData['nom'],
                     'prenom' => $userData['prenom'],
@@ -66,10 +65,8 @@ class FamilleController extends Controller
             }
         }
 
-        $famille->load(['enfants', 'utilisateurs']);
-
         return response()->json([
-            'message' => 'Famille complète créée avec succès',
+            'message' => 'Famille construite avec succès',
             'famille' => $famille,
         ], 201);
     }
@@ -88,27 +85,27 @@ class FamilleController extends Controller
    
     public function create()
     {
-        // On récupère les utilisateurs qui n'ont pas encore de famille (optionnel, ou all())
-        // Assurez-vous que la relation 'familles' est définie dans le modèle Utilisateur
-        // Sinon utilisez Utilisateur::all();
+        
         $tousUtilisateurs = Utilisateur::doesntHave('familles')->get(); 
         
-        // On récupère les enfants qui n'ont pas de famille (idFamille est NULL)
-        $tousEnfants = Enfant::whereNull('idFamille')->get();
+        
+        $tousEnfants = Enfant::whereNull('idFamille')
+                             ->orWhere('idFamille', 0)
+                             ->get();
 
         return view('admin.familles.create', compact('tousUtilisateurs', 'tousEnfants'));
     }
 
    public function edit($id)
 {
-    // On charge la famille avec les utilisateurs et les pivots (important pour la parité)
+   
     $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
     
     if (!$famille) {
         return redirect()->route('admin.familles.index');
     }
 
-    // On retourne la vue 'create' mais AVEC les données de la famille
+    
     return view('admin.familles.create', compact('famille'));
 }
 
@@ -117,9 +114,9 @@ class FamilleController extends Controller
     public function index()
     {
         $familles = Famille::with(['enfants', 'utilisateurs'])->get();
-        //dd($familles);
+     
       return view('admin.familles.index', compact('familles'));
-     // return response()->json($familles);
+     //  return response()->json($familles);
     }
 
     // -------------------- Supprimer une famille --------------------
@@ -143,52 +140,7 @@ class FamilleController extends Controller
         return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
     }
 
-    // -------------------- Modification d'une famille --------------------
-    public function update(Request $request, $id)
-    {
-        $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
-
-        if (!$famille) {
-            return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
-        }
-
-        // Mise à jour des enfants
-        if ($request->has('enfants')) {
-            foreach ($request->enfants as $enfantData) {
-                $enfant = $famille->enfants()->find($enfantData['idEnfant'] ?? null);
-                if ($enfant) {
-                    $enfant->update([
-                        'nom' => $enfantData['nom'] ?? $enfant->nom,
-                        'prenom' => $enfantData['prenom'] ?? $enfant->prenom,
-                        'dateN' => $enfantData['dateN'] ?? $enfant->dateN,
-                        'sexe' => $enfantData['sexe'] ?? $enfant->sexe,
-                        'idClasse' => $enfantData['idClasse'] ?? $enfant->idClasse,
-                    ]);
-                }
-            }
-        }
-
-        // Mise à jour des utilisateurs (hors pivot)
-        if ($request->has('utilisateurs')) {
-            foreach ($request->utilisateurs as $userData) {
-                $user = Utilisateur::find($userData['idUtilisateur'] ?? null);
-                if ($user) {
-                    $user->update([
-                        'nom' => $userData['nom'] ?? $user->nom,
-                        'prenom' => $userData['prenom'] ?? $user->prenom,
-                        'languePref' => $userData['languePref'] ?? $user->languePref,
-                    ]);
-                }
-            }
-        }
-
-        $famille->load(['enfants', 'utilisateurs']);
-
-        return response()->json([
-            'message' => 'Famille mise à jour (enfants + utilisateurs)',
-            'famille' => $famille,
-        ]);
-    }
+    
 
 
   public function searchByParent(Request $request)
@@ -209,5 +161,20 @@ class FamilleController extends Controller
     return response()->json($familles);
 }
 
+   public function searchUsers(Request $request)
+    {
+        $query = $request->input('q');
 
+        $users = Utilisateur::doesntHave('familles') // Toujours filtrer les non-liés
+            ->where(function($q) use ($query) {
+                if($query) {
+                    $q->where('nom', 'like', "%{$query}%")
+                      ->orWhere('prenom', 'like', "%{$query}%");
+                }
+            })
+            ->limit(20)
+            ->get();
+
+        return response()->json($users);
+    }
 }

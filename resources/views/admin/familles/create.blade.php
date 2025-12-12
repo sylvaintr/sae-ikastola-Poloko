@@ -25,17 +25,15 @@
             <h3 class="mb-3 fw-bold">Utilisateurs</h3>
             <div class="row g-4 mb-4">
                 
-                {{-- COLONNE GAUCHE --}}
                 <div class="col-md-6">
                     <label class="form-label small text-muted fw-bold">Rechercher un utilisateur</label>
-                    {{-- Filtrage simple via JS pour ne pas changer le design --}}
-                    <input type="text" id="role-search" class="form-control mb-2" placeholder="Tapez pour rechercher..." onkeyup="filterList(this.value)">
+                    
+                    {{-- 1. INPUT MODIFIÉ POUR AJAX --}}
+                    <input type="text" id="role-search" class="form-control mb-2" placeholder="Tapez pour rechercher un parent..." onkeyup="searchUsersAJAX(this.value)">
                     
                     <div id="available-roles" class="border rounded p-3 bg-white shadow-sm" style="height: auto; max-height: 500px; overflow-y: auto;">
                         
-                        {{-- CAS 1 : MODE MODIFICATION (Affiche les membres actuels) --}}
                         @if($isEdit)
-                           
                             @foreach($famille->utilisateurs as $user)
                                 <div class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow" 
                                      style="cursor:pointer; transition: background 0.2s;"
@@ -51,8 +49,6 @@
                             @endforeach
 
                             @if($famille->enfants->isNotEmpty())
-                                
-                               
                                 @foreach($famille->enfants as $enfant)
                                     <div class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow" 
                                          style="cursor:default;">
@@ -65,29 +61,30 @@
                                 @endforeach
                             @endif
 
-                        {{-- CAS 2 : MODE CRÉATION (Affiche TOUT le monde dans le même bloc) --}}
                         @else
-                            {{-- Liste des Parents Disponibles --}}
-                            @if(isset($tousUtilisateurs))
-                                @foreach($tousUtilisateurs as $user)
-                                    <div class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow" 
-                                         style="cursor:pointer; transition: background 0.2s;"
-                                         onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}', 'Parent')"
-                                         onmouseover="this.style.backgroundColor='#f8f9fa'" 
-                                         onmouseout="this.style.backgroundColor='white'">
-                                        <span class="text-dark item-name">{{ $user->nom }} {{ $user->prenom }}</span>
-                                        <div class="d-flex align-items-center text-secondary">
-                                            <span class="me-3 small fw-bold">Parent</span>
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                           
+                            
+                        
+                            <div id="parents-list">
+                                @if(isset($tousUtilisateurs))
+                                    @foreach($tousUtilisateurs as $user)
+                                        <div class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow" 
+                                             style="cursor:pointer; transition: background 0.2s;"
+                                             onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}', 'Parent')"
+                                             onmouseover="this.style.backgroundColor='#f8f9fa'" 
+                                             onmouseout="this.style.backgroundColor='white'">
+                                            <span class="text-dark item-name">{{ $user->nom }} {{ $user->prenom }}</span>
+                                            <div class="d-flex align-items-center text-secondary">
+                                                <span class="me-3 small fw-bold">Parent</span>
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                            </div>
                                         </div>
-                                    </div>
-                                @endforeach
-                            @endif
+                                    @endforeach
+                                @endif
+                            </div>
 
-                            {{-- Liste des Enfants Disponibles (Juste en dessous, sans grand titre) --}}
                             @if(isset($tousEnfants))
                                 @foreach($tousEnfants as $enfant)
-                                    {{-- Note: J'utilise une couleur de bordure différente (Bleu) pour distinguer visuellement --}}
                                     <div class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow" 
                                          style="cursor:pointer; transition: background 0.2s; border-left: 4px solid #0dcaf0 !important;"
                                          onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')"
@@ -118,13 +115,10 @@
             
             <div id="role-inputs"></div>
 
-            {{-- 3. RÉPARTITION FINANCIÈRE --}}
             <div id="financial-section" style="display: none;">
-                
                 <div x-data="{ ratio: {{ $defaultRatio }} }">
-                 
                     <div class="d-flex flex-wrap align-items-center">
-                            <h5 class="mb-0 fw-bold me-5">Répartition financière</h5>
+                        <h5 class="mb-0 fw-bold me-5">Répartition financière</h5>
                         <span id="label-parent-1" class="fw-bold text-secondary text-nowrap me-3">Parent 1</span>
                         <div class="border rounded px-2 py-2 bg-white d-flex align-items-center shadow-sm" style="width: 220px;">
                             <input type="range" class="form-range" min="0" max="100" x-model="ratio" x-ref="sliderParite" style="--bs-form-range-thumb-bg: orange; accent-color: orange; margin-bottom: 0;">
@@ -132,10 +126,7 @@
                         <span id="label-parent-2" class="fw-bold text-secondary text-nowrap ms-3">Parent 2</span>
                         <div class="ms-auto d-flex gap-2">
                             <a href="{{ route('admin.familles.index')}}" class="btn px-3 py-2 fw-bold" style="background:white; border:1px solid orange; color:orange;">Utzi</a>
-                            <button type="button" class="btn px-3 py-2 fw-bold" style="background:orange; color:white; border:1px solid orange;" 
-                                    @if($isEdit) onclick="saveParityOnly({{ $idFamille }})" @else onclick="createFamily()" @endif>
-                                Gorde
-                            </button>
+                            <button type="button" class="btn px-3 py-2 fw-bold" style="background:orange; color:white; border:1px solid orange;" @if($isEdit) onclick="saveParityOnly({{ $idFamille }})" @else onclick="createFamily()" @endif>Gorde</button>
                         </div>
                     </div>
                     <div class="mt-2 d-flex w-100">
@@ -148,12 +139,12 @@
         </form>
     </div>
 
-    {{-- MODALES --}}
+    
     <div class="modal fade" id="confirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
-                <div class="modal-header border-0 pb-0 ps-4 pt-4"><h5 class="modal-title fw-bold fs-4 text-dark">Modifier la parité</h5></div>
-                <div class="modal-body ps-4 pe-4 pt-2 text-secondary">Êtes-vous sûr de vouloir modifier la répartition financière de cette famille ?</div>
+                <div class="modal-header border-0 pb-0 ps-4 pt-4"><h5 id="modalTitle" class="modal-title fw-bold fs-4 text-dark">Confirmation</h5></div>
+                <div id="modalMessage" class="modal-body ps-4 pe-4 pt-2 text-secondary">Action ?</div>
                 <div class="modal-footer border-0 pe-4 pb-4">
                     <button type="button" class="btn px-4 py-2 fw-bold" data-bs-dismiss="modal" style="background: white; border: 1px solid orange; color: orange; border-radius: 6px;">Annuler</button>
                     <button type="button" id="btnConfirmSave" class="btn px-4 py-2 fw-bold text-white" style="background: orange; border: 1px solid orange; border-radius: 6px;">Valider</button>
@@ -187,26 +178,51 @@
         const nbEnfantsInitial = {{ $countEnfants }};
         const isEditMode = {{ $isEdit ? 'true' : 'false' }};
 
-        // Fonction de filtrage simple pour la liste de gauche
-        function filterList(val) {
-            const filter = val.toLowerCase();
-            const items = document.querySelectorAll('#available-roles .role-item');
-            items.forEach(item => {
-                const text = item.innerText.toLowerCase();
-                item.style.display = text.includes(filter) ? 'flex' : 'none';
-            });
+        // --- 3. FONCTION AJAX (SANS SVG) ---
+        function searchUsersAJAX(query) {
+            const url = `/api/search/users?q=${encodeURIComponent(query)}`;
+            
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('parents-list');
+                    container.innerHTML = ''; 
+
+                    if(data.length === 0) {
+                        container.innerHTML = '<div class="text-muted small fst-italic p-2">Aucun utilisateur trouvé.</div>';
+                        return;
+                    }
+
+                    data.forEach(user => {
+                        const div = document.createElement('div');
+                        // On remet VOTRE HTML et VOS styles exacts
+                        div.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow';
+                        div.style.cssText = 'cursor:pointer; transition: background 0.2s;';
+                        
+                        div.onclick = function() { addRole(user.idUtilisateur, user.nom + ' ' + user.prenom, 'Parent'); };
+                        div.onmouseover = function() { this.style.backgroundColor='#f8f9fa'; };
+                        div.onmouseout = function() { this.style.backgroundColor='white'; };
+                        
+                        div.innerHTML = `
+                            <span class="text-dark item-name">${user.nom} ${user.prenom}</span>
+                            <div class="d-flex align-items-center text-secondary">
+                                <span class="me-3 small fw-bold">Parent</span>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                })
+                .catch(err => console.error("Erreur AJAX:", err));
         }
 
         function checkParityVisibility() {
-            // On compte UNIQUEMENT les parents (user-id)
             const parentInputs = selectedRoles.querySelectorAll('input.user-id');
             const slider = document.querySelector('[x-ref="sliderParite"]');
-            
             if (parentInputs.length > 0) {
                 financialSection.style.display = 'block';
                 const name1 = parentInputs[0].closest('.role-item').querySelector('.item-name').innerText.split(' ')[0];
                 labelP1.innerText = name1;
-
                 if (parentInputs.length === 1) {
                     labelP2.innerText = ""; labelP2.style.display = 'none';
                     slider.value = 100; slider.disabled = true; slider.style.cursor = 'not-allowed'; slider.style.opacity = '0.5'; 
@@ -221,7 +237,6 @@
             } else { financialSection.style.display = 'none'; }
         }
 
-        // --- 1. AJOUTER UN PARENT (ORANGE) ---
         function addRole(id, name, parentLabel) {
             if (isEditMode && nbEnfantsInitial === 0) { alert("Impossible de modifier la répartition : cette famille n'a aucun enfant."); return; }
             if (selectedRoles.querySelectorAll('input.user-id').length >= 2) { return; } 
@@ -244,16 +259,12 @@
             checkParityVisibility();
         }
 
-        // --- 2. AJOUTER UN ENFANT (BLEU/CYAN - NOUVEAU) ---
         function addChild(id, name) {
-            // Vérif doublon
             if (Array.from(selectedRoles.querySelectorAll('input.child-id')).some(i => i.value == id)) return;
-
             const emptyMsg = selectedRoles.querySelector('.role-list-empty-message');
             if (emptyMsg) emptyMsg.remove();
 
             const div = document.createElement('div');
-            // Style différent (Bleu) pour distinguer visuellement
             div.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-1 border rounded shadow-sm bg-white border-start border-4 border-info';
             div.style.cursor = 'pointer';
             
@@ -266,55 +277,50 @@
             div.addEventListener('click', () => { div.remove(); if (selectedRoles.children.length === 0) selectedRoles.innerHTML = '<div class="role-list-empty-message text-muted text-center mt-5">Cliquez sur les utilisateurs à gauche pour les sélectionner.</div>'; });
         }
 
-        // --- 3. CRÉATION FAMILLE (Envoi IDs Parents + Enfants) ---
         function createFamily() {
             const parentInputs = selectedRoles.querySelectorAll('input.user-id');
             const childInputs = selectedRoles.querySelectorAll('input.child-id');
-
             if (parentInputs.length === 0) { alert('Il faut au moins 1 parent.'); return; }
             if (childInputs.length === 0) { alert('Il faut au moins 1 enfant.'); return; }
-
             const slider = document.querySelector('[x-ref="sliderParite"]');
-            
-            // Parents (ID + Parité)
             const utilisateursData = [];
             parentInputs.forEach((input, index) => {
                 let p = 100;
                 if (parentInputs.length === 2) { p = (index === 0) ? slider.value : (100 - slider.value); }
                 utilisateursData.push({ idUtilisateur: input.value, parite: p });
             });
-
-            // Enfants (Juste ID pour lier l'existant)
             const enfantsData = [];
-            childInputs.forEach(input => {
-                enfantsData.push({ idEnfant: input.value });
-            });
+            childInputs.forEach(input => { enfantsData.push({ idEnfant: input.value }); });
 
             pendingData = { utilisateurs: utilisateursData, enfants: enfantsData };
             isCreateMode = true;
+            
+            document.getElementById('modalTitle').innerText = "Créer la famille";
+            document.getElementById('modalMessage').innerText = "Voulez-vous créer cette famille ?";
+            
             new bootstrap.Modal(document.getElementById('confirmationModal')).show();
         }
 
-        // --- 4. MODIFICATION PARITÉ ---
         function saveParityOnly(idFamille) {
             const inputs = selectedRoles.querySelectorAll('input.user-id');
             if (inputs.length < 1) { alert("Erreur."); return; }
             const idUtilisateur = inputs[0].value;
             const slider = document.querySelector('[x-ref="sliderParite"]');
             const pariteValue = (inputs.length === 1) ? 100 : slider.value;
-
             pendingData = { idFamille: idFamille, idUtilisateur: idUtilisateur, parite: pariteValue };
             isCreateMode = false;
+            
+            document.getElementById('modalTitle').innerText = "Modifier la parité";
+            document.getElementById('modalMessage').innerText = "Êtes-vous sûr de vouloir modifier la répartition financière de cette famille ?";
+            
             new bootstrap.Modal(document.getElementById('confirmationModal')).show();
         }
 
-        // --- ENVOI AJAX ---
         document.getElementById('btnConfirmSave').addEventListener('click', function() {
             if (!pendingData) return;
             const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
             const url = isCreateMode ? "{{ route('admin.familles.store') }}" : "{{ route('admin.lier.updateParite') }}";
             const method = isCreateMode ? 'POST' : 'PUT';
-
             fetch(url, {
                 method: method,
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), 'Accept': 'application/json' },
@@ -327,6 +333,8 @@
             }).catch(err => { console.error(err); confirmModal.hide(); alert("Erreur opération."); });
         });
 
+        function clearEmptyMsg() { if(selectedRoles.querySelector('.role-list-empty-message')) selectedRoles.querySelector('.role-list-empty-message').remove(); }
+        function checkEmpty() { if (selectedRoles.children.length === 0) selectedRoles.innerHTML = '<div class="role-list-empty-message text-muted text-center mt-5 small">Cliquez à gauche pour sélectionner.</div>'; }
         document.addEventListener('DOMContentLoaded', () => { checkParityVisibility(); });
     </script>
 </x-app-layout>

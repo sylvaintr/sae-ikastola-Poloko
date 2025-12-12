@@ -30,10 +30,11 @@ Route::get('/presence', function () {
 
 Route::get('/admin/familles', [FamilleController::class, 'index'])->name('admin.familles.index');
 Route::get('/admin/familles/create', [FamilleController::class, 'create'])->name('admin.familles.create');
+Route::post('/admin/familles', [FamilleController::class, 'ajouter'])->name('admin.familles.store');
 Route::get('/admin/familles/{id}', [FamilleController::class, 'show'])->name('admin.familles.show');
 // Route pour afficher la page create avec les données d'une famille (Mode Modif)
 Route::get('/admin/familles/{id}/edit', [FamilleController::class, 'edit'])->name('admin.familles.edit');
-Route::post('/admin/familles', [FamilleController::class, 'ajouter'])->name('admin.familles.store');
+Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
 // Route AJAX pour sauvegarder la parité via LierController
 Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 
