@@ -48,11 +48,10 @@
                     </div>
                 </div>
 
-                <!-- Colonne droite : utilisateurs sélectionnés et roles -->
+                <!-- Colonne droite : utilisateurs sélectionnés -->
                 <div class="col-md-6">
                     <label class="form-label">Utilisateurs sélectionnés</label>
                     <div id="assigned-users" class="mb-3" style="min-height:60px">
-                        <!-- chips ajoutés via JS -->
                         @if(isset($tache))
                             @foreach($tache->realisateurs as $r)
                                 <div class="badge bg-secondary me-2 mb-2 assigned-user" data-id="{{ $r->idUtilisateur }}">
@@ -63,23 +62,12 @@
                             @endforeach
                         @endif
                     </div>
-
-                    <label class="form-label">Rôles (optionnel)</label>
-                    <select name="roles[]" class="form-select" multiple>
-                        @foreach($roles ?? [] as $role)
-                            <option value="{{ $role->idRole }}"
-                                @if(isset($selectedRoles) && in_array($role->idRole, $selectedRoles)) selected @endif>
-                                {{ $role->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <div class="form-text">Choisissez un ou plusieurs rôles (facultatif).</div>
                 </div>
             </div>
 
             <div class="d-flex justify-content-end gap-3 mt-4">
-                <a href="{{ route('tache.index') }}" class="btn btn-outline-secondary">Annuler</a>
-                <button type="submit" class="btn btn-primary">{{ isset($tache) ? 'Enregistrer' : 'Ajouter' }}</button>
+                <a href="{{ route('tache.index') }}" class="admin-secondary-button">Annuler</a>
+                <button type="submit" class="admin-add-button">{{ isset($tache) ? 'Enregistrer' : 'Ajouter' }}</button>
             </div>
         </form>
     </div>

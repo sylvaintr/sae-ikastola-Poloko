@@ -975,6 +975,28 @@
     color: #6c757d;
 }
 
+.admin-secondary-button {
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0.875rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(242, 146, 1, 0.25);
+    transition: all 0.15s ease;
+    background-color: #fff;
+    border: solid 1px;
+    border-color: #f29201;
+    color: #f29201;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.admin-secondary-button:hover {
+    background-color: #f29201;
+    color: #fff;
+    border-color: #fff;
+    box-shadow: 0 4px 12px rgba(242, 146, 1, 0.35);
+}
+
 .admin-back-link {
     color: #f29201;
     font-weight: 600;
