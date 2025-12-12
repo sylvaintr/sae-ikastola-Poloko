@@ -27,8 +27,6 @@
                 
                 <div class="col-md-6">
                     <label class="form-label small text-muted fw-bold">Rechercher un utilisateur</label>
-                    
-                    {{-- 1. INPUT MODIFIÉ POUR AJAX --}}
                     <input type="text" id="role-search" class="form-control mb-2" placeholder="Tapez pour rechercher un parent..." onkeyup="searchUsersAJAX(this.value)">
                     
                     <div id="available-roles" class="border rounded p-3 bg-white shadow-sm" style="height: auto; max-height: 500px; overflow-y: auto;">
@@ -165,7 +163,7 @@
         </div>
     </div>
 
-    {{-- JAVASCRIPT --}}
+    
     <script>
         const selectedRoles = document.getElementById('selected-roles');
         const financialSection = document.getElementById('financial-section');
@@ -178,7 +176,7 @@
         const nbEnfantsInitial = {{ $countEnfants }};
         const isEditMode = {{ $isEdit ? 'true' : 'false' }};
 
-        // --- 3. FONCTION AJAX (SANS SVG) ---
+        
         function searchUsersAJAX(query) {
             const url = `/api/search/users?q=${encodeURIComponent(query)}`;
             
@@ -195,7 +193,7 @@
 
                     data.forEach(user => {
                         const div = document.createElement('div');
-                        // On remet VOTRE HTML et VOS styles exacts
+                       
                         div.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow';
                         div.style.cssText = 'cursor:pointer; transition: background 0.2s;';
                         

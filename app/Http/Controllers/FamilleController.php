@@ -10,10 +10,9 @@ use App\Models\Utilisateur;
 class FamilleController extends Controller
 {
     private const FAMILLE_NOT_FOUND = 'Famille non trouvée';
-    
-  
-   // -------------------- Ajout d'une famille --------------------
-   public function ajouter(Request $request)
+
+    // -------------------- Ajout d'une famille --------------------
+    public function ajouter(Request $request)
     {
         $data = $request->validate([
             'enfants' => 'array',
@@ -22,15 +21,12 @@ class FamilleController extends Controller
 
         $famille = Famille::create();
 
+        // Gestion des enfants
         foreach ($data['enfants'] ?? [] as $enfantData) {
-            
-           
             if (isset($enfantData['idEnfant'])) {
                 Enfant::where('idEnfant', $enfantData['idEnfant'])
                       ->update(['idFamille' => $famille->idFamille]);
-            } 
-       
-            else {
+            } else {
                 Enfant::create([
                     'nom' => $enfantData['nom'],
                     'prenom' => $enfantData['prenom'],
@@ -43,16 +39,13 @@ class FamilleController extends Controller
             }
         }
 
-       
+        // Gestion des utilisateurs
         foreach ($data['utilisateurs'] ?? [] as $userData) {
-            
             if (isset($userData['idUtilisateur'])) {
                 $famille->utilisateurs()->attach($userData['idUtilisateur'], [
                     'parite' => $userData['parite'] ?? null,
                 ]);
-            } 
-          
-            else {
+            } else {
                 $newUser = Utilisateur::create([
                     'nom' => $userData['nom'],
                     'prenom' => $userData['prenom'],
@@ -70,7 +63,7 @@ class FamilleController extends Controller
             'famille' => $famille,
         ], 201);
     }
-    
+
     // -------------------- Afficher une famille spécifique --------------------
     public function show($id)
     {
@@ -79,16 +72,14 @@ class FamilleController extends Controller
         if (!$famille) {
             return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
-      return view('admin.familles.show', compact('famille'));
-    // return response()->json($famille);
+        return view('admin.familles.show', compact('famille'));
     }
-   
+
+    // -------------------- Page de création --------------------
     public function create()
     {
-        
-        $tousUtilisateurs = Utilisateur::doesntHave('familles')->get(); 
-        
-        
+        $tousUtilisateurs = Utilisateur::doesntHave('familles')->get();
+
         $tousEnfants = Enfant::whereNull('idFamille')
                              ->orWhere('idFamille', 0)
                              ->get();
@@ -96,27 +87,23 @@ class FamilleController extends Controller
         return view('admin.familles.create', compact('tousUtilisateurs', 'tousEnfants'));
     }
 
-   public function edit($id)
-{
-   
-    $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
-    
-    if (!$famille) {
-        return redirect()->route('admin.familles.index');
+    // -------------------- Page de modification --------------------
+    public function edit($id)
+    {
+        $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
+
+        if (!$famille) {
+            return redirect()->route('admin.familles.index');
+        }
+
+        return view('admin.familles.create', compact('famille'));
     }
-
-    
-    return view('admin.familles.create', compact('famille'));
-}
-
 
     // -------------------- Afficher la liste des familles --------------------
     public function index()
     {
         $familles = Famille::with(['enfants', 'utilisateurs'])->get();
-     
-      return view('admin.familles.index', compact('familles'));
-     //  return response()->json($familles);
+        return view('admin.familles.index', compact('familles'));
     }
 
     // -------------------- Supprimer une famille --------------------
@@ -140,34 +127,33 @@ class FamilleController extends Controller
         return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
     }
 
-    
+    // -------------------- Recherche par parent (SQL) --------------------
+    public function searchByParent(Request $request)
+    {
+        $query = $request->input('q');
 
+        $familles = Famille::with(['utilisateurs', 'enfants'])
+            ->whereHas('utilisateurs', function ($q2) use ($query) {
+                $q2->where('nom', 'like', "%{$query}%")
+                   ->orWhere('prenom', 'like', "%{$query}%");
+            })
+            ->get();
 
-  public function searchByParent(Request $request)
-{
-    $query = $request->input('q');
+        if ($familles->isEmpty()) {
+            return response()->json(['message' => 'Aucune famille trouvée']);
+        }
 
-    $familles = Famille::with(['utilisateurs', 'enfants'])
-        ->whereHas('utilisateurs', function($q2) use ($query) {
-            $q2->where('nom', 'like', "%{$query}%")
-               ->orWhere('prenom', 'like', "%{$query}%");
-        })
-        ->get();
-
-    if ($familles->isEmpty()) {
-        return response()->json(['message' => 'Aucune famille trouvée']);
+        return response()->json($familles);
     }
 
-    return response()->json($familles);
-}
-
-   public function searchUsers(Request $request)
+    // -------------------- Recherche AJAX Utilisateurs (Create) --------------------
+    public function searchUsers(Request $request)
     {
         $query = $request->input('q');
 
         $users = Utilisateur::doesntHave('familles') // Toujours filtrer les non-liés
-            ->where(function($q) use ($query) {
-                if($query) {
+            ->where(function ($q) use ($query) {
+                if ($query) {
                     $q->where('nom', 'like', "%{$query}%")
                       ->orWhere('prenom', 'like', "%{$query}%");
                 }

@@ -7,9 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class LierController extends Controller
 {
-
     //---------------------------------- modification parité---------------------------------
-  public function updateParite(Request $request)
+    public function updateParite(Request $request)
     {
         // 1. Validation
         $request->validate([
@@ -32,8 +31,8 @@ class LierController extends Controller
             ->update(['parite' => $partParent1]);
 
         // 4. Mise à jour automatique du Parent 2
-        // "Met à jour celui qui est dans la même famille mais qui n'est PAS le parent 1"
-        $updated = DB::table('lier')
+        // CORRECTION SONAR : On exécute la requête directement sans créer de variable inutile ($updated)
+        DB::table('lier')
             ->where('idFamille', $idFamille)
             ->where('idUtilisateur', '!=', $idParent1)
             ->update(['parite' => $partParent2]);
@@ -43,4 +42,3 @@ class LierController extends Controller
         ]);
     }
 }
-
