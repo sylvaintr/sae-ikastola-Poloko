@@ -85,6 +85,8 @@ class Tache extends Model
 	 */
 	public function realisateurs()
 	{
-		return $this->belongsToMany(Utilisateur::class, 'realiser', 'idTache', 'idUtilisateur')->withPivot('dateM', 'description');
+		return $this->belongsToMany(Utilisateur::class, 'realiser', 'idTache', 'idUtilisateur')
+		->using(\App\Models\Realiser::class)
+		->withPivot('dateM', 'description');
 	}
 }

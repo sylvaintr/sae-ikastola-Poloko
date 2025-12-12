@@ -17,8 +17,8 @@
             </div>
         </div>
         <div class="mb-3">
-            <label class="form-label fw-bold">Rechercher par Request ID :</label><br>
-            <input type="text" id="search-id" class="admin-search-input" placeholder="Entrer un Request ID...">
+            <input type="text" id="search-id" class="admin-search-input" placeholder="Sartu eskaeraren ID bat...">
+            <p class="text-muted mb-0 admin-button-subtitle">Entrez un Request ID...</p>
         </div>
         <div class="row overflow-auto" style="width: 100%; max-height: 75vh;">
 
