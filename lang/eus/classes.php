@@ -20,4 +20,10 @@ return [
     'children_selected'            => 'Hautatutako ikasleak',
     'children_empty'               => 'Oraindik ez da ikaslerik hautatu.',
     'children_error'               => 'Gutxienez ikasle bat hautatu behar duzu.',
+    'details'        => 'Klaseko xehetasunak',
+    'students_count' => 'Ikasle kopurua',
+    'child_name'     => 'Ikaslearen izena',
+    'child_birthdate' => 'Jaiotze data',
+    'child_gender'   => 'Sexua',
+    'child_nni'      => 'NNI',
 ];

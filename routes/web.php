@@ -41,14 +41,13 @@ Route::middleware('auth')->group(function () {
             Route::view('/familles', 'admin.families')->name('families');
             Route::prefix('classes')->name('classes.')->controller(ClasseController::class)->group(function () use ($accountRoute) {
                 Route::get('/', 'index')->name('index');
+                Route::get('/data', 'data')->name('data');
                 Route::get('/ajouter', 'create')->name('create');
                 Route::post('/', 'store')->name('store');
                 Route::get('/{classe}/modifier', 'edit')->name('edit');
                 Route::put('/{classe}', 'update')->name('update');
                 Route::delete('/{classe}', 'destroy')->name('destroy');
-
-                // 🔥 route pour DataTable
-                Route::get('/data', 'data')->name('data');
+                Route::get('/{classe}', 'show')->name('show');
             });
 
             // Route::view('/classes', 'admin.classes')->name('classes');

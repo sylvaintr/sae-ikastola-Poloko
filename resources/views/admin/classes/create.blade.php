@@ -123,83 +123,90 @@
 </div>
 
                     {{-- Sélecteur d’enfants --}}
-                    <div class="mb-3 border-top pt-3">
-                        <div class="form-label fw-semibold mb-2">
-                            {{ __('classes.children', [], 'eus') }}
-                            @if (Lang::getLocale() == 'fr')
-                                <span class="d-block text-muted fw-light">
-                                    {{ __('classes.children') }}
-                                </span>
-                            @endif
+<div class="mb-3 border-top pt-3">
+    <div class="form-label fw-semibold mb-2">
+        {{ __('classes.children', [], 'eus') }}
+        @if (Lang::getLocale() == 'fr')
+            <span class="d-block text-muted fw-light">
+                {{ __('classes.children') }}
+            </span>
+        @endif
+    </div>
+
+    <div class="role-selector-container">
+        <div class="row g-3">
+            {{-- Liste des enfants disponibles --}}
+            <div class="col-md-6">
+                <label for="child-search" class="form-label small mb-1">
+                    {{ __('classes.children_search', [], 'eus') }}
+                    @if (Lang::getLocale() == 'fr')
+                        <span class="d-block text-muted fw-light">
+                            {{ __('classes.children_search') }}
+                        </span>
+                    @endif
+                </label>
+
+                <input
+                    type="text"
+                    id="child-search"
+                    class="form-control"
+                    placeholder="{{ __('classes.children_search_placeholder', [], 'eus') }}"
+                >
+
+                <div id="available-children" class="role-list mt-2">
+                    @foreach($children as $child)
+                        <div
+                            class="role-item child-item"
+                            data-child-id="{{ $child->idEnfant }}"
+                            data-child-name="{{ $child->prenom }} {{ $child->nom }}"
+                        >
+                            <span>{{ $child->prenom }} {{ $child->nom }}</span>
+                            <i class="bi bi-plus-circle"></i>
                         </div>
+                    @endforeach
+                </div>
+            </div>
 
-                        <div class="row g-3">
-                            {{-- Liste des enfants disponibles --}}
-                            <div class="col-md-6">
-                                <label for="child-search" class="form-label small mb-1">
-                                    {{ __('classes.children_search', [], 'eus') }}
-                                    @if (Lang::getLocale() == 'fr')
-                                        <span class="d-block text-muted fw-light">
-                                            {{ __('classes.children_search') }}
-                                        </span>
-                                    @endif
-                                </label>
+            {{-- Liste des enfants sélectionnés --}}
+            <div class="col-md-6">
+                <div class="form-label small mb-1">
+                    {{ __('classes.children_selected', [], 'eus') }} <span class="text-danger">*</span>
+                    @if (Lang::getLocale() == 'fr')
+                        <span class="d-block text-muted fw-light">
+                            {{ __('classes.children_selected') }}
+                        </span>
+                    @endif
+                </div>
 
-                                <input type="text" id="child-search" class="form-control form-control-sm"
-                                       placeholder="{{ __('classes.children_search_placeholder', [], 'eus') }}">
-
-                                <div id="available-children" class="border rounded mt-2 p-2 small"
-                                     style="max-height: 220px; overflow-y: auto;">
-                                    @foreach($children as $child)
-                                        <div class="d-flex justify-content-between align-items-center py-1 px-2 child-item"
-                                             data-child-id="{{ $child->idEnfant }}"
-                                             data-child-name="{{ $child->prenom }} {{ $child->nom }}">
-                                            <span>{{ $child->prenom }} {{ $child->nom }}</span>
-                                            <i class="bi bi-plus-circle text-muted" role="button"></i>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            {{-- Liste des enfants sélectionnés --}}
-                            <div class="col-md-6">
-                                <div class="form-label small mb-1">
-                                    {{ __('classes.children_selected', [], 'eus') }} <span class="text-danger">*</span>
-                                    @if (Lang::getLocale() == 'fr')
-                                        <span class="d-block text-muted fw-light">
-                                            {{ __('classes.children_selected') }}
-                                        </span>
-                                    @endif
-                                </div>
-
-                                <div id="selected-children" class="border rounded mt-2 p-2 small"
-                                     style="min-height: 44px; max-height: 220px; overflow-y: auto;">
-                                    <div class="text-muted small children-empty-message">
-                                        {{ __('classes.children_empty', [], 'eus') }}
-                                        @if (Lang::getLocale() == 'fr')
-                                            <span class="d-block">
-                                                {{ __('classes.children_empty') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <div id="children-error" class="invalid-feedback d-none mt-1">
-                                    {{ __('classes.children_error', [], 'eus') }}
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Inputs hidden générés par JS --}}
-                        <div id="children-inputs"></div>
-
-                        @error('children')
-                            <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
-                        @enderror
-                        @error('children.*')
-                            <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
-                        @enderror
+                <div id="selected-children" class="role-list mt-2">
+                    <div class="role-list-empty-message children-empty-message">
+                        {{ __('classes.children_empty', [], 'eus') }}
+                        @if (Lang::getLocale() == 'fr')
+                            <span class="d-block">
+                                {{ __('classes.children_empty') }}
+                            </span>
+                        @endif
                     </div>
+                </div>
+
+                <div id="children-error" class="invalid-feedback d-none mt-1">
+                    {{ __('classes.children_error', [], 'eus') }}
+                </div>
+            </div>
+        </div>
+
+        {{-- Inputs hidden générés par JS --}}
+        <div id="children-inputs"></div>
+    </div>
+
+    @error('children')
+        <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
+    @enderror
+    @error('children.*')
+        <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
+    @enderror
+</div>
+
 
                     {{-- Boutons d'action --}}
                     <div class="d-flex justify-content-end pt-3 mt-4">
@@ -252,18 +259,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const selectedIds = new Set();
 
     function updateEmptyMessage() {
-        const msg = selectedBox.querySelector('.children-empty-message');
-        if (selectedIds.size === 0) {
-            if (!msg) {
-                const div = document.createElement('div');
-                div.className = 'text-muted small children-empty-message';
-                div.textContent = '{{ __('classes.children_empty', [], 'eus') }}';
-                selectedBox.appendChild(div);
-            }
-        } else if (msg) {
-            msg.remove();
+    const msg = selectedBox.querySelector('.children-empty-message');
+    if (selectedIds.size === 0) {
+        if (!msg) {
+            const div = document.createElement('div');
+            div.className = 'role-list-empty-message children-empty-message';
+            div.textContent = '{{ __('classes.children_empty', [], 'eus') }}';
+            selectedBox.appendChild(div);
         }
+    } else if (msg) {
+        msg.remove();
     }
+}
 
     function validateChildren() {
         if (!childrenError) return true;
@@ -278,38 +285,37 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function addChild(item) {
-        const id   = item.dataset.childId;
-        const name = item.dataset.childName;
+    const id   = item.dataset.childId;
+    const name = item.dataset.childName;
 
-        if (selectedIds.has(id)) return;
-        selectedIds.add(id);
-        item.classList.add('d-none'); // cache dans la liste de gauche
+    if (selectedIds.has(id)) return;
+    selectedIds.add(id);
+    item.classList.add('d-none'); // cache dans la liste de gauche
 
+    const row = document.createElement('div');
+    row.className = 'role-item selected child-selected';
+    row.dataset.childId = id;
+    row.dataset.childName = name;
 
-        const row = document.createElement('div');
-        row.className = 'd-flex justify-content-between align-items-center py-1 px-2 border-bottom child-selected';
-        row.dataset.childId = id;
-        row.dataset.childName = name;
+    const span = document.createElement('span');
+    span.textContent = name;
+    const icon = document.createElement('i');
+    icon.className = 'bi bi-x-circle';
+    icon.style.cursor = 'pointer';
 
-        const span = document.createElement('span');
-        span.textContent = name;
-        const icon = document.createElement('i');
-        icon.className = 'bi bi-x-circle text-muted';
-        icon.style.cursor = 'pointer';
+    row.appendChild(span);
+    row.appendChild(icon);
+    selectedBox.appendChild(row);
 
-        row.appendChild(span);
-        row.appendChild(icon);
-        selectedBox.appendChild(row);
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'children[]';
+    input.value = id;
+    childrenInputs.appendChild(input);
 
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'children[]';
-        input.value = id;
-        childrenInputs.appendChild(input);
-
-        updateEmptyMessage();
-        validateChildren();
-    }
+    updateEmptyMessage();
+    validateChildren();
+}
 
     function removeChild(id) {
         selectedIds.delete(id);

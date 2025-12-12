@@ -20,4 +20,10 @@ return [
     'children_selected'            => 'Élèves sélectionnés',
     'children_empty'               => 'Aucun élève sélectionné pour le moment.',
     'children_error'               => 'Veuillez sélectionner au moins un élève.',
+    'details'        => 'Détails de la classe',
+    'students_count' => 'Nombre d\'élèves',
+    'child_name'     => 'Nom de l’élève',
+    'child_birthdate' => 'Date de naissance',
+    'child_gender'   => 'Sexe',
+    'child_nni'      => 'NNI',
 ];
