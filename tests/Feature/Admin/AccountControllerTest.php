@@ -87,6 +87,7 @@ class AccountControllerTest extends TestCase
             'email' => 'updated@example.test',
             'languePref' => 'en',
             'roles' => [$role->idRole],
+            'statutValidation' => 1,
         ];
 
         $response = $this->actingAs($admin)->put(route('admin.accounts.update', $account), $updatePayload);
@@ -103,5 +104,44 @@ class AccountControllerTest extends TestCase
         $response = $this->actingAs($admin)->delete(route('admin.accounts.destroy', $account));
         $response->assertRedirect(route('admin.accounts.index'));
         $this->assertDatabaseMissing('utilisateur', ['idUtilisateur' => $account->idUtilisateur]);
+    }
+
+    public function test_archive_action_disables_other_operations()
+    {
+        $role = Role::factory()->create();
+        Role::factory()->create(['name' => 'CA']);
+        $admin = Utilisateur::factory()->create();
+        $admin->assignRole('CA');
+
+        $account = Utilisateur::factory()->create();
+        $account->rolesCustom()->attach([$role->idRole => ['model_type' => Utilisateur::class]]);
+
+        $archiveResponse = $this->actingAs($admin)->patch(route('admin.accounts.archive', $account));
+        $archiveResponse->assertRedirect(route('admin.accounts.show', $account));
+        $this->assertNotNull($account->fresh()->archived_at);
+
+        $this->actingAs($admin)
+            ->get(route('admin.accounts.edit', $account))
+            ->assertRedirect(route('admin.accounts.show', $account));
+
+        $this->actingAs($admin)
+            ->put(route('admin.accounts.update', $account), [
+                'prenom' => 'Attempt',
+                'nom' => 'Change',
+                'email' => 'attempt@example.test',
+                'languePref' => 'fr',
+                'roles' => [$role->idRole],
+            ])
+            ->assertRedirect(route('admin.accounts.show', $account));
+
+        $this->actingAs($admin)
+            ->patch(route('admin.accounts.validate', $account))
+            ->assertRedirect(route('admin.accounts.show', $account));
+
+        $this->actingAs($admin)
+            ->delete(route('admin.accounts.destroy', $account))
+            ->assertRedirect(route('admin.accounts.show', $account));
+
+        $this->assertDatabaseHas('utilisateur', ['idUtilisateur' => $account->idUtilisateur]);
     }
 }

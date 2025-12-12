@@ -37,7 +37,7 @@ class PresenceControllerCoverageTest extends TestCase
         $admin->assignRole('CA');
 
         // students via HTTP route (acting as admin to pass role middleware)
-        $studentsResp = $this->actingAs($admin)->getJson(route('presence.students', ['classe_id' => $classe->idClasse]));
+        $studentsResp = $this->actingAs($admin)->getJson(route('presence.students', ['classe_ids' => [$classe->idClasse]]));
         $studentsResp->assertStatus(200);
         $students = $studentsResp->json();
         $this->assertCount(2, $students);
@@ -57,9 +57,32 @@ class PresenceControllerCoverageTest extends TestCase
         $saveResp->assertStatus(200);
 
         // status should return enfant1 present
-        $statusResp = $this->actingAs($admin)->getJson(route('presence.status', ['classe_id' => $classe->idClasse, 'date' => $date, 'activite' => 'cantine']));
+        $statusResp = $this->actingAs($admin)->getJson(route('presence.status', ['classe_ids' => [$classe->idClasse], 'date' => $date, 'activite' => 'cantine']));
         $statusResp->assertStatus(200);
         $status = $statusResp->json();
         $this->assertEquals([$enfant1->idEnfant], $status['presentIds']);
+    }
+
+    public function test_students_endpoint_handles_multiple_classes()
+    {
+        $classeA = Classe::factory()->create(['nom' => 'Classe A']);
+        $classeB = Classe::factory()->create(['nom' => 'Classe B']);
+        Enfant::factory()->create(['idClasse' => $classeA->idClasse]);
+        Enfant::factory()->create(['idClasse' => $classeB->idClasse]);
+
+        Role::factory()->create(['name' => 'CA']);
+        /** @var \App\Models\Utilisateur&\Illuminate\Contracts\Auth\Authenticatable $admin */
+        $admin = \App\Models\Utilisateur::factory()->create();
+        $admin->assignRole('CA');
+
+        $response = $this->actingAs($admin)->getJson(route('presence.students', [
+            'classe_ids' => [$classeA->idClasse, $classeB->idClasse],
+        ]));
+
+        $response->assertStatus(200);
+        $data = $response->json();
+        $this->assertCount(2, $data);
+        $this->assertContains('Classe A', array_column($data, 'classe_nom'));
+        $this->assertContains('Classe B', array_column($data, 'classe_nom'));
     }
 }
