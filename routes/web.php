@@ -89,6 +89,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/tache/{tache}', [TacheController::class, 'update'])->name('tache.update');
         Route::get('/tache/{tache}/show', [TacheController::class, 'show'])->name('tache.show');
         Route::delete('/tache/{tache}', [TacheController::class, 'delete'])->name('tache.delete');
+        Route::patch('/taches/{id}/doing', [TacheController::class, 'markDoing'])->name('tache.markDoing');
+        Route::patch('/taches/{id}/done', [TacheController::class, 'markDone'])->name('tache.markDone');
 
         // Recherche des utilisateurs
         Route::get('/users/search', [UtilisateurController::class, 'search'])->name('users.search');
