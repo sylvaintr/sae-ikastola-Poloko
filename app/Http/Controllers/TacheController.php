@@ -22,24 +22,48 @@ class TacheController extends Controller
     public function getDatatable(Request $request)
     {
         if($request->ajax()){
-            return DataTables::of(Tache::query())
+
+            // base query
+            $query = Tache::query();
+
+            // si un Request ID est fourni, filtrer dessus
+            $requestId = $request->get('request_id');
+            if (!empty($requestId)) {
+                // recherche exacte (typique pour un ID)
+                $query->where('idTache', $requestId);
+
+                // recherche partielle ('250' match '250', '1250' etc) :
+                // $query->where('idTache', 'like', "%{$requestId}%");
+            }
+
+            return DataTables::of($query)
                 ->editColumn('dateD', function ($row) {
                     return \Carbon\Carbon::parse($row->dateD)->format('d/m/Y');
                 })
 
-                ->editColumn('etat', function ($tache) {
-                    return match ($tache->etat) {
-                        'todo' => 'En attente',
-                        'doing' => 'En cours',
-                        'done' => 'Terminé',
-                        default => ucfirst($tache->etat),
-                    };
+                ->editColumn('etat', function ($row) {
+
+                    switch ($row->etat) {
+                        case 'done':
+                            return '<span class="badge bg-success px-2 py-1">Terminé</span>';
+
+                        case 'doing':
+                            return '<span class="badge bg-warning text-dark px-2 py-1">En cours</span>';
+
+                        case 'todo':
+                        default:
+                            return '<span class="badge bg-orange px-2 py-1" style="background-color:#fd7e14;">En attente</span>';
+                    }
                 })
+
 
                 ->addColumn('assignation', function ($tache) {
                     $first = $tache->realisateurs->first();
 
-                    if (!$first) return '—';
+                    if (!$first)
+                    {
+                        return '—';
+                    }
 
                     return $first->prenom . ' ' . strtoupper(substr($first->nom, 0, 1)) . '.';
                 })
@@ -57,24 +81,45 @@ class TacheController extends Controller
                     $showUrl = route('tache.show', $row);
                     $editUrl = route('tache.edit', $row);
                     $deleteUrl = route('tache.delete', $row);
-                
+                    $doingUrl = route('tache.markDoing', $row->idTache);
+                    $doneUrl = route('tache.markDone', $row->idTache);
+
+                    // Si déjà terminée => désactiver la coche
+                    $etat = $row->etat;
+
+                    if ($etat === 'done') {
+                        $confirmationButton = '<i class="bi bi-check-circle-fill big-icon text-success" title="Tâche terminée" style="opacity:0.5; cursor:not-allowed;"></i>';
+                    }
+                    elseif ($etat === 'doing') {
+                        $confirmationButton = '<a href="#" class="mark-done" title="Marquer comme terminée" data-url="'.$doneUrl.'" style="color: black;">
+                                <i class="bi bi-check-lg"></i>
+                        </a>';
+                    }
+                    else {
+                        $confirmationButton = '<a href="#" class="mark-doing" title="Marquer comme en cours" data-url="'.$doingUrl.'" style="color: black;">
+                                <i class="bi bi-play big-icon"></i>
+                        </a>';
+                    }
+
                     return '
-                        <div class="d-flex align-items-center justify-content-center gap-3">
-                            <a href="'.$showUrl.'" style="color: black;"><i class="bi bi-eye-fill"></i></a>
-                            <a href="'.$editUrl.'" style="color: black;"><i class="bi bi-pencil-square"></i></a>
-                    
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <a href="'.$showUrl.'" title="Voir plus" style="color: black;"><i class="bi bi-eye-fill"></i></a>
+                            <a href="'.$editUrl.'" title="Modifier la tâche" style="color: black;"><i class="bi bi-pencil-square"></i></a>
+
                             <form action="'.$deleteUrl.'" method="POST" style="display:inline;">
                                 '.csrf_field().'
                                 '.method_field('DELETE').'
-                                <button type="submit" style="border: none; padding: 0px"
-                                    onclick="return confirm(\'Supprimer cette demande ?\')">
-                                    <i class="bi bi-trash3-fill"></i>
+                                <button type="submit" title="Supprimer la tâche" style="background-color: transparent; border: none; padding: 0px" onclick="return confirm(\'Supprimer cette tâche ?\')">
+                                    <i class="bi bi-x-lg"></i>
                                 </button>
                             </form>
+
+                            '.$confirmationButton.'
                         </div>
                     ';
                 })
-                ->rawColumns(['action'])
+
+                ->rawColumns(['action', 'etat'])
                 ->make(true);
         }
 
@@ -84,8 +129,7 @@ class TacheController extends Controller
     public function create()
     {
         $utilisateurs = Utilisateur::orderBy('prenom')->limit(150)->get();
-        $roles = Role::orderBy('name')->get(); // si tu as un modèle Role
-        return view('tache.form', compact('utilisateurs', 'roles'));
+        return view('tache.form', compact('utilisateurs'));
     }
 
     public function store(Request $request)
@@ -95,9 +139,7 @@ class TacheController extends Controller
             'description' => 'required|string',
             'type' => 'required|in:low,medium,high',
             'realisateurs' => 'nullable|array',
-            'realisateurs.*' => 'integer|exists:utilisateur,idUtilisateur',
-            'roles' => 'nullable|array',
-            'roles.*' => 'integer|exists:role,idRole'
+            'realisateurs.*' => 'integer|exists:utilisateur,idUtilisateur'
         ]);
 
         $tache = Tache::create([
@@ -111,14 +153,8 @@ class TacheController extends Controller
         // attacher realisateurs (pivot)
         if (!empty($validated['realisateurs'])) {
             foreach ($validated['realisateurs'] as $uId) {
-                // ici on met dateM null ; tu peux choisir now()
-                $tache->realisateurs()->attach($uId, ['dateM' => null, 'description' => null]);
+                $tache->realisateurs()->attach($uId, ['dateM' => now(), 'description' => null]);
             }
-        }
-
-        // gérer roles si besoin (ex : table role_user ou similaire)
-        if (!empty($validated['roles'])) {
-            // logique pour enregistrer les roles sélectionnés (selon ton modèle)
         }
 
         return redirect()->route('tache.index')->with('success', 'Tâche ajoutée avec succès.');
@@ -130,11 +166,8 @@ class TacheController extends Controller
         $tache->load('realisateurs');
 
         $utilisateurs = Utilisateur::orderBy('prenom')->limit(150)->get();
-        $roles = Role::orderBy('name')->get();
-        // tu peux récupérer roles sélectionnés selon ta structure
-        $selectedRoles = []; // adapter
 
-        return view('tache.form', compact('tache', 'utilisateurs', 'roles', 'selectedRoles'));
+        return view('tache.form', compact('tache', 'utilisateurs'));
     }
     public function update(Request $request, Tache $tache)
     {
@@ -144,8 +177,6 @@ class TacheController extends Controller
             'type' => 'required|in:low,medium,high',
             'realisateurs' => 'nullable|array',
             'realisateurs.*' => 'integer|exists:utilisateur,idUtilisateur',
-            'roles' => 'nullable|array',
-            'roles.*' => 'integer|exists:role,idRole'
         ]);
 
         $tache->update([
@@ -156,15 +187,12 @@ class TacheController extends Controller
 
         // Synchroniser realisateurs (on wipe & reattach)
         $ids = $validated['realisateurs'] ?? [];
-        // si tu veux garder des pivot data tu peux faire plus finement
-        $tache->realisateurs()->sync([]); // enlever tout d'abord
+        $tache->realisateurs()->sync([]);
         if (!empty($ids)) {
             foreach ($ids as $uId) {
                 $tache->realisateurs()->attach($uId, ['dateM' => null, 'description' => null]);
             }
         }
-
-        // roles: idem si tu veux synchroniser
 
         return redirect()->route('tache.index')->with('success', 'Tâche mise à jour.');
     }
@@ -183,7 +211,29 @@ class TacheController extends Controller
         }
     }
 
-    public function show() {
-        return "show";
+    public function show($id)
+    {
+        $tache = Tache::with(['realisateurs'])->findOrFail($id);
+
+        return view('tache.show', compact('tache'));
     }
+
+    public function markDone($id)
+    {
+        $tache = Tache::findOrFail($id);
+        $tache->etat = 'done';
+        $tache->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function markDoing($id)
+    {
+        $tache = Tache::findOrFail($id);
+        $tache->etat = 'doing';
+        $tache->save();
+
+        return response()->json(['success' => true]);
+    }
+
 }

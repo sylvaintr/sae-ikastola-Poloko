@@ -16,15 +16,20 @@
                 </div>
             </div>
         </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Rechercher par Request ID :</label><br>
+            <input type="text" id="search-id" class="admin-search-input" placeholder="Entrer un Request ID...">
+        </div>
         <div class="row overflow-auto" style="width: 100%; max-height: 75vh;">
+
                 <table class="table align-middle admin-table datatable-taches">
                     <colgroup>
                         <col style="width:90px">
+                        <col style="width:100px">
+                        <col style="width:250px">
+                        <col style="width:130px">
+                        <col style="width:120px">
                         <col style="width:90px">
-                        <col style="width:240px">
-                        <col style="width:140px">
-                        <col style="width:120px">
-                        <col style="width:120px">
                         <col style="width:100px">
                     </colgroup>
                     <thead>
@@ -53,7 +58,7 @@
                                 <span class="admin-table-heading">Egoera</span>
                                 <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Statut</p>
                             </th>
-                            <th scope="col" style="width:100px;">
+                            <th scope="col" style="width:120px;">
                                 <span class="admin-table-heading">Ekintzak</span>
                                 <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Actions</p>
                             </th>
@@ -69,51 +74,145 @@
     <script>
     document.addEventListener('DOMContentLoaded', function() {
 
-        // attendre que les polices soient prêtes (évite les shifts dus au font swap)
         (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function() {
 
             var table = $('.datatable-taches').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('tache.get-datatable') }}",
-
+                searching: false,
+                ajax: {
+                    url: "{{ route('tache.get-datatable') }}",
+                    data: function (d) {
+                        // envoie le Request ID en plus des paramètres DataTables
+                        d.request_id = $('#search-id').val().trim();
+                    }
+                },
                 autoWidth: false,
                 deferRender: true,
                 lengthChange: false,
                 pageLength: 50,
-                scrollX: true,         // utile pour garder largeur fixe et éviter recalcs
-                responsive: false,     // désactiver responsive pour ne pas recalculer
+                scrollX: true,
+                responsive: false,
                 language: {
-                    url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/French.json"
+                    url: "/datatables/i18n/fr-FR.json"
                 },
-
                 columns: [
                     { data: 'idTache', name: 'idTache', width: "90px" },
-                    { data: 'dateD', name: 'dateD', width: "90px" },
-                    { data: 'titre', name: 'titre', width: "240px" },
-                    { data: 'assignation', name: 'assignation', width: "140px" },
+                    { data: 'dateD', name: 'dateD', width: "100px" },
+                    { data: 'titre', name: 'titre', width: "250px" },
+                    { data: 'assignation', name: 'assignation', width: "130px" },
                     { data: 'urgence', name: 'urgence', width: "120px" },
-                    { data: 'etat', name: 'etat', width: "120px" },
+                    { data: 'etat', name: 'etat', width: "90px" },
                     { data: 'action', name: 'action', width: "100px", orderable: false, searchable: false },
                 ],
-
                 initComplete: function() {
-                    // ajustement final quand tout est prêt
                     this.api().columns.adjust();
                 },
-
                 drawCallback: function(settings) {
-                    // garantit stabilité après chaque draw
                     this.api().columns.adjust();
                 }
             });
 
-            // sécurité : un dernier ajustement court après rendu
-            setTimeout(function() {
-                table.columns.adjust();
-            }, 150);
+            // ---------- RECHERCHE : on appuie sur Entrée ou on change (debounced) ----------
+            let searchTimer;
+            $('#search-id').on('keyup', function (e) {
+                // si Enter => reload immédiat
+                if (e.key === 'Enter') {
+                    table.ajax.reload(null, false);
+                    return;
+                }
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(function () {
+                    table.ajax.reload(null, false);
+                }, 350); // debounce pour éviter trop de requêtes
+            });
+
+            // Optionnel : bouton pour réinitialiser la recherche
+            $('#search-id').on('search', function () {
+                // navigateur peut émettre event "search" sur input[type=text] quand on vide
+                table.ajax.reload(null, false);
+            });
+        });
+        
+        // CSRF pour jQuery AJAX (utilise la meta présente dans app.blade.php)
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
         });
 
+        // délégation : déclenché même pour éléments ajoutés dynamiquement
+        $(document).on('click', '.mark-done', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const $btn = $(this);
+            const url = $btn.data('url');
+            const id  = $btn.data('id');
+
+            if (!url) {
+                console.error('No data-url on mark-done element');
+                return;
+            }
+
+            // Optionnel: petite confirmation
+            if (!confirm('Marquer cette tâche comme réalisée ?')) {
+                return;
+            }
+
+            // Indicateur UI (griser icône le temps de la requête)
+            $btn.addClass('text-muted').find('i').css('opacity', 0.4);
+
+            $.ajax({
+                url: url,
+                type: 'PATCH',
+                success: function(resp) {
+                    // reload de la table sans reset de la page courante
+                    $('.datatable-taches').DataTable().ajax.reload(null, false);
+                },
+                error: function(xhr) {
+                    console.error(xhr);
+                    alert('Erreur : impossible de marquer la tâche comme réalisée.');
+                    $btn.removeClass('text-muted').find('i').css('opacity', 1);
+                }
+            });
+        });
+        
+        // délégation pour mark-doing
+        $(document).on('click', '.mark-doing', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const $btn = $(this);
+            const url = $btn.data('url');
+            const id  = $btn.data('id');
+
+            if (!url) {
+                console.error('No data-url on mark-doing element');
+                return;
+            }
+
+            if (!confirm('Marquer cette tâche comme en cours ?')) {
+                return;
+            }
+
+            // Indicateur UI (griser icône le temps de la requête)
+            $btn.addClass('text-muted').find('i').css('opacity', 0.4);
+
+            $.ajax({
+                url: url,
+                type: 'PATCH',
+                success: function(resp) {
+                    // reload de la table sans reset de la page courante
+                    $('.datatable-taches').DataTable().ajax.reload(null, false);
+                },
+                error: function(xhr) {
+                    console.error(xhr);
+                    alert('Erreur : impossible de marquer la tâche comme réalisée.');
+                    $btn.removeClass('text-muted').find('i').css('opacity', 1);
+                }
+            });
+        });
     });
     </script>
     @endpush
