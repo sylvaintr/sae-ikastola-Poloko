@@ -1,7 +1,13 @@
 <x-app-layout>
 <div class="container py-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-4 mb-5">
+        <div>
+            <h2 class="fw-bold display-4 mb-1" style="font-size: 2rem;">{{ isset($tache) ? 'Editatu zeregina' : 'Gehitu zeregin bat' }}</h2>
+            <p class="text-muted mb-0" style="font-size: 0.9rem;">{{ isset($tache) ? 'Modifier la tâche' : 'Ajouter une tâche' }}</p>
+        </div>
+    </div>
+
     <div class="card p-4">
-        <h2 class="fw-bold mb-4">{{ isset($tache) ? 'Modifier la tâche' : 'Ajouter une tâche' }}</h2>
 
         <form action="{{ isset($tache) ? route('tache.update', $tache->idTache) : route('tache.store') }}"
               method="POST" id="tache-form">
@@ -10,12 +16,14 @@
 
             <div class="row mb-3">
                 <div class="col-md-8">
-                    <label class="form-label fw-bold">Titre</label>
+                    <label class="form-label fw-bold mb-0">Izenburua</label>
+                    <p class="text-muted mt-0 admin-button-subtitle">Titre</p>
                     <input type="text" name="titre" class="form-control"
                            value="{{ old('titre', $tache->titre ?? '') }}" maxlength="255" required>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-bold">Urgence</label>
+                    <label class="form-label fw-bold mb-0">Larrialdia</label>
+                    <p class="text-muted mt-0 admin-button-subtitle">Urgence</p>
                     <select name="type" class="form-select">
                         <option value="low" {{ old('type', $tache->type ?? '') == 'low' ? 'selected' : '' }}>Faible</option>
                         <option value="medium" {{ old('type', $tache->type ?? '') == 'medium' ? 'selected' : '' }}>Moyenne</option>
@@ -25,24 +33,29 @@
             </div>
 
             <div class="mb-4">
-                <label class="form-label fw-bold">Description</label>
+                <label class="form-label fw-bold mb-0">Deskribapena</label>
+                <p class="text-muted mt-0 admin-button-subtitle">Description</p>
                 <textarea name="description" class="form-control" rows="6" required>{{ old('description', $tache->description ?? '') }}</textarea>
             </div>
 
             <hr>
 
-            <h5 class="fw-bold mb-3">Assignation</h5>
+                <h4 class="fw-bold mb-0">Esleipena</h4>
+                <p class="text-muted mt-0 admin-button-subtitle">Assignation</p>
 
             <div class="row">
                 <!-- Colonne gauche : recherche utilisateurs -->
                 <div class="col-md-6">
                     <div class="admin-search-user-container position-relative">
-                        <label class="admin-table-heading mb-2">Rechercher un utilisateur</label>
+                        <label class="admin-table-heading mb-0">Bilatu erabiltzaile bat</label>
+                        <p class="text-muted mt-0 admin-button-subtitle">Rechercher un utilisateur</p>
 
                         <input type="text"
                             id="user-search"
                             class="admin-search-input"
-                            placeholder="Nom ou email…">
+                            style="width: 300px;"
+                            placeholder="Izena edo posta elektronikoa…">
+                        <p class="text-muted mt-0 admin-button-subtitle">Nom ou email…</p>
 
                         <div id="user-search-results" class="admin-search-dropdown"></div>
                     </div>
@@ -50,7 +63,8 @@
 
                 <!-- Colonne droite : utilisateurs sélectionnés -->
                 <div class="col-md-6">
-                    <label class="form-label">Utilisateurs sélectionnés</label>
+                    <label class="form-label mb-0">Hautatutako erabiltzaileak :</label>
+                    <p class="text-muted mt-0 admin-button-subtitle">Utilisateurs sélectionnés</p>
                     <div id="assigned-users" class="mb-3" style="min-height:60px">
                         @if(isset($tache))
                             @foreach($tache->realisateurs as $r)
@@ -66,8 +80,14 @@
             </div>
 
             <div class="d-flex justify-content-end gap-3 mt-4">
-                <a href="{{ route('tache.index') }}" class="admin-secondary-button">Annuler</a>
-                <button type="submit" class="admin-add-button">{{ isset($tache) ? 'Enregistrer' : 'Ajouter' }}</button>
+                <div>
+                    <a href="{{ route('tache.index') }}" class="admin-secondary-button" style="padding-block: 8px;">Utzi</a>
+                    <p class="text-muted mt-0 admin-button-subtitle">Annuler</p>
+                </div>
+                <div>
+                    <button type="submit" class="admin-add-button" style="padding-block: 8px;">{{ isset($tache) ? 'Gorde' : 'Gehitu' }}</button>
+                    <p class="text-muted mt-0 admin-button-subtitle">{{ isset($tache) ? 'Enregistrer' : 'Ajouter' }}</p>
+                </div>
             </div>
         </form>
     </div>
