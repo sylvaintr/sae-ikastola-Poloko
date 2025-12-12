@@ -70,8 +70,8 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
-        Route::resource('/admin/etiquettes', EtiquetteController::class)->except(['show']);
-        Route::get('/admin/etiquettes/data', [EtiquetteController::class, 'data'])->name('etiquettes.data');
+        Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);
+        Route::get('/pannel/etiquettes/data', [EtiquetteController::class, 'data'])->name('etiquettes.data');
     });
 
     Route::middleware(['permission:gerer-actualites'])->name('admin.')->group(function () {
