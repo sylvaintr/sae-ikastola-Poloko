@@ -991,10 +991,18 @@
 }
 
 .admin-secondary-button:hover {
-    background-color: #f29201;
-    color: #fff;
-    border-color: #fff;
+    background-color: #fff;
+    color: #d67f00;
+    border-color: #d67f00;
     box-shadow: 0 4px 12px rgba(242, 146, 1, 0.35);
+}
+
+.admin-secondary-button:focus {
+    background-color: #fff;
+    color: #d67f00;
+    border-color: #d67f00;
+    box-shadow: 0 0 0 0.2rem rgba(242, 146, 1, 0.5);
+    outline: none;
 }
 
 .admin-back-link {

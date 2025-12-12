@@ -2,9 +2,12 @@
 
 <div class="container py-4">
 
-    <a href="{{ route('tache.index') }}" class="btn btn-secondary mb-3">← Retour</a>
-
-    <h2 class="fw-bold mb-4">Détails de la tâche</h2>
+    <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-4 mb-5">
+        <div>
+            <h2 class="fw-bold display-4 mb-1" style="font-size: 2rem;">Zereginaren xehetasunak</h2>
+            <p class="text-muted mb-0" style="font-size: 0.9rem;">Détails de la tâche</p>
+        </div>
+    </div>
 
     <div class="card shadow-sm">
         <div class="card-body">
@@ -48,12 +51,14 @@
 
             <hr>
 
-            <p><strong>Description :</strong></p>
+            <strong>Deskribapena :</strong>
+            <p class="text-muted mt-0 admin-button-subtitle">Description</p>
             <p>{{ $tache->description }}</p>
 
             <hr>
 
-            <p><strong>Utilisateurs assignés :</strong></p>
+            <strong>Esleitutako erabiltzaileak :</strong>
+            <p class="text-muted mt-0 admin-button-subtitle">Utilisateurs assignés</p>
 
             @if($tache->realisateurs->count() > 0)
 
@@ -66,9 +71,7 @@
                             </div>
 
                             <div class="text-end">
-                                <span class="badge bg-primary">
-                                    {{ $user->pivot->dateM ? $user->pivot->dateM->format('d/m/Y H:i') : 'Non renseigné' }}
-                                </span>
+                                {{ $user->pivot->dateM ? $user->pivot->dateM->format('d/m/Y') : 'Non renseigné' }}
 
                                 @if($user->pivot->description)
                                     <div class="mt-1 text-muted small">
@@ -85,6 +88,11 @@
             @endif
 
         </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{{ route('tache.index') }}" class="admin-secondary-button" style="padding-block: 8px;">Itzuli</a>
+        <p class="text-muted mt-0 admin-button-subtitle">Retour</p>
     </div>
 
 </div>
