@@ -1,5 +1,5 @@
 <x-app-layout>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" integrity="sha384-vAaZH8GvWxVAeUkrId2leZTzMdEd6aSfjar0FL2rZh2Ocf5Z81QTnKJMHMpMSFb1" crossorigin="anonymous"></script>
 
     @php
         $isEdit = isset($famille);
