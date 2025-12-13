@@ -104,9 +104,7 @@
                                     @endforeach
                                 </select>
                             @else
-                                {{-- 🔁 Fallback si aucun niveau n'existe encore --}}
-                                <input type="text" id="niveau" name="niveau"
-                                    value="{{ old('niveau', $classe->niveau) }}"
+                                <input type="text" name="niveau" value="{{ old('niveau', $classe->niveau) }}"
                                     placeholder="{{ __('classes.niveau_placeholder', [], 'eus') }}"
                                     class="form-control @error('niveau') is-invalid @enderror">
                             @endif
@@ -117,6 +115,7 @@
                                 </div>
                             @enderror
                         </div>
+
                     </div>
 
                     {{-- Sélecteur d’enfants --}}

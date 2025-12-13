@@ -181,6 +181,6 @@ export function initChildrenSelector(options = {}) {
 }
 
 // On l’expose en global pour les Blade
-if (typeof globalThis.window !== 'undefined') {
-    window.initChildrenSelector = initChildrenSelector;
+if (globalThis.window !== undefined) {
+    globalThis.window.initChildrenSelector = initChildrenSelector;
 }

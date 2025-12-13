@@ -18,7 +18,10 @@ const ROUTE_ADD     = '/ajouter';
 const ROUTE_EDIT    = '/modifier';
 const ROUTE_VALIDATE = '/valider';
 const ROUTE_ARCHIVE = '/archiver';
+
 const ROUTE_CLASSE = '/{classe}';
+const ROUTE_OBLIGATORY_DOCUMENT = '/{obligatoryDocument}';
+
 
 
 Route::get('/', function () {
@@ -114,10 +117,11 @@ Route::middleware('auth')->group(function () {
                     Route::get(ROUTE_ADD, 'create')->name('create');
                     Route::post('/', 'store')->name('store');
 
-                    Route::get('/{obligatoryDocument}' . ROUTE_EDIT, 'edit')->name('edit');
-                    Route::put('/{obligatoryDocument}', 'update')->name('update');
-                    Route::delete('/{obligatoryDocument}', 'destroy')->name('destroy');
+                    Route::get(ROUTE_OBLIGATORY_DOCUMENT . ROUTE_EDIT, 'edit')->name('edit');
+                    Route::put(ROUTE_OBLIGATORY_DOCUMENT, 'update')->name('update');
+                    Route::delete(ROUTE_OBLIGATORY_DOCUMENT, 'destroy')->name('destroy');
                 });
+
 
 
             /*
