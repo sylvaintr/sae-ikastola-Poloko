@@ -25,7 +25,7 @@ class FamilleController extends Controller
         foreach ($data['enfants'] ?? [] as $enfantData) {
             if (isset($enfantData['idEnfant'])) {
                 Enfant::where('idEnfant', $enfantData['idEnfant'])
-                      ->update(['idFamille' => $famille->idFamille]);
+                    ->update(['idFamille' => $famille->idFamille]);
             } else {
                 Enfant::create([
                     'nom' => $enfantData['nom'],
@@ -52,6 +52,7 @@ class FamilleController extends Controller
                     'mdp' => $userData['mdp'] ?? bcrypt('defaultpassword'),
                     'languePref' => $userData['languePref'] ?? 'fr',
                 ]);
+
                 $famille->utilisateurs()->attach($newUser->idUtilisateur, [
                     'parite' => $userData['parite'] ?? null,
                 ]);
@@ -72,6 +73,7 @@ class FamilleController extends Controller
         if (!$famille) {
             return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
+
         return view('admin.familles.show', compact('famille'));
     }
 
@@ -81,8 +83,8 @@ class FamilleController extends Controller
         $tousUtilisateurs = Utilisateur::doesntHave('familles')->get();
 
         $tousEnfants = Enfant::whereNull('idFamille')
-                             ->orWhere('idFamille', 0)
-                             ->get();
+            ->orWhere('idFamille', 0)
+            ->get();
 
         return view('admin.familles.create', compact('tousUtilisateurs', 'tousEnfants'));
     }
@@ -103,6 +105,7 @@ class FamilleController extends Controller
     public function index()
     {
         $familles = Famille::with(['enfants', 'utilisateurs'])->get();
+
         return view('admin.familles.index', compact('familles'));
     }
 
@@ -115,19 +118,14 @@ class FamilleController extends Controller
             return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
 
-        // Supprimer les enfants liés à la famille
         $famille->enfants()->delete();
-
-        // Supprimer les liaisons avec les utilisateurs
         $famille->utilisateurs()->detach();
-
-        // Supprimer la famille
         $famille->delete();
 
         return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
     }
 
-    // -------------------- Recherche par parent (SQL) --------------------
+    // -------------------- Recherche par parent --------------------
     public function searchByParent(Request $request)
     {
         $query = $request->input('q');
@@ -135,7 +133,7 @@ class FamilleController extends Controller
         $familles = Famille::with(['utilisateurs', 'enfants'])
             ->whereHas('utilisateurs', function ($q2) use ($query) {
                 $q2->where('nom', 'like', "%{$query}%")
-                   ->orWhere('prenom', 'like', "%{$query}%");
+                    ->orWhere('prenom', 'like', "%{$query}%");
             })
             ->get();
 
@@ -146,16 +144,16 @@ class FamilleController extends Controller
         return response()->json($familles);
     }
 
-    // -------------------- Recherche AJAX Utilisateurs (Create) --------------------
+    // -------------------- Recherche AJAX Utilisateurs --------------------
     public function searchUsers(Request $request)
     {
         $query = $request->input('q');
 
-        $users = Utilisateur::doesntHave('familles') // Toujours filtrer les non-liés
+        $users = Utilisateur::doesntHave('familles')
             ->where(function ($q) use ($query) {
                 if ($query) {
                     $q->where('nom', 'like', "%{$query}%")
-                      ->orWhere('prenom', 'like', "%{$query}%");
+                        ->orWhere('prenom', 'like', "%{$query}%");
                 }
             })
             ->limit(20)
@@ -164,3 +162,4 @@ class FamilleController extends Controller
         return response()->json($users);
     }
 }
+
