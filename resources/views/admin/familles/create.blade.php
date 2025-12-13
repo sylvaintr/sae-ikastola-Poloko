@@ -359,3 +359,4 @@
         document.addEventListener('DOMContentLoaded', () => { checkParityVisibility(); });
     </script>
 </x-app-layout>
+
