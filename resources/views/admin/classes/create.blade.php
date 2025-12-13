@@ -57,7 +57,7 @@
                     <div class="row">
                         {{-- Nom de la classe --}}
                         <div class="col-md-6 mb-3">
-                            <label class="form-label mb-1">
+                            <label for="nom" class="form-label mb-1">
                                 {{ __('classes.nom', [], 'eus') }}
                                 @if (Lang::getLocale() == 'fr')
                                     <span class="d-block text-muted fw-light">
@@ -65,16 +65,18 @@
                                     </span>
                                 @endif
                             </label>
-                            <input type="text" name="nom" value="{{ old('nom', $classe->nom ?? '') }}"
+                            <input type="text" id="nom" name="nom"
+                                value="{{ old('nom', $classe->nom ?? '') }}"
                                 class="form-control @error('nom') is-invalid @enderror">
                             @error('nom')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
+
                         {{-- Niveau --}}
                         <div class="col-md-6 mb-3">
-                            <label class="form-label mb-1">
+                            <label for="niveau" class="form-label mb-1">
                                 {{ __('classes.niveau', [], 'eus') }}
                                 @if (Lang::getLocale() == 'fr')
                                     <span class="d-block text-muted fw-light">
@@ -84,7 +86,8 @@
                             </label>
 
                             @if ($levels->isNotEmpty())
-                                <select name="niveau" class="form-select @error('niveau') is-invalid @enderror">
+                                <select id="niveau" name="niveau"
+                                    class="form-select @error('niveau') is-invalid @enderror">
                                     <option value="">
                                         {{ __('classes.niveau_select_placeholder', [], 'eus') }}
                                         @if (Lang::getLocale() == 'fr')
@@ -100,7 +103,8 @@
                                     @endforeach
                                 </select>
                             @else
-                                <input type="text" name="niveau" value="{{ old('niveau', $classe->niveau ?? '') }}"
+                                <input type="text" id="niveau" name="niveau"
+                                    value="{{ old('niveau', $classe->niveau ?? '') }}"
                                     placeholder="{{ __('classes.niveau_placeholder', [], 'eus') }}"
                                     class="form-control @error('niveau') is-invalid @enderror">
                             @endif

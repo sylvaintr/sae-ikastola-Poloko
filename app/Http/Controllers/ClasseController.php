@@ -16,7 +16,7 @@ class ClasseController extends Controller
         return view('admin.classes.index');
     }
 
-    public function data(Request $request)
+    public function data()
     {
         $query = Classe::query();
 
