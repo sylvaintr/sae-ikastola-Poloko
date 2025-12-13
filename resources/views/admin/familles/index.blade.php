@@ -3,6 +3,7 @@
         <h2 class="mb-4 fw-bolder">Familles</h2>
 
         <div class="d-flex justify-content-end align-items-center mb-4">
+            {{-- Label invisible pour accessibilité (SonarQube) --}}
             <label for="searchUser" class="visually-hidden">Rechercher un utilisateur</label>
             <input type="text" id="searchUser" class="form-control" style="width: 250px;" placeholder="Rechercher un utilisateur">
 
@@ -238,3 +239,4 @@
         });
     </script>
 </x-app-layout>
+
