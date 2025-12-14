@@ -33,11 +33,10 @@
 
                         @if($isEdit)
                             @foreach($famille->utilisateurs as $user)
-                                <div class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow"
+                                <button type="button"
+                                     class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
                                      style="cursor:pointer; transition: background 0.2s;"
                                      onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}', 'Parent')"
-                                     onkeydown="if(event.key==='Enter'||event.key===' '){addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}', 'Parent'); event.preventDefault();}"
-                                     role="button" tabindex="0"
                                      onmouseover="this.style.backgroundColor='#f8f9fa'"
                                      onmouseout="this.style.backgroundColor='white'">
                                     <span class="text-dark item-name">{{ $user->nom }} {{ $user->prenom }}</span>
@@ -45,12 +44,12 @@
                                         <span class="me-3 small fw-bold">Parent</span>
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                                     </div>
-                                </div>
+                                </button>
                             @endforeach
 
                             @if($famille->enfants->isNotEmpty())
                                 @foreach($famille->enfants as $enfant)
-                                    <div class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow"
+                                    <div class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
                                          style="cursor:default;">
                                         <span class="text-dark item-name">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
                                         <div class="d-flex align-items-center text-secondary">
@@ -66,11 +65,10 @@
                             <div id="parents-list">
                                 @if(isset($tousUtilisateurs))
                                     @foreach($tousUtilisateurs as $user)
-                                        <div class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow"
+                                        <button type="button"
+                                             class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
                                              style="cursor:pointer; transition: background 0.2s;"
                                              onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}', 'Parent')"
-                                             onkeydown="if(event.key==='Enter'||event.key===' '){addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}', 'Parent'); event.preventDefault();}"
-                                             role="button" tabindex="0"
                                              onmouseover="this.style.backgroundColor='#f8f9fa'"
                                              onmouseout="this.style.backgroundColor='white'">
                                             <span class="text-dark item-name">{{ $user->nom }} {{ $user->prenom }}</span>
@@ -78,18 +76,17 @@
                                                 <span class="me-3 small fw-bold">Parent</span>
                                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                                             </div>
-                                        </div>
+                                        </button>
                                     @endforeach
                                 @endif
                             </div>
 
                             @if(isset($tousEnfants))
                                 @foreach($tousEnfants as $enfant)
-                                    <div class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow"
+                                    <button type="button"
+                                         class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
                                          style="cursor:pointer; transition: background 0.2s; border-left: 4px solid #0dcaf0 !important;"
                                          onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')"
-                                         onkeydown="if(event.key==='Enter'||event.key===' '){addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}'); event.preventDefault();}"
-                                         role="button" tabindex="0"
                                          onmouseover="this.style.backgroundColor='#f8f9fa'"
                                          onmouseout="this.style.backgroundColor='white'">
                                         <span class="text-dark item-name">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
@@ -97,7 +94,7 @@
                                             <span class="me-3 small fw-bold">Enfant</span>
                                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                                         </div>
-                                    </div>
+                                    </button>
                                 @endforeach
                             @endif
                         @endif
@@ -106,7 +103,8 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label small text-muted mb-2 fw-bold">Utilisateurs sélectionné(s)*</label>
+                    {{-- Correction: Remplacer <label> par <h6> ou <div> car ce n'est pas lié à un input --}}
+                    <h6 class="form-label small text-muted mb-2 fw-bold">Utilisateurs sélectionné(s)*</h6>
                     <div id="selected-roles" class="border rounded p-3 bg-light" style="height: 245px; overflow-y: auto;">
                         <div class="role-list-empty-message text-muted text-center mt-5">
                             Cliquez sur les utilisateurs à gauche pour les sélectionner.
@@ -197,31 +195,24 @@
                     }
 
                     data.forEach(user => {
-                        const div = document.createElement('div');
-                        // Ajout des attributs d'accessibilité pour les résultats dynamiques
-                        div.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow';
-                        div.style.cssText = 'cursor:pointer; transition: background 0.2s;';
-                        div.setAttribute('role', 'button');
-                        div.setAttribute('tabindex', '0');
+                        // Utilisation de <button> au lieu de <div> pour accessibilité
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start';
+                        btn.style.cssText = 'cursor:pointer; transition: background 0.2s;';
 
-                        div.onclick = function() { addRole(user.idUtilisateur, user.nom + ' ' + user.prenom, 'Parent'); };
-                        div.onkeydown = function(event) {
-                            if(event.key === 'Enter' || event.key === ' ') {
-                                addRole(user.idUtilisateur, user.nom + ' ' + user.prenom, 'Parent');
-                                event.preventDefault();
-                            }
-                        };
-                        div.onmouseover = function() { this.style.backgroundColor='#f8f9fa'; };
-                        div.onmouseout = function() { this.style.backgroundColor='white'; };
+                        btn.onclick = function() { addRole(user.idUtilisateur, user.nom + ' ' + user.prenom, 'Parent'); };
+                        btn.onmouseover = function() { this.style.backgroundColor='#f8f9fa'; };
+                        btn.onmouseout = function() { this.style.backgroundColor='white'; };
 
-                        div.innerHTML = `
+                        btn.innerHTML = `
                             <span class="text-dark item-name">${user.nom} ${user.prenom}</span>
                             <div class="d-flex align-items-center text-secondary">
                                 <span class="me-3 small fw-bold">Parent</span>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                             </div>
                         `;
-                        container.appendChild(div);
+                        container.appendChild(btn);
                     });
                 })
                 .catch(err => console.error("Erreur AJAX:", err));
@@ -256,23 +247,20 @@
             const emptyMsg = selectedRoles.querySelector('.role-list-empty-message');
             if (emptyMsg) emptyMsg.remove();
 
-            const div = document.createElement('div');
-            div.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-1 border rounded shadow-sm';
-            div.style.backgroundColor = 'orange'; div.style.color = 'white'; div.style.cursor = 'pointer';
-            div.setAttribute('role', 'button');
-            div.setAttribute('tabindex', '0');
+            // Création d'un bouton pour la suppression
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-1 border rounded shadow-sm w-100 text-start';
+            btn.style.backgroundColor = 'orange'; btn.style.color = 'white'; btn.style.cursor = 'pointer';
 
-            div.innerHTML = `
+            btn.innerHTML = `
                 <span class="fw-bold small item-name">${name}</span>
                 <span class="d-flex align-items-center gap-2"><small>Parent</small><span class="fw-bold fs-6">&times;</span></span>
                 <input type="hidden" class="user-id" value="${id}">
             `;
-            selectedRoles.appendChild(div);
-            // Ajout du listener keydown pour la suppression
-            const removeHandler = () => { div.remove(); if (selectedRoles.children.length === 0) selectedRoles.innerHTML = '<div class="role-list-empty-message text-muted text-center mt-5">Cliquez sur les utilisateurs à gauche pour les sélectionner.</div>'; checkParityVisibility(); };
-            div.addEventListener('click', removeHandler);
-            div.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' ') { removeHandler(); e.preventDefault(); } });
-
+            selectedRoles.appendChild(btn);
+            
+            btn.addEventListener('click', () => { btn.remove(); if (selectedRoles.children.length === 0) selectedRoles.innerHTML = '<div class="role-list-empty-message text-muted text-center mt-5">Cliquez sur les utilisateurs à gauche pour les sélectionner.</div>'; checkParityVisibility(); });
             checkParityVisibility();
         }
 
@@ -281,21 +269,18 @@
             const emptyMsg = selectedRoles.querySelector('.role-list-empty-message');
             if (emptyMsg) emptyMsg.remove();
 
-            const div = document.createElement('div');
-            div.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-1 border rounded shadow-sm bg-white border-start border-4 border-info';
-            div.style.cursor = 'pointer';
-            div.setAttribute('role', 'button');
-            div.setAttribute('tabindex', '0');
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-1 border rounded shadow-sm bg-white border-start border-4 border-info w-100 text-start';
+            btn.style.cursor = 'pointer';
 
-            div.innerHTML = `
+            btn.innerHTML = `
                 <span class="fw-bold small item-name text-dark">${name}</span>
                 <span class="d-flex align-items-center gap-2 text-info"><small>Enfant</small><span class="fw-bold fs-6 text-dark">&times;</span></span>
                 <input type="hidden" class="child-id" value="${id}">
             `;
-            selectedRoles.appendChild(div);
-            const removeHandler = () => { div.remove(); if (selectedRoles.children.length === 0) selectedRoles.innerHTML = '<div class="role-list-empty-message text-muted text-center mt-5">Cliquez sur les utilisateurs à gauche pour les sélectionner.</div>'; };
-            div.addEventListener('click', removeHandler);
-            div.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' ') { removeHandler(); e.preventDefault(); } });
+            selectedRoles.appendChild(btn);
+            btn.addEventListener('click', () => { btn.remove(); if (selectedRoles.children.length === 0) selectedRoles.innerHTML = '<div class="role-list-empty-message text-muted text-center mt-5">Cliquez sur les utilisateurs à gauche pour les sélectionner.</div>'; });
         }
 
         function createFamily() {
