@@ -103,7 +103,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    {{-- Correction: Remplacer <label> par <h6> ou <div> car ce n'est pas lié à un input --}}
+                    {{-- Correction: Utilisation de h6 avec classe form-label pour le style, évitant l'erreur de label orphelin --}}
                     <h6 class="form-label small text-muted mb-2 fw-bold">Utilisateurs sélectionné(s)*</h6>
                     <div id="selected-roles" class="border rounded p-3 bg-light" style="height: 245px; overflow-y: auto;">
                         <div class="role-list-empty-message text-muted text-center mt-5">
@@ -195,9 +195,10 @@
                     }
 
                     data.forEach(user => {
-                        // Utilisation de <button> au lieu de <div> pour accessibilité
+                        // Utilisation de <button> au lieu de <div> pour satisfaire SonarQube
                         const btn = document.createElement('button');
                         btn.type = 'button';
+                        // Ajout de w-100 et text-start pour garder le design identique à la div
                         btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start';
                         btn.style.cssText = 'cursor:pointer; transition: background 0.2s;';
 
@@ -247,7 +248,7 @@
             const emptyMsg = selectedRoles.querySelector('.role-list-empty-message');
             if (emptyMsg) emptyMsg.remove();
 
-            // Création d'un bouton pour la suppression
+            // Création d'un bouton pour la suppression (remplace la div)
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-1 border rounded shadow-sm w-100 text-start';
@@ -269,6 +270,7 @@
             const emptyMsg = selectedRoles.querySelector('.role-list-empty-message');
             if (emptyMsg) emptyMsg.remove();
 
+            // Création d'un bouton pour l'enfant (remplace la div)
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-1 border rounded shadow-sm bg-white border-start border-4 border-info w-100 text-start';
