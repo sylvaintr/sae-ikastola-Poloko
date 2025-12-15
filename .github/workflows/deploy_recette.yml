@@ -29,6 +29,7 @@ jobs:
             git diff > git-backups/diff_$TS.patch
             git reset --hard origin/master
             composer install --no-dev --optimize-autoloader
+            php artisan storage:link
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache

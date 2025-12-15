@@ -6,12 +6,13 @@ use App\Http\Controllers\Admin\AccountController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\FactureController;
-use App\Models\Facture;
+use App\Http\Controllers\ActualiteController;
+use App\Http\Controllers\EtiquetteController;
 
 
-Route::get('/', function () {
-    return view('layouts.app');
-})->name('home');
+
+Route::get('/', [ActualiteController::class, 'index'])->name('home');
+Route::post('/actualites/filter', [ActualiteController::class, 'filter'])->name('actualites.filter');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -67,7 +68,30 @@ Route::middleware('auth')->group(function () {
         Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
         Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
     });
+
+    Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
+        Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);
+        Route::get('/pannel/etiquettes/data', [EtiquetteController::class, 'data'])->name('etiquettes.data');
+    });
+
+    Route::middleware(['permission:gerer-actualites'])->name('admin.')->group(function () {
+        Route::resource('actualites', ActualiteController::class)->except(['index', 'show']);
+        Route::get('/pannel/actualites/data', [ActualiteController::class, 'data'])->name('actualites.data');
+        Route::get('/pannel/actualites', [ActualiteController::class, 'adminIndex'])->name('actualites.index');
+        Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
+            ->name('actualites.detachDocument');
+    });
+
 });
+
+Route::get('/actualites/{id}', [ActualiteController::class, 'show'])->name('actualites.show');
+
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['fr', 'eus'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');
 
 
 require __DIR__ . '/auth.php';

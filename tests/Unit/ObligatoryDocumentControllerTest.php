@@ -2,20 +2,89 @@
 
 namespace Tests\Unit;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\DocumentObligatoire;
+use Mockery;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Http\Controllers\Admin\ObligatoryDocumentController;
+use App\Models\DocumentObligatoire;
 
 class ObligatoryDocumentControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Reset the controller's cached nom length before each test
+        $prop = new \ReflectionProperty(\App\Http\Controllers\Admin\ObligatoryDocumentController::class, 'cachedNomMaxLength');
+        $prop->setAccessible(true);
+        $prop->setValue(null, null);
+    }
+
+
+    public function test_getNomMaxLength_returns_db_value_when_present()
+    {
+        $builder = Mockery::mock();
+        $builder->shouldReceive('where')->andReturnSelf();
+        $builder->shouldReceive('value')->with('character_maximum_length')->andReturn('150');
+
+        DB::shouldReceive('table')->with('information_schema.columns')->andReturn($builder);
+        DB::shouldReceive('getDatabaseName')->andReturn('test_db');
+
+        $controller = new ObligatoryDocumentController();
+        $ref = new \ReflectionMethod(ObligatoryDocumentController::class, 'getNomMaxLength');
+        $ref->setAccessible(true);
+
+        $result = $ref->invoke($controller);
+
+        $this->assertSame(150, $result);
+    }
+
+    public function test_getNomMaxLength_returns_default_when_null()
+    {
+        $builder = Mockery::mock();
+        $builder->shouldReceive('where')->andReturnSelf();
+        $builder->shouldReceive('value')->with('character_maximum_length')->andReturn(null);
+
+        DB::shouldReceive('table')->with('information_schema.columns')->andReturn($builder);
+        DB::shouldReceive('getDatabaseName')->andReturn('test_db');
+
+        $controller = new ObligatoryDocumentController();
+        $ref = new \ReflectionMethod(ObligatoryDocumentController::class, 'getNomMaxLength');
+        $ref->setAccessible(true);
+
+        $result = $ref->invoke($controller);
+
+        $this->assertSame(100, $result);
+    }
+
+
+    public function test_getNomMaxLength_returns_default_on_exception()
+    {
+        $builder = Mockery::mock();
+        $builder->shouldReceive('where')->andThrow(new \Exception('db error'));
+
+        DB::shouldReceive('table')->with('information_schema.columns')->andReturn($builder);
+        DB::shouldReceive('getDatabaseName')->andReturn('test_db');
+
+        $controller = new ObligatoryDocumentController();
+        $ref = new \ReflectionMethod(ObligatoryDocumentController::class, 'getNomMaxLength');
+        $ref->setAccessible(true);
+
+        $result = $ref->invoke($controller);
+
+        $this->assertSame(100, $result);
+    }
+
     public function test_find_available_id_on_empty_table_returns_one()
     {
-        $controller = new \App\Http\Controllers\Admin\ObligatoryDocumentController();
-        $ref = new \ReflectionMethod($controller, 'findAvailableId');
+        DocumentObligatoire::query()->delete();
 
+        $controller = new ObligatoryDocumentController();
+        $ref = new \ReflectionMethod($controller, 'findAvailableId');
+        $ref->setAccessible(true);
 
         $id = $ref->invoke($controller);
         $this->assertEquals(1, $id);
@@ -23,10 +92,8 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_find_available_id_finds_gap_and_returns_smallest_missing()
     {
-        // ensure table is empty to avoid clashes from other tests
-        \App\Models\DocumentObligatoire::query()->delete();
+        DocumentObligatoire::query()->delete();
 
-        // create records with ids 1,2,4
         $d1 = new DocumentObligatoire();
         $d1->idDocumentObligatoire = 1;
         $d1->save();
@@ -39,9 +106,9 @@ class ObligatoryDocumentControllerTest extends TestCase
         $d4->idDocumentObligatoire = 4;
         $d4->save();
 
-        $controller = new \App\Http\Controllers\Admin\ObligatoryDocumentController();
+        $controller = new ObligatoryDocumentController();
         $ref = new \ReflectionMethod($controller, 'findAvailableId');
-
+        $ref->setAccessible(true);
 
         $id = $ref->invoke($controller);
         $this->assertEquals(3, $id);
@@ -49,32 +116,27 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_find_available_id_returns_max_plus_one_when_no_gaps()
     {
-        // ensure table is empty to avoid clashes from other tests
-        \App\Models\DocumentObligatoire::query()->delete();
+        DocumentObligatoire::query()->delete();
 
-        // create records 1..3
         for ($i = 1; $i <= 3; $i++) {
             $d = new DocumentObligatoire();
             $d->idDocumentObligatoire = $i;
             $d->save();
         }
 
-        $controller = new \App\Http\Controllers\Admin\ObligatoryDocumentController();
+        $controller = new ObligatoryDocumentController();
         $ref = new \ReflectionMethod($controller, 'findAvailableId');
-
+        $ref->setAccessible(true);
 
         $id = $ref->invoke($controller);
         $this->assertEquals(4, $id);
     }
 
-    /**
-     * @runInSeparateProcess
-     */
     public function test_get_nom_max_length_returns_integer_and_is_cached()
     {
-        $controller = new \App\Http\Controllers\Admin\ObligatoryDocumentController();
+        $controller = new ObligatoryDocumentController();
         $ref = new \ReflectionMethod($controller, 'getNomMaxLength');
-
+        $ref->setAccessible(true);
 
         $len1 = $ref->invoke($controller);
         $len2 = $ref->invoke($controller);
@@ -85,19 +147,21 @@ class ObligatoryDocumentControllerTest extends TestCase
         $this->assertLessThanOrEqual(1000, $len1);
     }
 
-    /**
-     * @runInSeparateProcess
-     */
     public function test_get_nom_max_length_returns_default_on_exception()
     {
-        // Force DB to throw
         DB::shouldReceive('table')->andThrow(new \Exception('boom'));
 
-        $controller = new \App\Http\Controllers\Admin\ObligatoryDocumentController();
+        $controller = new ObligatoryDocumentController();
         $ref = new \ReflectionMethod($controller, 'getNomMaxLength');
-
+        $ref->setAccessible(true);
 
         $len = $ref->invoke($controller);
         $this->assertEquals(100, $len);
+    }
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
     }
 }

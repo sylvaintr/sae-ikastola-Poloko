@@ -50,9 +50,9 @@
             <ul class="navbar-nav ms-auto mb-2 mb-sm-0 align-items-center">
                 @auth
                     <li class="nav-item dropdown me-3">
-                        <a class="nav-link d-flex align-items-center" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0.5rem;">
+                        <button class="nav-link d-flex align-items-center btn btn-link p-0" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0.5rem;" onkeydown="if(event.key==='Enter' || event.key===' ') { this.click(); }">
                             <i class="bi bi-bell bell-icon"></i>
-                        </a>
+                        </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" style="min-width: 300px;">
                             <li class="dropdown-item text-muted">{{ __('No new notifications') }}</li>
                         </ul>
@@ -71,7 +71,8 @@
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" href="{{ route('profile.edit') }}">{{ __('auth.consulter_profil') }}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#">{{ __('auth.passer_eus_fr') }}</a></li>
+                            
+                            <li><a class="dropdown-item" href="{{ route('lang.switch', ['locale' => app()->getLocale() == 'fr' ? 'eus' : 'fr']) }}">{{ __('auth.passer_eus_fr') }}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
@@ -92,10 +93,10 @@
                             @endif
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+                            <li><a  class="dropdown-item d-flex align-items-center"
+                                    href="{{ route('lang.switch', ['locale' => 'eus']) }}"><x-flag-basque />&nbsp;{{ __('basque') }}</a></li>
                             <li><a class="dropdown-item d-flex align-items-center"
-                                    href="#"><x-flag-basque />&nbsp;{{ __('basque') }}</a></li>
-                            <li><a class="dropdown-item d-flex align-items-center"
-                                    href="#"><x-flag-french />&nbsp;{{ __('francais') }}</a></li>
+                                    href="{{ route('lang.switch', ['locale' => 'fr']) }}"><x-flag-french />&nbsp;{{ __('francais') }}</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">

@@ -10,16 +10,22 @@ class ActualiteFactory extends Factory
 {
     protected $model = Actualite::class;
 
+
     public function definition()
     {
+             $faker = \Faker\Factory::create('fr_FR');
         return [
-            'idActualite' => $this->faker->unique()->numberBetween(1, 100000),
-            'titre' => $this->faker->optional()->sentence(2),
-            'description' => $this->faker->text(80),
-            'type' => $this->faker->word(),
-            'dateP' => $this->faker->date(),
-            'archive' => $this->faker->boolean(),
-            'lien' => $this->faker->optional()->url(),
+            'idActualite' => $faker->unique()->numberBetween(1, 100000),
+            'titrefr' => $faker->words(2, true),
+            'titreeus' => $faker->words(2, true),
+            'descriptionfr' => $faker->text(100),
+            'descriptioneus' => $faker->text(100),
+            'contenufr' => $faker->paragraphs(3, true),
+            'contenueus' => $faker->paragraphs(3, true),
+            'type' => $faker->randomElement(['public', 'privé']),
+            'dateP' => $faker->date(),
+            'archive' => $faker->boolean(),
+            'lien' => $faker->optional()->url(),
             'idUtilisateur' => Utilisateur::factory(),
         ];
     }
