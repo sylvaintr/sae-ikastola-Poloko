@@ -20,15 +20,6 @@ export function initChildrenSelector(options = {}) {
     const childrenError = document.getElementById(childrenErrorId);
     const form = document.querySelector(formSelector);
 
-    if (!childSearch || !availableBox || !selectedBox || !childrenInputs) {
-            childSearch,
-            availableBox,
-            selectedBox,
-            childrenInputs,
-        });
-        return;
-    }
-
     const items = Array.from(availableBox.querySelectorAll('.child-item'));
 
     const selectedIds = new Set();
@@ -113,6 +104,7 @@ export function initChildrenSelector(options = {}) {
 
     function filterList(query) {
         const q = query.toLowerCase().trim();
+
         for (const item of items) {
             const id = item.dataset.childId;
             const name = (item.dataset.childName || '').toLowerCase();
