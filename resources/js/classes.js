@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             searching: false,
 
-            ajax: '/admin/classes/data',
+            ajax: location.pathname + '/data',
 
             columns: [
                 { data: 'nom', name: 'nom', className: 'dt-left' },
