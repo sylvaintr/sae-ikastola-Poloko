@@ -1,39 +1,36 @@
 import DataTable from 'datatables.net-dt';
 import 'datatables.net-responsive-dt';
 
-
-// Langues similaires à facture.js
 const dataTableLangs = {
     fr: {
-        decimal: ",",
-        thousands: " ",
-        info: "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
-        infoEmpty: "Aucune donnée disponible",
-        lengthMenu: "Afficher _MENU_ entrées",
-        search: "Rechercher :",
+        decimal: ',',
+        thousands: ' ',
+        info: 'Affichage de _START_ à _END_ sur _TOTAL_ entrées',
+        infoEmpty: 'Aucune donnée disponible',
+        lengthMenu: 'Afficher _MENU_ entrées',
+        search: 'Rechercher :',
         paginate: {
-            first: "Premier",
-            last: "Dernier",
-            next: "Suivant",
-            previous: "Précédent"
-        }
+            first: 'Premier',
+            last: 'Dernier',
+            next: 'Suivant',
+            previous: 'Précédent',
+        },
     },
     eus: {
-        decimal: ",",
-        thousands: " ",
-        info: "Erakusten _START_ _END_ arteko _TOTAL_ sarrera",
-        infoEmpty: "Datuik ez dago eskuragarri",
-        lengthMenu: "Erakutsi _MENU_ sarrera",
-        search: "Bilatu:",
+        decimal: ',',
+        thousands: ' ',
+        info: 'Erakusten _START_ _END_ arteko _TOTAL_ sarrera',
+        infoEmpty: 'Datuik ez dago eskuragarri',
+        lengthMenu: 'Erakutsi _MENU_ sarrera',
+        search: 'Bilatu:',
         paginate: {
-            first: "Lehenengoa",
-            last: "Azkena",
-            next: "Hurrengoa",
-            previous: "Aurrekoa"
-        }
-    }
+            first: 'Lehenengoa',
+            last: 'Azkena',
+            next: 'Hurrengoa',
+            previous: 'Aurrekoa',
+        },
+    },
 };
-
 
 document.addEventListener('DOMContentLoaded', function () {
     try {
@@ -42,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
             serverSide: true,
             autoWidth: false,
 
-            searching: false, // 🔥 Désactive la barre de recherche
+            searching: false,
 
             ajax: '/admin/classes/data',
 
@@ -58,15 +55,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     width: '1%',
                     render: function (data) {
                         return '<div style="white-space: nowrap;">' + data + '</div>';
-                    }
-                }
+                    },
+                },
             ],
 
             responsive: true,
-            language: dataTableLangs[currentLang] || dataTableLangs.eus
+            language: dataTableLangs[currentLang] || dataTableLangs.eus,
         });
-
     } catch (e) {
-        console.error("DataTable initialization error:", e);
+        console.error('DataTable initialization error:', e);
     }
 });

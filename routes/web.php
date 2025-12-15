@@ -14,13 +14,15 @@ use App\Http\Controllers\ClasseController;
 |--------------------------------------------------------------------------
 */
 
-const ROUTE_ADD     = '/ajouter';
-const ROUTE_EDIT    = '/modifier';
-const ROUTE_VALIDATE = '/valider';
-const ROUTE_ARCHIVE = '/archiver';
+if (!defined('ROUTE_ADD')) {
+    define('ROUTE_ADD', '/ajouter');
+    define('ROUTE_EDIT', '/modifier');
+    define('ROUTE_VALIDATE', '/valider');
+    define('ROUTE_ARCHIVE', '/archiver');
 
-const ROUTE_CLASSE = '/{classe}';
-const ROUTE_OBLIGATORY_DOCUMENT = '/{obligatoryDocument}';
+    define('ROUTE_CLASSE', '/{classe}');
+    define('ROUTE_OBLIGATORY_DOCUMENT', '/{obligatoryDocument}');
+}
 
 
 
