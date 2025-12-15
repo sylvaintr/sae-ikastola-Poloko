@@ -51,7 +51,8 @@
                     @endif
                 </h2>
 
-                <form action="{{ route('admin.classes.update', $classe) }}" method="POST" class="small">
+                <form id="classe-edit-form" action="{{ route('admin.classes.update', $classe) }}" method="POST"
+                    class="small">
                     @csrf
                     @method('PUT')
 
@@ -67,11 +68,11 @@
                                 @endif
                             </label>
                             <input type="text" id="nom" name="nom" value="{{ old('nom', $classe->nom) }}"
-                                class="form-control @error('nom') is-invalid @enderror">
+                                class="form-control @error('nom') is-invalid @enderror" required minlength="2"
+                                maxlength="20">
+
                             @error('nom')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -88,7 +89,7 @@
 
                             @if ($levels->isNotEmpty())
                                 <select id="niveau" name="niveau"
-                                    class="form-select @error('niveau') is-invalid @enderror">
+                                    class="form-select @error('niveau') is-invalid @enderror" required>
                                     <option value="">
                                         {{ __('classes.niveau_select_placeholder', [], 'eus') }}
                                         @if (Lang::getLocale() == 'fr')
@@ -106,16 +107,14 @@
                             @else
                                 <input type="text" name="niveau" value="{{ old('niveau', $classe->niveau) }}"
                                     placeholder="{{ __('classes.niveau_placeholder', [], 'eus') }}"
-                                    class="form-control @error('niveau') is-invalid @enderror">
+                                    class="form-control @error('niveau') is-invalid @enderror" required minlength="1"
+                                    maxlength="3">
                             @endif
 
                             @error('niveau')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
                     </div>
 
                     {{-- Sélecteur d’enfants --}}
@@ -143,7 +142,8 @@
                                     </label>
 
                                     <input type="text" id="child-search" class="form-control"
-                                        placeholder="{{ __('classes.children_search_placeholder', [], 'eus') }}">
+                                        placeholder="{{ __('classes.children_search_placeholder', [], 'eus') }}"
+                                        maxlength="100">
 
                                     <div id="available-children" class="role-list mt-2">
                                         @foreach ($children as $child)
@@ -159,8 +159,8 @@
                                 {{-- Liste des enfants sélectionnés --}}
                                 <div class="col-md-6">
                                     <div class="form-label small mb-1">
-                                        {{ __('classes.children_selected', [], 'eus') }} <span
-                                            class="text-danger">*</span>
+                                        {{ __('classes.children_selected', [], 'eus') }}
+                                        <span class="text-danger">*</span>
                                         @if (Lang::getLocale() == 'fr')
                                             <span class="d-block text-muted fw-light">
                                                 {{ __('classes.children_selected') }}
@@ -192,6 +192,7 @@
                         @error('children')
                             <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
                         @enderror
+
                         @error('children.*')
                             <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
                         @enderror

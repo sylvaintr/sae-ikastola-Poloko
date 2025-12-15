@@ -18,11 +18,7 @@ class ClasseControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Création d’un utilisateur "admin" (adapté à ton projet)
         $this->admin = User::factory()->create();
-
-        // Si tu utilises spatie/laravel-permission ou autre :
-        // $this->admin->assignRole('CA');
     }
 
     /**
@@ -46,17 +42,14 @@ class ClasseControllerTest extends TestCase
     /** @test */
     public function data_returns_json_for_datatables()
     {
-        // Arrange
         $classe = Classe::factory()->create([
             'nom' => 'CM1 A',
             'niveau' => 'CM1',
         ]);
 
-        // Act
         $response = $this->actingAsCa()
             ->get(route('admin.classes.data'));
 
-        // Assert
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data',
@@ -196,11 +189,9 @@ class ClasseControllerTest extends TestCase
             'niveau' => 'CE1',
         ]);
 
-        // Enfants actuellement dans la classe
         $childStay   = Enfant::factory()->create(['idClasse' => $classe->idClasse]);
         $childLeave  = Enfant::factory()->create(['idClasse' => $classe->idClasse]);
 
-        // Enfant sans classe qui sera ajouté
         $childJoin   = Enfant::factory()->create(['idClasse' => null]);
 
         $payload = [
@@ -209,7 +200,6 @@ class ClasseControllerTest extends TestCase
             'children' => [
                 $childStay->idEnfant,
                 $childJoin->idEnfant,
-                // childLeave n’est PAS dans la liste → doit être détaché
             ],
         ];
 
@@ -219,26 +209,22 @@ class ClasseControllerTest extends TestCase
         $response->assertRedirect(route('admin.classes.index'))
             ->assertSessionHas('success', trans('classes.updated_success'));
 
-        // Classe mise à jour
         $this->assertDatabaseHas('classe', [
             'idClasse' => $classe->idClasse,
             'nom'      => 'Nouveau nom',
             'niveau'   => 'CE2',
         ]);
 
-        // childStay : garde la classe
         $this->assertDatabaseHas('enfant', [
             'idEnfant' => $childStay->idEnfant,
             'idClasse' => $classe->idClasse,
         ]);
 
-        // childJoin : rejoint la classe
         $this->assertDatabaseHas('enfant', [
             'idEnfant' => $childJoin->idEnfant,
             'idClasse' => $classe->idClasse,
         ]);
 
-        // childLeave : doit être détaché
         $this->assertDatabaseHas('enfant', [
             'idEnfant' => $childLeave->idEnfant,
             'idClasse' => null,
@@ -252,7 +238,7 @@ class ClasseControllerTest extends TestCase
 
         $response = $this->actingAsCa()
             ->from(route('admin.classes.edit', $classe))
-            ->put(route('admin.classes.update', $classe), []); // rien envoyé
+            ->put(route('admin.classes.update', $classe), []);
 
         $response->assertRedirect(route('admin.classes.edit', $classe));
         $response->assertSessionHasErrors(['nom', 'niveau', 'children']);

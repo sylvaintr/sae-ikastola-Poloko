@@ -67,7 +67,8 @@
                             </label>
                             <input type="text" id="nom" name="nom"
                                 value="{{ old('nom', $classe->nom ?? '') }}"
-                                class="form-control @error('nom') is-invalid @enderror">
+                                class="form-control @error('nom') is-invalid @enderror" required maxlength="20"
+                                minlength="2">
                             @error('nom')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -87,7 +88,7 @@
 
                             @if ($levels->isNotEmpty())
                                 <select id="niveau" name="niveau"
-                                    class="form-select @error('niveau') is-invalid @enderror">
+                                    class="form-select @error('niveau') is-invalid @enderror" required>
                                     <option value="">
                                         {{ __('classes.niveau_select_placeholder', [], 'eus') }}
                                         @if (Lang::getLocale() == 'fr')
@@ -105,7 +106,8 @@
                             @else
                                 <input type="text" name="niveau" value="{{ old('niveau', $classe->niveau ?? '') }}"
                                     placeholder="{{ __('classes.niveau_placeholder', [], 'eus') }}"
-                                    class="form-control @error('niveau') is-invalid @enderror">
+                                    class="form-control @error('niveau') is-invalid @enderror" required maxlength="20">
+
                             @endif
 
                             @error('niveau')
@@ -139,8 +141,8 @@
                                     </label>
 
                                     <input type="text" id="child-search" class="form-control"
-                                        placeholder="{{ __('classes.children_search_placeholder', [], 'eus') }}">
-
+                                        placeholder="{{ __('classes.children_search_placeholder', [], 'eus') }}"
+                                        maxlength="100">
                                     <div id="available-children" class="role-list mt-2">
                                         @foreach ($children as $child)
                                             <div class="role-item child-item" data-child-id="{{ $child->idEnfant }}"
