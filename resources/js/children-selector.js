@@ -1,5 +1,3 @@
-// resources/js/children-selector.js
-
 export function initChildrenSelector(options = {}) {
     const {
         childSearchId = 'child-search',
@@ -122,7 +120,6 @@ export function initChildrenSelector(options = {}) {
         }
     }
 
-    // 🔗 événements
     availableBox.addEventListener('click', function (e) {
         const item = e.target.closest('.child-item');
         if (!item) return;
@@ -154,7 +151,6 @@ export function initChildrenSelector(options = {}) {
         });
     }
 
-    // ✅ pré-sélection pour l’édition
     initialSelectedIds.forEach(function (id) {
         const item = availableBox.querySelector('[data-child-id="' + id + '"]');
         if (item) {
@@ -167,7 +163,6 @@ export function initChildrenSelector(options = {}) {
     updateEmptyMessage();
 }
 
-// On l’expose en global pour les Blade
 if (globalThis.window !== undefined) {
     globalThis.window.initChildrenSelector = initChildrenSelector;
 }
