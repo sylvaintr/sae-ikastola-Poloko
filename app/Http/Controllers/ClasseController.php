@@ -148,19 +148,14 @@ class ClasseController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $classe) {
-            // Mise à jour de la classe
             $classe->update($request->only('nom', 'niveau'));
 
-            // IDs sélectionnés
             $selectedIds = $request->input('children', []);
 
-            // IDs actuellement attribués
             $currentIds = $classe->enfants()->pluck('idEnfant')->toArray();
 
-            // Enfants à retirer
             $toDetach = array_diff($currentIds, $selectedIds);
 
-            // Enfants à ajouter
             $toAttach = array_diff($selectedIds, $currentIds);
 
             if (!empty($toDetach)) {
@@ -185,10 +180,8 @@ class ClasseController extends Controller
      */
     public function destroy(Classe $classe)
     {
-        // Détacher tous les enfants de la classe
         $classe->enfants()->update(['idClasse' => null]);
 
-        // Supprimer la classe
         $classe->delete();
 
         return redirect()
