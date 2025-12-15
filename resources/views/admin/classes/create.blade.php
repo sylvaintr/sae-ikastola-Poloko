@@ -225,10 +225,6 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                if (typeof window.initChildrenSelector !== 'function') {
-                    console.warn('initChildrenSelector non disponible');
-                    return;
-                }
 
                 window.initChildrenSelector({
                     initialSelectedIds: [], // aucune présélection en création
