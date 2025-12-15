@@ -42,7 +42,7 @@
                                     <span class="text-dark item-name">{{ $user->nom }} {{ $user->prenom }}</span>
                                     <div class="d-flex align-items-center text-secondary">
                                         <span class="me-3 small fw-bold">Parent</span>
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                        <i class="bi bi-plus-circle text-dark fs-4"></i>
                                     </div>
                                 </button>
                             @endforeach
@@ -54,7 +54,7 @@
                                         <span class="text-dark item-name">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
                                         <div class="d-flex align-items-center text-secondary">
                                             <span class="me-3 small fw-bold">Enfant</span>
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                            <i class="bi bi-plus-circle text-dark fs-4"></i>
                                         </div>
                                     </div>
                                 @endforeach
@@ -74,7 +74,7 @@
                                             <span class="text-dark item-name">{{ $user->nom }} {{ $user->prenom }}</span>
                                             <div class="d-flex align-items-center text-secondary">
                                                 <span class="me-3 small fw-bold">Parent</span>
-                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                                <i class="bi bi-plus-circle text-dark fs-4"></i>
                                             </div>
                                         </button>
                                     @endforeach
@@ -92,7 +92,7 @@
                                         <span class="text-dark item-name">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
                                         <div class="d-flex align-items-center text-secondary">
                                             <span class="me-3 small fw-bold">Enfant</span>
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                            <i class="bi bi-plus-circle text-dark fs-4"></i>
                                         </div>
                                     </button>
                                 @endforeach
