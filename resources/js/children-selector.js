@@ -21,7 +21,6 @@ export function initChildrenSelector(options = {}) {
     const form = document.querySelector(formSelector);
 
     if (!childSearch || !availableBox || !selectedBox || !childrenInputs) {
-        console.warn(`❌ initChildrenSelector(${debugLabel}): éléments introuvables`, {
             childSearch,
             availableBox,
             selectedBox,
@@ -31,7 +30,6 @@ export function initChildrenSelector(options = {}) {
     }
 
     const items = Array.from(availableBox.querySelectorAll('.child-item'));
-    console.log(`👶 [${debugLabel}] élèves trouvés :`, items.length);
 
     const selectedIds = new Set();
 
@@ -115,8 +113,6 @@ export function initChildrenSelector(options = {}) {
 
     function filterList(query) {
         const q = query.toLowerCase().trim();
-        console.log(`🔎 [${debugLabel}] filterList =`, q);
-
         for (const item of items) {
             const id = item.dataset.childId;
             const name = (item.dataset.childName || '').toLowerCase();
@@ -177,7 +173,6 @@ export function initChildrenSelector(options = {}) {
     // init
     filterList('');
     updateEmptyMessage();
-    console.log(`✅ initChildrenSelector(${debugLabel}) prêt`);
 }
 
 // On l’expose en global pour les Blade
