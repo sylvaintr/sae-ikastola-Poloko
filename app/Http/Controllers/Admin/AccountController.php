@@ -7,6 +7,7 @@ use App\Models\Utilisateur;
 use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
@@ -25,11 +26,55 @@ class AccountController extends Controller
             });
         }
 
-        $accounts = $query->select('idUtilisateur', 'prenom', 'nom', 'email', 'statutValidation', 'archived_at')
-            ->orderBy('idUtilisateur')
-            ->paginate(5);
+        // Filtrage par rôle
+        if ($request->filled('role')) {
+            $roleId = $request->get('role');
+            $query->whereHas('rolesCustom', function ($q) use ($roleId) {
+                $q->where('role.idRole', $roleId);
+            });
+        }
 
-        return view('admin.accounts.index', compact('accounts'));
+        // Gestion du tri
+        $sortColumn = $request->get('sort', 'nom');
+        $sortDirection = $request->get('direction', 'asc');
+        
+        $allowedSortColumns = ['prenom', 'nom', 'email', 'statutValidation', 'idUtilisateur', 'famille'];
+        if (!in_array($sortColumn, $allowedSortColumns)) {
+            $sortColumn = 'nom';
+        }
+        
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+
+        // Pour le tri par famille, on doit faire un join
+        $baseSelect = [
+            'utilisateur.idUtilisateur',
+            'utilisateur.prenom',
+            'utilisateur.nom',
+            'utilisateur.email',
+            'utilisateur.statutValidation',
+            'utilisateur.archived_at',
+        ];
+
+        if ($sortColumn === 'famille') {
+            $query->leftJoin('lier', 'utilisateur.idUtilisateur', '=', 'lier.idUtilisateur')
+                  ->leftJoin('famille', 'lier.idFamille', '=', 'famille.idFamille')
+                  ->select($baseSelect)
+                  ->groupBy('utilisateur.idUtilisateur', 'utilisateur.prenom', 'utilisateur.nom', 'utilisateur.email', 'utilisateur.statutValidation', 'utilisateur.archived_at')
+                  ->orderBy('famille.idFamille', $sortDirection);
+        } else {
+            $query->select(array_map(fn ($column) => str_replace('utilisateur.', '', $column), $baseSelect))
+                  ->orderBy($sortColumn, $sortDirection);
+        }
+
+        $accounts = $query->with(['familles', 'rolesCustom'])
+            ->paginate(5)
+            ->withQueryString();
+
+        $roles = Role::select('idRole', 'name')->orderBy('name')->get();
+
+        return view('admin.accounts.index', compact('accounts', 'sortColumn', 'sortDirection', 'roles'));
     }
 
     public function create(): View
@@ -57,21 +102,29 @@ class AccountController extends Controller
             'mdp_confirmation.same' => 'Les mots de passe ne correspondent pas.',
         ]);
 
-        // Trouver le premier ID disponible
-        $availableId = $this->findAvailableId();
+        // Créer le compte dans une transaction pour éviter les conditions de course
+        // lors de la recherche et de l'insertion d'un ID disponible
+        $shouldValidate = $request->boolean('statutValidation');
 
-        // Créer le compte avec l'ID disponible
-        // Désactiver temporairement l'auto-increment pour permettre l'insertion manuelle de l'ID
-        $account = new Utilisateur();
-        $account->incrementing = false;
-        $account->idUtilisateur = $availableId;
-        $account->prenom = $validated['prenom'];
-        $account->nom = $validated['nom'];
-        $account->email = $validated['email'];
-        $account->languePref = $validated['languePref'];
-        $account->mdp = Hash::make($validated['mdp']);
-        $account->statutValidation = $request->boolean('statutValidation');
-        $account->save();
+        $account = DB::transaction(function () use ($validated, $shouldValidate) {
+            // Trouver le premier ID disponible dans la transaction
+            $availableId = $this->findAvailableId();
+
+            // Créer le compte avec l'ID disponible
+            // Désactiver temporairement l'auto-increment pour permettre l'insertion manuelle de l'ID
+            $account = new Utilisateur();
+            $account->incrementing = false;
+            $account->idUtilisateur = $availableId;
+            $account->prenom = $validated['prenom'];
+            $account->nom = $validated['nom'];
+            $account->email = $validated['email'];
+            $account->languePref = $validated['languePref'];
+            $account->mdp = Hash::make($validated['mdp']);
+            $account->statutValidation = $shouldValidate;
+            $account->save();
+
+            return $account;
+        });
 
         // Sync roles with model_type automatically set
         $rolesToSync = [];

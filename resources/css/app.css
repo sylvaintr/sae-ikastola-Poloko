@@ -543,6 +543,33 @@
     color: #6c757d;
 }
 
+.admin-filter-container {
+    min-width: 200px;
+}
+
+.admin-filter-select {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    min-width: 200px;
+}
+
+.admin-filter-select:hover {
+    border-color: #f29201;
+    background-color: #fff;
+}
+
+.admin-filter-select:focus {
+    background-color: #fff;
+    border-color: #f29201;
+    box-shadow: 0 0 0 0.2rem rgba(242, 146, 1, 0.25);
+    outline: none;
+}
+
 .admin-table {
     border-collapse: separate;
     border-spacing: 0 12px;
