@@ -12,6 +12,14 @@ use Illuminate\View\View;
 
 class ObligatoryDocumentController extends Controller
 {
+    /**
+     * Cache de la longueur maximale du champ `nom` pour éviter les requêtes répétées.
+     * Utilisé plutôt qu'une variable statique locale afin de pouvoir être réinitialisé dans les tests.
+     *
+     * @var int|null
+     */
+    private static $cachedNomMaxLength = null;
+
     public function index(): View
     {
         $totalRolesCount = Role::count();
@@ -149,10 +157,8 @@ class ObligatoryDocumentController extends Controller
      */
     private function getNomMaxLength(): int
     {
-        static $cachedLength;
-
-        if ($cachedLength !== null) {
-            return $cachedLength;
+        if (self::$cachedNomMaxLength !== null) {
+            return self::$cachedNomMaxLength;
         }
 
         $default = 100;
@@ -166,12 +172,12 @@ class ObligatoryDocumentController extends Controller
                 ->where('column_name', $column)
                 ->value('character_maximum_length');
 
-            $cachedLength = $length ? (int) $length : $default;
+            self::$cachedNomMaxLength = $length ? (int) $length : $default;
         } catch (\Throwable $e) {
-            $cachedLength = $default;
+            self::$cachedNomMaxLength = $default;
         }
 
-        return $cachedLength;
+        return self::$cachedNomMaxLength;
     }
 
     /**
