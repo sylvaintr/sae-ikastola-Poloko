@@ -103,7 +103,6 @@
                 </div>
 
                 <div class="col-md-6">
-                    {{-- Correction: Utilisation de h6 avec classe form-label pour le style, évitant l'erreur de label orphelin --}}
                     <h6 class="form-label small text-muted mb-2 fw-bold">Utilisateurs sélectionné(s)*</h6>
                     <div id="selected-roles" class="border rounded p-3 bg-light" style="height: 245px; overflow-y: auto;">
                         <div class="role-list-empty-message text-muted text-center mt-5">
@@ -180,6 +179,19 @@
         const nbEnfantsInitial = {{ $countEnfants }};
         const isEditMode = {{ $isEdit ? 'true' : 'false' }};
 
+        // --- CORRECTION COPILOT : Protection XSS ---
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
         function searchUsersAJAX(query) {
             const url = `/api/search/users?q=${encodeURIComponent(query)}`;
 
@@ -195,10 +207,8 @@
                     }
 
                     data.forEach(user => {
-                        // Utilisation de <button> au lieu de <div> pour satisfaire SonarQube
                         const btn = document.createElement('button');
                         btn.type = 'button';
-                        // Ajout de w-100 et text-start pour garder le design identique à la div
                         btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start';
                         btn.style.cssText = 'cursor:pointer; transition: background 0.2s;';
 
@@ -206,8 +216,11 @@
                         btn.onmouseover = function() { this.style.backgroundColor='#f8f9fa'; };
                         btn.onmouseout = function() { this.style.backgroundColor='white'; };
 
+                        // PROTECTION XSS ICI
+                        const safeName = escapeHtml(user.nom + ' ' + user.prenom);
+
                         btn.innerHTML = `
-                            <span class="text-dark item-name">${user.nom} ${user.prenom}</span>
+                            <span class="text-dark item-name">${safeName}</span>
                             <div class="d-flex align-items-center text-secondary">
                                 <span class="me-3 small fw-bold">Parent</span>
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
@@ -248,19 +261,21 @@
             const emptyMsg = selectedRoles.querySelector('.role-list-empty-message');
             if (emptyMsg) emptyMsg.remove();
 
-            // Création d'un bouton pour la suppression (remplace la div)
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-1 border rounded shadow-sm w-100 text-start';
             btn.style.backgroundColor = 'orange'; btn.style.color = 'white'; btn.style.cursor = 'pointer';
 
+            // PROTECTION XSS ICI
+            const safeName = escapeHtml(name);
+
             btn.innerHTML = `
-                <span class="fw-bold small item-name">${name}</span>
+                <span class="fw-bold small item-name">${safeName}</span>
                 <span class="d-flex align-items-center gap-2"><small>Parent</small><span class="fw-bold fs-6">&times;</span></span>
                 <input type="hidden" class="user-id" value="${id}">
             `;
             selectedRoles.appendChild(btn);
-            
+
             btn.addEventListener('click', () => { btn.remove(); if (selectedRoles.children.length === 0) selectedRoles.innerHTML = '<div class="role-list-empty-message text-muted text-center mt-5">Cliquez sur les utilisateurs à gauche pour les sélectionner.</div>'; checkParityVisibility(); });
             checkParityVisibility();
         }
@@ -270,14 +285,16 @@
             const emptyMsg = selectedRoles.querySelector('.role-list-empty-message');
             if (emptyMsg) emptyMsg.remove();
 
-            // Création d'un bouton pour l'enfant (remplace la div)
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-1 border rounded shadow-sm bg-white border-start border-4 border-info w-100 text-start';
             btn.style.cursor = 'pointer';
 
+            // PROTECTION XSS ICI
+            const safeName = escapeHtml(name);
+
             btn.innerHTML = `
-                <span class="fw-bold small item-name text-dark">${name}</span>
+                <span class="fw-bold small item-name text-dark">${safeName}</span>
                 <span class="d-flex align-items-center gap-2 text-info"><small>Enfant</small><span class="fw-bold fs-6 text-dark">&times;</span></span>
                 <input type="hidden" class="child-id" value="${id}">
             `;

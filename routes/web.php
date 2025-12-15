@@ -5,49 +5,56 @@ use App\Http\Controllers\PresenceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\LierController;
+
 Route::get('/', function () {
     return view('layouts.app');
 })->name('home');
 
 Route::middleware('auth')->group(function () {
+
+    // --- PROFIL ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // --- DASHBOARD ADMIN (Vues statiques) ---
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::view('/', 'admin.index')->name('index');
         Route::view('/publications', 'admin.messages')->name('messages');
         Route::view('/comptes', 'admin.accounts')->name('accounts');
-       Route::view('/familles', 'admin.familles.index')->name('admin.familles.index');
         Route::view('/classes', 'admin.classes')->name('classes');
         Route::view('/facture', 'admin.invoices')->name('invoices');
         Route::view('/notifications', 'admin.notifications')->name('notifications');
     });
+
+    // --- GESTION DES FAMILLES (CRUD) ---
+    Route::prefix('admin/familles')->name('admin.familles.')->group(function () {
+        Route::get('/', [FamilleController::class, 'index'])->name('index');
+        Route::get('/create', [FamilleController::class, 'create'])->name('create');
+        Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
+        Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [FamilleController::class, 'update'])->name('update');
+        Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
+    });
+
+    // --- ROUTES AJAX / API INTERNES ---
+    Route::get('/api/search/users', [FamilleController::class, 'searchUsers'])->name('api.search.users');
+    Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
+
+    // --- GESTION DE LA PRÉSENCE ---
+    Route::get('/presence', function () {
+        return view('presence.index');
+    })->name('presence.index');
+
+    Route::prefix('presence')->name('presence.')->group(function () {
+        Route::get('/classes', [PresenceController::class, 'classes'])->name('classes');
+        Route::get('/students', [PresenceController::class, 'students'])->name('students');
+        Route::get('/status', [PresenceController::class, 'status'])->name('status');
+        Route::post('/save', [PresenceController::class, 'save'])->name('save');
+    });
+
 });
 
-Route::get('/presence', function () {
-    return view('presence.index');
-})->name('presence.index');
-
-Route::get('/admin/familles', [FamilleController::class, 'index'])->name('admin.familles.index');
-Route::get('/admin/familles/create', [FamilleController::class, 'create'])->name('admin.familles.create');
-Route::post('/admin/familles', [FamilleController::class, 'ajouter'])->name('admin.familles.store');
-Route::get('/admin/familles/{id}', [FamilleController::class, 'show'])->name('admin.familles.show');
-// Route pour afficher la page create avec les données d'une famille (Mode Modif)
-Route::get('/admin/familles/{id}/edit', [FamilleController::class, 'edit'])->name('admin.familles.edit');
-Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
-// Route AJAX pour sauvegarder la parité via LierController
-Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
-
-Route::put('/familles/{id}', [FamilleController::class, 'update'])->name('admin.familles.update');
-Route::delete('/familles/{id}', [FamilleController::class, 'delete'])->name('admin.familles.delete');
-
-
-Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
-Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
-Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
-Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
-
 require __DIR__ . '/auth.php';
-
-
 

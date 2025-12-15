@@ -82,9 +82,10 @@ class FamilleController extends Controller
     {
         $tousUtilisateurs = Utilisateur::doesntHave('familles')->get();
 
-        $tousEnfants = Enfant::whereNull('idFamille')
-            ->orWhere('idFamille', 0)
-            ->get();
+        $tousEnfants = Enfant::where(function ($query) {
+            $query->whereNull('idFamille')
+                  ->orWhere('idFamille', 0);
+        })->get();
 
         return view('admin.familles.create', compact('tousUtilisateurs', 'tousEnfants'));
     }
@@ -125,16 +126,27 @@ class FamilleController extends Controller
         return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
     }
 
-    // -------------------- Recherche par parent --------------------
+    // -------------------- Recherche par parent (Corrigé Copilot) --------------------
     public function searchByParent(Request $request)
     {
+        // Validation stricte : au moins 2 caractères
+        $request->validate([
+            'q' => 'nullable|string|min:2|max:50',
+        ]);
+
         $query = $request->input('q');
+
+        // Si vide ou trop court, on retourne vide immédiatement
+        if (!$query || strlen($query) < 2) {
+            return response()->json([]);
+        }
 
         $familles = Famille::with(['utilisateurs', 'enfants'])
             ->whereHas('utilisateurs', function ($q2) use ($query) {
                 $q2->where('nom', 'like', "%{$query}%")
-                    ->orWhere('prenom', 'like', "%{$query}%");
+                   ->orWhere('prenom', 'like', "%{$query}%");
             })
+            ->limit(50) // Sécurité : limite le nombre de résultats
             ->get();
 
         if ($familles->isEmpty()) {
@@ -144,17 +156,24 @@ class FamilleController extends Controller
         return response()->json($familles);
     }
 
-    // -------------------- Recherche AJAX Utilisateurs --------------------
+    // -------------------- Recherche AJAX Utilisateurs (Corrigé Copilot) --------------------
     public function searchUsers(Request $request)
     {
+        // Validation stricte
+        $request->validate([
+            'q' => 'nullable|string|min:2|max:50',
+        ]);
+
         $query = $request->input('q');
+
+        if (!$query || strlen($query) < 2) {
+            return response()->json([]);
+        }
 
         $users = Utilisateur::doesntHave('familles')
             ->where(function ($q) use ($query) {
-                if ($query) {
-                    $q->where('nom', 'like', "%{$query}%")
-                        ->orWhere('prenom', 'like', "%{$query}%");
-                }
+                $q->where('nom', 'like', "%{$query}%")
+                  ->orWhere('prenom', 'like', "%{$query}%");
             })
             ->limit(20)
             ->get();
