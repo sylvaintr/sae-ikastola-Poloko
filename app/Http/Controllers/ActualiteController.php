@@ -18,7 +18,7 @@ class ActualiteController extends Controller
     /**
      * Affiche la liste publique des actualités (Front-end).
      */
-    public function index(Request $request = null)
+    public function index(?Request $request = null)
     {
         $request = $request ?? request();
         // 1. Définir les étiquettes autorisées
@@ -222,7 +222,7 @@ class ActualiteController extends Controller
     /**
      * Données pour DataTables (Logique inlined pour réduire le nombre de méthodes)
      */
-    public function data(Request $request = null)
+    public function data(?Request $request = null)
     {
         $request = $request ?? request();
         $query = Actualite::query()->with('etiquettes');
