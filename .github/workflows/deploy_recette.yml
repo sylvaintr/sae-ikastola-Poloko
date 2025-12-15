@@ -3,17 +3,32 @@ name: Deploy Serveur Recette
 on:
   push:
     branches:
-      - master   
-  workflow_dispatch: 
+      - master
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      
-      # Déploiement sur le serveur
-      - name: Deploy to Recette Server
+      # 1. Récupérer le code sur le Runner GitHub
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Installer Node.js et construire les assets sur le Runner
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Ajuste selon ta version (18, 20, etc.)
+
+      - name: Install NPM dependencies and Build
+        run: |
+          npm ci
+          npm run build
+
+      # 3. Mettre à jour le code PHP sur le serveur (Git & Composer)
+      # On fait ça AVANT d'envoyer les assets pour préparer le terrain
+      - name: Update PHP Code on Server
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST_RECETTE }}
@@ -27,8 +42,37 @@ jobs:
             TS=$(date +"%Y%m%d_%H%M%S")
             git status > git-backups/status_$TS.txt
             git diff > git-backups/diff_$TS.patch
+            
+            # Reset du code PHP
             git reset --hard origin/master
+            
+            # Installation des dépendances PHP
             composer install --no-dev --optimize-autoloader
+
+      # 4. Transférer les fichiers compilés du Runner vers le Serveur
+      # On utilise scp-action pour copier le dossier 'public/build'
+      - name: Copy built assets to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST_RECETTE }}
+          username: ${{ secrets.SERVER_USER_RECETTE }}
+          password: ${{ secrets.SERVER_PASSWORD_RECETTE }}
+          port: 22
+          # SOURCE : Le dossier généré sur GitHub Actions
+          source: "public/build"
+          # CIBLE : Le dossier public sur ton serveur
+          target: ${{ secrets.SERVER_PATH_RECETTE }}
+
+      # 5. Commandes finales Laravel (Cache, Migrations, etc.)
+      - name: Run Artisan Commands
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST_RECETTE }}
+          username: ${{ secrets.SERVER_USER_RECETTE }}
+          password: ${{ secrets.SERVER_PASSWORD_RECETTE }}
+          port: 22
+          script: |
+            cd ${{ secrets.SERVER_PATH_RECETTE }}
             php artisan storage:link
             php artisan config:cache
             php artisan route:cache
@@ -36,8 +80,9 @@ jobs:
             php artisan optimize
             php artisan migrate --force
             php artisan db:seed --force
-            npm ci
-            npm run build
+            
+            # Plus besoin de npm ci / npm run build ici !
+            
+            # On recache la vue pour être sûr qu'elle prenne les nouveaux assets
             php artisan view:cache
             doxygen Doxyfile
-            
