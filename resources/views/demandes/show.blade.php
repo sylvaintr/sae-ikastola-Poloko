@@ -38,7 +38,7 @@
                     @foreach ($photos as $photo)
                         <div class="col-md-6">
                             <div class="demande-photo-card">
-                                <img src="{{ $photo['url'] }}" alt="{{ __('demandes.show.photo_alt', ['name' => $photo['nom']]) }}" class="img-fluid w-100 rounded-3">
+                                <img src="{{ $photo['url'] }}" alt="{{ $photo['nom'] }}" class="img-fluid w-100 rounded-3">
                                 <div class="small text-muted mt-2">{{ $photo['nom'] }}</div>
                             </div>
                         </div>

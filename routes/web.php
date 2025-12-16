@@ -25,6 +25,7 @@ if (!defined('ROUTE_ADD')) {
 
     define('ROUTE_CLASSE', '/{classe}');
     define('ROUTE_OBLIGATORY_DOCUMENT', '/{obligatoryDocument}');
+    define('ROUTE_DEMANDE', '/{demande}');
 }
 
 
@@ -51,14 +52,14 @@ Route::middleware('auth')->group(function () {
             Route::get('/create', [DemandeController::class, 'create'])->name('create');
             Route::post('/', [DemandeController::class, 'store'])->name('store');
 
-            Route::get('/{demande}', [DemandeController::class, 'show'])->name('show');
-            Route::get('/{demande}/edit', [DemandeController::class, 'edit'])->name('edit');
-            Route::put('/{demande}', [DemandeController::class, 'update'])->name('update');
-            Route::patch('/{demande}/valider', [DemandeController::class, 'validateDemande'])->name('validate');
-            Route::delete('/{demande}', [DemandeController::class, 'destroy'])->name('destroy');
+            Route::get(ROUTE_DEMANDE, [DemandeController::class, 'show'])->name('show');
+            Route::get(ROUTE_DEMANDE . '/edit', [DemandeController::class, 'edit'])->name('edit');
+            Route::put(ROUTE_DEMANDE, [DemandeController::class, 'update'])->name('update');
+            Route::patch(ROUTE_DEMANDE . '/valider', [DemandeController::class, 'validateDemande'])->name('validate');
+            Route::delete(ROUTE_DEMANDE, [DemandeController::class, 'destroy'])->name('destroy');
 
-            Route::get('/{demande}/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
-            Route::post('/{demande}/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
+            Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
+            Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
         });
 
     /*
