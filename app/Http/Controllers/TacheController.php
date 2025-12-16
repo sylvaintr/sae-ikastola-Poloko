@@ -106,13 +106,13 @@ class TacheController extends Controller
                             <a href="'.$showUrl.'" title="Voir plus" style="color: black;"><i class="bi bi-eye-fill"></i></a>
                             <a href="'.$editUrl.'" title="Modifier la tâche" style="color: black;"><i class="bi bi-pencil-square"></i></a>
 
-                            <form action="'.$deleteUrl.'" method="POST" style="display:inline;">
-                                '.csrf_field().'
-                                '.method_field('DELETE').'
-                                <button type="submit" title="Supprimer la tâche" style="background-color: transparent; border: none; padding: 0px" onclick="return confirm(\'Supprimer cette tâche ?\')">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </form>
+                            <a href="#"
+                            class="delete-tache"
+                            data-url="'.$deleteUrl.'"
+                            title="Supprimer la tâche"
+                            style="color:black;">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
 
                             '.$confirmationButton.'
                         </div>
@@ -197,19 +197,39 @@ class TacheController extends Controller
         return redirect()->route('tache.index')->with('success', 'Tâche mise à jour.');
     }
 
-    public function delete(Tache $tache)
+    public function delete(Request $request, Tache $tache)
     {
         try {
             $tache->delete();
+
+            // si appel AJAX
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Tâche supprimée avec succès.'
+                ]);
+            }
+
+            // fallback normal (non AJAX)
             return redirect()
                 ->route('tache.index')
                 ->with('success', 'Tâche supprimée avec succès.');
+
         } catch (\Exception $e) {
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erreur lors de la suppression.'
+                ], 500);
+            }
+
             return redirect()
                 ->route('tache.index')
                 ->with('error', 'Erreur lors de la suppression.');
         }
     }
+
 
     public function show($id)
     {
