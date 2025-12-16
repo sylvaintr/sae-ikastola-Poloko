@@ -8,6 +8,7 @@ use App\Models\Etre;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
+/** @codeCoverageIgnore */
 class PresenceController extends Controller
 {
     /**

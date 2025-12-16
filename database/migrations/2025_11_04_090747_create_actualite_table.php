@@ -12,9 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('actualite', function (Blueprint $table) {
-            $table->integer('idActualite')->primary();
-            $table->string('titre', 30)->nullable();
-            $table->string('description', 100);
+            $table->integer('idActualite')->primary()->autoIncrement();
+            $table->string('titrefr', 30)->nullable();
+            $table->string('titreeus', 30)->nullable();
+            $table->string('descriptionfr', 100);
+            $table->string('descriptioneus', 100);
+            $table->text('contenufr');
+            $table->text('contenueus');
             $table->string('type', 20);
             $table->date('dateP');
             $table->boolean('archive');

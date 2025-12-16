@@ -29,31 +29,47 @@ return [
         'notifications' => 'Notifications',
         'obligatory_documents' => 'Documents obligatoires',
     ],
-    'accounts_page' => [
-        'title' => 'Kontuak',
-        'title_subtitle' => 'Comptes',
-        'search_placeholder' => 'Erabiltzaile baten bilaketa...',
-        'search_label' => 'Rechercher un utilisateur',
-        'add_button' => 'Gehitu kontu bat',
-        'add_button_subtitle' => 'Ajouter un compte',
+    'accounts_page' => (function() use ($common) {
+        $addAccountText = 'Ajouter un compte';
+        return [
+            'title' => 'Comptes',
+            'title_subtitle' => 'Comptes',
+            'search_placeholder' => 'Rechercher un utilisateur...',
+            'search_label' => 'Rechercher un utilisateur',
+            'add_button' => $addAccountText,
+            'add_button_subtitle' => $addAccountText,
+        'filter' => [
+            'all_roles' => 'Tous les rôles',
+            'role_label' => 'Filtrer par rôle',
+        ],
         'columns' => [
-            'id' => [
-                'title' => 'Identifiant',
-            ],
             'first_name' => [
-                'title' => $common['first_name'],
+                'title' => 'Izena',
+                'subtitle' => 'Prénom',
             ],
             'last_name' => [
-                'title' => $common['last_name'],
+                'title' => 'Izena',
+                'subtitle' => 'Nom',
             ],
             'email' => [
                 'title' => $common['email'],
+                'subtitle' => $common['email'],
+            ],
+            'famille' => [
+                'title' => 'Familiaren NAN',
+                'subtitle' => 'ID Famille',
+            ],
+            'roles' => [
+                'title' => 'Rola',
+                'subtitle' => 'Rôle',
             ],
             'status' => [
                 'title' => 'Statut',
+                'subtitle' => 'Statut',
             ],
             'actions' => [
                 'title' => 'Actions',
+                'subtitle' => 'Actions',
             ],
         ],
         'actions' => [
@@ -80,6 +96,7 @@ return [
             'status_label' => 'Statut',
             'roles_label' => $common['roles'],
             'no_roles' => 'Aucun rôle assigné',
+            'no_roles_selected' => 'Aucun rôle n\'a été sélectionné',
             'archived_notice' => 'Ce compte est archivé. Seule la consultation est autorisée.',
             'details_title' => 'Informations du compte',
         ],
@@ -112,7 +129,7 @@ return [
             ],
         ],
         'create' => [
-            'title' => 'Ajouter un compte',
+            'title' => $addAccountText,
             'submit' => $common['submit'],
             'cancel' => $common['cancel'],
             'fields' => [
@@ -139,24 +156,25 @@ return [
         ],
         'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer le compte :name ?',
         'archive_confirmation' => 'Êtes-vous sûr de vouloir archiver le compte :name ?',
-    ],
+        ];
+    })(),
     'obligatory_documents' => [
         'title' => 'Documents obligatoires',
         'subtitle' => 'Documents requis',
         'description' => 'Cette page permettra de gérer les documents obligatoires.',
-        'add_button' => 'Gehitu dokumentu bat',
+        'add_button' => 'Ajouter un document',
         'add_button_subtitle' => 'Ajouter un document',
         'back' => 'Retour aux documents obligatoires',
         'all_roles' => 'Tous',
         'no_documents' => 'Aucun document obligatoire disponible pour le moment.',
         'columns' => [
-            'title' => 'Izenburua',
+            'title' => 'Titre',
             'title_subtitle' => 'Titre',
-            'role' => 'Rola',
+            'role' => 'Rôle',
             'role_subtitle' => 'Rôle',
-            'expiration_date' => 'Iraungitze data',
+            'expiration_date' => 'Date d\'expiration',
             'expiration_date_subtitle' => 'Date d\'expiration',
-            'actions' => 'Ekintzak',
+            'actions' => 'Actions',
             'actions_subtitle' => 'Actions',
         ],
         'actions' => [
