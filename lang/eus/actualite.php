@@ -64,6 +64,14 @@ return [
     'search_placeholder' => 'Berri bat bilatu',
     'active' => 'Aktiboa',
     'archived' => 'Artxibatua',
+    'modals' => [
+        'delete' => [
+            'title' => 'Berria ezabatu',
+            'message' => 'Benetan ezabatu nahi duzu berria?',
+            'cancel' => 'Utzi',
+            'confirm' => 'Ezabatu',
+        ],
+    ],
  
 
 ];

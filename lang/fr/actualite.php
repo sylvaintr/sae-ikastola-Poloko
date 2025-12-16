@@ -64,6 +64,14 @@ return [
     'search_placeholder' => 'Rechercher une actualité',
     'active' => 'Actives',
     'archived' => 'Archivées',
+    'modals' => [
+        'delete' => [
+            'title' => 'Supprimer l’actualité',
+            'message' => 'Voulez-vous vraiment supprimer cette actualité ?',
+            'cancel' => 'Annuler',
+            'confirm' => 'Supprimer',
+        ],
+    ],
 
 
 ];

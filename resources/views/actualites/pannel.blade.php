@@ -169,6 +169,8 @@
     </div>
     </div>
 
+    @include('actualites.partials.delete-modal')
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('actualites-filters');
@@ -186,6 +188,37 @@
                 searchInput.addEventListener('input', () => {
                     clearTimeout(debounce);
                     debounce = setTimeout(submitWithResetPage, 400);
+                });
+            }
+
+            const deleteModalEl = document.getElementById('deleteActualiteModal');
+            if (deleteModalEl) {
+                const deleteModal = new bootstrap.Modal(deleteModalEl);
+                let currentForm = null;
+
+                deleteModalEl.querySelector('.cancel-delete')?.addEventListener('click', () => {
+                    deleteModal.hide();
+                    currentForm = null;
+                });
+
+                deleteModalEl.querySelector('.confirm-delete')?.addEventListener('click', () => {
+                    if (currentForm) {
+                        currentForm.submit();
+                        deleteModal.hide();
+                        currentForm = null;
+                    }
+                });
+
+                document.querySelectorAll('.actualite-delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        currentForm = this.closest('.actualite-delete-form');
+                        const title = this.getAttribute('data-actualite-title') || '';
+                        const label = deleteModalEl.querySelector('[data-actualite-title]');
+                        if (label) {
+                            label.textContent = title;
+                        }
+                        deleteModal.show();
+                    });
                 });
             }
         });

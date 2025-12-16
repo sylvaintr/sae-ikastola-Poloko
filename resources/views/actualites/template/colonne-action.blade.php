@@ -7,10 +7,10 @@
         <i class="bi bi-pencil-fill"></i>
     </a>
 
-    <form action="{{ route('admin.actualites.destroy', $actualite->idActualite) }}" method="POST" class="d-inline">
+    <form action="{{ route('admin.actualites.destroy', $actualite->idActualite) }}" method="POST" class="d-inline actualite-delete-form">
         @csrf
         @method('DELETE')
-        <button type="submit" class="btn demande-action-btn text-muted" onclick="return confirm('{{ __('Êtes-vous sûr ?') }}')" title="{{ __('Supprimer') }}">
+        <button type="button" class="btn demande-action-btn text-muted actualite-delete-btn" data-actualite-title="{{ $actualite->titrefr ?? $actualite->titreeus ?? $actualite->titre ?? '' }}" title="{{ __('Supprimer') }}">
             <i class="bi bi-trash3"></i>
         </button>
     </form>
