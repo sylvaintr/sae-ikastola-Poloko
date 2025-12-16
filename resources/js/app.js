@@ -1,8 +1,8 @@
 import jQuery from 'jquery';
-window.$ = window.jQuery = jQuery;
+globalThis.$ = globalThis.jQuery = jQuery;
 
 import * as bootstrap from 'bootstrap';
-window.bootstrap = bootstrap;
+globalThis.bootstrap = bootstrap;
 
 import './bootstrap';
 import './children-selector';

@@ -9,8 +9,9 @@ services:
       && php-fpm"
     volumes:
       - ./:/var/www/html
-      - /var/www/html/vendor
-      - /var/www/html/node_modules
+    depends_on:
+      - mysql
+      - mailpit
     networks:
       - laravel
 
@@ -36,6 +37,8 @@ services:
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
       TZ: Europe/Paris
     ports:
       - "3306:3306"

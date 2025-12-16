@@ -36,7 +36,7 @@ globalThis.afficherDataTableEtiquettes = function(id) {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal( {
                         header: function ( row ) {
-                            var data = row.data();
+                            row.data();
                             return 'Détails';
                         }
                     } ),
