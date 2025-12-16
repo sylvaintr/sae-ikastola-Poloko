@@ -9,6 +9,36 @@
     background-color: #f6f7fb;
 }
 
+/* Admin Actualités (liste) */
+.admin-actualites-card {
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.admin-actualites-filters .form-label {
+    font-size: 0.9rem;
+    color: #4a4a4a;
+}
+
+.admin-actualites-filters .form-select,
+.admin-actualites-filters .btn {
+    border-radius: 10px;
+}
+
+.admin-actualites-filters .btn {
+    font-weight: 600;
+}
+
+.table thead.table-light th {
+    font-weight: 700;
+}
+
+.table thead.table-light p {
+    font-weight: 400;
+    color: #7a7a7a;
+    font-size: 0.85rem;
+}
+
 .auth-logo {
     position: absolute;
     top: 1.5rem;
