@@ -3,6 +3,7 @@
 return [
     'actualites' => 'berriak',
     'demande' => 'eskaera',
+    'demandes' => 'eskaerak',
     'tache' => 'orbana',
     'presence' => 'presentzia',
     'evenement' => 'gertaera',

@@ -3,6 +3,7 @@
 return [
     'actualites' => 'Actualités',
     'demande' => 'Demande',
+    'demandes' => 'Demandes',
     'tache' => 'Tâche',
     'presence' => 'Présence',
     'evenement' => 'Événement',

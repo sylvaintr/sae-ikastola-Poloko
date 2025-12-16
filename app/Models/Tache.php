@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $titre Titre de la tâche.
  * @property string $description Description détaillée.
  * @property string $type Catégorie / type de tâche.
+ * @property string $urgence Niveau d'urgence (faible / moyen / élevé).
  * @property string $etat État (ex: ouverte, en cours, fermée).
  * @property Carbon|null $dateD Date de début (optionnelle).
  * @property Carbon|null $dateF Date de fin (optionnelle).
@@ -55,9 +56,11 @@ class Tache extends Model
 	 * - `idEvenement` (int|null) : référence vers un événement associé.
 	 */
 	protected $fillable = [
+		'idTache',
 		'titre',
 		'description',
 		'type',
+		'urgence',
 		'etat',
 		'dateD',
 		'dateF',
@@ -85,5 +88,15 @@ class Tache extends Model
 	public function realisateurs()
 	{
 		return $this->belongsToMany(Utilisateur::class, 'realiser', 'idTache', 'idUtilisateur')->withPivot('dateM', 'description');
+	}
+
+	public function documents()
+	{
+		return $this->hasMany(Document::class, 'idTache', 'idTache');
+	}
+
+	public function historiques()
+	{
+		return $this->hasMany(TacheHistorique::class, 'idTache', 'idTache')->orderByDesc('date_evenement')->orderByDesc('id');
 	}
 }
