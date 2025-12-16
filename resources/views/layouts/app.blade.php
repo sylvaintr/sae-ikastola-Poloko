@@ -44,44 +44,7 @@
 
         <!-- Page Content -->
         <main>
-            <!-- SUCCES -->
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show my-3" role="alert">
-                    <strong>Succès :</strong> {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-                </div>
-            @endif
-
-            <!-- ERREURS -->
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
-                    <strong>Erreur :</strong> {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-                </div>
-            @endif
-
-            <!-- WARNINGS -->
-            @if (session('warning'))
-                <div class="alert alert-warning alert-dismissible fade show my-3" role="alert">
-                    <strong>Attention :</strong> {{ session('warning') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-                </div>
-            @endif
-
-            @if ($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show my-3" role="alert">
-                    <strong>Erreurs de validation :</strong>
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-                </div>
-            @endif
-
-            @yield('content')
-
+            
             @isset($slot)
                 {{ $slot }}
             @endisset
