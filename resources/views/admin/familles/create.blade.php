@@ -90,6 +90,7 @@
                                          onmouseover="this.style.backgroundColor='#f8f9fa'"
                                          onmouseout="this.style.backgroundColor='white'">
                                         <span class="text-dark item-name">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
+                                        <span class="flex-grow-1"></span>
                                         <div class="d-flex align-items-center text-secondary">
                                             <span class="me-3 small fw-bold">Enfant</span>
                                             <i class="bi bi-plus-circle text-dark fs-4"></i>

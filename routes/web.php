@@ -116,18 +116,18 @@ Route::middleware('auth')->group(function () {
             Route::get('/facture/{id}/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
 
             // ---------------- Ajout des routes Famille + LierController ----------------
-            Route::prefix('admin/familles')->name('admin.familles.')->group(function () {
-                Route::get('/', [FamilleController::class, 'index'])->name('index');
-                Route::get('/create', [FamilleController::class, 'create'])->name('create');
-                Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
-                Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
-                Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
-                Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
-            });
+            Route::prefix('familles')->name('familles.')->group(function () {
+    Route::get('/', [FamilleController::class, 'index'])->name('index');
+    Route::get('/create', [FamilleController::class, 'create'])->name('create');
+    Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
+    Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
+    Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
+});
 
-            Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
-
+           
         });
+ Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 
         // ---------------- Présence ----------------
         Route::get('/presence', function () { return view('presence.index'); })->name('presence.index');
