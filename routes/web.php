@@ -6,7 +6,7 @@ use App\Http\Controllers\DemandeController;
 use App\Http\Controllers\Admin\AccountController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
-use App\Http\Controllers\LierController; 
+use App\Http\Controllers\LierController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\ActualiteController;
