@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('document', function (Blueprint $table) {
             $table->integer('idDocument')->primary()->autoIncrement();
+            $table->integer('idTache')->nullable()->index('document_idtache');
             $table->string('nom', 50);
             $table->string('chemin', 100);
             $table->string('type', 5);
