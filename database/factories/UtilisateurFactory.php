@@ -31,7 +31,7 @@ class UtilisateurFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             // mark email verified by default; tests can call ->unverified() to set null
             'email_verified_at' => now(),
-            'languePref' => $this->faker->randomElement(['fr', 'en', 'es']),
+            'languePref' => $this->faker->randomElement(['fr', 'es']),
             'statutValidation' => $this->faker->boolean(),
             'remember_token' => Str::random(10),
         ];

@@ -16,5 +16,6 @@ class RoleModelTest extends TestCase
 
         $this->assertDatabaseHas('role', ['name' => $role->name]);
         $this->assertGreaterThanOrEqual(0,  $role->documentObligatoires()->count());
+        $this->assertGreaterThanOrEqual(0,  $role->etiquettes()->count());
     }
 }

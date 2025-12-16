@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('sexe', 5);
             $table->integer('NNI');
             $table->integer('nbFoisGarderie');
-            $table->integer('idClasse')->index('idclasse');
+            $table->integer('idClasse')->nullable()->index('idclasse');
             $table->integer('idFamille')->index('idfamille');
         });
     }

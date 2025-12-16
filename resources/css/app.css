@@ -1,6 +1,7 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import "datatables.net-dt/css/dataTables.dataTables.min.css";
 @import "datatables.net-responsive-dt/css/responsive.dataTables.min.css";
+@import "bootstrap-icons/font/bootstrap-icons.css";
 
 .auth-body {
     min-height: 100vh;
@@ -830,6 +831,33 @@
 
 .admin-search-input::placeholder {
     color: #6c757d;
+}
+
+.admin-filter-container {
+    min-width: 200px;
+}
+
+.admin-filter-select {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    min-width: 200px;
+}
+
+.admin-filter-select:hover {
+    border-color: #f29201;
+    background-color: #fff;
+}
+
+.admin-filter-select:focus {
+    background-color: #fff;
+    border-color: #f29201;
+    box-shadow: 0 0 0 0.2rem rgba(242, 146, 1, 0.25);
+    outline: none;
 }
 
 .admin-table {
