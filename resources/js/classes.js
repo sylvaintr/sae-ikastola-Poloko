@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal( {
                         header: function ( row ) {
-                            var data = row.data();
+                             row.data();
                             return 'Détails';
                         }
                     } ),

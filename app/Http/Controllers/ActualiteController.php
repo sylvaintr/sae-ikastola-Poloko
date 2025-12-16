@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Lang;
 
 class ActualiteController extends Controller
 {
+    private const DATE_FORMAT = 'd/m/Y';
     /**
      * Affiche la liste publique des actualités (Front-end).
      */
@@ -71,7 +72,7 @@ class ActualiteController extends Controller
         if($request->ajax()){
             return DataTables::of(Actualite::query())
                 ->editColumn('dateP', function ($row) {
-                    return \Carbon\Carbon::parse($row->dateP)->format('d/m/Y');
+                    return \Carbon\Carbon::parse($row->dateP)->format(self::DATE_FORMAT);
                 })
                 ->editColumn('archive', function ($row) {
                     return $row->archive ? 'Archivé' : 'Publié';
@@ -130,7 +131,7 @@ class ActualiteController extends Controller
         } else {
             // Ensure slashed dates (d/m/Y) are normalized before validation
             if ($request->has('dateP') && str_contains($request->dateP, '/')) {
-                $d = \DateTime::createFromFormat('d/m/Y', $request->dateP);
+                $d = \DateTime::createFromFormat(self::DATE_FORMAT, $request->dateP);
                 if ($d) {
                     $request->merge(['dateP' => $d->format('Y-m-d')]);
                 }
@@ -186,7 +187,7 @@ class ActualiteController extends Controller
         } else {
             // Normalize slashed date format before validating as StoreActualiteRequest is not executed
             if ($request->has('dateP') && str_contains($request->dateP, '/')) {
-                $d = \DateTime::createFromFormat('d/m/Y', $request->dateP);
+                $d = \DateTime::createFromFormat(self::DATE_FORMAT, $request->dateP);
                 if ($d) {
                     $request->merge(['dateP' => $d->format('Y-m-d')]);
                 }
@@ -324,20 +325,7 @@ class ActualiteController extends Controller
         throw new \BadMethodCallException("Method {$method} does not exist.");
     }
 
-    /**
-     * Inline titre filter extracted to a private method so unit tests can target it.
-     */
-    private function filterColumnTitreInline($q, $keyword)
-    {
-        $q->where(fn($sq) => $sq->where('titrefr', 'like', "%{$keyword}%")->orWhere('titreeus', 'like', "%{$keyword}%"));
-    }
 
-    /**
-     * Inline etiquettes filter extracted to a private method so unit tests can target it.
-     */
-    private function filterColumnEtiquettesInline($q, $keyword)
-    {
-        $q->whereHas('etiquettes', fn($sq) => $sq->where('nom', 'like', "%{$keyword}%"));
-    }
+
 
 }
