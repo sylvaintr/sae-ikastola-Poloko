@@ -90,13 +90,4 @@ class Tache extends Model
 		return $this->belongsToMany(Utilisateur::class, 'realiser', 'idTache', 'idUtilisateur')->withPivot('dateM', 'description');
 	}
 
-	public function documents()
-	{
-		return $this->hasMany(Document::class, 'idTache', 'idTache');
-	}
-
-	public function historiques()
-	{
-		return $this->hasMany(TacheHistorique::class, 'idTache', 'idTache')->orderByDesc('date_evenement')->orderByDesc('id');
-	}
 }

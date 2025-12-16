@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('chemin', 100);
             $table->string('type', 5);
             $table->string('etat', 15);
-            $table->integer('idTache')->nullable()->index('document_idtache');
         });
     }
 
