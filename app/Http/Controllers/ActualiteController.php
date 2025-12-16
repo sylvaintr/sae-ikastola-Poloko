@@ -37,14 +37,31 @@ class ActualiteController extends Controller
             ->where('archive', false)
             ->where('dateP', '<=', now());
 
-        $types = Auth::check() ? ['public', 'private'] : ['public'];
-        $query->whereIn('type', $types);
-
-        // 3. Filtrer par étiquettes autorisées (Logique: Sans étiquette OU avec étiquette autorisée)
-        $query->where(function($q) use ($allowedIdsArray) {
-            $q->doesntHave('etiquettes')
-              ->orWhereHas('etiquettes', fn($sq) => $sq->whereIn('etiquette.idEtiquette', $allowedIdsArray));
-        });
+        // 3. Types visibles :
+        //    - Toujours les "public"
+        //    - Les "private" uniquement si connecté
+        if (Auth::check()) {
+            // Public visibles sans restriction, private filtrées par étiquettes autorisées
+            $query->where(function ($q) use ($allowedIdsArray) {
+                // Cas 1 : public => toujours visible
+                $q->where('type', 'public')
+                  // Cas 2 : private + étiquettes autorisées (ou aucune étiquette)
+                  ->orWhere(function ($sq) use ($allowedIdsArray) {
+                      $sq->where('type', 'private')
+                          ->where(function($qq) use ($allowedIdsArray) {
+                              $qq->doesntHave('etiquettes')
+                                 ->orWhereHas('etiquettes', fn($sq) => $sq->whereIn('etiquette.idEtiquette', $allowedIdsArray));
+                          });
+                  });
+            });
+        } else {
+            // Non connecté : uniquement les public (et étiquettes non restreintes)
+            $query->where('type', 'public')
+                  ->where(function($q) use ($allowedIdsArray) {
+                      $q->doesntHave('etiquettes')
+                        ->orWhereHas('etiquettes', fn($sq) => $sq->whereIn('etiquette.idEtiquette', $allowedIdsArray));
+                  });
+        }
 
         // 4. Filtre utilisateur (Sidebar/Recherche)
         $selected = $request->query('etiquettes', session('selectedEtiquettes', []));
