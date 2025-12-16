@@ -1,24 +1,24 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Activite
- * 
- * @property string $activite Identifiant / nom de l'activité (clé logique). Chaîne unique servant à référencer l'activité depuis d'autres tables.
- * @property Carbon $dateP Date prévue / programmée de l'activité (utilisé pour trier et filtrer par date).
+ *
+ * Modèle Eloquent représentant une activité planifiée ou proposée dans l'application.
  *
  * @package App\Models
+ *
+ * @property string $activite Identifiant / nom unique de l'activité (clé logique).
+ * @property Carbon $dateP Date prévue / programmée de l'activité.
  */
 class Activite extends Model
 {
+	use HasFactory;
 	protected $table = 'activite';
 	public $incrementing = false;
 	public $timestamps = false;
@@ -27,9 +27,14 @@ class Activite extends Model
 		'dateP' => 'datetime'
 	];
 
+	/**
+	 * Relation hasMany vers les enregistrements `Etre` (présences/inscriptions).
+	 * La colonne locale `activite` (string) correspond à `Etre.activite`.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
 	public function etres()
 	{
-		// Etre uses column `activite` (string) to reference Activite.activite
 		return $this->hasMany(Etre::class, 'activite', 'activite');
 	}
 }

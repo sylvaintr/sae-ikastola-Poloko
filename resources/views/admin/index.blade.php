@@ -1,12 +1,15 @@
 <x-app-layout>
-    @php($sections = [
-        'add_message' => 'admin.messages',
-        'accounts' => 'admin.accounts',
-        'families' => 'admin.familles.index',
-        'classes' => 'admin.classes',
-        'invoices' => 'admin.invoices',
-        'notifications' => 'admin.notifications',
-    ])
+    @php
+        $sections = [
+            'add_message' => 'admin.actualites.index',
+            'accounts' => 'admin.accounts.index',
+            'families' => 'admin.familles.index',
+            'classes' => 'admin.classes.index',
+            'obligatory_documents' => 'admin.obligatory_documents.index',
+            'invoices' => 'admin.facture.index',
+            'notifications' => 'admin.notifications',
+        ];
+    @endphp
 
     <div class="container py-4">
         @foreach ($sections as $key => $route)

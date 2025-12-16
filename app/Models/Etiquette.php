@@ -1,41 +1,55 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Etiquette
- * 
- * @property int $idEtiquette Identifiant de l'étiquette.
- * @property string $nom Nom / libellé de l'étiquette.
+ *
+ * Représente une étiquette / catégorie utilisée pour taguer des actualités.
  *
  * @package App\Models
+ *
+ * @property int $idEtiquette Identifiant de l'étiquette.
+ * @property string $nom Nom / libellé de l'étiquette.
  */
 class Etiquette extends Model
 {
+	use HasFactory;
 	protected $table = 'etiquette';
 	protected $primaryKey = 'idEtiquette';
-	public $incrementing = false;
+	public $incrementing = true;
 	public $timestamps = false;
 
 	protected $casts = [
 		'idEtiquette' => 'int'
 	];
 
+	/**
+	 * Attributs assignables (fillable) pour une étiquette.
+	 *
+	 * - `nom` (string) : nom / libellé de l'étiquette.
+	 */
 	protected $fillable = [
 		'nom'
 	];
 
 	/**
-	 * Actualités associées via la table pivot `correspondre`.
+	 * Relation belongsToMany vers les actualités associées à cette étiquette via la table pivot `correspondre`.
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
 	public function actualites()
 	{
 		return $this->belongsToMany(Actualite::class, 'correspondre', 'idEtiquette', 'idActualite');
+	}
+
+	/**
+	 * Relation belongsToMany vers les rôles associés à cette étiquette via la table pivot `posseder`.
+	 */
+	public function roles()
+	{
+		return $this->belongsToMany(Role::class, 'posseder', 'idEtiquette', 'idRole')->using(Posseder::class);
 	}
 }

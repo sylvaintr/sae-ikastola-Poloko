@@ -1,22 +1,20 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
  * Class Contenir
- * 
- * @property int $idUtilisateur Identifiant de l'utilisateur propriétaire / lié au document.
- * @property int $idDocument Identifiant du document contenu.
+ *
+ * Pivot représentant la relation entre un `Utilisateur` et un `Document` (documents possédés / attachés à un utilisateur).
  *
  * @package App\Models
+ *
+ * @property int $idUtilisateur Identifiant de l'utilisateur propriétaire / lié au document.
+ * @property int $idDocument Identifiant du document.
  */
-class Contenir extends Model
+class Contenir extends Pivot
 {
 	protected $table = 'contenir';
 	public $incrementing = false;
@@ -27,11 +25,21 @@ class Contenir extends Model
 		'idDocument' => 'int'
 	];
 
+	/**
+	 * Relation belongsTo vers l'utilisateur propriétaire / lié au document.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
 	public function utilisateur()
 	{
 		return $this->belongsTo(Utilisateur::class, 'idUtilisateur');
 	}
 
+	/**
+	 * Relation belongsTo vers le document.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
 	public function document()
 	{
 		return $this->belongsTo(Document::class, 'idDocument');

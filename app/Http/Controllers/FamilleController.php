@@ -19,9 +19,10 @@ class FamilleController extends Controller
             'utilisateurs' => 'array',
         ]);
 
-        $famille = Famille::create();
+        // Ensure required boolean field has a default to avoid DB errors in tests/environments
+        $famille = Famille::create(['aineDansAutreSeaska' => false]);
 
-        // Gestion des enfants
+        // Gestion des enfants (TA VERSION)
         foreach ($data['enfants'] ?? [] as $enfantData) {
             if (isset($enfantData['idEnfant'])) {
                 Enfant::where('idEnfant', $enfantData['idEnfant'])
@@ -126,17 +127,15 @@ class FamilleController extends Controller
         return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
     }
 
-    // -------------------- Recherche par parent (Corrigé Copilot) --------------------
+    // -------------------- Recherche par parent --------------------
     public function searchByParent(Request $request)
     {
-        // Validation stricte : au moins 2 caractères
         $request->validate([
             'q' => 'nullable|string|min:2|max:50',
         ]);
 
         $query = $request->input('q');
 
-        // Si vide ou trop court, on retourne vide immédiatement
         if (!$query || strlen($query) < 2) {
             return response()->json([]);
         }
@@ -146,7 +145,7 @@ class FamilleController extends Controller
                 $q2->where('nom', 'like', "%{$query}%")
                    ->orWhere('prenom', 'like', "%{$query}%");
             })
-            ->limit(50) // Sécurité : limite le nombre de résultats
+            ->limit(50)
             ->get();
 
         if ($familles->isEmpty()) {
@@ -156,10 +155,9 @@ class FamilleController extends Controller
         return response()->json($familles);
     }
 
-    // -------------------- Recherche AJAX Utilisateurs (Corrigé Copilot) --------------------
+    // -------------------- Recherche AJAX Utilisateurs --------------------
     public function searchUsers(Request $request)
     {
-        // Validation stricte
         $request->validate([
             'q' => 'nullable|string|min:2|max:50',
         ]);
@@ -181,4 +179,3 @@ class FamilleController extends Controller
         return response()->json($users);
     }
 }
-
