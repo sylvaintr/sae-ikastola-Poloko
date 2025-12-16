@@ -180,7 +180,7 @@ class FamilleController extends Controller
     }
 
     public function update(Request $request, int $id)
-{
+    {
     $famille = Famille::find($id);
 
     if ($famille === null) {
@@ -189,17 +189,36 @@ class FamilleController extends Controller
         ], 404);
     }
 
-    $validated = $request->validate([
-        'aineDansAutreSeaska' => 'required|boolean',
+    $data = $request->validate([
+        'enfants' => 'array',
+        'utilisateurs' => 'array',
     ]);
 
-    $famille->update($validated);
+    // --- Mise à jour des enfants ---
+    foreach ($data['enfants'] ?? [] as $childData) {
+        if (isset($childData['idEnfant'])) {
+            Enfant::where('idEnfant', $childData['idEnfant'])
+                ->update([
+                    'nom' => $childData['nom'] ?? null,
+                    'prenom' => $childData['prenom'] ?? null,
+                ]);
+        }
+    }
+
+    // --- Mise à jour des utilisateurs ---
+    foreach ($data['utilisateurs'] ?? [] as $userData) {
+        if (isset($userData['idUtilisateur'])) {
+            Utilisateur::where('idUtilisateur', $userData['idUtilisateur'])
+                ->update([
+                    'languePref' => $userData['languePref'] ?? null,
+                ]);
+        }
+    }
 
     return response()->json([
-        'message' => 'Famille mise à jour avec succès',
-        'famille' => $famille,
-    ], 200);
-}
+        'message' => 'Famille mise à jour (enfants + utilisateurs)',
+    ], 200);}
+
 
 
 }
