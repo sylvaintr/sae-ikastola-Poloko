@@ -22,15 +22,19 @@ class ActualiteController extends Controller
     {
         $request = $request ?? request();
         // 1. Définir les étiquettes autorisées
+        // Étiquettes non liées à un rôle : accessibles à tous
+        $unboundIds = Etiquette::whereNotIn('idEtiquette', Posseder::distinct()->pluck('idEtiquette'))->pluck('idEtiquette')->toArray();
+
         if (!Auth::check()) {
             $forbiddenIds = Posseder::distinct()->pluck('idEtiquette');
             $etiquettes = Etiquette::whereNotIn('idEtiquette', $forbiddenIds)->get();
+            $allowedIdsArray = $etiquettes->pluck('idEtiquette')->toArray();
         } else {
             $roleIds = Auth::user()->rolesCustom()->pluck('avoir.idRole'); // Ajuste selon ta structure user
             $allowedIds = Posseder::whereIn('idRole', $roleIds)->pluck('idEtiquette');
             $etiquettes = Etiquette::whereIn('idEtiquette', $allowedIds)->get();
+            $allowedIdsArray = $etiquettes->pluck('idEtiquette')->toArray();
         }
-        $allowedIdsArray = $etiquettes->pluck('idEtiquette')->toArray();
 
         // 2. Construire la requête
         $query = Actualite::with(['etiquettes', 'documents'])
@@ -42,15 +46,15 @@ class ActualiteController extends Controller
         //    - Les "private" uniquement si connecté
         if (Auth::check()) {
             // Public visibles sans restriction, private filtrées par étiquettes autorisées
-            $query->where(function ($q) use ($allowedIdsArray) {
+            $query->where(function ($q) use ($allowedIdsArray, $unboundIds) {
                 // Cas 1 : public => toujours visible
                 $q->where('type', 'public')
                   // Cas 2 : private + étiquettes autorisées (ou aucune étiquette)
-                  ->orWhere(function ($sq) use ($allowedIdsArray) {
+                  ->orWhere(function ($sq) use ($allowedIdsArray, $unboundIds) {
                       $sq->where('type', 'private')
-                          ->where(function($qq) use ($allowedIdsArray) {
+                          ->where(function($qq) use ($allowedIdsArray, $unboundIds) {
                               $qq->doesntHave('etiquettes')
-                                 ->orWhereHas('etiquettes', fn($sq) => $sq->whereIn('etiquette.idEtiquette', $allowedIdsArray));
+                                 ->orWhereHas('etiquettes', fn($sq) => $sq->whereIn('etiquette.idEtiquette', array_merge($allowedIdsArray, $unboundIds)));
                           });
                   });
             });
@@ -217,10 +221,44 @@ class ActualiteController extends Controller
         return back()->with('success', 'Image retirée.');
     }
 
-    public function adminIndex()
+    public function adminIndex(Request $request)
     {
-        $actualites = Actualite::orderBy('dateP', 'desc')->get();
-        return view('actualites.pannel', compact('actualites'));
+        $query = Actualite::with('etiquettes')->orderBy('dateP', 'desc');
+
+        $filters = [
+            'type' => $request->get('type', ''),
+            'etat' => $request->get('etat', ''),
+            'etiquette' => $request->get('etiquette', ''),
+            'search' => $request->get('search', ''),
+        ];
+
+        if (!empty($filters['type'])) {
+            $query->where('type', $filters['type']);
+        }
+
+        if (!empty($filters['etat'])) {
+            $filters['etat'] === 'active'
+                ? $query->where('archive', false)
+                : $query->where('archive', true);
+        }
+
+        if (!empty($filters['etiquette'])) {
+            $ids = array_map('intval', (array)$filters['etiquette']);
+            $query->whereHas('etiquettes', fn($q) => $q->whereIn('etiquette.idEtiquette', $ids));
+        }
+
+        if (!empty($filters['search'])) {
+            $term = '%' . $filters['search'] . '%';
+            $query->where(function($q) use ($term) {
+                $q->where('titrefr', 'like', $term)
+                  ->orWhere('titreeus', 'like', $term);
+            });
+        }
+
+        $actualites = $query->paginate(10)->appends($request->query());
+        $etiquettes = Etiquette::all();
+
+        return view('actualites.pannel', compact('actualites', 'etiquettes', 'filters'));
     }
 
     /**

@@ -13,10 +13,30 @@ class EtiquetteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $etiquettes = Etiquette::all();
-        return view('etiquettes.index', compact('etiquettes'));
+        $filters = [
+            'search' => $request->get('search', ''),
+            'role' => $request->get('role', ''),
+        ];
+
+        $query = Etiquette::with('roles');
+
+        if ($filters['search']) {
+            $query->where('nom', 'like', '%' . $filters['search'] . '%');
+        }
+
+        if ($filters['role']) {
+            $roleId = (int) $filters['role'];
+            if ($roleId) {
+                $query->whereHas('roles', fn($q) => $q->where('role.idRole', $roleId));
+            }
+        }
+
+        $etiquettes = $query->orderBy('nom')->paginate(10)->appends($request->query());
+        $roles = Role::all();
+
+        return view('etiquettes.index', compact('etiquettes', 'filters', 'roles'));
     }
 
     /**
