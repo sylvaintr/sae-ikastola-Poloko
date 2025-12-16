@@ -30,5 +30,8 @@ return [
     'etiquette_associee' => 'Etiketa hau rol hauekin lotuta dago:',
     'all_roles' => 'Denak rolak',
     'gerer_les_etiquettes' => 'Kudeatu etiketak',
+    'apply' => 'Aplikatu',
+    'reset' => 'Berrezarri iragazkiak',
+    'filtres' => 'Iragazkiak',
 
 ];

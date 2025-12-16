@@ -30,5 +30,8 @@ return [
     'etiquette_associee' => 'Cette étiquette est associée aux rôles suivants :',
     'all_roles' => 'Tous les rôles',
     'gerer_les_etiquettes' => 'Gérer les étiquettes',
+    'apply' => 'Appliquer',
+    'reset' => 'Réinitialiser les filtres',
+    'filtres' => 'Filtres',
    
 ];

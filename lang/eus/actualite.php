@@ -59,6 +59,9 @@ return [
     'visibilite' => 'Ikusgarritasuna',
     'all_types' => 'Mota guztiak',
     'reset' => 'Berrezarri',
+    'apply' => 'Aplikatu',
+    'filtres' => 'Iragazkiak',
+    'search_placeholder' => 'Berri bat bilatu',
     'active' => 'Aktiboa',
     'archived' => 'Artxibatua',
  
