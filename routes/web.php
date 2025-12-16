@@ -34,7 +34,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
         Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
         Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [FamilleController::class, 'update'])->name('update');
         Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
     });
 

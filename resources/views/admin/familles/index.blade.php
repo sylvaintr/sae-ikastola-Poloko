@@ -7,7 +7,7 @@
             <label for="searchUser" class="visually-hidden">Rechercher un utilisateur</label>
             <input type="text" id="searchUser" class="form-control w-auto" placeholder="Rechercher un utilisateur" style="min-width: 250px;">
 
-            <a href="{{ route('admin.familles.create')}}" class="btn text-white ms-3 bg-warning border-warning fw-bold">
+            <a href="{{ route('admin.familles.create')}}" class="btn text-white ms-3 fw-bold" style="background: orange; border: 1px solid orange; border-radius: 6px;">
                 Ajouter une famille
             </a>
         </div>
