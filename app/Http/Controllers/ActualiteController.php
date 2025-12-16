@@ -55,17 +55,21 @@ class ActualiteController extends Controller
                   });
             });
         } else {
-            // Non connecté : uniquement les public (et étiquettes non restreintes)
+            // Non connecté : uniquement les public, et seulement si l’étiquette n’est liée à aucun rôle
+            // (étiquette sans rôle => visible par tous)
             $query->where('type', 'public')
                   ->where(function($q) use ($allowedIdsArray) {
                       $q->doesntHave('etiquettes')
                         ->orWhereHas('etiquettes', fn($sq) => $sq->whereIn('etiquette.idEtiquette', $allowedIdsArray));
                   });
+            // On ignore tout filtre étiquette éventuel provenant d'une session précédente
+            $selected = [];
+            session()->forget('selectedEtiquettes');
         }
 
         // 4. Filtre utilisateur (Sidebar/Recherche)
-        $selected = $request->query('etiquettes', session('selectedEtiquettes', []));
-        if (!empty($selected)) {
+        $selected = $selected ?? $request->query('etiquettes', session('selectedEtiquettes', []));
+        if (!empty($selected) && Auth::check()) {
             // Sécurité : On ne garde que l'intersection avec les droits
             $validSelection = array_intersect(array_map('intval', (array)$selected), $allowedIdsArray);
             if (!empty($validSelection)) {
