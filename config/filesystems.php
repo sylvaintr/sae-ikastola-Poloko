@@ -39,7 +39,8 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            // Permet de définir une URL dédiée au disque public sans toucher à ASSET_URL
+            'url' => env('FILESYSTEM_PUBLIC_URL', env('APP_URL').'/storage'),
             'visibility' => 'public',
             'throw' => false,
         ],

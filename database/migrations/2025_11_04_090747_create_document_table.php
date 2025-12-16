@@ -17,6 +17,10 @@ return new class extends Migration
             $table->string('chemin', 100);
             $table->string('type', 5);
             $table->string('etat', 15);
+            // Liaison optionnelle vers une tâche (si le schéma courant le permet)
+            if (!Schema::hasColumn('document', 'idTache')) {
+                $table->integer('idTache')->nullable()->index('document_idtache');
+            }
         });
     }
 

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Document;
 use App\Models\Tache;
+use App\Models\DemandeHistorique;
 use App\Models\Utilisateur;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
@@ -93,27 +96,24 @@ class DemandeController extends Controller
 
     public function show(Tache $demande)
     {
-        $demande->loadMissing(['realisateurs']);
+        $demande->loadMissing(['realisateurs', 'documents', 'historiques']);
 
         $metadata = [
             'reporter' => $demande->user->name ?? $demande->reporter_name ?? 'Inconnu',
             'report_date' => optional($demande->dateD)->translatedFormat('d F Y') ?? now()->translatedFormat('d F Y'),
         ];
 
-        $photos = []; // liaison document supprimée (pas de colonne idTache)
+        $photos = $demande->documents
+            ? $demande->documents
+                ->filter(fn($doc) => Storage::disk('public')->exists($doc->chemin))
+                ->map(fn($doc) => [
+                    'url' => Storage::url($doc->chemin),
+                    'nom' => $doc->nom,
+                ])->values()->all()
+            : [];
 
-        // Construire un historique minimal à partir du pivot realiser
-        $historiques = $demande->realisateurs->map(function (Utilisateur $user) use ($demande) {
-            return (object) [
-                'statut' => $demande->etat,
-                'date_evenement' => $user->pivot->dateM,
-                'titre' => $demande->titre,
-                'responsable' => $user->name,
-                'depense' => null,
-                'description' => $user->pivot->description,
-            ];
-        });
-        $totalDepense = 0;
+        $historiques = $demande->historiques;
+        $totalDepense = $historiques->sum('depense');
 
         return view('demandes.show', compact('demande', 'metadata', 'photos', 'historiques', 'totalDepense'));
     }
@@ -142,6 +142,7 @@ class DemandeController extends Controller
 
         $demande = Tache::create($data);
 
+        $this->storePhotos($demande, $request->file('photos', []));
         $this->storeInitialHistory($demande);
 
         return to_route('demandes.index')->with('status', __('demandes.messages.created'));
@@ -199,11 +200,25 @@ class DemandeController extends Controller
 
     protected function storeInitialHistory(Tache $demande): void
     {
-        $this->attachHistoryPivot($demande, __('demandes.history_statuses.created'), $demande->description);
+        $this->addHistoryEntry(
+            $demande,
+            __('demandes.history_statuses.created'),
+            $demande->description,
+            $demande->montantP
+        );
     }
 
     public function destroy(Tache $demande)
     {
+        // supprimer les documents liés
+        foreach ($demande->documents as $doc) {
+            Storage::disk('public')->delete($doc->chemin);
+            $doc->delete();
+        }
+
+        // supprimer l'historique lié
+        DemandeHistorique::where('idDemande', $demande->idTache)->delete();
+
         $demande->delete();
 
         return to_route('demandes.index')->with('status', __('demandes.messages.deleted'));
@@ -230,10 +245,11 @@ class DemandeController extends Controller
             'depense' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        $this->attachHistoryPivot(
+        $this->addHistoryEntry(
             $demande,
             __('demandes.history_statuses.progress'),
-            $validated['description'] ?? null
+            $validated['description'] ?? null,
+            $validated['depense'] ?? null
         );
 
         return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_added'));
@@ -243,32 +259,54 @@ class DemandeController extends Controller
     {
         $demande->update(['etat' => self::STATUS_TERMINE]);
 
-        $this->attachHistoryPivot(
+        $this->addHistoryEntry(
             $demande,
             __('demandes.history_statuses.done'),
-            __('demandes.history_statuses.done_description')
+            __('demandes.history_statuses.done_description'),
+            $demande->montantR ?? null
         );
 
         return to_route('demandes.show', $demande)->with('status', __('demandes.messages.validated'));
     }
 
     /**
-     * Ajoute ou met à jour une entrée pivot dans `realiser` pour tracer l'historique.
+     * Ajoute une entrée dans demande_historique.
      */
-    private function attachHistoryPivot(Tache $demande, string $statut, ?string $description = null): void
+    private function addHistoryEntry(Tache $demande, string $statut, ?string $description = null, ?float $depense = null): void
     {
         $user = Auth::user();
-        if (!$user) {
+
+        DemandeHistorique::create([
+            'idDemande' => $demande->idTache,
+            'statut' => $statut,
+            'titre' => $demande->titre,
+            'responsable' => $user?->name ?? '',
+            'depense' => $depense,
+            'date_evenement' => now(),
+            'description' => $description,
+        ]);
+    }
+
+    /**
+     * Sauvegarde les photos liées à la demande (si présentes).
+     */
+    protected function storePhotos(Tache $demande, array $files): void
+    {
+        if (empty($files)) {
             return;
         }
 
-        $demande->realisateurs()->syncWithoutDetaching([
-            $user->idUtilisateur => [
-                'dateM' => now(),
-                // On stocke le statut + description dans la colonne pivot description (pas d'autre champ dédié)
-                'description' => trim($statut . ' ' . ($description ?? '')),
-            ],
-        ]);
+        foreach ($files as $file) {
+            $path = $file->store('demandes', 'public');
+
+            Document::create([
+                'idTache' => $demande->idTache,
+                'nom' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                'chemin' => $path,
+                'type' => substr($file->extension(), 0, 5),
+                'etat' => 'actif',
+            ]);
+        }
     }
 }
 
