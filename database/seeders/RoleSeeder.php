@@ -34,5 +34,23 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo('access-presence');
         $role->givePermissionTo('access-calendrier');
         $role->givePermissionTo('gerer-presence');
+
+        Role::create(['name' => 'menage']);
+        Role::create(['name' => 'BIL']);
+        Role::create(['name' => 'Herri Urrats']);
+        Role::create(['name' => 'Integrazio Batzordea']);
+        Role::create(['name' => 'Vivre en euskara']);
+        Role::create(['name' => 'Jardin']);
+        Role::create(['name' => 'Bricolage']);
+        Role::create(['name' => 'Communication']);
+        Role::create(['name' => 'Entretien des bâtiments']);
+        Role::create(['name' => 'Commission Pédagogique']);
+        Role::create(['name' => 'Conseil des ikastola']);
+        Role::create(['name' => 'ikastolaren besta']);
+        Role::create(['name' => 'traduction']);
+        Role::create(['name' => 'Subventions']);
+        Role::create(['name' => 'Location de l ikastola']);
+        Role::create(['name' => 'commission garderie & remplacement des langile absents']);
+        
     }
 }
