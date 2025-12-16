@@ -31,9 +31,6 @@ class TacheController extends Controller
             if (!empty($requestId)) {
                 // recherche exacte (typique pour un ID)
                 $query->where('idTache', $requestId);
-
-                // recherche partielle ('250' match '250', '1250' etc) :
-                // $query->where('idTache', 'like', "%{$requestId}%");
             }
 
             return DataTables::of($query)
@@ -68,13 +65,18 @@ class TacheController extends Controller
                     return $first->prenom . ' ' . strtoupper(substr($first->nom, 0, 1)) . '.';
                 })
 
-                ->addColumn('urgence', function ($tache) {
-                    return match ($tache->type) {
-                        'low' => 'Faible',
-                        'medium' => 'Moyenne',
-                        'high' => 'Élevée',
-                        default => ucfirst($tache->type),
-                    };
+                ->addColumn('urgence', function ($row) {
+                    switch ($row->type) {
+                        case 'low':
+                            return 'Faible';
+
+                        case 'medium':
+                            return 'Moyenne';
+
+                        case 'high':
+                        default:
+                            return '<b>Élevée</b>';
+                    }
                 })
 
                 ->addColumn('action', function ($row) {
@@ -119,7 +121,7 @@ class TacheController extends Controller
                     ';
                 })
 
-                ->rawColumns(['action', 'etat'])
+                ->rawColumns(['action', 'etat', 'urgence'])
                 ->make(true);
         }
 
