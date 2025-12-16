@@ -33,7 +33,9 @@
                     <a href="{{ route('admin.classes.create') }}" class="btn demande-btn-primary text-white">
                         {{ Lang::get('classes.add', [], 'eus') }}
                     </a>
-                    <small class="text-muted mt-1">{{ Lang::get('classes.add') }}</small>
+                    @if (Lang::getLocale() == 'fr')
+                        <small class="text-muted mt-1">{{ Lang::get('classes.add') }}</small>
+                    @endif
                 </div>
             </div>
         </div>
