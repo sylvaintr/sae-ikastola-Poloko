@@ -26,8 +26,8 @@ class ActualiteController extends Controller
         $unboundIds = Etiquette::whereNotIn('idEtiquette', Posseder::distinct()->pluck('idEtiquette'))->pluck('idEtiquette')->toArray();
 
         if (!Auth::check()) {
-            $forbiddenIds = Posseder::distinct()->pluck('idEtiquette');
-            $etiquettes = Etiquette::whereNotIn('idEtiquette', $forbiddenIds)->get();
+            // Invité : on ne filtre pas par étiquette, les actualités publiques doivent toutes être visibles
+            $etiquettes = Etiquette::all();
             $allowedIdsArray = $etiquettes->pluck('idEtiquette')->toArray();
         } else {
             $roleIds = Auth::user()->rolesCustom()->pluck('avoir.idRole'); // Ajuste selon ta structure user
@@ -59,14 +59,9 @@ class ActualiteController extends Controller
                   });
             });
         } else {
-            // Non connecté : uniquement les public, et seulement si l’étiquette n’est liée à aucun rôle
-            // (étiquette sans rôle => visible par tous)
-            $query->where('type', 'public')
-                  ->where(function($q) use ($allowedIdsArray) {
-                      $q->doesntHave('etiquettes')
-                        ->orWhereHas('etiquettes', fn($sq) => $sq->whereIn('etiquette.idEtiquette', $allowedIdsArray));
-                  });
-            // On ignore tout filtre étiquette éventuel provenant d'une session précédente
+            // Non connecté : uniquement les public, sans filtrage par étiquette
+            $query->where('type', 'public');
+            // On ignore les filtres d'étiquettes persistés
             $selected = [];
             session()->forget('selectedEtiquettes');
         }
