@@ -290,13 +290,14 @@ class ActualiteController extends Controller
             ->addColumn('etat', fn($actu) => $actu->archive ? Lang::get('actualite.archived') : Lang::get('actualite.active'))
             ->addColumn('actions', fn($actu) => view('actualites.template.colonne-action', ['actualite' => $actu]))
             
-            // Filtre Titre (recherche globale) — use direct callable to improve testability
-            ->filterColumn('titre', [$this, 'filterColumnTitreInline'])
-            // Filtre Etiquettes (recherche textuelle) — use direct callable
-            ->filterColumn('etiquettes', [$this, 'filterColumnEtiquettesInline'])
-            // Register callable wrappers so unit tests can invoke them directly
-            ->filterColumn('titre', [$this, 'filterColumnTitreCallback'])
-            ->filterColumn('etiquettes', [$this, 'filterColumnEtiquettesCallback'])
+            // Filtre Titre (recherche globale)
+            ->filterColumn('titre', function($query, $keyword) {
+                $query->where(fn($sq) => $sq->where('titrefr', 'like', "%{$keyword}%")->orWhere('titreeus', 'like', "%{$keyword}%"));
+            })
+            // Filtre Etiquettes (recherche textuelle)
+            ->filterColumn('etiquettes', function($query, $keyword) {
+                $query->whereHas('etiquettes', fn($sq) => $sq->where('nom', 'like', "%{$keyword}%"));
+            })
             ->rawColumns(['actions'])
             ->make(true);
     }

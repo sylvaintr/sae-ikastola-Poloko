@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
             autoWidth: false,
             ajax: location.pathname + "s-data",
             columns: [
-                { data: 'idFacture', name: 'idFacture', className: 'all dt-left' },
+                { data: 'idFacture', name: 'idFacture', className: 'dt-left' },
                 { data: 'titre', name: 'titre' },
                 { data: 'etat', name: 'etat' },
                 { data: 'idFamille', name: 'idFamille', className: 'dt-left' },
@@ -28,16 +28,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 {
                     data: 'actions', name: 'actions', orderable: false,
-                    searchable: false, className: 'all',
-                    width: '1%', // Astuce pour "coller" au contenu
+                    searchable: false, className: 'text-end',
                     render: function (data, type, row) {
-                        // ... votre HTML de boutons
-                        return '<div style="white-space: nowrap;">' + data + '</div>';
+                        return data;
                     }
 
                 }
             ],
-            responsive: true,
+            responsive: {
+                details: {
+                    display: $.fn.dataTable.Responsive.display.modal( {
+                        header: function ( row ) {
+                            var data = row.data();
+                            return 'Détails';
+                        }
+                    } ),
+                    renderer: $.fn.dataTable.Responsive.renderer.tableAll()
+                }
+            },
             language: dataTableLangs[currentLang] || dataTableLangs.eus
         });
     } catch (e) { console.error("DataTable initialization error:", e); }

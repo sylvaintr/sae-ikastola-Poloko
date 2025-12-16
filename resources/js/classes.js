@@ -51,15 +51,24 @@ document.addEventListener('DOMContentLoaded', function () {
                     name: 'actions',
                     orderable: false,
                     searchable: false,
-                    className: 'all',
-                    width: '1%',
+                    className: 'text-end',
                     render: function (data) {
-                        return '<div style="white-space: nowrap;">' + data + '</div>';
+                        return data;
                     },
                 },
             ],
 
-            responsive: true,
+            responsive: {
+                details: {
+                    display: $.fn.dataTable.Responsive.display.modal( {
+                        header: function ( row ) {
+                            var data = row.data();
+                            return 'Détails';
+                        }
+                    } ),
+                    renderer: $.fn.dataTable.Responsive.renderer.tableAll()
+                }
+            },
             language: dataTableLangs[currentLang] || dataTableLangs.eus,
         });
     } catch (e) {

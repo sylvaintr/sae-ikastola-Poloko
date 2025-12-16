@@ -69,16 +69,24 @@ globalThis.afficherDataTable = function(id) {
                 { data: 'etat', name: 'etat' },
                 {
                     data: 'actions', name: 'actions', orderable: false,
-                    searchable: false, className: 'all',
-                    width: '1%', // Astuce pour "coller" au contenu
+                    searchable: false, className: 'text-end',
                     render: function (data, type, row) {
-                        // ... votre HTML de boutons
-                        return '<div style="white-space: nowrap;">' + data + '</div>';
+                        return data;
                     }
 
                 }
             ],
-            responsive: true,
+            responsive: {
+                details: {
+                    display: $.fn.dataTable.Responsive.display.modal( {
+                        header: function ( row ) {
+                            var data = row.data();
+                            return 'Détails';
+                        }
+                    } ),
+                    renderer: $.fn.dataTable.Responsive.renderer.tableAll()
+                }
+            },
             language: dataTableLangs[currentLang] || dataTableLangs.eus
         });
 

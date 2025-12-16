@@ -2,7 +2,7 @@
 @import "datatables.net-dt/css/dataTables.dataTables.min.css";
 @import "datatables.net-responsive-dt/css/responsive.dataTables.min.css";
 @import "bootstrap-icons/font/bootstrap-icons.css";
-@import url('https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap');
+
 
 
 .auth-body {
@@ -1486,4 +1486,32 @@ table.dataTable th, table.dataTable td {
         justify-content: center;
         width: 100%;
     }
+}
+
+/* DataTables - Ensure last column is always visible */
+.dataTables_wrapper {
+    overflow-x: auto;
+    margin: 0;
+}
+
+.dataTables_wrapper .dataTables_scroll {
+    overflow-x: auto;
+}
+
+table.dataTable {
+    width: 100%;
+    margin: 0;
+}
+
+table.dataTable tbody td:last-child,
+table.dataTable thead th:last-child {
+    white-space: nowrap;
+    min-width: 80px;
+}
+
+/* Fix for responsive tables - ensure actions column stays visible */
+.dt-responsive table.dataTable tbody td.actions,
+table.dataTable tbody td.text-end {
+    text-align: right;
+    padding-right: 2rem;
 }
