@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Schema;
 
 class ActualiteController extends Controller
 {
@@ -20,20 +21,26 @@ class ActualiteController extends Controller
      */
     public function index(?Request $request = null)
     {
+        $this->ensureEtiquetteIsPublicColumn();
+
         $request = $request ?? request();
         // 1. Définir les étiquettes autorisées
         // Étiquettes non liées à un rôle : accessibles à tous
         $unboundIds = Etiquette::whereNotIn('idEtiquette', Posseder::distinct()->pluck('idEtiquette'))->pluck('idEtiquette')->toArray();
 
+        $hasIsPublic = Schema::hasColumn('etiquette', 'is_public');
+        $publicTagIds = $hasIsPublic
+            ? Etiquette::where('is_public', true)->pluck('idEtiquette')->toArray()
+            : [];
         if (!Auth::check()) {
-            // Invité : on ne filtre pas par étiquette, les actualités publiques doivent toutes être visibles
-            $etiquettes = Etiquette::all();
-            $allowedIdsArray = $etiquettes->pluck('idEtiquette')->toArray();
+            // Invité : seules les étiquettes publiques sont considérées
+            $etiquettes = Etiquette::whereIn('idEtiquette', $publicTagIds)->get();
+            $allowedIdsArray = $publicTagIds;
         } else {
             $roleIds = Auth::user()->rolesCustom()->pluck('avoir.idRole'); // Ajuste selon ta structure user
-            $allowedIds = Posseder::whereIn('idRole', $roleIds)->pluck('idEtiquette');
-            $etiquettes = Etiquette::whereIn('idEtiquette', $allowedIds)->get();
-            $allowedIdsArray = $etiquettes->pluck('idEtiquette')->toArray();
+            $allowedIds = Posseder::whereIn('idRole', $roleIds)->pluck('idEtiquette')->toArray();
+            $allowedIdsArray = array_values(array_unique(array_merge($allowedIds, $publicTagIds)));
+            $etiquettes = Etiquette::whereIn('idEtiquette', $allowedIdsArray)->get();
         }
 
         // 2. Construire la requête
@@ -60,7 +67,11 @@ class ActualiteController extends Controller
             });
         } else {
             // Non connecté : uniquement les public, sans filtrage par étiquette
-            $query->where('type', 'public');
+            $query->where('type', 'public')
+                  ->where(function($q) use ($publicTagIds) {
+                      $q->doesntHave('etiquettes')
+                        ->orWhereHas('etiquettes', fn($sq) => $sq->whereIn('etiquette.idEtiquette', $publicTagIds));
+                  });
             // On ignore les filtres d'étiquettes persistés
             $selected = [];
             session()->forget('selectedEtiquettes');
@@ -218,6 +229,8 @@ class ActualiteController extends Controller
 
     public function adminIndex(Request $request)
     {
+        $this->ensureEtiquetteIsPublicColumn();
+
         $query = Actualite::with('etiquettes')->orderBy('dateP', 'desc');
 
         $filters = [
@@ -254,6 +267,18 @@ class ActualiteController extends Controller
         $etiquettes = Etiquette::all();
 
         return view('actualites.pannel', compact('actualites', 'etiquettes', 'filters'));
+    }
+
+    /**
+     * Ajoute la colonne is_public sur etiquette si absente (pas de nouvelle migration).
+     */
+    private function ensureEtiquetteIsPublicColumn(): void
+    {
+        if (!Schema::hasColumn('etiquette', 'is_public')) {
+            Schema::table('etiquette', function ($table) {
+                $table->boolean('is_public')->default(false)->after('nom');
+            });
+        }
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Models\Etiquette;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Schema;
 
 
 class EtiquetteController extends Controller
@@ -15,6 +16,8 @@ class EtiquetteController extends Controller
      */
     public function index(Request $request)
     {
+        $this->ensureEtiquetteIsPublicColumn();
+
         $filters = [
             'search' => $request->get('search', ''),
             'role' => $request->get('role', ''),
@@ -44,6 +47,7 @@ class EtiquetteController extends Controller
      */
     public function create()
     {
+        $this->ensureEtiquetteIsPublicColumn();
         $roles = Role::all();
         return view('etiquettes.create', compact('roles'));
     }
@@ -53,15 +57,23 @@ class EtiquetteController extends Controller
      */
     public function store(Request $request)
     {
+        $this->ensureEtiquetteIsPublicColumn();
+
         $validated = $request->validate(
             [
                 'nom' => 'required|string|max:50',
+                'is_public' => ['nullable', 'boolean'],
                 'roles' => ['nullable', 'array'],
                 'roles.*' => ['exists:role,idRole'],
             ]
         );
 
-        $etiquette = Etiquette::create(['nom' => $validated['nom']]);
+        $payload = ['nom' => $validated['nom']];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('etiquette', 'is_public')) {
+            $payload['is_public'] = (bool) ($validated['is_public'] ?? false);
+        }
+
+        $etiquette = Etiquette::create($payload);
         $rolesToSync = [];
         $roles = $validated['roles'] ?? [];
         foreach ($roles as $roleId) {
@@ -78,6 +90,7 @@ class EtiquetteController extends Controller
      */
     public function edit(string $idEtiquette)
     {
+        $this->ensureEtiquetteIsPublicColumn();
         try {
             $etiquette = Etiquette::findOrFail($idEtiquette);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -96,8 +109,11 @@ class EtiquetteController extends Controller
      */
     public function update(Request $request, Etiquette $etiquette)
     {
+        $this->ensureEtiquetteIsPublicColumn();
+
         $validated = $request->validate([
             'nom' => 'required|string|max:50',
+            'is_public' => ['nullable', 'boolean'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['exists:role,idRole'],
         ]);
@@ -109,7 +125,14 @@ class EtiquetteController extends Controller
         }
         $etiquette->roles()->sync($rolesToSync);
 
-        $etiquette->update(['nom' => $validated['nom']]);
+        $updatePayload = [
+            'nom' => $validated['nom'],
+        ];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('etiquette', 'is_public')) {
+            $updatePayload['is_public'] = (bool) ($validated['is_public'] ?? false);
+        }
+
+        $etiquette->update($updatePayload);
         return redirect()->route('admin.etiquettes.index')->with('success', __('etiquette.successEtiquetteMiseAJour'));
     }
 
@@ -120,6 +143,18 @@ class EtiquetteController extends Controller
     {
         $etiquette->delete();
         return redirect()->route('admin.etiquettes.index')->with('success', __('etiquette.successEtiquetteSupprimee'));
+    }
+
+    /**
+     * Ajoute la colonne is_public sur etiquette si absente (pas de nouvelle migration).
+     */
+    private function ensureEtiquetteIsPublicColumn(): void
+    {
+        if (!Schema::hasColumn('etiquette', 'is_public')) {
+            Schema::table('etiquette', function ($table) {
+                $table->boolean('is_public')->default(false)->after('nom');
+            });
+        }
     }
 
     /**

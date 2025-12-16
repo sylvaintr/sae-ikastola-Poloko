@@ -26,6 +26,14 @@
                         </div>
 
                         <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_public" name="is_public" value="1" {{ old('is_public') ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold" for="is_public">{{ __('etiquette.is_public') }}</label>
+                                <div class="form-text">{{ __('etiquette.is_public_help') }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
                             <div class="form-label fw-semibold mb-2">{{ __('admin.accounts_page.create.fields.roles') }}</div>
                             <div class="role-selector-container">
                                 <div class="row g-3">

@@ -33,5 +33,10 @@ return [
     'apply' => 'Aplikatu',
     'reset' => 'Berrezarri iragazkiak',
     'filtres' => 'Iragazkiak',
+    'is_public' => 'Etiketa publikoa',
+    'is_public_help' => 'Markatuz gero, etiketa honekin dauden berriak ikusgai egongo dira baita deskonektatuta dauden bisitarientzat ere.',
+    'type' => 'Mota',
+    'public' => 'Publikoa',
+    'private' => 'Pribatua',
 
 ];

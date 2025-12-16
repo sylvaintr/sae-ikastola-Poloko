@@ -92,6 +92,12 @@
                                 <span class="fr">{{ Lang::get('etiquette.roles') }}</span>
                             </div>
                         </th>
+                        <th>
+                            <div class="demande-header-label">
+                                <span class="basque">{{ Lang::get('etiquette.type', [], 'eus') }}</span>
+                                <span class="fr">{{ Lang::get('etiquette.type') }}</span>
+                            </div>
+                        </th>
                         <th class="text-center">
                             <div class="demande-header-label">
                                 <span class="basque">{{ Lang::get('etiquette.actions', [], 'eus') }}</span>
@@ -106,6 +112,13 @@
                             <td class="fw-semibold">{{ $etiquette->idEtiquette }}</td>
                             <td>{{ $etiquette->nom }}</td>
                             <td>{{ $etiquette->roles->pluck('name')->join(', ') ?: '—' }}</td>
+                            <td>
+                                @if($etiquette->is_public)
+                                    <span class="badge bg-success-subtle text-success">{{ __('etiquette.public') }}</span>
+                                @else
+                                    <span class="badge bg-secondary-subtle text-secondary">{{ __('etiquette.private') }}</span>
+                                @endif
+                            </td>
                             <td class="text-center">
                                 @include('etiquettes.template.colonne-action', ['etiquette' => $etiquette])
                             </td>
