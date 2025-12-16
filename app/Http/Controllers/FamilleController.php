@@ -178,4 +178,28 @@ class FamilleController extends Controller
 
         return response()->json($users);
     }
+
+    public function update(Request $request, int $id)
+{
+    $famille = Famille::find($id);
+
+    if ($famille === null) {
+        return response()->json([
+            'message' => self::FAMILLE_NOT_FOUND
+        ], 404);
+    }
+
+    $validated = $request->validate([
+        'aineDansAutreSeaska' => 'required|boolean',
+    ]);
+
+    $famille->update($validated);
+
+    return response()->json([
+        'message' => 'Famille mise à jour avec succès',
+        'famille' => $famille,
+    ], 200);
+}
+
+
 }

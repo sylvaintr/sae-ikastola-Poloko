@@ -23,7 +23,7 @@ Route::put('parite', [LierController::class, 'updateParite']);
 // Familles
 Route::get('/familles/{id}', [FamilleController::class, 'show']);
 Route::delete('/familles/{id}', [FamilleController::class, 'delete']);
-Route::put('/familles2/{id}', [FamilleController::class, 'update']);
+
 Route::get('familles2', [FamilleController::class, 'index']);
 Route::get('search', [FamilleController::class, 'searchByParent']);
 
