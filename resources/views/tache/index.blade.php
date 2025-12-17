@@ -147,9 +147,9 @@
                     { data: 'idTache' },
                     { data: 'dateD' },
                     { data: 'titre' },
-                    { data: 'assignation' },
-                    { data: 'urgence' },
-                    { data: 'etat' },
+                    { data: 'assignation', orderable: false, searchable: false },
+                    { data: 'urgence', orderable: false, searchable: false },
+                    { data: 'etat', orderable: false, searchable: false },
                     { data: 'action', orderable: false, searchable: false },
                 ],
                 drawCallback: function () {
