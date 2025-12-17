@@ -42,14 +42,14 @@ class TacheController extends Controller
 
                     switch ($row->etat) {
                         case 'done':
-                            return '<span class="badge bg-success px-2 py-1">Terminé</span>';
+                            return 'Terminé';
 
                         case 'doing':
-                            return '<span class="badge bg-warning text-dark px-2 py-1">En cours</span>';
+                            return 'En cours';
 
                         case 'todo':
                         default:
-                            return '<span class="badge bg-orange px-2 py-1" style="background-color:#fd7e14;">En attente</span>';
+                            return 'En attente';
                     }
                 })
 
@@ -75,7 +75,7 @@ class TacheController extends Controller
 
                         case 'high':
                         default:
-                            return '<b>Élevée</b>';
+                            return 'Élevée';
                     }
                 })
 
@@ -121,7 +121,7 @@ class TacheController extends Controller
                     ';
                 })
 
-                ->rawColumns(['action', 'etat', 'urgence'])
+                ->rawColumns(['action'])
                 ->make(true);
         }
 
