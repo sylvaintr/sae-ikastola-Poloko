@@ -14,37 +14,43 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Create a user with role CA
-        $userCA = Utilisateur::create([
-            'prenom' => 'CA',
-            'nom' => 'CA',
-            'email' => 'ca@example.com',
-            'mdp' => bcrypt('CA'),
-            'languePref' => 'fr',
-            'statutValidation' => true,
-        ]);
+        $userCA = Utilisateur::firstOrCreate(
+            ['email' => 'ca@example.com'],
+            [
+                'prenom' => 'CA',
+                'nom' => 'CA',
+                'mdp' => bcrypt('CA'),
+                'languePref' => 'fr',
+                'statutValidation' => true,
+            ]
+        );
 
         $userCA->assignRole('CA');
 
-        $userP = Utilisateur::create([
-            'prenom' => 'parent',
-            'nom' => 'parent',
-            'email' => 'parent@example.com',
-            'mdp' => bcrypt('parent'),
-            'languePref' => 'fr',
-            'statutValidation' => true,
-        ]);
+        $userP = Utilisateur::firstOrCreate(
+            ['email' => 'parent@example.com'],
+            [
+                'prenom' => 'parent',
+                'nom' => 'parent',
+                'mdp' => bcrypt('parent'),
+                'languePref' => 'fr',
+                'statutValidation' => true,
+            ]
+        );
 
         $userP->assignRole('parent');
 
         // Create a user with role salarie
-        $userS = Utilisateur::create([
-            'prenom' => 'salarie',
-            'nom' => 'salarie',
-            'email' => 'salarie@example.com',
-            'mdp' => bcrypt('salarie'),
-            'languePref' => 'fr',
-            'statutValidation' => true,
-        ]);
+        $userS = Utilisateur::firstOrCreate(
+            ['email' => 'salarie@example.com'],
+            [
+                'prenom' => 'salarie',
+                'nom' => 'salarie',
+                'mdp' => bcrypt('salarie'),
+                'languePref' => 'fr',
+                'statutValidation' => true,
+            ]
+        );
 
         $userS->assignRole('salarie');
 

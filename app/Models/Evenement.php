@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Role;
 
 /**
  * Class Evenement
@@ -24,7 +25,7 @@ class Evenement extends Model
 {
 	protected $table = 'evenement';
 	protected $primaryKey = 'idEvenement';
-	public $incrementing = false;
+	public $incrementing = true;
 	public $timestamps = false;
 
 	protected $casts = [
@@ -53,5 +54,13 @@ class Evenement extends Model
 	public function materiels()
 	{
 		return $this->belongsToMany(Materiel::class, 'inclure', 'idEvenement', 'idMateriel');
+	}
+
+	/**
+	 * Rôles associés à l'événement (pivot `evenement_role`).
+	 */
+	public function roles()
+	{
+		return $this->belongsToMany(Role::class, 'evenement_role', 'idEvenement', 'idRole');
 	}
 }

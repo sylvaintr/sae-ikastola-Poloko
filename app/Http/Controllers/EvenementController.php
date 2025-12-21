@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Evenement;
+use App\Models\Role;
 use Illuminate\Http\Request;
 
 class EvenementController extends Controller
@@ -10,18 +11,35 @@ class EvenementController extends Controller
     /**
      * Afficher tous les événements
      */
-    public function index()
-    {
-        $evenements = Evenement::all();
-        return view('evenements.index', compact('evenements'));
+   public function index(Request $request)
+{
+    $query = Evenement::query();
+
+    // Optionnel : recherche par titre ou ID
+    if ($search = $request->input('search')) {
+        $query->where(function ($q) use ($search) {
+            $q->where('titre', 'like', "%{$search}%")
+              ->orWhere('request_id', 'like', "%{$search}%")
+              ->orWhere('cible', 'like', "%{$search}%");
+        });
     }
+
+    // Utilise paginate() pour avoir un LengthAwarePaginator
+    $evenements = $query->orderByDesc('dateE')
+                        ->paginate(10) // nombre par page
+                        ->withQueryString(); // conserve les paramètres de recherche
+
+    return view('evenements.index', compact('evenements'));
+}
+
 
     /**
      * Formulaire de création
      */
     public function create()
     {
-        return view('evenements.create');
+        $roles = Role::all();
+        return view('evenements.create', compact('roles'));
     }
 
     /**
@@ -34,14 +52,21 @@ class EvenementController extends Controller
             'description' => 'required|string',
             'obligatoire' => 'required|boolean',
             'dateE' => 'required|date',
+            'roles' => 'nullable|array',
+            'roles.*' => 'integer|exists:role,idRole',
         ]);
 
-        Evenement::create([
+        $evenement = Evenement::create([
             'titre' => $request->titre,
             'description' => $request->description,
             'obligatoire' => $request->obligatoire,
             'dateE' => $request->dateE,
         ]);
+
+        // Attacher les rôles si fournis
+        if ($request->filled('roles')) {
+            $evenement->roles()->sync($request->input('roles', []));
+        }
 
         return redirect()->route('evenements.index')
                          ->with('success', 'Événement créé avec succès');
@@ -62,7 +87,8 @@ class EvenementController extends Controller
     public function edit($id)
     {
         $evenement = Evenement::findOrFail($id);
-        return view('evenements.edit', compact('evenement'));
+        $roles = Role::all();
+        return view('evenements.edit', compact('evenement', 'roles'));
     }
 
     /**
@@ -75,6 +101,8 @@ class EvenementController extends Controller
             'description' => 'required|string',
             'obligatoire' => 'required|boolean',
             'dateE' => 'required|date',
+            'roles' => 'nullable|array',
+            'roles.*' => 'integer|exists:role,idRole',
         ]);
 
         $evenement = Evenement::findOrFail($id);
@@ -85,6 +113,9 @@ class EvenementController extends Controller
             'obligatoire' => $request->obligatoire,
             'dateE' => $request->dateE,
         ]);
+
+        // Synchroniser les rôles
+        $evenement->roles()->sync($request->input('roles', []));
 
         return redirect()->route('evenements.index')
                          ->with('success', 'Événement mis à jour avec succès');

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('evenement', function (Blueprint $table) {
-            $table->integer('idEvenement')->primary();
+            $table->unsignedBigInteger('idEvenement')->autoIncrement();
+            $table->primary('idEvenement');
             $table->string('titre', 20);
             $table->string('description', 100);
             $table->boolean('obligatoire');

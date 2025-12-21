@@ -1,4 +1,4 @@
-﻿<x-app-layout>
+<x-app-layout>
     <div class="container py-4">
         <a href="{{ route('evenements.index') }}" class="admin-back-link mb-4 d-inline-flex align-items-center gap-2">
             <i class="bi bi-arrow-left"></i>
@@ -7,36 +7,38 @@
 
         <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <h1 class="h4 fw-bold mb-4">Créer un nouvel événement</h1>
+                <h1 class="h4 fw-bold mb-4">Modifier l'événement</h1>
 
-                <form method="POST" action="{{ route('evenements.store') }}" class="admin-form">
+                <form method="POST" action="{{ route('evenements.update', $evenement) }}" class="admin-form">
                     @csrf
+                    @method('PUT')
+
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <label for="titre" class="form-label fw-semibold">Titre</label>
+                            <label for="titre" class="form-label fw-semibold">Titre *</label>
                             <input id="titre" name="titre" type="text"
                                    class="form-control @error('titre') is-invalid @enderror"
-                                   value="{{ old('titre') }}" required maxlength="255">
+                                   value="{{ old('titre', $evenement->titre) }}" required maxlength="255">
                             @error('titre')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="col-md-6">
-                            <label for="dateE" class="form-label fw-semibold">Date</label>
+                            <label for="dateE" class="form-label fw-semibold">Date *</label>
                             <input id="dateE" name="dateE" type="date"
                                    class="form-control @error('dateE') is-invalid @enderror"
-                                   value="{{ old('dateE') }}" required>
+                                   value="{{ old('dateE', $evenement->dateE->format('Y-m-d')) }}" required>
                             @error('dateE')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="col-12">
-                            <label for="description" class="form-label fw-semibold">Description</label>
+                            <label for="description" class="form-label fw-semibold">Description *</label>
                             <textarea id="description" name="description"
                                       class="form-control @error('description') is-invalid @enderror"
-                                      rows="4" required>{{ old('description') }}</textarea>
+                                      rows="5" required>{{ old('description', $evenement->description) }}</textarea>
                             @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -47,21 +49,21 @@
                             <div class="form-check form-switch mt-2">
                                 <input id="obligatoire" name="obligatoire" type="checkbox"
                                        class="form-check-input" value="1"
-                                       {{ old('obligatoire') ? 'checked' : '' }}>
-                                <label for="obligatoire" class="form-check-label">Oui</label>
+                                       {{ old('obligatoire', $evenement->obligatoire) ? 'checked' : '' }}>
+                                <label for="obligatoire" class="form-check-label">Oui, cet événement est obligatoire</label>
                             </div>
                             @error('obligatoire')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="col-12">
-                            <div class="form-label fw-semibold mb-2">Cibles</div>
+                            <div class="form-label fw-semibold mb-2">Rôles associés</div>
 
                             <div class="role-selector-container">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="role-search" class="form-label small">Rechercher une cible</label>
+                                        <label for="role-search" class="form-label small">Rechercher un rôle</label>
                                         <input type="text" id="role-search" class="form-control" placeholder="Tapez pour rechercher...">
                                         <div id="available-roles" class="role-list mt-2">
                                             @foreach($roles as $role)
@@ -73,11 +75,11 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-label small mb-2">Cibles sélectionnés</div>
+                                        <div class="form-label small mb-2">Rôles sélectionnés</div>
                                         <div id="selected-roles" class="role-list mt-2">
-                                            <div class="role-list-empty-message">Aucune cible n'a été sélectionnée</div>
+                                            <div class="role-list-empty-message">Aucun rôle n'a été sélectionné</div>
                                         </div>
-                                        <div id="roles-error" class="invalid-feedback d-none mt-2">Au moins une cible doit être sélectionnée.</div>
+                                        <div id="roles-error" class="invalid-feedback d-none mt-2">Au moins un rôle doit être sélectionné.</div>
                                     </div>
                                 </div>
 
@@ -95,12 +97,12 @@
                         </div>
                     </div>
 
-                    <div class="d-flex gap-3 mt-4 justify-content-end">
-                        <a href="{{ route('evenements.index') }}" class="btn admin-cancel-btn px-4">
+                    <div class="d-flex gap-3 mt-5 justify-content-end">
+                        <a href="{{ route('evenements.index') }}" class="btn btn-secondary">
                             Annuler
                         </a>
-                        <button type="submit" class="btn fw-semibold px-4 admin-submit-btn">
-                            Créer
+                        <button type="submit" class="btn admin-add-button">
+                            <i class="bi bi-check-circle"></i> Enregistrer les modifications
                         </button>
                     </div>
                 </form>
@@ -313,10 +315,13 @@
                 }
             });
 
-            // Initialisation : restaurer les valeurs old() si elles existent
+            // Initialisation : restaurer les rôles existants de l'événement
+            const existingRoles = @json($evenement->roles->pluck('idRole')->toArray());
             const oldRoles = @json(old('roles', []));
-            if (Array.isArray(oldRoles) && oldRoles.length > 0) {
-                oldRoles.forEach(roleId => {
+            const rolesToRestore = oldRoles.length > 0 ? oldRoles : existingRoles;
+
+            if (Array.isArray(rolesToRestore) && rolesToRestore.length > 0) {
+                rolesToRestore.forEach(roleId => {
                     addRole(roleId);
                 });
             }
