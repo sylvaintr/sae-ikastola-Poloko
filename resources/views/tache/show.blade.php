@@ -17,36 +17,36 @@
             @php
                 switch ($tache->etat) {
                     case 'done':
-                        $etatBadge = '<span class="badge bg-success px-2 py-1">Terminé</span>';
+                        $etatBadge = 'Terminé';
                         break;
 
                     case 'doing':
-                        $etatBadge = '<span class="badge bg-warning text-dark px-2 py-1">En cours</span>';
+                        $etatBadge = 'En cours';
                         break;
 
                     case 'todo':
                     default:
-                        $etatBadge = '<span class="badge px-2 py-1" style="background-color:#fd7e14;">En attente</span>';
+                        $etatBadge = 'En attente';
                         break;
                 }
 
                 switch ($tache->type) {
                     case 'low':
-                        $typeBadge = '<span>Faible</span>';
+                        $typeBadge = 'Faible';
                         break;
                     case 'medium':
-                        $typeBadge = '<span>Moyenne</span>';
+                        $typeBadge = 'Moyenne';
                         break;
                     case 'high':
-                        $typeBadge = '<span>Élevée</span>';
+                        $typeBadge = 'Élevée';
                         break;
                     default:
-                        $typeBadge = '<span>'.e($tache->type).'</span>';
+                        $typeBadge = e($tache->type);
                 }
             @endphp
 
             <p>
-                Priorité : {!! $typeBadge !!} — État : {!! $etatBadge !!}
+                Priorité : {{ $typeBadge }} — État : {{ $etatBadge }}
             </p>
 
             <hr>

@@ -20,7 +20,6 @@ class DatabaseSeeder extends Seeder
         Enfant::factory()->count(10)->create();
 
         $this->call([
-            ActualiteSeeder::class,
             PermissionSeeder::class,
             RoleSeeder::class,
             TacheSeeder::class,

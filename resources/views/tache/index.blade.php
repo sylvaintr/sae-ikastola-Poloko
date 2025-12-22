@@ -18,10 +18,91 @@
             </div>
         </div>
 
-        {{-- RECHERCHE --}}
-        <div class="mb-3">
-            <input type="text" id="search-id" class="admin-search-input" placeholder="Eskaera ID baten bilaketa...">
-            <p class="text-muted mt-0 admin-button-subtitle">Rechercher un Request ID</p>
+        <div class="row g-3 align-items-start">
+            {{-- RECHERCHE --}}
+            <div class="col-md-4">
+                <input type="text" id="search-id" class="admin-search-input" placeholder="Eskaera ID baten bilaketa...">
+                <p class="text-muted mt-0 admin-button-subtitle">Rechercher un Request ID</p>
+            </div>
+            {{-- FILTRES --}}
+            <div class="col-md-8 d-flex justify-content-md-end">
+                <div class="dropdown">
+                    <button
+                        class="demande-filter-toggle fw-semibold"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside"
+                        aria-expanded="false"
+                    >
+                        <span class="d-block">Iragazi arabera</span>
+                        <small class="text-muted d-block">Filtrer par</small>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+
+                    <div class="dropdown-menu dropdown-menu-end demande-filter-panel p-3"
+                        style="width: 340px; border-radius: 1rem;">
+
+                        {{-- STATUT --}}
+                        <div class="mb-3">
+                            <label class="form-label small">
+                                Egoera
+                                <small class="d-block text-muted">Statut</small>
+                            </label>
+                            <select id="filter-etat" class="form-select">
+                                <option value="">Tous les statuts</option>
+                                <option value="todo">En attente</option>
+                                <option value="doing">En cours</option>
+                                <option value="done">Terminé</option>
+                            </select>
+                        </div>
+
+                        {{-- URGENCE --}}
+                        <div class="mb-3">
+                            <label class="form-label small">
+                                Larrialdia
+                                <small class="d-block text-muted">Urgence</small>
+                            </label>
+                            <select id="filter-urgence" class="form-select">
+                                <option value="">Toutes les urgences</option>
+                                <option value="low">Faible</option>
+                                <option value="medium">Moyenne</option>
+                                <option value="high">Élevée</option>
+                            </select>
+                        </div>
+
+                        {{-- DATES --}}
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <label class="form-label small">
+                                    Data min
+                                    <small class="d-block text-muted">Date min</small>
+                                </label>
+                                <input type="date" id="filter-date-min" class="form-control">
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label small">
+                                    Data max
+                                    <small class="d-block text-muted">Date max</small>
+                                </label>
+                                <input type="date" id="filter-date-max" class="form-control">
+                            </div>
+                        </div>
+
+                        {{-- ACTIONS --}}
+                        <div class="d-flex gap-2">
+                            <button id="apply-filters" class="btn btn-warning w-100">
+                                Filtrer
+                            </button>
+
+                            <button id="reset-filters" class="btn btn-outline-warning w-100">
+                                Réinitialiser
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         {{-- TABLE --}}
@@ -141,6 +222,10 @@
                     url: "{{ route('tache.get-datatable') }}",
                     data: function (d) {
                         d.request_id = $('#search-id').val();
+                        d.etat       = $('#filter-etat').val();
+                        d.urgence    = $('#filter-urgence').val();
+                        d.date_min   = $('#filter-date-min').val();
+                        d.date_max   = $('#filter-date-max').val();
                     }
                 },
                 columns: [
@@ -161,6 +246,21 @@
             $('#search-id').on('keyup change', function () {
                 table.ajax.reload();
             });
+
+            // Appliquer filtres
+            $('#apply-filters').on('click', function () {
+                table.ajax.reload();
+            });
+
+            // Réinitialiser filtres
+            $('#reset-filters').on('click', function () {
+                $('#filter-etat').val('');
+                $('#filter-urgence').val('');
+                $('#filter-date-min').val('');
+                $('#filter-date-max').val('');
+                table.ajax.reload();
+            });
+
 
             {{-- CSRF --}}
             $.ajaxSetup({
