@@ -1,9 +1,8 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import "datatables.net-dt/css/dataTables.dataTables.min.css";
 @import "datatables.net-responsive-dt/css/responsive.dataTables.min.css";
+@import url('https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap');
 @import "bootstrap-icons/font/bootstrap-icons.css";
-
-
 
 .auth-body {
     min-height: 100vh;
@@ -991,16 +990,14 @@
 }
 
 .admin-secondary-button:hover {
-    background-color: #fff;
-    color: #d67f00;
-    border-color: #d67f00;
+    background-color: #f29201;
+    color: #fff;
     box-shadow: 0 4px 12px rgba(242, 146, 1, 0.35);
 }
 
 .admin-secondary-button:focus {
-    background-color: #fff;
-    color: #d67f00;
-    border-color: #d67f00;
+    background-color: #f29201;
+    color: #fff;
     box-shadow: 0 0 0 0.2rem rgba(242, 146, 1, 0.5);
     outline: none;
 }
@@ -1486,32 +1483,4 @@ table.dataTable th, table.dataTable td {
         justify-content: center;
         width: 100%;
     }
-}
-
-/* DataTables - Ensure last column is always visible */
-.dataTables_wrapper {
-    overflow-x: auto;
-    margin: 0;
-}
-
-.dataTables_wrapper .dataTables_scroll {
-    overflow-x: auto;
-}
-
-table.dataTable {
-    width: 100%;
-    margin: 0;
-}
-
-table.dataTable tbody td:last-child,
-table.dataTable thead th:last-child {
-    white-space: nowrap;
-    min-width: 80px;
-}
-
-/* Fix for responsive tables - ensure actions column stays visible */
-.dt-responsive table.dataTable tbody td.actions,
-table.dataTable tbody td.text-end {
-    text-align: right;
-    padding-right: 2rem;
 }

@@ -33,6 +33,27 @@ class TacheController extends Controller
                 $query->where('idTache', $requestId);
             }
 
+            // filtre statut
+            if ($request->filled('etat')) {
+                $query->where('etat', $request->etat);
+            }
+
+            // filtre urgence (si tu veux séparer plus tard)
+            if ($request->filled('urgence')) {
+                $query->where('type', $request->urgence);
+            }
+
+            // filtre date min
+            if ($request->filled('date_min')) {
+                $query->whereDate('dateD', '>=', $request->date_min);
+            }
+
+            // filtre date max
+            if ($request->filled('date_max')) {
+                $query->whereDate('dateD', '<=', $request->date_max);
+            }
+
+
             return DataTables::of($query)
                 ->editColumn('dateD', function ($row) {
                     return \Carbon\Carbon::parse($row->dateD)->format('d/m/Y');

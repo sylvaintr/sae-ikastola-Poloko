@@ -20,7 +20,6 @@ class DatabaseSeeder extends Seeder
         Facture::factory()->count(5)->create();
 
         $this->call([
-            ActualiteSeeder::class,
             PermissionSeeder::class,
             RoleSeeder::class,
             TacheSeeder::class,
