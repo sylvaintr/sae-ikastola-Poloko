@@ -262,6 +262,8 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	 */
 	public function tachesRealisees()
 	{
-		return $this->belongsToMany(Tache::class, 'realiser', 'idUtilisateur', 'idTache')->withPivot('dateM', 'description');
+		return $this->belongsToMany(Tache::class, 'realiser', 'idUtilisateur', 'idTache')
+		->using(\App\Models\Realiser::class)
+		->withPivot('dateM', 'description');
 	}
 }

@@ -1,6 +1,7 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import "datatables.net-dt/css/dataTables.dataTables.min.css";
 @import "datatables.net-responsive-dt/css/responsive.dataTables.min.css";
+@import url('https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap');
 @import "bootstrap-icons/font/bootstrap-icons.css";
 
 .auth-body {
@@ -160,6 +161,24 @@
 .auth-footer-link:hover,
 .auth-footer-link:focus {
     text-decoration: underline;
+}
+
+.btn-ikastola {
+    background-color: #f29201;
+    border-color: #f29201;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.15rem;
+    line-height: 1.05;
+    padding: 0.6rem 2.4rem;
+    border-radius: 6px;
+}
+
+.btn-ikastola:hover,
+.btn-ikastola:focus {
+    background-color: #d67f00;
+    border-color: #d67f00;
 }
 
 .btn-login {
@@ -955,6 +974,34 @@
     color: #6c757d;
 }
 
+.admin-secondary-button {
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0.875rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(242, 146, 1, 0.25);
+    transition: all 0.15s ease;
+    background-color: #fff;
+    border: solid 1px;
+    border-color: #f29201;
+    color: #f29201;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.admin-secondary-button:hover {
+    background-color: #f29201;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(242, 146, 1, 0.35);
+}
+
+.admin-secondary-button:focus {
+    background-color: #f29201;
+    color: #fff;
+    box-shadow: 0 0 0 0.2rem rgba(242, 146, 1, 0.5);
+    outline: none;
+}
+
 .admin-back-link {
     color: #f29201;
     font-weight: 600;
@@ -1325,6 +1372,84 @@
     cursor: default;
     padding: 0.625rem 0.5rem;
 }
+
+/* Force un rendu stable des colonnes */
+table.dataTable {
+  table-layout: fixed;
+}
+
+table.dataTable th, table.dataTable td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Empêche le "shift" causé par l'apparition de la scrollbar */
+.row.overflow-auto {
+  scrollbar-gutter: stable;
+}
+
+/* Processing en overlay pour ne rien pousser dans le tbody */
+.dataTables_processing {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 100;
+  background: transparent !important;
+  color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Container */
+.admin-search-user-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Dropdown */
+.admin-search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-top: 6px;
+    z-index: 50;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    display: none;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+/* Résultat */
+.admin-search-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f1f1;
+    transition: all 0.15s ease;
+}
+
+.admin-search-item:last-child {
+    border-bottom: none;
+}
+
+.admin-search-item:hover {
+    background-color: #f29201;
+    color: #fff;
+    transform: translateX(2px);
+}
+
+.admin-search-item.disabled {
+    color: #999;
+    background: #fafafa;
+    cursor: default;
+    font-style: italic;
+}
+
 
 /* Version mobile de la pagination */
 @media (max-width: 575.98px) {
