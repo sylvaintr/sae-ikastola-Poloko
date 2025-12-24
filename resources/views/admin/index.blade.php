@@ -3,7 +3,7 @@
         $sections = [
             'add_message' => 'admin.actualites.index',
             'accounts' => 'admin.accounts.index',
-            'families' => 'admin.families',
+            'families' => 'admin.familles.index',
             'classes' => 'admin.classes.index',
             'obligatory_documents' => 'admin.obligatory_documents.index',
             'invoices' => 'admin.facture.index',
@@ -19,3 +19,4 @@
         @endforeach
     </div>
 </x-app-layout>
+

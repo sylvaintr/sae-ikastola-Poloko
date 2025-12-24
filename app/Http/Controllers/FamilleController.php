@@ -11,7 +11,7 @@ class FamilleController extends Controller
 {
     private const FAMILLE_NOT_FOUND = 'Famille non trouvée';
 
-    // -------------------- Ajout d'une famille avec ses parents et enfants --------------------
+    // -------------------- Ajout d'une famille --------------------
     public function ajouter(Request $request)
     {
         $data = $request->validate([
@@ -22,22 +22,25 @@ class FamilleController extends Controller
         // Ensure required boolean field has a default to avoid DB errors in tests/environments
         $famille = Famille::create(['aineDansAutreSeaska' => false]);
 
-        // Création des enfants (assurer les champs requis et id non-null pour les tests)
-        foreach ($data['enfants'] ?? [] as $enfant) {
-            Enfant::create([
-                'idEnfant' => $enfant['idEnfant'] ?? random_int(100000, 999999),
-                'nom' => $enfant['nom'],
-                'prenom' => $enfant['prenom'],
-                'dateN' => $enfant['dateN'],
-                'sexe' => $enfant['sexe'],
-                'NNI' => $enfant['NNI'] ?? random_int(100000000, 999999999),
-                'idClasse' => $enfant['idClasse'],
-                'idFamille' => $famille->idFamille,
-                'nbFoisGarderie' => $enfant['nbFoisGarderie'] ?? 0,
-            ]);
+        // Gestion des enfants (TA VERSION)
+        foreach ($data['enfants'] ?? [] as $enfantData) {
+            if (isset($enfantData['idEnfant'])) {
+                Enfant::where('idEnfant', $enfantData['idEnfant'])
+                    ->update(['idFamille' => $famille->idFamille]);
+            } else {
+                Enfant::create([
+                    'nom' => $enfantData['nom'],
+                    'prenom' => $enfantData['prenom'],
+                    'dateN' => $enfantData['dateN'],
+                    'sexe' => $enfantData['sexe'],
+                    'NNI' => $enfantData['NNI'],
+                    'idClasse' => $enfantData['idClasse'],
+                    'idFamille' => $famille->idFamille,
+                ]);
+            }
         }
 
-        // Lier les utilisateurs avec la famille
+        // Gestion des utilisateurs
         foreach ($data['utilisateurs'] ?? [] as $userData) {
             if (isset($userData['idUtilisateur'])) {
                 $famille->utilisateurs()->attach($userData['idUtilisateur'], [
@@ -57,10 +60,8 @@ class FamilleController extends Controller
             }
         }
 
-        $famille->load(['enfants', 'utilisateurs']);
-
         return response()->json([
-            'message' => 'Famille complète créée avec succès',
+            'message' => 'Famille construite avec succès',
             'famille' => $famille,
         ], 201);
     }
@@ -74,14 +75,40 @@ class FamilleController extends Controller
             return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
 
-        return response()->json($famille);
+        return view('admin.familles.show', compact('famille'));
+    }
+
+    // -------------------- Page de création --------------------
+    public function create()
+    {
+        $tousUtilisateurs = Utilisateur::doesntHave('familles')->get();
+
+        $tousEnfants = Enfant::where(function ($query) {
+            $query->whereNull('idFamille')
+                  ->orWhere('idFamille', 0);
+        })->get();
+
+        return view('admin.familles.create', compact('tousUtilisateurs', 'tousEnfants'));
+    }
+
+    // -------------------- Page de modification --------------------
+    public function edit($id)
+    {
+        $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
+
+        if (!$famille) {
+            return redirect()->route('admin.familles.index');
+        }
+
+        return view('admin.familles.create', compact('famille'));
     }
 
     // -------------------- Afficher la liste des familles --------------------
     public function index()
     {
         $familles = Famille::with(['enfants', 'utilisateurs'])->get();
-        return response()->json($familles);
+
+        return view('admin.familles.index', compact('familles'));
     }
 
     // -------------------- Supprimer une famille --------------------
@@ -93,62 +120,115 @@ class FamilleController extends Controller
             return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
 
-        // Supprimer les enfants liés à la famille
         $famille->enfants()->delete();
-
-        // Supprimer les liaisons avec les utilisateurs
         $famille->utilisateurs()->detach();
-
-        // Supprimer la famille
         $famille->delete();
 
         return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
     }
 
-    // -------------------- Modification d'une famille --------------------
-    public function update(Request $request, $id)
+    // -------------------- Recherche par parent --------------------
+    public function searchByParent(Request $request)
     {
-        $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
-
-        if (!$famille) {
-            return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
-        }
-
-        // Mise à jour des enfants
-        if ($request->has('enfants')) {
-            foreach ($request->enfants as $enfantData) {
-                $enfant = $famille->enfants()->find($enfantData['idEnfant'] ?? null);
-                if ($enfant) {
-                    $enfant->update([
-                        'nom' => $enfantData['nom'] ?? $enfant->nom,
-                        'prenom' => $enfantData['prenom'] ?? $enfant->prenom,
-                        'dateN' => $enfantData['dateN'] ?? $enfant->dateN,
-                        'sexe' => $enfantData['sexe'] ?? $enfant->sexe,
-                        'idClasse' => $enfantData['idClasse'] ?? $enfant->idClasse,
-                    ]);
-                }
-            }
-        }
-
-        // Mise à jour des utilisateurs (hors pivot)
-        if ($request->has('utilisateurs')) {
-            foreach ($request->utilisateurs as $userData) {
-                $user = Utilisateur::find($userData['idUtilisateur'] ?? null);
-                if ($user) {
-                    $user->update([
-                        'nom' => $userData['nom'] ?? $user->nom,
-                        'prenom' => $userData['prenom'] ?? $user->prenom,
-                        'languePref' => $userData['languePref'] ?? $user->languePref,
-                    ]);
-                }
-            }
-        }
-
-        $famille->load(['enfants', 'utilisateurs']);
-
-        return response()->json([
-            'message' => 'Famille mise à jour (enfants + utilisateurs)',
-            'famille' => $famille,
+        $request->validate([
+            'q' => 'nullable|string|min:2|max:50',
         ]);
+
+        $query = $request->input('q');
+
+        if (!$query || strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $familles = Famille::with(['utilisateurs', 'enfants'])
+            ->whereHas('utilisateurs', function ($q2) use ($query) {
+                $q2->where('nom', 'like', "%{$query}%")
+                   ->orWhere('prenom', 'like', "%{$query}%");
+            })
+            ->limit(50)
+            ->get();
+
+        if ($familles->isEmpty()) {
+            return response()->json(['message' => 'Aucune famille trouvée']);
+        }
+
+        return response()->json($familles);
     }
+
+    // -------------------- Recherche AJAX Utilisateurs --------------------
+    public function searchUsers(Request $request)
+    {
+        $request->validate([
+            'q' => 'nullable|string|min:2|max:50',
+        ]);
+
+        $query = $request->input('q');
+
+        if (!$query || strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $users = Utilisateur::doesntHave('familles')
+            ->where(function ($q) use ($query) {
+                $q->where('nom', 'like', "%{$query}%")
+                  ->orWhere('prenom', 'like', "%{$query}%");
+            })
+            ->limit(20)
+            ->get();
+
+        return response()->json($users);
+    }
+
+    public function update(Request $request, int $id)
+{
+    $famille = Famille::find($id);
+
+    if ($famille === null) {
+        return response()->json([
+            'message' => self::FAMILLE_NOT_FOUND
+        ], 404);
+    }
+
+    $data = $request->validate([
+        'enfants' => 'array',
+        'utilisateurs' => 'array',
+    ]);
+
+    // --- Mise à jour des enfants ---
+    foreach ($data['enfants'] ?? [] as $childData) {
+        if (isset($childData['idEnfant'])) {
+            $enfant = Enfant::find($childData['idEnfant']);
+
+            if ($enfant) {
+                // On met à jour uniquement les champs envoyés
+                $enfant->update(array_filter([
+                    'nom' => $childData['nom'] ?? null,
+                    'prenom' => $childData['prenom'] ?? null,
+                ], fn($value) => $value !== null));
+            }
+        }
+    }
+
+    // --- Mise à jour des utilisateurs ---
+    foreach ($data['utilisateurs'] ?? [] as $userData) {
+        if (isset($userData['idUtilisateur'])) {
+            $utilisateur = Utilisateur::find($userData['idUtilisateur']);
+
+            if ($utilisateur) {
+                // On met à jour uniquement les champs envoyés
+                $utilisateur->update(array_filter([
+                    'languePref' => $userData['languePref'] ?? null,
+                ], fn($value) => $value !== null));
+            }
+        }
+    }
+
+    return response()->json([
+        'message' => 'Famille mise à jour (enfants + utilisateurs)',
+    ], 200);
+}
+
+
+
+
 }
