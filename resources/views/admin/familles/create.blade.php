@@ -1,10 +1,9 @@
 <x-app-layout>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" integrity="sha384-vAaZH8GvWxVAeUkrId2leZTzMdEd6aSfjar0FL2rZh2Ocf5Z81QTnKJMHMpMSFb1" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     @php
         $isEdit = isset($famille);
         $idFamille = $isEdit ? $famille->idFamille : null;
-
         $defaultRatio = 50;
         $countEnfants = $isEdit ? $famille->enfants->count() : 0;
 
@@ -24,96 +23,60 @@
 
             <h3 class="mb-3 fw-bold">Utilisateurs</h3>
             <div class="row g-4 mb-4">
-
                 <div class="col-md-6">
                     <label for="role-search" class="form-label small text-muted fw-bold">Rechercher un utilisateur</label>
-                    <input type="text" id="role-search" class="form-control mb-2" placeholder="Tapez pour rechercher un parent..." onkeyup="searchUsersAJAX(this.value)">
+                    <input type="text" id="role-search" class="form-control mb-2" placeholder="Tapez pour rechercher..." onkeyup="searchUsersAJAX(this.value)">
 
                     <div id="available-roles" class="border rounded p-3 bg-white shadow-sm" style="height: auto; max-height: 500px; overflow-y: auto;">
-
                         @if($isEdit)
                             @foreach($famille->utilisateurs as $user)
-                                <button type="button"
-                                     class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
-                                     style="cursor:pointer; transition: background 0.2s;"
-                                     onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}', 'Parent')"
-                                     onmouseover="this.style.backgroundColor='#f8f9fa'"
-                                     onmouseout="this.style.backgroundColor='white'">
+                                <button type="button" class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start" onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
                                     <span class="text-dark item-name">{{ $user->nom }} {{ $user->prenom }}</span>
-                                    <div class="d-flex align-items-center text-secondary">
+                                    <div class="ms-auto d-flex align-items-center text-secondary">
                                         <span class="me-3 small fw-bold">Parent</span>
-                                        <i class="bi bi-plus-circle text-dark fs-4"></i>
+                                        <i class="bi bi-plus-circle text-dark fs-5"></i>
                                     </div>
                                 </button>
                             @endforeach
-
-                            @if($famille->enfants->isNotEmpty())
-                                @foreach($famille->enfants as $enfant)
-                                    <div class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
-                                         style="cursor:default;">
-                                        <span class="text-dark item-name">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
-                                        <div class="d-flex align-items-center text-secondary">
-                                            <span class="me-3 small fw-bold">Enfant</span>
-                                            <i class="bi bi-plus-circle text-dark fs-4"></i>
-                                        </div>
+                            @foreach($famille->enfants as $enfant)
+                                <button type="button" class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start" style="border-left: 4px solid #0dcaf0 !important;" onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
+                                    <span class="text-dark item-name">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
+                                    <div class="ms-auto d-flex align-items-center text-secondary">
+                                        <span class="me-3 small fw-bold">Enfant</span>
+                                        <i class="bi bi-plus-circle text-dark fs-5"></i>
                                     </div>
-                                @endforeach
-                            @endif
-
+                                </button>
+                            @endforeach
                         @else
-
                             <div id="parents-list">
                                 @if(isset($tousUtilisateurs))
                                     @foreach($tousUtilisateurs as $user)
-                                        <button type="button"
-                                             class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
-                                             style="cursor:pointer; transition: background 0.2s;"
-                                             onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}', 'Parent')"
-                                             onmouseover="this.style.backgroundColor='#f8f9fa'"
-                                             onmouseout="this.style.backgroundColor='white'">
+                                        <button type="button" class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start" onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
                                             <span class="text-dark item-name">{{ $user->nom }} {{ $user->prenom }}</span>
-                                            <div class="d-flex align-items-center text-secondary">
-                                                <span class="me-3 small fw-bold">Parent</span>
-                                                <i class="bi bi-plus-circle text-dark fs-4"></i>
-                                            </div>
+                                            <div class="ms-auto d-flex align-items-center text-secondary"><span class="me-3 small fw-bold">Parent</span><i class="bi bi-plus-circle text-dark fs-5"></i></div>
                                         </button>
                                     @endforeach
                                 @endif
                             </div>
-
                             @if(isset($tousEnfants))
                                 @foreach($tousEnfants as $enfant)
-                                    <button type="button"
-                                         class="role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
-                                         style="cursor:pointer; transition: background 0.2s; border-left: 4px solid #0dcaf0 !important;"
-                                         onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')"
-                                         onmouseover="this.style.backgroundColor='#f8f9fa'"
-                                         onmouseout="this.style.backgroundColor='white'">
+                                    <button type="button" class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start" style="border-left: 4px solid #0dcaf0 !important;" onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
                                         <span class="text-dark item-name">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
-                                        <span class="flex-grow-1"></span>
-                                        <div class="d-flex align-items-center text-secondary">
-                                            <span class="me-3 small fw-bold">Enfant</span>
-                                            <i class="bi bi-plus-circle text-dark fs-4"></i>
-                                        </div>
+                                        <div class="ms-auto d-flex align-items-center text-secondary"><span class="me-3 small fw-bold">Enfant</span><i class="bi bi-plus-circle text-dark fs-5"></i></div>
                                     </button>
                                 @endforeach
                             @endif
                         @endif
-
                     </div>
                 </div>
 
                 <div class="col-md-6">
                     <h6 class="form-label small text-muted mb-2 fw-bold">Utilisateurs sélectionné(s)*</h6>
                     <div id="selected-roles" class="border rounded p-3 bg-light" style="height: 245px; overflow-y: auto;">
-                        <div class="role-list-empty-message text-muted text-center mt-5">
-                            Cliquez sur les utilisateurs à gauche pour les sélectionner.
-                        </div>
+                        <div class="role-list-empty-message text-muted text-center mt-5">Cliquez à gauche pour sélectionner.</div>
                     </div>
                 </div>
             </div>
-
-            <div id="role-inputs"></div>
 
             <div id="financial-section" style="display: none;">
                 <div x-data="{ ratio: {{ $defaultRatio }} }">
@@ -121,8 +84,7 @@
                         <h5 class="mb-0 fw-bold me-5">Répartition financière</h5>
                         <span id="label-parent-1" class="fw-bold text-secondary text-nowrap me-3">Parent 1</span>
                         <div class="border rounded px-2 py-2 bg-white d-flex align-items-center shadow-sm" style="width: 220px;">
-                            <label for="range-parite" class="visually-hidden">Répartition financière</label>
-                            <input type="range" id="range-parite" class="form-range" min="0" max="100" x-model="ratio" x-ref="sliderParite" style="--bs-form-range-thumb-bg: orange; accent-color: orange; margin-bottom: 0;">
+                            <input type="range" id="range-parite" class="form-range" min="0" max="100" x-model="ratio" x-ref="sliderParite" style="accent-color: orange;">
                         </div>
                         <span id="label-parent-2" class="fw-bold text-secondary text-nowrap ms-3">Parent 2</span>
                         <div class="ms-auto d-flex gap-2">
@@ -130,17 +92,17 @@
                             <button type="button" class="btn px-3 py-2 fw-bold" style="background:orange; color:white; border:1px solid orange;" @if($isEdit) onclick="saveParityOnly({{ $idFamille }})" @else onclick="createFamily()" @endif>Gorde</button>
                         </div>
                     </div>
-                    <div class="mt-2 d-flex w-100">
-                        <div style="padding-left: 330px;">
-                            <span class="fw-bolder fs-5 text-dark"><span x-text="ratio"></span> / <span x-text="100 - ratio"></span></span>
-                        </div>
+                    <div class="mt-2 d-flex" style="padding-left: 330px;">
+                        <span class="fw-bolder fs-5 text-dark">
+                            <span x-text="ratio">{{ $defaultRatio }}</span> / <span x-text="100 - ratio">{{ 100 - $defaultRatio }}</span>
+                        </span>
                     </div>
                 </div>
             </div>
         </form>
     </div>
 
-    {{-- MODAL CONFIRMATION --}}
+    {{-- MODALS --}}
     <div class="modal fade" id="confirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
@@ -154,12 +116,11 @@
         </div>
     </div>
 
-    {{-- MODAL SUCCESS --}}
     <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
                 <div class="modal-body text-center p-5">
-                    <div class="mb-4 text-success"><svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                    <div class="mb-4 text-success"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
                     <h4 class="fw-bold mb-3">Succès !</h4>
                     <button type="button" id="btnSuccessOk" class="btn px-5 py-2 fw-bold text-white" style="background: orange; border: 1px solid orange; border-radius: 6px;">OK</button>
                 </div>
@@ -167,7 +128,6 @@
         </div>
     </div>
 
-    {{-- JS --}}
     <script>
         const selectedRoles = document.getElementById('selected-roles');
         const financialSection = document.getElementById('financial-section');
@@ -180,188 +140,137 @@
         const nbEnfantsInitial = {{ $countEnfants }};
         const isEditMode = {{ $isEdit ? 'true' : 'false' }};
 
-        // --- CORRECTION COPILOT : Protection XSS ---
         function escapeHtml(text) {
-            if (text === null || text === undefined) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+            if (!text) return '';
+            const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+            return String(text).replace(/[&<>"']/g, m => map[m]);
         }
 
         function searchUsersAJAX(query) {
-            const url = `/api/search/users?q=${encodeURIComponent(query)}`;
-
-            fetch(url)
+            fetch(`/api/search/users?q=${encodeURIComponent(query)}`)
                 .then(res => res.json())
                 .then(data => {
                     const container = document.getElementById('parents-list');
-                    container.innerHTML = '';
-
-                    if(data.length === 0) {
-                        container.innerHTML = '<div class="text-muted small fst-italic p-2">Aucun utilisateur trouvé.</div>';
-                        return;
-                    }
-
+                    container.innerHTML = data.length === 0 ? '<div class="text-muted small fst-italic p-2">Aucun trouvé.</div>' : '';
                     data.forEach(user => {
                         const btn = document.createElement('button');
                         btn.type = 'button';
-                        btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start';
-                        btn.style.cssText = 'cursor:pointer; transition: background 0.2s;';
-
-                        btn.onclick = function() { addRole(user.idUtilisateur, user.nom + ' ' + user.prenom, 'Parent'); };
-                        btn.onmouseover = function() { this.style.backgroundColor='#f8f9fa'; };
-                        btn.onmouseout = function() { this.style.backgroundColor='white'; };
-
-                        // PROTECTION XSS ICI
-                        const safeName = escapeHtml(user.nom + ' ' + user.prenom);
-
-                        btn.innerHTML = `
-                            <span class="text-dark item-name">${safeName}</span>
-                            <div class="d-flex align-items-center text-secondary">
-                                <span class="me-3 small fw-bold">Parent</span>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-dark" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-                            </div>
-                        `;
+                        btn.className = 'role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start';
+                        btn.onclick = () => addRole(user.idUtilisateur, user.nom + ' ' + user.prenom);
+                        btn.innerHTML = `<span class="text-dark item-name">${escapeHtml(user.nom + ' ' + user.prenom)}</span><div class="ms-auto d-flex align-items-center text-secondary"><span class="me-3 small fw-bold">Parent</span><i class="bi bi-plus-circle text-dark fs-5"></i></div>`;
                         container.appendChild(btn);
                     });
-                })
-                .catch(err => console.error("Erreur AJAX:", err));
+                });
         }
 
         function checkParityVisibility() {
             const parentInputs = selectedRoles.querySelectorAll('input.user-id');
             const slider = document.querySelector('[x-ref="sliderParite"]');
+            const alpineData = slider ? Alpine.$data(slider.closest('[x-data]')) : null;
+
             if (parentInputs.length > 0) {
                 financialSection.style.display = 'block';
-                const name1 = parentInputs[0].closest('.role-item').querySelector('.item-name').innerText.split(' ')[0];
-                labelP1.innerText = name1;
+                labelP1.innerText = parentInputs[0].closest('.role-item').querySelector('.item-name').innerText.split(' ')[0];
+
                 if (parentInputs.length === 1) {
-                    labelP2.innerText = ""; labelP2.style.display = 'none';
-                    slider.value = 100; slider.disabled = true; slider.style.cursor = 'not-allowed'; slider.style.opacity = '0.5';
-                    slider.dispatchEvent(new Event('input'));
-                } else if (parentInputs.length === 2) {
-                    const name2 = parentInputs[1].closest('.role-item').querySelector('.item-name').innerText.split(' ')[0];
-                    labelP2.innerText = name2; labelP2.style.display = 'inline';
-                    slider.disabled = false; slider.style.cursor = 'pointer'; slider.style.opacity = '1';
-                    if(isEditMode) slider.value = dbRatio;
-                    slider.dispatchEvent(new Event('input'));
+                    labelP2.style.display = 'none';
+                    slider.value = 100;
+                    if(alpineData) alpineData.ratio = 100;
+                    slider.disabled = true; slider.style.opacity = '0.5';
+                } else {
+                    labelP2.innerText = parentInputs[1].closest('.role-item').querySelector('.item-name').innerText.split(' ')[0];
+                    labelP2.style.display = 'inline';
+                    slider.disabled = false; slider.style.opacity = '1';
+                    const targetVal = isEditMode ? dbRatio : 50;
+                    slider.value = targetVal;
+                    if(alpineData) alpineData.ratio = targetVal;
                 }
+                slider.dispatchEvent(new Event('input'));
             } else { financialSection.style.display = 'none'; }
         }
 
-        function addRole(id, name, parentLabel) {
-            if (isEditMode && nbEnfantsInitial === 0) { alert("Impossible de modifier la répartition : cette famille n'a aucun enfant."); return; }
-            if (selectedRoles.querySelectorAll('input.user-id').length >= 2) { return; }
+        function addRole(id, name) {
+            if (isEditMode && nbEnfantsInitial === 0) { alert("Action impossible : pas d'enfants."); return; }
+            if (selectedRoles.querySelectorAll('input.user-id').length >= 2) return;
             if (Array.from(selectedRoles.querySelectorAll('input.user-id')).some(i => i.value == id)) return;
 
-            const emptyMsg = selectedRoles.querySelector('.role-list-empty-message');
-            if (emptyMsg) emptyMsg.remove();
-
+            clearEmptyMsg();
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-1 border rounded shadow-sm w-100 text-start';
-            btn.style.backgroundColor = 'orange'; btn.style.color = 'white'; btn.style.cursor = 'pointer';
-
-            // PROTECTION XSS ICI
-            const safeName = escapeHtml(name);
-
+            btn.className = 'role-item d-flex align-items-center p-2 mb-1 border rounded shadow-sm w-100 text-start text-white';
+            btn.style.backgroundColor = 'orange';
             btn.innerHTML = `
-                <span class="fw-bold small item-name">${safeName}</span>
-                <span class="d-flex align-items-center gap-2"><small>Parent</small><span class="fw-bold fs-6">&times;</span></span>
-                <input type="hidden" class="user-id" value="${id}">
-            `;
+                <span class="fw-bold small item-name">${escapeHtml(name)}</span>
+                <div class="ms-auto d-flex align-items-center gap-2">
+                    <small>Parent</small><b class="fs-5">&times;</b>
+                </div>
+                <input type="hidden" class="user-id" value="${id}">`;
+            
+            btn.onclick = () => { btn.remove(); checkEmpty(); checkParityVisibility(); };
             selectedRoles.appendChild(btn);
-
-            btn.addEventListener('click', () => { btn.remove(); if (selectedRoles.children.length === 0) selectedRoles.innerHTML = '<div class="role-list-empty-message text-muted text-center mt-5">Cliquez sur les utilisateurs à gauche pour les sélectionner.</div>'; checkParityVisibility(); });
             checkParityVisibility();
         }
 
         function addChild(id, name) {
             if (Array.from(selectedRoles.querySelectorAll('input.child-id')).some(i => i.value == id)) return;
-            const emptyMsg = selectedRoles.querySelector('.role-list-empty-message');
-            if (emptyMsg) emptyMsg.remove();
-
+            clearEmptyMsg();
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'role-item d-flex justify-content-between align-items-center p-2 mb-1 border rounded shadow-sm bg-white border-start border-4 border-info w-100 text-start';
-            btn.style.cursor = 'pointer';
-
-            // PROTECTION XSS ICI
-            const safeName = escapeHtml(name);
-
+            btn.className = 'role-item d-flex align-items-center p-2 mb-1 border rounded shadow-sm bg-white border-start border-4 border-info w-100 text-start';
             btn.innerHTML = `
-                <span class="fw-bold small item-name text-dark">${safeName}</span>
-                <span class="d-flex align-items-center gap-2 text-info"><small>Enfant</small><span class="fw-bold fs-6 text-dark">&times;</span></span>
-                <input type="hidden" class="child-id" value="${id}">
-            `;
+                <span class="fw-bold small item-name text-dark">${escapeHtml(name)}</span>
+                <div class="ms-auto d-flex align-items-center gap-2 text-info">
+                    <small>Enfant</small><b class="text-dark fs-5">&times;</b>
+                </div>
+                <input type="hidden" class="child-id" value="${id}">`;
+            
+            btn.onclick = () => { btn.remove(); checkEmpty(); };
             selectedRoles.appendChild(btn);
-            btn.addEventListener('click', () => { btn.remove(); if (selectedRoles.children.length === 0) selectedRoles.innerHTML = '<div class="role-list-empty-message text-muted text-center mt-5">Cliquez sur les utilisateurs à gauche pour les sélectionner.</div>'; });
         }
+
+        function clearEmptyMsg() { const m = selectedRoles.querySelector('.role-list-empty-message'); if(m) m.remove(); }
+        function checkEmpty() { if (selectedRoles.querySelectorAll('.role-item').length === 0) selectedRoles.innerHTML = '<div class="role-list-empty-message text-muted text-center mt-5">Cliquez à gauche pour sélectionner.</div>'; }
 
         function createFamily() {
-            const parentInputs = selectedRoles.querySelectorAll('input.user-id');
-            const childInputs = selectedRoles.querySelectorAll('input.child-id');
-            if (parentInputs.length === 0) { alert('Il faut au moins 1 parent.'); return; }
-            if (childInputs.length === 0) { alert('Il faut au moins 1 enfant.'); return; }
+            const parents = selectedRoles.querySelectorAll('input.user-id');
+            const children = selectedRoles.querySelectorAll('input.child-id');
+            if (!parents.length || !children.length) { alert('Sélectionnez au moins 1 parent et 1 enfant.'); return; }
             const slider = document.querySelector('[x-ref="sliderParite"]');
-            const utilisateursData = [];
-            parentInputs.forEach((input, index) => {
-                let p = 100;
-                if (parentInputs.length === 2) { p = (index === 0) ? slider.value : (100 - slider.value); }
-                utilisateursData.push({ idUtilisateur: input.value, parite: p });
-            });
-            const enfantsData = [];
-            childInputs.forEach(input => { enfantsData.push({ idEnfant: input.value }); });
-
-            pendingData = { utilisateurs: utilisateursData, enfants: enfantsData };
+            pendingData = {
+                utilisateurs: Array.from(parents).map((p, i) => ({ idUtilisateur: p.value, parite: parents.length === 2 ? (i === 0 ? slider.value : 100 - slider.value) : 100 })),
+                enfants: Array.from(children).map(c => ({ idEnfant: c.value }))
+            };
             isCreateMode = true;
-
-            document.getElementById('modalTitle').innerText = "Créer la famille";
-            document.getElementById('modalMessage').innerText = "Voulez-vous créer cette famille ?";
-
-            new bootstrap.Modal(document.getElementById('confirmationModal')).show();
+            showConfirm("Créer la famille", "Voulez-vous créer cette famille ?");
         }
 
-        function saveParityOnly(idFamille) {
-            const inputs = selectedRoles.querySelectorAll('input.user-id');
-            if (inputs.length < 1) { alert("Erreur."); return; }
-            const idUtilisateur = inputs[0].value;
+        function saveParityOnly(id) {
             const slider = document.querySelector('[x-ref="sliderParite"]');
-            const pariteValue = (inputs.length === 1) ? 100 : slider.value;
-            pendingData = { idFamille: idFamille, idUtilisateur: idUtilisateur, parite: pariteValue };
+            pendingData = { idFamille: id, idUtilisateur: selectedRoles.querySelector('input.user-id').value, parite: slider.value };
             isCreateMode = false;
+            showConfirm("Modifier la parité", "Confirmer la nouvelle répartition ?");
+        }
 
-            document.getElementById('modalTitle').innerText = "Modifier la parité";
-            document.getElementById('modalMessage').innerText = "Êtes-vous sûr de vouloir modifier la répartition financière de cette famille ?";
-
+        function showConfirm(title, msg) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = msg;
             new bootstrap.Modal(document.getElementById('confirmationModal')).show();
         }
 
-        document.getElementById('btnConfirmSave').addEventListener('click', function() {
-            if (!pendingData) return;
-            const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
+        document.getElementById('btnConfirmSave').onclick = function() {
             const url = isCreateMode ? "{{ route('admin.familles.store') }}" : "{{ route('admin.lier.updateParite') }}";
-            const method = isCreateMode ? 'POST' : 'PUT';
             fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), 'Accept': 'application/json' },
+                method: isCreateMode ? 'POST' : 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify(pendingData)
-            }).then(res => { if(!res.ok) throw new Error('Erreur'); return res.json(); })
-            .then(data => {
-                confirmModal.hide();
+            }).then(() => {
+                bootstrap.Modal.getInstance(document.getElementById('confirmationModal')).hide();
                 new bootstrap.Modal(document.getElementById('successModal')).show();
-                document.getElementById('btnSuccessOk').addEventListener('click', () => { window.location.href = "{{ route('admin.familles.index') }}"; });
-            }).catch(err => { console.error(err); confirmModal.hide(); alert("Erreur opération."); });
-        });
+                document.getElementById('btnSuccessOk').onclick = () => window.location.href = "{{ route('admin.familles.index') }}";
+            });
+        };
 
-        function clearEmptyMsg() { if(selectedRoles.querySelector('.role-list-empty-message')) selectedRoles.querySelector('.role-list-empty-message').remove(); }
-        function checkEmpty() { if (selectedRoles.children.length === 0) selectedRoles.innerHTML = '<div class="role-list-empty-message text-muted text-center mt-5 small">Cliquez à gauche pour sélectionner.</div>'; }
-        document.addEventListener('DOMContentLoaded', () => { checkParityVisibility(); });
+        document.addEventListener('DOMContentLoaded', () => checkParityVisibility());
     </script>
 </x-app-layout>
 
