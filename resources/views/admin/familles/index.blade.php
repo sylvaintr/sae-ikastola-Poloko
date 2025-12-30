@@ -12,8 +12,8 @@
             {{-- Recherche --}}
             <div class="text-end">
                 <label for="searchUser" class="visually-hidden">{{ __('famille.search_user_placeholder') }}</label>
-                <input type="text" id="searchUser" class="form-control w-auto" 
-                       placeholder="{{ __('famille.search_ajax_placeholder', [], 'eus') }}" 
+                <input type="text" id="searchUser" class="form-control w-auto"
+                       placeholder="{{ __('famille.search_ajax_placeholder', [], 'eus') }}"
                        style="min-width: 250px;">
                 @if (Lang::getLocale() == 'fr')
                     <small class="text-muted d-block mt-1">{{ __('famille.search_user_placeholder') }}</small>
@@ -22,7 +22,7 @@
 
             {{-- Bouton Ajouter --}}
             <div class="text-center ms-3">
-                <a href="{{ route('admin.familles.create')}}" class="btn text-white fw-bold" 
+                <a href="{{ route('admin.familles.create')}}" class="btn text-white fw-bold"
                    style="background: orange; border: 1px solid orange; border-radius: 6px;">
                     {{ __('famille.add', [], 'eus') }}
                 </a>

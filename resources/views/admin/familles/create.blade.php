@@ -1,5 +1,5 @@
 <x-app-layout>
-    
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     @php
         $isEdit = isset($famille);
@@ -53,13 +53,13 @@
                         {{ __('famille.search_label', [], 'eus') }}
                         @if (Lang::getLocale() == 'fr') | {{ __('famille.search_label') }} @endif
                     </label>
-                    <input type="text" id="role-search" class="form-control mb-2" 
-                           placeholder="{{ __('famille.search_ajax_placeholder', [], 'eus') }}" 
+                    <input type="text" id="role-search" class="form-control mb-2"
+                           placeholder="{{ __('famille.search_ajax_placeholder', [], 'eus') }}"
                            onkeyup="searchUsersAJAX(this.value)">
 
                     <div id="available-roles" class="border rounded p-3 bg-white shadow-sm" style="height: auto; max-height: 500px; overflow-y: auto;">
                         @if($isEdit)
-                            {{-- MODE ÉDITION : On affiche les membres actuels en premier --}}
+                            {{-- MODE ÉDITION --}}
                             @foreach($famille->utilisateurs as $user)
                                 <button type="button" class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start" onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
                                     <span class="text-dark item-name">{{ $user->nom }} {{ $user->prenom }}</span>
@@ -79,7 +79,7 @@
                                 </button>
                             @endforeach
                         @else
-                            {{-- MODE CRÉATION : On affiche la liste complète --}}
+                            {{-- MODE CRÉATION --}}
                             <div id="parents-list">
                                 @if(isset($tousUtilisateurs))
                                     @foreach($tousUtilisateurs as $user)
@@ -92,7 +92,7 @@
                                         </button>
                                     @endforeach
                                 @endif
-                                
+
                                 @if(isset($tousEnfants))
                                     @foreach($tousEnfants as $enfant)
                                         <button type="button" class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start" style="border-left: 4px solid #0dcaf0 !important;" onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
@@ -130,13 +130,13 @@
                             {{ __('famille.financial_split', [], 'eus') }}
                             @if (Lang::getLocale() == 'fr') <br><small class="text-muted fw-normal fs-6">{{ __('famille.financial_split') }}</small> @endif
                         </h5>
-                        
+
                         <span id="label-parent-1" class="fw-bold text-secondary text-nowrap me-3">Parent 1</span>
                         <div class="border rounded px-2 py-2 bg-white d-flex align-items-center shadow-sm" style="width: 220px;">
                             <input type="range" id="range-parite" class="form-range" min="0" max="100" x-model="ratio" x-ref="sliderParite" style="accent-color: orange;">
                         </div>
                         <span id="label-parent-2" class="fw-bold text-secondary text-nowrap ms-3">Parent 2</span>
-                        
+
                         <div class="ms-auto d-flex gap-2">
                             <a href="{{ route('admin.familles.index')}}" class="btn px-3 py-2 fw-bold" style="background:white; border:1px solid orange; color:orange;">
                                 {{ __('famille.cancel', [], 'eus') }}
@@ -161,9 +161,10 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
                 <div class="modal-header border-0 pb-0 ps-4 pt-4">
-                    <h5 id="modalTitle" class="modal-title fw-bold fs-4 text-dark"></h5>
+                    {{-- SonarQube : Titre avec contenu par défaut pour accessibilité --}}
+                    <h5 id="modalTitle" class="modal-title fw-bold fs-4 text-dark">Confirmation</h5>
                 </div>
-                <div id="modalMessage" class="modal-body ps-4 pe-4 pt-2 text-secondary"></div>
+                <div id="modalMessage" class="modal-body ps-4 pe-4 pt-2 text-secondary">Action ?</div>
                 <div class="modal-footer border-0 pe-4 pb-4">
                     <button type="button" class="btn px-4 py-2 fw-bold" data-bs-dismiss="modal" style="background: white; border: 1px solid orange; color: orange; border-radius: 6px;">
                         {{ __('famille.cancel', [], 'eus') }}
@@ -227,7 +228,7 @@
             const msgElem = document.getElementById('modalMessage');
             titleElem.innerHTML = `<span>${titleObj.eus}</span>` + (showFrench ? `<br><small class="text-muted fw-normal fs-6">${titleObj.fr}</small>` : "");
             msgElem.innerHTML = `<span>${msgObj.eus}</span>` + (showFrench ? `<br><small class="text-muted">${msgObj.fr}</small>` : "");
-            new bootstrap.Modal(document.getElementById('confirmationModal')).show();
+            new globalThis.bootstrap.Modal(document.getElementById('confirmationModal')).show();
         }
 
         function searchUsersAJAX(query) {
@@ -274,9 +275,9 @@
         }
 
         function addRole(id, name) {
-            if (isEditMode && nbEnfantsInitial === 0) { 
+            if (isEditMode && nbEnfantsInitial === 0) {
                 alert(translations.errorNoChildren.eus + (showFrench ? "\n" + translations.errorNoChildren.fr : ""));
-                return; 
+                return;
             }
             if (selectedRoles.querySelectorAll('input.user-id').length >= 2) return;
             if (Array.from(selectedRoles.querySelectorAll('input.user-id')).some(i => i.value == id)) return;
@@ -309,9 +310,9 @@
         function createFamily() {
             const parents = selectedRoles.querySelectorAll('input.user-id');
             const children = selectedRoles.querySelectorAll('input.child-id');
-            if (!parents.length || !children.length) { 
+            if (!parents.length || !children.length) {
                 alert(translations.errorSelection.eus + (showFrench ? "\n" + translations.errorSelection.fr : ""));
-                return; 
+                return;
             }
             const slider = document.querySelector('[x-ref="sliderParite"]');
             pendingData = {
@@ -336,8 +337,8 @@
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify(pendingData)
             }).then(() => {
-                bootstrap.Modal.getInstance(document.getElementById('confirmationModal')).hide();
-                new bootstrap.Modal(document.getElementById('successModal')).show();
+                globalThis.bootstrap.Modal.getInstance(document.getElementById('confirmationModal')).hide();
+                new globalThis.bootstrap.Modal(document.getElementById('successModal')).show();
                 document.getElementById('btnSuccessOk').onclick = () => window.location.href = "{{ route('admin.familles.index') }}";
             });
         };

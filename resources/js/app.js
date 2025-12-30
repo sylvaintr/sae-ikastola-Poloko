@@ -3,7 +3,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './bootstrap';
 import './children-selector';
 import Alpine from 'alpinejs';
-window.Alpine = Alpine;
+globalThis.Alpine = Alpine;
 Alpine.start();
 export const dataTableLangs = {
     fr: {
