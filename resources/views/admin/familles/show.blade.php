@@ -1,18 +1,45 @@
 <x-app-layout>
     <div class="container mt-5">
-       <h2 class="mb-5 fw-bolder">Gestion de la famille</h2>
-
-        
+        {{-- Titre principal bilingue --}}
         <div class="mb-5">
-            <h4 class="mb-4 fw-bolder">Parents</h4>
-            <table class="table table-borderless">
+            <h2 class="fw-bolder mb-0">{{ __('famille.management_title', [], 'eus') }}</h2>
+            @if (Lang::getLocale() == 'fr')
+                <small class="text-muted d-block">{{ __('famille.management_title') }}</small>
+            @endif
+        </div>
+
+        {{-- Section Parents --}}
+        <div class="mb-5">
+            <div class="mb-4">
+                <h4 class="fw-bolder mb-0">{{ __('famille.users_section', [], 'eus') }}</h4>
+                @if (Lang::getLocale() == 'fr')
+                    <small class="text-muted d-block text-capitalize">Parents</small>
+                @endif
+            </div>
+
+            <table class="table table-borderless align-middle">
                 <thead>
                     <tr>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Rôle</th>
-                        <th>Statut</th>
-                        <th>Actions</th>
+                        <th>
+                            {{ __('famille.nom', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr') <br><small class="fw-light text-muted">{{ __('famille.nom') }}</small> @endif
+                        </th>
+                        <th>
+                            {{ __('famille.prenom', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr') <br><small class="fw-light text-muted">{{ __('famille.prenom') }}</small> @endif
+                        </th>
+                        <th>
+                            {{ __('famille.role', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr') <br><small class="fw-light text-muted">{{ __('famille.role') }}</small> @endif
+                        </th>
+                        <th>
+                            {{ __('famille.statut', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr') <br><small class="fw-light text-muted">{{ __('famille.statut') }}</small> @endif
+                        </th>
+                        <th>
+                            {{ __('famille.actions', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr') <br><small class="fw-light text-muted">{{ __('famille.actions') }}</small> @endif
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -20,17 +47,20 @@
                         <tr>
                             <td>{{ $parent->nom ?? '-' }}</td>
                             <td>{{ $parent->prenom ?? '-' }}</td>
-                            <td>Parent</td>
+                            <td class="text-capitalize">
+                                {{ __('famille.parent_label', [], 'eus') }}
+                                @if (Lang::getLocale() == 'fr') <br><small class="text-muted">{{ __('famille.parent_label') }}</small> @endif
+                            </td>
                             <td>{{ $parent->statut ?? 'Inconnu' }}</td>
                             <td>
                                 <div class="d-flex gap-3 align-items-center">
-                                    <a href="#" class="text-dark" title="Voir">
+                                    <a href="#" class="text-dark" title="{{ __('famille.view') }}">
                                       <i class="bi bi-eye fs-4"></i>
                                     </a>
-                                    <a href="#" class="text-dark" title="Modifier">
+                                    <a href="#" class="text-dark" title="{{ __('famille.edit') }}">
                                         <i class="bi bi-pencil-square fs-4"></i>
                                     </a>
-                                    <button class="border-0 bg-transparent text-secondary" title="Supprimer">
+                                    <button class="border-0 bg-transparent text-secondary" title="{{ __('famille.delete') }}">
                                       <i class="bi bi-x-lg fs-4"></i>
                                     </button>
                                 </div>
@@ -38,7 +68,10 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-muted text-center">Aucun parent enregistré</td>
+                            <td colspan="5" class="text-muted text-center py-4">
+                                {{ __('famille.no_parent_registered', [], 'eus') }}
+                                @if (Lang::getLocale() == 'fr') <br><small>{{ __('famille.no_parent_registered') }}</small> @endif
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -47,15 +80,36 @@
 
         {{-- Section Enfants --}}
         <div class="mb-5">
-            <h4 class="mb-4 fw-bolder">Enfants</h4>
-            <table class="table table-borderless">
+            <div class="mb-4">
+                <h4 class="fw-bolder mb-0">Ikasleak</h4> {{-- Titre fixe en basque --}}
+                @if (Lang::getLocale() == 'fr')
+                    <small class="text-muted d-block">Enfants</small>
+                @endif
+            </div>
+
+            <table class="table table-borderless align-middle">
                 <thead>
                     <tr>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Rôle</th>
-                        <th>Classe</th>
-                        <th>Actions</th>
+                        <th>
+                            {{ __('famille.nom', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr') <br><small class="fw-light text-muted">{{ __('famille.nom') }}</small> @endif
+                        </th>
+                        <th>
+                            {{ __('famille.prenom', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr') <br><small class="fw-light text-muted">{{ __('famille.prenom') }}</small> @endif
+                        </th>
+                        <th>
+                            {{ __('famille.role', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr') <br><small class="fw-light text-muted">{{ __('famille.role') }}</small> @endif
+                        </th>
+                        <th>
+                            {{ __('famille.classe', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr') <br><small class="fw-light text-muted">{{ __('famille.classe') }}</small> @endif
+                        </th>
+                        <th>
+                            {{ __('famille.actions', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr') <br><small class="fw-light text-muted">{{ __('famille.actions') }}</small> @endif
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,35 +117,38 @@
                         <tr>
                             <td>{{ $enfant->nom ?? '-' }}</td>
                             <td>{{ $enfant->prenom ?? '-' }}</td>
-                            <td>Enfant</td>
-                            <td>
-                                {{-- Affichage de la classe liée --}}
-                                {{ $enfant->classe->nom ?? '-' }}
-                                
+                            <td class="text-capitalize">
+                                {{ __('famille.child_label', [], 'eus') }}
+                                @if (Lang::getLocale() == 'fr') <br><small class="text-muted">{{ __('famille.child_label') }}</small> @endif
                             </td>
                             <td>
-                                <div  class="d-flex gap-3 align-items-center">
-                                    <a href="#" class="text-dark" title="Voir">
+                                {{ $enfant->classe->nom ?? '-' }}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-3 align-items-center">
+                                    <a href="#" class="text-dark" title="{{ __('famille.view') }}">
                                       <i class="bi bi-eye fs-4"></i>
                                     </a>
-                                    <a href="#" class="text-dark" title="Modifier">
+                                    <a href="#" class="text-dark" title="{{ __('famille.edit') }}">
                                         <i class="bi bi-pencil-square fs-4"></i>
                                     </a>
-                                    <button class="border-0 bg-transparent text-secondary" title="Supprimer">
-                                        <i class="bi bi-x-lg fs-4"></i>
+                                    <button class="border-0 bg-transparent text-secondary" title="{{ __('famille.delete') }}">
+                                      <i class="bi bi-x-lg fs-4"></i>
                                     </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-muted text-center">Aucun enfant enregistré</td>
+                            <td colspan="5" class="text-muted text-center py-4">
+                                {{ __('famille.no_child_registered', [], 'eus') }}
+                                @if (Lang::getLocale() == 'fr') <br><small>{{ __('famille.no_child_registered') }}</small> @endif
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-
-      
     </div>
 </x-app-layout>
+
