@@ -42,18 +42,21 @@
                             @enderror
                         </div>
 
+                        {{-- Obligatoire (optionnel) --}}
                         <div class="col-md-6">
                             <label for="obligatoire" class="form-label fw-semibold">Obligatoire</label>
                             <div class="form-check form-switch mt-2">
                                 <input id="obligatoire" name="obligatoire" type="checkbox"
                                        class="form-check-input" value="1"
                                        {{ old('obligatoire') ? 'checked' : '' }}>
-                                <label for="obligatoire" class="form-check-label">Oui</label>
+                                <label for="obligatoire" class="form-check-label">Oui, cet événement est obligatoire</label>
                             </div>
                             @error('obligatoire')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
+
+                       
 
                         <div class="col-12">
                             <div class="form-label fw-semibold mb-2">Cibles</div>

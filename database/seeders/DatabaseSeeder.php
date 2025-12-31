@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\Utilisateur;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Facture;
+use App\Models\Famille;
 use Illuminate\Database\Seeder;
+use App\Models\Utilisateur;
+use App\Models\Enfant;
+use Database\Factories\LierFactory;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,10 +16,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        Facture::factory()->count(5)->create();
+
         $this->call([
             PermissionSeeder::class,
             RoleSeeder::class,
             UserSeeder::class,
+            ActualiteSeeder::class,
         ]);
     }
 }

@@ -3,6 +3,7 @@
 return [
     'actualites' => 'berriak',
     'demande' => 'eskaera',
+    'demandes' => 'eskaerak',
     'tache' => 'orbana',
     'presence' => 'presentzia',
     'evenement' => 'gertaera',
@@ -11,4 +12,5 @@ return [
     'connexion' => 'konexioa',
     'francais' => 'frantsesa',
     'basque' => 'euskara',
+    'factures' => 'fakturak',
 ];

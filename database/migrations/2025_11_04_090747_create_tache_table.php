@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('titre', 30);
             $table->string('description', 100);
             $table->string('type', 15);
+            $table->string('urgence', 15)->default('Moyenne');
             $table->string('etat', 10);
             $table->date('dateD')->nullable();
             $table->date('dateF')->nullable();

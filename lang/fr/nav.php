@@ -3,6 +3,7 @@
 return [
     'actualites' => 'Actualités',
     'demande' => 'Demande',
+    'demandes' => 'Demandes',
     'tache' => 'Tâche',
     'presence' => 'Présence',
     'evenement' => 'Événement',
@@ -11,4 +12,5 @@ return [
     'connexion' => 'Connexion',
     'francais' => 'Français',
     'basque' => 'Basque',
+    'factures' => 'factures',
 ];

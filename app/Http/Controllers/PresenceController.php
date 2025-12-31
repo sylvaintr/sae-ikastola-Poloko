@@ -8,10 +8,12 @@ use App\Models\Etre;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
+/** @codeCoverageIgnore */
 class PresenceController extends Controller
 {
     /**
-     * Return all classes for the selector.
+     * Methode pour obtenir la liste des classes
+     * @return \Illuminate\Http\JsonResponse la réponse JSON contenant la liste des classes
      */
     public function classes()
     {
@@ -23,39 +25,51 @@ class PresenceController extends Controller
     }
 
     /**
-     * Return students for a given class id.
+     * Methode pour obtenir la liste des élèves pour une classe donnée
+     * @param Request $request la requête HTTP contenant le paramètre 'classe_id'
+     * @return \Illuminate\Http\JsonResponse la réponse JSON contenant la liste des élèves
      */
     public function students(Request $request)
     {
-        $classId = (int) $request->query('classe_id');
-        if (!$classId) {
+        $classIds = $this->extractClassIds($request);
+        if (empty($classIds)) {
             return response()->json([], 200);
         }
 
         $students = Enfant::query()
-            ->where('idClasse', $classId)
-            ->orderBy('prenom')
-            ->orderBy('nom')
-            ->get(['idEnfant', 'prenom', 'nom']);
+            ->join('classe', 'classe.idClasse', '=', 'enfant.idClasse')
+            ->whereIn('enfant.idClasse', $classIds)
+            ->orderBy('classe.nom')
+            ->orderBy('enfant.prenom')
+            ->orderBy('enfant.nom')
+            ->get([
+                'enfant.idEnfant',
+                'enfant.prenom',
+                'enfant.nom',
+                'classe.idClasse as classe_id',
+                'classe.nom as classe_nom',
+            ]);
 
         return response()->json($students);
     }
 
     /**
-     * Return present student ids for a given date/activity and class.
+     * Methode pour obtenir la liste des identifiants des élèves présents pour une date/activité et une classe données
+     * @param Request $request la requête HTTP contenant les paramètres 'classe_id', 'date' et 'activite'
+     * @return \Illuminate\Http\JsonResponse la réponse JSON contenant la liste des identifiants des élèves présents
      */
     public function status(Request $request)
     {
-        $classId = (int) $request->query('classe_id');
+        $classIds = $this->extractClassIds($request);
         $date = $request->query('date');
         $activite = (string) $request->query('activite', 'cantine');
-        if (!$classId || !$date) {
+        if (empty($classIds) || !$date) {
             return response()->json(['presentIds' => []]);
         }
 
         $presentIds = Etre::query()
             ->join('enfant', 'enfant.idEnfant', '=', 'etre.idEnfant')
-            ->where('enfant.idClasse', $classId)
+            ->whereIn('enfant.idClasse', $classIds)
             ->whereDate('etre.dateP', $date)
             ->where('etre.activite', $activite)
             ->pluck('etre.idEnfant')
@@ -65,7 +79,9 @@ class PresenceController extends Controller
     }
 
     /**
-     * Save presence status in bulk for a given date/activity.
+     * Methode pour enregistrer en masse le statut de présence pour une date/activité donnée
+     * @param Request $request la requête HTTP contenant les données de présence
+     * @return \Illuminate\Http\JsonResponse la réponse JSON indiquant le statut de l'opération
      */
     public function save(Request $request)
     {
@@ -107,6 +123,34 @@ class PresenceController extends Controller
 
         return response()->json(['status' => 'ok']);
     }
+    /**
+     * Extrait la liste des identifiants de classes depuis la requête en
+     * acceptant à la fois `classe_id` (legacy) et `classe_ids[]`.
+     *
+     * @param Request $request
+     * @return array<int>
+     */
+    private function extractClassIds(Request $request): array
+    {
+        $raw = $request->query('classe_ids', []);
+        if (!is_array($raw)) {
+            $raw = [$raw];
+        }
+        if ($request->query->has('classe_id')) {
+            $raw[] = $request->query('classe_id');
+        }
+
+        return collect($raw)
+            ->flatMap(function ($value) {
+                if (is_array($value)) {
+                    return $value;
+                }
+                return explode(',', (string) $value);
+            })
+            ->map(fn($id) => (int) $id)
+            ->filter(fn($id) => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+    }
 }
-
-

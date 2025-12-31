@@ -1,33 +1,33 @@
 <?php
 
-/**
- * Created by Reliese Model.
- */
-
 namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Actualite
- * 
- * @property int $idActualite Identifiant unique de l'actualité.
- * @property string|null $titre Titre de l'actualité (peut être nul).
- * @property string $description Contenu / texte de l'actualité.
- * @property string $type Catégorie ou type de l'actualité (ex: annonce, info).
- * @property Carbon $dateP Date de publication ou date liée à l'actualité.
- * @property bool $archive Indique si l'actualité est archivée.
- * @property string|null $lien Lien externe associé (peut être nul).
- * @property int $idUtilisateur Identifiant de l'utilisateur auteur / créateur.
+ *
+ * Modèle représentant une actualité / annonce dans l'application.
  *
  * @package App\Models
+ *
+ * @property int $idActualite Identifiant unique de l'actualité.
+ * @property string|null $titre Titre (peut être nul).
+ * @property string $description Contenu de l'actualité.
+ * @property string $type Catégorie ou type (ex: annonce).
+ * @property Carbon $dateP Date de publication ou date associée.
+ * @property bool $archive Indique si l'actualité est archivée.
+ * @property string|null $lien Lien externe associé (peut être nul).
+ * @property int $idUtilisateur Identifiant de l'utilisateur auteur.
  */
 class Actualite extends Model
 {
+	use HasFactory;
 	protected $table = 'actualite';
 	protected $primaryKey = 'idActualite';
-	public $incrementing = false;
+	public $incrementing = true;
 	public $timestamps = false;
 
 	protected $casts = [
@@ -37,9 +37,25 @@ class Actualite extends Model
 		'idUtilisateur' => 'int'
 	];
 
+	/**
+	 * Attributs assignables (fillable) pour une actualité.
+	 *
+	 * - `titre` (string|null) : titre de l'actualité.
+	 * - `description` (string) : contenu / texte de l'actualité.
+	 * - `type` (string) : catégorie ou type (ex: annonce).
+	 * - `dateP` (datetime) : date de publication ou date associée.
+	 * - `archive` (bool) : indique si l'actualité est archivée.
+	 * - `lien` (string|null) : lien externe associé.
+	 * - `idUtilisateur` (int) : identifiant de l'auteur / créateur.
+	 */
 	protected $fillable = [
-		'titre',
-		'description',
+		'idActualite',
+		'titrefr',
+		'titreeus',
+		'descriptionfr',
+		'descriptioneus',
+		'contenufr',
+		'contenueus',
 		'type',
 		'dateP',
 		'archive',
@@ -47,18 +63,42 @@ class Actualite extends Model
 		'idUtilisateur'
 	];
 
+	/**
+	 * Relation belongsTo vers l'utilisateur auteur de l'actualité.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
 	public function utilisateur()
 	{
 		return $this->belongsTo(Utilisateur::class, 'idUtilisateur');
 	}
 
+	/**
+	 * Relation belongsToMany vers les étiquettes via la pivot `correspondre`.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+	 */
 	public function etiquettes()
 	{
 		return $this->belongsToMany(Etiquette::class, 'correspondre', 'idActualite', 'idEtiquette');
 	}
 
+	/**
+	 * Relation belongsToMany vers les documents joints à l'actualité (pivot `joindre`).
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+	 */
 	public function documents()
 	{
 		return $this->belongsToMany(Document::class, 'joindre', 'idActualite', 'idDocument');
+	}
+
+	public function __construct(array $attributes = [])
+	{
+		parent::__construct($attributes);
+
+		// Exemple : valeurs par défaut
+		$this->archive = $this->archive ?? false;
+		$this->dateP = $this->dateP ?? now();
 	}
 }

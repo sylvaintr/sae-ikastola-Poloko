@@ -22,6 +22,20 @@
                     <p class="text-muted mb-0" style="font-size: 0.75rem; margin-top: 0.25rem;">Recherche par titre ou ID</p>
                 </div>
 
+                <form method="GET" action="{{ route('evenements.index') }}" class="d-flex flex-column align-items-start" id="sort-form">
+                    @if(request('search'))
+                        <input type="hidden" name="search" value="{{ request('search') }}">
+                    @endif
+                    <label for="sort" class="form-label fw-semibold mb-1">Trier</label>
+                    <select id="sort" name="sort" class="form-select" style="min-width: 220px;" onchange="this.form.submit()">
+                        @php $currentSort = $sort ?? 'id_desc'; @endphp
+                        <option value="id_desc" @selected($currentSort === 'id_desc')>ID - plus récents en premier</option>
+                        <option value="id_asc" @selected($currentSort === 'id_asc')>ID - plus anciens en premier</option>
+                        <option value="date_desc" @selected($currentSort === 'date_desc')>Date - plus récentes en premier</option>
+                        <option value="date_asc" @selected($currentSort === 'date_asc')>Date - plus anciennes en premier</option>
+                    </select>
+                </form>
+
                 <div class="d-flex flex-column align-items-start">
                     <a href="{{ route('evenements.create') }}" class="btn admin-add-button">
                         Ajouter un évènement
@@ -51,7 +65,7 @@
                             <td>{{ \Carbon\Carbon::parse($evenement->dateE)->format('d/m/Y') }}</td>
                             <td>
                                 <span title="{{ $evenement->description }}">
-                                    {{ Str::limit($evenement->description, 50) }}
+                                    {{ \Illuminate\Support\Str::limit($evenement->description, 50) }}
                                 </span>
                             </td>
                             <td>
@@ -95,6 +109,25 @@
                 {{ $evenements->links() }}
             </div>
         @endif
+
+        {{-- Modal confirmation suppression --}}
+        <div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteEventLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteEventLabel">Supprimer l'événement</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body">
+                        Voulez-vous vraiment supprimer l'événement « <span data-event-title></span> » ?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary cancel-delete" data-bs-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-danger confirm-delete">Supprimer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 </x-app-layout>

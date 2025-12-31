@@ -11,26 +11,40 @@ class EvenementController extends Controller
     /**
      * Afficher tous les événements
      */
-   public function index(Request $request)
-{
-    $query = Evenement::query();
+    public function index(Request $request)
+    {
+        $query = Evenement::query();
 
-    // Optionnel : recherche par titre ou ID
-    if ($search = $request->input('search')) {
-        $query->where(function ($q) use ($search) {
-            $q->where('titre', 'like', "%{$search}%")
-              ->orWhere('request_id', 'like', "%{$search}%")
-              ->orWhere('cible', 'like', "%{$search}%");
-        });
+        // Recherche par titre ou ID
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('titre', 'like', "%{$search}%")
+                  ->orWhere('request_id', 'like', "%{$search}%")
+                  ->orWhere('cible', 'like', "%{$search}%");
+            });
+        }
+
+        // Tri dynamique
+        $sort = $request->input('sort', 'id_desc');
+        $allowedSorts = [
+            'id_desc' => ['idEvenement', 'desc'],
+            'id_asc' => ['idEvenement', 'asc'],
+            'date_desc' => ['dateE', 'desc'],
+            'date_asc' => ['dateE', 'asc'],
+        ];
+
+        if (! array_key_exists($sort, $allowedSorts)) {
+            $sort = 'id_desc';
+        }
+
+        [$column, $direction] = $allowedSorts[$sort];
+
+        $evenements = $query->orderBy($column, $direction)
+                            ->paginate(10)
+                            ->withQueryString();
+
+        return view('evenements.index', compact('evenements', 'sort'));
     }
-
-    // Utilise paginate() pour avoir un LengthAwarePaginator
-    $evenements = $query->orderByDesc('dateE')
-                        ->paginate(10) // nombre par page
-                        ->withQueryString(); // conserve les paramètres de recherche
-
-    return view('evenements.index', compact('evenements'));
-}
 
 
     /**
@@ -50,7 +64,7 @@ class EvenementController extends Controller
         $request->validate([
             'titre' => 'required|string|max:255',
             'description' => 'required|string',
-            'obligatoire' => 'required|boolean',
+            'obligatoire' => 'nullable|boolean',
             'dateE' => 'required|date',
             'roles' => 'nullable|array',
             'roles.*' => 'integer|exists:role,idRole',
@@ -59,7 +73,7 @@ class EvenementController extends Controller
         $evenement = Evenement::create([
             'titre' => $request->titre,
             'description' => $request->description,
-            'obligatoire' => $request->obligatoire,
+            'obligatoire' => $request->boolean('obligatoire'),
             'dateE' => $request->dateE,
         ]);
 
@@ -99,7 +113,7 @@ class EvenementController extends Controller
         $request->validate([
             'titre' => 'required|string|max:255',
             'description' => 'required|string',
-            'obligatoire' => 'required|boolean',
+            'obligatoire' => 'nullable|boolean',
             'dateE' => 'required|date',
             'roles' => 'nullable|array',
             'roles.*' => 'integer|exists:role,idRole',
@@ -110,7 +124,7 @@ class EvenementController extends Controller
         $evenement->update([
             'titre' => $request->titre,
             'description' => $request->description,
-            'obligatoire' => $request->obligatoire,
+            'obligatoire' => $request->boolean('obligatoire'),
             'dateE' => $request->dateE,
         ]);
 
