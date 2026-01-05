@@ -9,8 +9,11 @@ use App\Models\Facture;
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Utilisateur;
+use App\Models\Etre;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Facture as FactureMail;
+use Carbon\Carbon;
+use App\Models\Activite;
 
 class FactureControllerTest extends TestCase
 {
@@ -141,5 +144,45 @@ class FactureControllerTest extends TestCase
         $responseValiderFacture->assertRedirect(route('admin.facture.index'));
         $responseExportFacture->assertRedirect(route('admin.facture.index'));
         $responseShowFacture->assertRedirect(route('admin.facture.index'));
+    }
+
+  
+    public function test_calculer_regularisation()
+    {
+        
+        $famille = Famille::factory()->create();
+
+        Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel'=> true ,  'dateC' => Carbon::now()->subMonths(5)]);
+        Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel'=> true ,  'dateC' => Carbon::now()->subMonths(4)]);
+        Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel'=> true ,  'dateC' => Carbon::now()->subMonths(3)]);
+        Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel'=> true ,  'dateC' => Carbon::now()->subMonths(2)]);
+        Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel'=> true ,  'dateC' => Carbon::now()->subMonths(1)]);
+        $controleur = new FactureController();
+        $regularisation = $controleur->calculerRegularisation($famille->idFamille);
+        $this->assertTrue( 0>=$regularisation);
+
+
+    }
+
+        public function test_calculer_regularisation_positif()
+    {
+        $famille = Famille::create(['idFamille' => 999999, 'aineDansAutreSeaska' => false]);
+        $enfant = Enfant::factory()->create(['nbFoisGarderie' => 0, 'idFamille' => $famille->idFamille, 'idEnfant' => 999999]);
+        for ($i=0; $i < 30; $i++) {
+            
+            Etre::create(['idEnfant' => $enfant->idEnfant, 'activite' => 'garderie soire', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
+            Activite::create(['activite' => 'garderie soire', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
+        }
+
+        Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel'=> true ,  'dateC' => Carbon::now()->subMonths(5)]);
+        Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel'=> true ,  'dateC' => Carbon::now()->subMonths(4)]);
+        Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel'=> true ,  'dateC' => Carbon::now()->subMonths(3)]);
+        Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel'=> true ,  'dateC' => Carbon::now()->subMonths(2)]);
+        Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel'=> true ,  'dateC' => Carbon::now()->subMonths(1)]);
+        $controleur = new FactureController();
+        $regularisation = $controleur->calculerRegularisation($famille->idFamille);
+        $this->assertTrue( 0<=$regularisation);
+
+
     }
 }

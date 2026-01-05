@@ -17,6 +17,7 @@ use App\Models\Utilisateur;
 use Pelago\Emogrifier\CssInliner;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Carbon\Carbon;
 
 /**
  * Class FactureController
@@ -49,6 +50,10 @@ class FactureController extends Controller
         if ($montants instanceof RedirectResponse) {
             return $montants;
         }
+        if (!$montants['facture']->previsionnel ) {
+            $montantRegulation  = $this->calculerRegularisation($montants['famille']->idFamille);
+            
+        }
 
         return view('facture.show', [
             'facture' => $montants['facture'],
@@ -60,6 +65,7 @@ class FactureController extends Controller
             'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
             'montanttotal' => $montants['montanttotal'] ?? 0,
             'totalPrevisionnel' => $montants['totalPrevisionnel'] ?? 0,
+            'montantRegulation' => $montantRegulation ?? 0,
             
         ]);
     }
@@ -101,9 +107,7 @@ class FactureController extends Controller
 
         $facture = $montants['facture'];
 
-        if($facture->etat == 'manuel'){
 
-        }
 
         $content = view('facture.template.facture-html', [
             'facture' => $montants['facture'],
@@ -246,34 +250,17 @@ class FactureController extends Controller
         /** @var Enfant $enfant */
         foreach ($enfants as $enfant) {
             
-                $montangarderieprev = $enfant->nbFoisGarderie;
-           
-                $debutMois = $facture->dateC->copy()->startOfMonth();
-                $finMois = $facture->dateC->copy()->endOfMonth();
-
-
-
-                $nbfoisgarderie =  Etre::where('idEnfant', $enfant->idEnfant)
-                    ->whereBetween('dateP', [$debutMois, $finMois])
-                    ->whereHas('activite', function ($query) {
-                        $query->where('activite', 'like', '%garderie%');
-                    })
-                    ->count();
+            $nbfoisgarderie = $enfant->nbFoisGarderie;
             
-
             if ($nbfoisgarderie > 0 && $nbfoisgarderie <= 8) {
                 $montangarderieprev += 10;
-                $montangarderie += 10;
             } elseif ($nbfoisgarderie > 8) {
                 $montangarderieprev += 20;
-                $montangarderie += 20;
             } else {
                 $montangarderieprev += 0;
-                $montangarderie += 0;
             }
         }
 
-        $montanttotal =   ( $facture->etat !=='verifier' ? $montangarderie : $montangarderieprev )+ $montantcotisation + $montantparticipation + $montantparticipationSeaska;
         $montanttotalprev =   $montangarderieprev + $montantcotisation + $montantparticipation + $montantparticipationSeaska;
         return [
             'facture' => $facture,
@@ -283,7 +270,6 @@ class FactureController extends Controller
             'montantparticipation' => $montantparticipation,
             'montantparticipationSeaska' => $montantparticipationSeaska,
             'montangarderie' => $montangarderie,
-            'montanttotal' => $montanttotal,
             'totalPrevisionnel' => $montanttotalprev,
         ];
     }
@@ -305,4 +291,106 @@ class FactureController extends Controller
 
         return redirect()->route('admin.facture.index')->with('success', 'facture.etatupdatesuccess');
     }
+
+
+    public function createFacturePrevisionnel(): void
+    {
+        $familles = Famille::all();
+
+        foreach ($familles as $famille) {
+            $facture = new Facture();
+            $facture->idFamille = $famille->idFamille;
+            $facture->dateC = now();
+            $facture->etat = 'previsionnel';
+            $facture->save();
+        }
+    }
+
+    public function createFactureRegularisation(): void
+    {
+        $familles = Famille::all();
+
+        foreach ($familles as $famille) {
+            $facture = new Facture();
+            $facture->idFamille = $famille->idFamille;
+            $facture->dateC = now();
+            $facture->etat = 'manuel';
+            $facture->save();
+        }
+    }
+
+
+
+public function calculerRegularisation($idfamille)
+{
+    $lastRegDate = Facture::where('idFamille', $idfamille)
+        ->where('previsionnel', false)
+        ->whereDate('dateC', '<>', Carbon::today())
+        ->max('dateC');
+
+    $startDate = $lastRegDate ? Carbon::parse($lastRegDate) : Carbon::create(2000, 1, 1);
+    $facturesPrev = Facture::where('idFamille', $idfamille)
+        ->where('previsionnel', true)
+        ->where('dateC', '>=', $startDate)
+        ->get();
+
+    $totalPrev = 0;
+    foreach ($facturesPrev as $facture) {
+        $montantDetails = $this->calculerMontantFacture($facture->idFacture);
+        $totalPrev += $montantDetails['totalPrevisionnel'] ; // Null coalesce safety
+    }
+
+    $totalRegularisation = 0;
+    
+
+    $enfants = Famille::find($idfamille)->enfants;
+
+    $cursorDate = $startDate->copy()->startOfMonth();
+    $endDate = Carbon::now()->endOfMonth();
+
+    while ($cursorDate->lte($endDate)) {
+        
+        
+        $facture = Facture::where('idFamille', $idfamille)
+            ->whereYear('dateC', $cursorDate->year)
+            ->whereMonth('dateC', $cursorDate->month)
+            ->first();
+
+        if ($facture) {
+            $montant = $this->calculerMontantFacture($facture->idFacture);
+            $totalRegularisation += ($montant['montantcotisation'] ?? 0)
+                                  + ($montant['montantparticipation'] ?? 0)
+                                  + ($montant['montantparticipationSeaska'] ?? 0);
+
+            
+            foreach ($enfants as $enfant) {
+                
+                $monthStart = $cursorDate->copy()->startOfMonth();
+                $monthEnd   = $cursorDate->copy()->endOfMonth();
+
+                $nbfoisgarderie = Etre::where('idEnfant', $enfant->idEnfant)
+                    ->whereBetween('dateP', [$monthStart, $monthEnd])
+                    ->whereHas('activite', function ($query) {
+                        $query->where('activite', 'like', '%garderie%');
+                    })
+                    ->count();
+
+
+                if ($nbfoisgarderie > 8) {
+                    $totalRegularisation += 20;
+                } elseif ($nbfoisgarderie > 0) {
+                    $totalRegularisation += 10;
+                }
+            }
+        }
+
+        $cursorDate->addMonth();
+    }
+
+    
+    // si c'est positif la famille doit de l'argent
+    // si c'est negatif l'ikastola doit de l'argent a la famille
+    return   $totalRegularisation -$totalPrev;
+}
+
 }
