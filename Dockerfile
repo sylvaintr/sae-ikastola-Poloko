@@ -29,8 +29,11 @@ COPY . .
 
 RUN php artisan storage:link || true
 
+
+RUN git config --global --add safe.directory /var/www/html
+
 # Installation dépendances Laravel
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
 # Droits pour Laravel
 RUN mkdir -p storage/logs \
