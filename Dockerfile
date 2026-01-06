@@ -1,55 +1,59 @@
-# --- Étape 1 : image PHP-FPM 8.4 ---
-FROM php:8.4-fpm
+# --- Image PHP-FPM 8.4 sur Alpine ---
+FROM php:8.4-fpm-alpine
 
-# Installation des dépendances système
-RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev \
-    libzip-dev libpq-dev libicu-dev libjpeg-dev libfreetype6-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl gd intl zip bcmath
+# Récupération de l'installateur d'extensions (outil très pratique)
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
-# Installation de Node.js et npm
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs=20.11.1-1nodesource1 netcat-openbsd
+# 1. Installation des dépendances système (Pour Alpine : apk au lieu de apt-get)
+RUN apk add --no-cache \
+    nodejs \
+    npm \
+    bash \
+    git \
+    netcat-openbsd
 
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug
-# Installation de Composer
+# 2. Installation des extensions PHP + Composer
+RUN install-php-extensions \
+    pdo_mysql \
+    pdo_pgsql \
+    exif \
+    pcntl \
+    gd \
+    intl \
+    zip \
+    bcmath \
+    xdebug
+
+# Installation de Composer depuis l'image officielle
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-
-# Configuration PHP (facultatif)
+# Configuration PHP personnalisée (facultatif)
 COPY ./docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
 # Définition du dossier de travail
 WORKDIR /var/www/html
 
-# Copie des fichiers de configuration d'abord (pour optimiser le cache Docker)
-COPY composer.json composer.lock ./
-COPY package.json package-lock.json* ./
+# --- Étape de build (Optimisation du cache) ---
 
-# Installation dépendances Laravel
+# 3. Copie et installation des dépendances PHP
+COPY composer.json composer.lock ./
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
-# Installation dépendances Node.js (seulement si package.json existe)
-RUN if [ -f package.json ]; then npm install; fi
+# 4. Copie et installation des dépendances Node.js
+COPY package.json package-lock.json* ./
+RUN if [ -f package.json ]; then npm ci; fi
 
-# Copie du reste des fichiers du projet
+# 5. Copie du reste du code source
 COPY . .
 
-# Création des dossiers et permissions pour Laravel
-RUN mkdir -p storage/logs \
-    && mkdir -p storage/framework/cache \
-    && mkdir -p storage/framework/sessions \
-    && mkdir -p storage/framework/views \
-    && mkdir -p bootstrap/cache \
+# 6. Permissions et structure des dossiers Laravel
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R ug+rwX storage bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache
 
-# Lien symbolique pour le stockage (après l'installation de composer)
+# 7. Lien symbolique et scripts finaux
 RUN php artisan storage:link || true
 
-# Port du serveur PHP-FPM
 EXPOSE 9000
 
 CMD ["php-fpm"]
