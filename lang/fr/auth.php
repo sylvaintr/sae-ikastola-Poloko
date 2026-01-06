@@ -12,7 +12,7 @@ return [
 
     'email_principal' => 'Email',
     'mot_de_passe_principal' => 'Mot de passe',
-    
+
     'placeholder_email' => 'adresse@email.com',
     'placeholder_password' => 'Votre mot de passe',
     'mot_de_passe_oublie_principal' => 'Mot de passe oublié ?',

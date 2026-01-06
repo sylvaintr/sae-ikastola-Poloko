@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="auth-header text-center">
-        <h1 class="auth-title">{{ __('auth.titre_connexion_principal') }}</h1>
+        <h1 class="auth-title">{{ __('auth.connexion') }}</h1>
     </div>
 
     <x-auth-session-status class="auth-status" :status="session('status')" />
@@ -39,12 +39,13 @@
             <div class="auth-footer-text">
                 <span class="auth-footer-title">{{ __('auth.pas_compte_principal') }}</span>
                 @if (Route::has('register'))
-                    <a class="auth-footer-link" href="{{ route('register') }}">{{ __('auth.pas_compte_secondaire') }}</a>
+                    <a class="auth-footer-link"
+                        href="{{ route('register') }}">{{ __('auth.pas_compte_secondaire') }}</a>
                 @endif
             </div>
 
             <x-primary-button class="btn-login">
-                {{ __('auth.bouton_connexion') }}
+                {{ __('auth.connexion') }}
             </x-primary-button>
         </div>
     </form>

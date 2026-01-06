@@ -9,7 +9,6 @@ return [
     'inscription' => 'Erregistratu',
     'nom' => 'Izena',
     'confirmer_mot_de_passe' => 'Pasahitza berretsi',
-
     'titre_connexion_secondaire' => 'Sartu zure kontuan',
     'email_principal' => 'Posta elektronikoa',
     'email_secondaire' => 'Emaila',
