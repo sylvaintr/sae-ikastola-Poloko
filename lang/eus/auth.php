@@ -61,7 +61,7 @@ return [
     'nonconnecte' => 'Saioa hasi behar duzu baliabide honetara sartzeko.',
     'accesrefuse' => 'Ez duzu baimenik orrialde honetara sartzeko.',
     
-    // Messages d'erreur d'authentification
+    // Autentifikazio errore mezuak
     'failed' => 'Kredentzial hauek ez datoz bat kontu batekin ere.',
     'password' => 'Emandako pasahitza okerra da.',
     'throttle' => 'Saioa hasteko saiakera gehiegi. Mesedez, saiatu berriro :seconds segundo barru.',

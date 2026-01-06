@@ -1818,13 +1818,15 @@
         padding: 1rem;
     }
     
-    /* Boutons responsive */
-    .btn-group {
+    /* Boutons responsive - seulement pour les toolbars */
+    .demande-toolbar .btn-group,
+    .admin-toolbar .btn-group {
         flex-direction: column;
         width: 100%;
     }
     
-    .btn-group .btn {
+    .demande-toolbar .btn-group .btn,
+    .admin-toolbar .btn-group .btn {
         border-radius: 0.375rem !important;
         margin-bottom: 0.5rem;
     }
@@ -1850,7 +1852,11 @@
         padding: 0;
     }
     
-    /* Toolbars */
+    /* Toolbars - alignement à gauche sur mobile */
+    .demande-toolbar.text-end,
+    .admin-toolbar.text-end {
+        text-align: left !important;
+    }
     /* Let Bootstrap's responsive text alignment utilities behave as designed on mobile */
 }
 
