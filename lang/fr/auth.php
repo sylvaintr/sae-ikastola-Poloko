@@ -74,4 +74,7 @@ return [
     'en_attente' => 'En attente',
     'accesrefuse' => "Vous n'avez pas la permission d'accéder à cette page.",
     'nonconnecte' => "Vous devez être connecté pour accéder à cette page.",
+
+    'notification_reset_line1' => "Vous recevez cet e-mail car nous avons reçu une demande de réinitialisation de mot de passe.",
+    'notification_reset_line2' => "Si vous n’avez pas demandé cette réinitialisation, aucune action n’est requise.",
 ];
