@@ -2,6 +2,7 @@ import 'bootstrap/dist/js/bootstrap.bundle';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './bootstrap';
 import './children-selector';
+import './forgot-password';
 
 export const dataTableLangs = {
     fr: {
