@@ -1851,13 +1851,7 @@
     }
     
     /* Toolbars */
-    .text-end {
-        text-align: left !important;
-    }
-    
-    .text-md-end {
-        text-align: left !important;
-    }
+    /* Let Bootstrap's responsive text alignment utilities behave as designed on mobile */
 }
 
 /* Tablettes - ajustements moyens */
