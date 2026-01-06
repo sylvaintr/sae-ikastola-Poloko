@@ -578,6 +578,19 @@
     border-color: #d67c00;
 }
 
+.btn-primary {
+    background-color: #f29201;
+    border-color: #f29201;
+    color: #fff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    color: #fff;
+    background-color: #d67c00;
+    border-color: #d67c00;
+}
+
 .demande-btn-outline {
     border-color: #f29201;
     color: #f29201;
