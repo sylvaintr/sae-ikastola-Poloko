@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\Tache;
 use App\Models\DemandeHistorique;
-use App\Models\Utilisateur;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
