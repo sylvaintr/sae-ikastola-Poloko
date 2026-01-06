@@ -68,14 +68,12 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:CA'])->group(function () {
-
         Route::prefix('admin')->name('admin.')->group(function () {
 
             Route::view('/', 'admin.index')->name('index');
             Route::view('/publications', 'admin.messages')->name('messages');
             Route::view('/familles', 'admin.families')->name('families');
             Route::view('/notifications', 'admin.notifications')->name('notifications');
-
 
             /*
             |--------------------------------------------------------------------------
@@ -165,7 +163,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/facture/{id}/verifier', [FactureController::class, 'validerFacture'])
                 ->name('facture.valider');
         });
-
 
         /*
         |--------------------------------------------------------------------------
