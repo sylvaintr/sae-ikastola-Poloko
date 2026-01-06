@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\Utilisateur;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -48,19 +49,29 @@ class RegisteredUserController extends Controller
             $nom = $parts[1] ?? '';
         }
 
+        // Créer l'utilisateur avec statutValidation à false (non validé)
         $user = Utilisateur::create([
             'prenom' => $prenom,
             'nom' => $nom,
             'email' => $request->email,
             'mdp' => Hash::make($request->password),
             'languePref' => $request->input('languePref', 'fr'),
-            'statutValidation' => $request->input('statutValidation', true),
+            'statutValidation' => false, // Toujours non validé pour les inscriptions publiques
         ]);
+
+        // Assigner automatiquement le rôle "parent"
+        $parentRole = Role::where('name', 'parent')->first();
+        if ($parentRole) {
+            $user->rolesCustom()->sync([
+                $parentRole->idRole => ['model_type' => Utilisateur::class]
+            ]);
+        }
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect(route('home'));
+        // Ne pas connecter l'utilisateur automatiquement car le compte n'est pas validé
+        // Rediriger vers la page de connexion avec un message de confirmation
+        return redirect(route('login'))
+            ->with('status', __('auth.registration_pending_validation'));
     }
 }

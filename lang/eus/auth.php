@@ -60,4 +60,8 @@ return [
     'confirmer' => 'Berretsi',
     'nonconnecte' => 'Saioa hasi behar duzu baliabide honetara sartzeko.',
     'accesrefuse' => 'Ez duzu baimenik orrialde honetara sartzeko.',
+    
+    // Erregistro mezuak
+    'registration_pending_validation' => 'Zure kontua ongi sortu da. Administratzaile baten baliozkotzearen zain dago. Zure kontua balioztatutakoan saioa hasi ahal izango duzu.',
+    'account_not_validated' => 'Zure kontua ez da oraindik administratzaile batek balioztatu. Mesedez, itxaron zure kontua balioztatu arte.',
 ];

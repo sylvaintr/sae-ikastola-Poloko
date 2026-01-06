@@ -8,6 +8,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl gd intl zip bcmath
 
+# Installation de Node.js et npm
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
+
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
 # Installation de Composer
@@ -26,6 +30,9 @@ RUN php artisan storage:link || true
 
 # Installation dépendances Laravel
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Installation dépendances Node.js
+RUN npm install
 
 # Droits pour Laravel
 RUN mkdir -p storage/logs \

@@ -74,4 +74,8 @@ return [
     'en_attente' => 'En attente',
     'accesrefuse' => "Vous n'avez pas la permission d'accéder à cette page.",
     'nonconnecte' => "Vous devez être connecté pour accéder à cette page.",
+    
+    // Messages d'inscription
+    'registration_pending_validation' => 'Votre compte a été créé avec succès. Il est en attente de validation par un administrateur. Vous pourrez vous connecter une fois votre compte validé.',
+    'account_not_validated' => 'Votre compte n\'a pas encore été validé par un administrateur. Veuillez patienter jusqu\'à ce que votre compte soit validé.',
 ];
