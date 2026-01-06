@@ -22,18 +22,26 @@
             <x-input-error class="auth-error" :messages="$errors->get('password')" />
         </div>
 
-        <div class="auth-checkbox">
-            <input id="remember_me" class="form-check-input" type="checkbox" name="remember">
-            <label for="remember_me" class="auth-checkbox-label">{{ __('auth.se_souvenir_de_moi') }}</label>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="form-check">
+                <input id="remember_me" class="form-check-input" type="checkbox" name="remember">
+                <label for="remember_me" class="form-check-label">
+                    {{ __('auth.se_souvenir_de_moi') }}
+                </label>
+            </div>
+
+            @if (Route::has('password.request'))
+                <a class="auth-footer-link text-decoration-none" href="{{ route('password.request') }}">
+                    {{ __('auth.mot_de_passe_oublie_principal') }}
+                </a>
+            @endif
         </div>
 
-        @if (Route::has('password.request'))
-            <div class="auth-forgot">
-                <a class="auth-forgot-link" href="{{ route('password.request') }}">
-                    <span class="auth-forgot-label">{{ __('auth.mot_de_passe_oublie_principal') }}</span>
-                </a>
-            </div>
-        @endif
+        <div class="mb-3">
+            <x-primary-button class="btn-login w-100">
+                {{ __('auth.connexion') }}
+            </x-primary-button>
+        </div>
 
         <div class="auth-footer">
             <div class="auth-footer-text">
@@ -43,10 +51,6 @@
                         href="{{ route('register') }}">{{ __('auth.pas_compte_secondaire') }}</a>
                 @endif
             </div>
-
-            <x-primary-button class="btn-login">
-                {{ __('auth.connexion') }}
-            </x-primary-button>
         </div>
     </form>
 </x-guest-layout>
