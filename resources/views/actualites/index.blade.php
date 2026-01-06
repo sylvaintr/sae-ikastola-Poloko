@@ -59,13 +59,13 @@
 
 
 
-<div class="dropdown d-flex flex-row-reverse">
-    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown"
+<div class="dropdown d-flex flex-row-reverse mb-3">
+    <button type="button" class="btn btn-secondary dropdown-toggle w-100 w-sm-auto" data-bs-toggle="dropdown"
         aria-expanded="false">
         {{ __('actualite.filter') }}
     </button>
 
-    <ul class="dropdown-menu p-3" style="min-width: 250px;">
+    <ul class="dropdown-menu dropdown-menu-end p-3 w-100 w-sm-auto" style="min-width: 250px;">
         <form action="{{ route('actualites.filter') }}" method="POST" id="filter-form">
             @csrf
             @foreach ($etiquettes as $etiquette)

@@ -9,7 +9,7 @@
                 </span>
             </a>
         </div>
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-4 mb-5">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 gap-md-4 mb-4 mb-md-5">
             <div>
                 <h1 class="fw-bold mb-1">{{ $demande->titre }}</h1>
                 <p class="text-uppercase text-muted small mb-2">{{ $demande->type ?? __('demandes.show.type_default') }}</p>
@@ -36,7 +36,7 @@
             @if (count($photos))
                 <div class="row g-3">
                     @foreach ($photos as $photo)
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="demande-photo-card">
                                 <img src="{{ $photo['url'] }}" alt="{{ $photo['nom'] }}" class="img-fluid w-100 rounded-3">
                                 <div class="small text-muted mt-2">{{ $photo['nom'] }}</div>
@@ -141,7 +141,7 @@
 </x-app-layout>
 
 <div class="modal fade" id="viewHistoryModal" tabindex="-1" aria-labelledby="viewHistoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="viewHistoryModalLabel">{{ __('demandes.modals.history_view.title') }}</h5>

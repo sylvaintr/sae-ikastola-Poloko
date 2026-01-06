@@ -1,12 +1,12 @@
 <x-app-layout>
     <div class="container py-4">
 		<div class="mb-3">
-			<div class="d-flex justify-content-between align-items-end">
-                <ul class="nav nav-tabs border-0 presence-tabs">
-                <li class="nav-item me-3">
+			<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3">
+                <ul class="nav nav-tabs border-0 presence-tabs flex-grow-1 w-100 w-md-auto">
+                <li class="nav-item me-2 me-md-3">
                     <a class="nav-link active fw-bold text-warning activite-tab" href="#" data-activite="cantine" aria-current="page">{{ __('presence.cantine') }}</a>
                 </li>
-                <li class="nav-item me-3">
+                <li class="nav-item me-2 me-md-3">
                     <a class="nav-link text-secondary activite-tab" href="#" data-activite="garderie_matin">{{ __('presence.garderie_matin') }}</a>
                 </li>
                 <li class="nav-item">
@@ -14,9 +14,9 @@
                 </li>
 				</ul>
 
-                <div class="d-flex align-items-center gap-2 position-relative">
+                <div class="d-flex align-items-center gap-2 position-relative w-100 w-md-auto justify-content-between justify-content-md-start">
                     <div id="display-date" class="fw-semibold me-1 presence-date-text"></div>
-                    <button id="open-date" type="button" class="btn btn-link p-0 presence-date-btn" aria-label="Choisir la date">
+                    <button id="open-date" type="button" class="btn btn-link p-0 presence-date-btn flex-shrink-0" aria-label="Choisir la date">
                         <i class="bi bi-chevron-down"></i>
                     </button>
                     <input id="presence-date" name="date" type="date" value="{{ now()->toDateString() }}" max="{{ now()->toDateString() }}" class="presence-date-input-hidden" />

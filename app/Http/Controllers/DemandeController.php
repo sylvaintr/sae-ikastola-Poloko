@@ -210,15 +210,25 @@ class DemandeController extends Controller
 
     public function destroy(Tache $demande)
     {
-        // supprimer les documents liés
+        // Supprimer les documents liés (fichiers + enregistrements)
         foreach ($demande->documents as $doc) {
+            // Supprimer le fichier physique
             Storage::disk('public')->delete($doc->chemin);
+            // Supprimer les relations dans la table pivot 'contenir' (utilisateurs-documents)
+            $doc->utilisateurs()->detach();
+            // Supprimer les relations dans la table pivot 'joindre' (actualités-documents)
+            $doc->actualites()->detach();
+            // Supprimer l'enregistrement du document
             $doc->delete();
         }
 
-        // supprimer l'historique lié
+        // Supprimer l'historique lié
         DemandeHistorique::where('idDemande', $demande->idTache)->delete();
 
+        // Supprimer les relations dans la table pivot 'realiser' (utilisateurs-tâches)
+        $demande->realisateurs()->detach();
+
+        // Supprimer la demande elle-même
         $demande->delete();
 
         return to_route('demandes.index')->with('status', __('demandes.messages.deleted'));

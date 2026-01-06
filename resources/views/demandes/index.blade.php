@@ -5,18 +5,18 @@
 <x-app-layout>
     <div class="container py-4 demande-page">
         <div class="demande-toolbar text-end">
-            <div class="d-flex flex-wrap gap-4 justify-content-end">
+            <div class="d-flex flex-column flex-sm-row flex-wrap gap-3 gap-sm-4 justify-content-end">
                 <div class="demande-toolbar-item">
-                    <button type="button" class="btn demande-btn-outline fw-semibold px-4 py-2">
+                    <button type="button" class="btn demande-btn-outline fw-semibold px-4 py-2 w-100 w-sm-auto">
                         {{ __('demandes.toolbar.export.eu') }}
                     </button>
-                    <small class="text-muted">{{ __('demandes.toolbar.export.fr') }}</small>
+                    <small class="text-muted d-block d-sm-inline">{{ __('demandes.toolbar.export.fr') }}</small>
                 </div>
                 <div class="demande-toolbar-item">
-                    <a href="{{ route('demandes.create') }}" class="btn demande-btn-primary fw-semibold text-white px-4 py-2">
+                    <a href="{{ route('demandes.create') }}" class="btn demande-btn-primary fw-semibold text-white px-4 py-2 w-100 w-sm-auto">
                         {{ __('demandes.toolbar.create.eu') }}
                     </a>
-                    <small class="text-muted">{{ __('demandes.toolbar.create.fr') }}</small>
+                    <small class="text-muted d-block d-sm-inline">{{ __('demandes.toolbar.create.fr') }}</small>
                 </div>
             </div>
         </div>
@@ -35,12 +35,12 @@
 
 <form class="demande-filter-form mt-4" method="GET" action="{{ route('demandes.index') }}" id="demande-filter-form">
             <div class="row g-3 align-items-start">
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <label for="search" class="form-label fw-semibold text-muted small mb-1">{{ __('demandes.search.label.eu') }} <small class="text-muted d-block">{{ __('demandes.search.label.fr') }}</small></label>
                     <input type="text" id="search" name="search" class="form-control demande-search-input"
                         placeholder="{{ __('demandes.search.placeholder') }}" value="{{ $filters['search'] }}">
                 </div>
-                <div class="col-md-8 text-md-end">
+                <div class="col-12 col-md-8 text-md-end">
                     <div class="dropdown d-inline-block">
                         <button class="demande-filter-toggle fw-semibold" type="button" id="filterDropdown"
                             data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">

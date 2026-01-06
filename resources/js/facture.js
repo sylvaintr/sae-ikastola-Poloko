@@ -13,6 +13,20 @@ document.addEventListener('DOMContentLoaded', function () {
             serverSide: true,
             autoWidth: false,
             ajax: location.pathname + "s-data",
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
+            columnDefs: [
+                { responsivePriority: 1, targets: 0 }, // ID Facture
+                { responsivePriority: 2, targets: 5 }, // Actions
+                { responsivePriority: 3, targets: 1 }, // Titre
+                { responsivePriority: 4, targets: 2 }, // État
+                { responsivePriority: 5, targets: 3 }, // ID Famille
+                { responsivePriority: 6, targets: 4 }  // Date
+            ],
             columns: [
                 { data: 'idFacture', name: 'idFacture', className: 'all dt-left' },
                 { data: 'titre', name: 'titre' },
@@ -37,7 +51,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 }
             ],
-            responsive: true,
             language: dataTableLangs[currentLang] || dataTableLangs.eus
         });
     } catch (e) { console.error("DataTable initialization error:", e); }

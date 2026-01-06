@@ -6,13 +6,13 @@
     @vite(['resources/js/etiquette.js'])
 
     <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold">{{ Lang::get('etiquette.gestion', [], 'eus') }}
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+            <h2 class="fw-bold mb-0">{{ Lang::get('etiquette.gestion', [], 'eus') }}
                 @if (Lang::getLocale() == 'fr')
                     <p class="fw-light mb-0">{{ Lang::get('etiquette.gestion') }}</p>
                 @endif
             </h2>
-            <a href="{{ route('admin.etiquettes.create') }}" class="btn btn-orange">
+            <a href="{{ route('admin.etiquettes.create') }}" class="btn btn-orange w-100 w-md-auto">
                 <i class="bi bi-plus-circle"></i> {{ Lang::get('etiquette.nouvelle', [], 'eus') }}
                 @if (Lang::getLocale() == 'fr')
                     <span class="fw-light ms-2">{{ Lang::get('etiquette.nouvelle') }}</span>
@@ -22,12 +22,8 @@
 
         {{-- Filters for etiquettes table --}}
         @php $roles = \App\Models\Role::all(); @endphp
-        <div class="d-flex flex-row-reverse row mb-3 g-2">
-            <div class="col-sm-2 d-flex">
-                <button id="reset-etiquette-filters" class="btn btn-outline-secondary ms-auto">{{ __('actualite.reset') ?? 'Réinitialiser' }}</button>
-            </div>
-            
-            <div class="col-sm-4">
+        <div class="row mb-3 g-2">
+            <div class="col-12 col-sm-6 col-md-4">
                 <select id="filter-role" class="form-select">
                     <option value="">{{ __('etiquette.all_roles')  }}</option>
                     @foreach($roles as $r)
@@ -35,34 +31,39 @@
                     @endforeach
                 </select>
             </div>
+            <div class="col-12 col-sm-6 col-md-2 d-flex">
+                <button id="reset-etiquette-filters" class="btn btn-outline-secondary w-100 w-md-auto ms-md-auto">{{ __('actualite.reset') ?? 'Réinitialiser' }}</button>
+            </div>
         </div>
 
-        <table class="table table-hover align-middle mb-0" id="TableEtiquettes" style="width:100%">
-            <thead class="bg-light">
-                <tr>
-                    <th>{{ Lang::get('etiquette.id', [], 'eus') }}
-                        @if (Lang::getLocale() == 'fr')
-                            <p class="fw-light mb-0">{{ Lang::get('etiquette.id') }}</p>
-                        @endif
-                    </th>
-                    <th>{{ Lang::get('etiquette.nom', [], 'eus') }}
-                        @if (Lang::getLocale() == 'fr')
-                            <p class="fw-light mb-0">{{ Lang::get('etiquette.nom') }}</p>
-                        @endif
-                    </th>
-                    <th>{{ Lang::get('etiquette.roles', [], 'eus') }}
-                        @if (Lang::getLocale() == 'fr')
-                            <p class="fw-light mb-0">{{ Lang::get('etiquette.roles') }}</p>
-                        @endif
-                    </th>
-                    <th class="text-end pe-4">{{ Lang::get('etiquette.actions', [], 'eus') }}
-                        @if (Lang::getLocale() == 'fr')
-                            <p class="fw-light mb-0">{{ Lang::get('etiquette.actions') }}</p>
-                        @endif
-                    </th>
-                </tr>
-            </thead>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="TableEtiquettes" style="width:100%">
+                <thead class="bg-light">
+                    <tr>
+                        <th>{{ Lang::get('etiquette.id', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr')
+                                <p class="fw-light mb-0">{{ Lang::get('etiquette.id') }}</p>
+                            @endif
+                        </th>
+                        <th>{{ Lang::get('etiquette.nom', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr')
+                                <p class="fw-light mb-0">{{ Lang::get('etiquette.nom') }}</p>
+                            @endif
+                        </th>
+                        <th>{{ Lang::get('etiquette.roles', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr')
+                                <p class="fw-light mb-0">{{ Lang::get('etiquette.roles') }}</p>
+                            @endif
+                        </th>
+                        <th class="text-end pe-4">{{ Lang::get('etiquette.actions', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr')
+                                <p class="fw-light mb-0">{{ Lang::get('etiquette.actions') }}</p>
+                            @endif
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
         
         {{-- Delete confirmation modal (reused for all etiquette rows) --}}
         <div class="modal fade" id="deleteConfirmModalEtiquette" tabindex="-1" aria-hidden="true">
