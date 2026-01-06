@@ -4,6 +4,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\DemandeController;
 use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\EvenementController;
+use App\Http\Controllers\RecetteController;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\FactureController;
@@ -203,5 +206,15 @@ Route::get('/lang/{locale}', function ($locale) {
     return redirect()->back();
 })->name('lang.switch');
 
+Route::resource('evenements', EvenementController::class);
+
+// Recettes liées aux événements
+Route::prefix('evenements/{evenement}/recettes')->name('recettes.')->group(function () {
+    Route::post('/', [RecetteController::class, 'store'])->name('store');
+});
+// Édition / suppression des recettes
+Route::resource('recettes', RecetteController::class)->except(['index', 'create', 'store', 'show']);
+
+Route::resource('evenements', EvenementController::class);
 
 require __DIR__ . '/auth.php';
