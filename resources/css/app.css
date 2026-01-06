@@ -1832,9 +1832,9 @@
     /* Dropdowns responsive */
     .dropdown-menu {
         max-width: calc(100vw - 2rem);
-        left: 1rem !important;
-        right: 1rem !important;
     }
+
+    
     
     /* Images dans actualités */
     .main-image {
