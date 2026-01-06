@@ -1,5 +1,6 @@
 ﻿<?php
-$db = new PDO('sqlite:' . __DIR__ . '/database/database.sqlite');
-foreach ($db->query('select idDocument,idTache,nom,chemin from document order by idDocument desc limit 5') as $r) {
-    echo json_encode($r, JSON_UNESCAPED_SLASHES), PHP_EOL;
-}
+// This temporary debugging script has been disabled to prevent exposure of sensitive data.
+// If you need document data, implement it through a properly authenticated and authorized endpoint.
+
+http_response_code(404);
+exit;
