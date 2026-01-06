@@ -9,4 +9,7 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::call([FactureController::class, 'createFacturePrevisionnel'])->monthly();
+// Schedule a monthly task that resolves the controller and calls the method.
+Schedule::call(function () {
+    app(FactureController::class)->createFacture();
+})->monthly();

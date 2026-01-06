@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\Facture as FactureMail;
 use Carbon\Carbon;
 use App\Models\Activite;
+use Illuminate\Support\Facades\Artisan;
 
 class FactureControllerTest extends TestCase
 {
@@ -185,4 +186,84 @@ class FactureControllerTest extends TestCase
 
 
     }
+
+    public function test_createFacture_generates_factures()
+    {
+        $famille = Famille::factory()->create();
+        $parent1 = Utilisateur::factory()->create();
+        $parent2 = Utilisateur::factory()->create();
+
+        $famille->utilisateurs()->attach($parent1->idUtilisateur, ['parite' => 100]);
+        $famille->utilisateurs()->attach($parent2->idUtilisateur, ['parite' => 0]);
+        $famille->save();
+
+        $controleur = new FactureController();
+        $controleur->createFacture();
+        $this->assertDatabaseHas('facture', [
+            'idFamille' => $famille->idFamille,
+            'idUtilisateur' => $parent1->idUtilisateur,
+        ]);
+        $this->assertDatabaseMissing('facture', [
+            'idFamille' => $famille->idFamille,
+            'idUtilisateur' => $parent2->idUtilisateur,
+        ]);
+    }
+
+ 
+         public function test_createFacture_in_february_sets_previsionnel_false()
+    {
+        Carbon::setTestNow(Carbon::create(2024, 2, 1));
+        $famille = Famille::factory()->create();
+        $famille->utilisateurs()->detach();
+        $parent = Utilisateur::factory()->create();
+        $famille->utilisateurs()->attach($parent->idUtilisateur, ['parite' => 100]);
+        $controleur = new FactureController();
+        $controleur->createFacture();
+        $this->assertDatabaseHas('facture', [
+            'idFamille' => $famille->idFamille,
+            'previsionnel' => false,
+        ]);
+        Carbon::setTestNow();
+    }
+
+        public function test_createFacture_in_august_sets_previsionnel_false()
+    {
+        Carbon::setTestNow(Carbon::create(2024, 8, 1));
+        $famille = Famille::factory()->create();
+        $parent = Utilisateur::factory()->create();
+        $famille->utilisateurs()->attach($parent->idUtilisateur, ['parite' => 100]);
+        $controleur = new FactureController();
+        $controleur->createFacture();
+        $this->assertDatabaseHas('facture', [
+            'idFamille' => $famille->idFamille,
+            'previsionnel' => false,
+        ]);
+        Carbon::setTestNow();
+    }
+        
+     public function test_monthly_schedule_triggers_create_facture()
+    {
+        // Simulate the 1st of a month so monthly events are due
+        Carbon::setTestNow(Carbon::create(2024, 2, 1));
+
+        $famille = Famille::factory()->create();
+        $parent = Utilisateur::factory()->create();
+        $famille->utilisateurs()->attach($parent->idUtilisateur, ['parite' => 100]);
+
+        $this->assertDatabaseMissing('facture', [
+            'idFamille' => $famille->idFamille,
+        ]);
+
+        // Run the scheduler which should execute the registered monthly callback
+        Artisan::call('schedule:run');
+
+        // After running the scheduler, a facture should be created for the parent
+        $this->assertDatabaseHas('facture', [
+            'idFamille' => $famille->idFamille,
+            'idUtilisateur' => $parent->idUtilisateur,
+        ]);
+
+        Carbon::setTestNow();
+    }
+
 }

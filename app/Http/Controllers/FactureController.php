@@ -121,7 +121,7 @@ class FactureController extends Controller
             'totalPrevisionnel' => $montants['totalPrevisionnel'] ?? 0,
         ])->render();
         $htmlInlined = CssInliner::fromHtml($content)->inlineCss()->render();
-        if (is_object($facture) && $facture->etat === 'verifier') {
+        if (is_object($facture) && ($facture->getRawOriginal('etat') === 'verifier' || $facture->etat === true)) {
 
             $options = new Options();
             $options->set('isHtml5ParserEnabled', true);
@@ -249,19 +249,28 @@ class FactureController extends Controller
         $montangarderieprev = 0;
         /** @var Enfant $enfant */
         foreach ($enfants as $enfant) {
-            
-            $nbfoisgarderie = $enfant->nbFoisGarderie;
-            
+            if ($facture->previsionnel) {
+                // For previsionnel invoices, use the `nbFoisGarderie` attribute on the enfant
+                $nbfoisgarderie = (int) ($enfant->nbFoisGarderie ?? 0);
+            } else {
+                // For concrete invoices, count actual presences in `etre` for garderie activities
+                $nbfoisgarderie = Etre::where('idEnfant', $enfant->idEnfant)
+                    ->where('activite', 'like', 'garderie%')
+                    ->count();
+            }
+
             if ($nbfoisgarderie > 0 && $nbfoisgarderie <= 8) {
                 $montangarderieprev += 10;
             } elseif ($nbfoisgarderie > 8) {
                 $montangarderieprev += 20;
-            } else {
-                $montangarderieprev += 0;
             }
         }
 
         $montanttotalprev =   $montangarderieprev + $montantcotisation + $montantparticipation + $montantparticipationSeaska;
+
+        $montangarderie = $montangarderieprev;
+        $montanttotal = $montanttotalprev;
+
         return [
             'facture' => $facture,
             'famille' => $famille,
@@ -270,6 +279,7 @@ class FactureController extends Controller
             'montantparticipation' => $montantparticipation,
             'montantparticipationSeaska' => $montantparticipationSeaska,
             'montangarderie' => $montangarderie,
+            'montanttotal' => $montanttotal,
             'totalPrevisionnel' => $montanttotalprev,
         ];
     }
@@ -293,31 +303,31 @@ class FactureController extends Controller
     }
 
 
-    public function createFacturePrevisionnel(): void
+    public function createFacture(): void
     {
         $familles = Famille::all();
-
+        $mois = Carbon::now()->month;
+            
+        $previsionnel = !in_array($mois, [2, 8], true);
         foreach ($familles as $famille) {
-            $facture = new Facture();
-            $facture->idFamille = $famille->idFamille;
-            $facture->dateC = now();
-            $facture->etat = 'previsionnel';
-            $facture->save();
+            $parents =  $famille->utilisateurs()->get();
+            foreach ($parents as $parent) {
+                
+                if (($parent->pivot->parite ?? 0) > 0) {
+                    
+                    $facture = new Facture();
+                    $facture->idFamille = $famille->idFamille;
+                    $facture->idUtilisateur = $parent->idUtilisateur;
+                    $facture->previsionnel = $previsionnel;
+                    $facture->dateC = now();
+                    $facture->etat = 'brouillon';
+                    $facture->save();
+                }
+            }
         }
     }
 
-    public function createFactureRegularisation(): void
-    {
-        $familles = Famille::all();
 
-        foreach ($familles as $famille) {
-            $facture = new Facture();
-            $facture->idFamille = $famille->idFamille;
-            $facture->dateC = now();
-            $facture->etat = 'manuel';
-            $facture->save();
-        }
-    }
 
 
 

@@ -32,7 +32,7 @@ class Lier extends Pivot
 	/**
 	 * Attributs assignables (fillable) pour le pivot lier.
 	 *
-	 * - `parite` (string|null) : rôle / parité dans la famille (ex: parent, tuteur).
+	 * - `parite` int  parité dans la famille (ex: parent, tuteur) en %.
 	 */
 	protected $fillable = [
 		'parite'

@@ -85,4 +85,37 @@ class Facture extends Model
 	{
 		return $this->getKey();
 	}
+
+	/**
+	 * Mutator to accept boolean or string values for `etat`.
+	 * - boolean true => 'verifier'
+	 * - boolean false => 'brouillon'
+	 */
+	public function setEtatAttribute($value)
+	{
+		if (is_bool($value)) {
+			$this->attributes['etat'] = $value ? 'verifier' : 'brouillon';
+			return;
+		}
+
+		if (is_string($value) && in_array($value, ['manuel', 'brouillon', 'verifier'], true)) {
+			$this->attributes['etat'] = $value;
+			return;
+		}
+
+		$this->attributes['etat'] = 'brouillon';
+	}
+
+	/**
+	 * Accessor to return a boolean for `etat` when used in application logic.
+	 * Returns true when stored value is 'verifier', false otherwise.
+	 */
+	public function getEtatAttribute($value)
+	{
+		if ($value === null) {
+			return false;
+		}
+
+		return $value === 'verifier' ? true : false;
+	}
 }

@@ -256,6 +256,18 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 		return $this->belongsToMany(Famille::class, 'lier', 'idUtilisateur', 'idFamille')->withPivot('parite');
 	}
 
+	/**
+	 * Expose le pivot `lier` via une relation nommée `parite` afin que
+	 * les appels tests comme `->load('parite')` fonctionnent sans erreur.
+	 * Renvoie les enregistrements de pivot `Lier` associés à cet utilisateur.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function parite()
+	{
+		return $this->hasMany(Lier::class, 'idUtilisateur');
+	}
+
 
 	/**
 	 * Relation belongsToMany vers les tâches réalisées par l'utilisateur (pivot `realiser`).
