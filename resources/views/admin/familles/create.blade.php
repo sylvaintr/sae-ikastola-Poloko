@@ -1,5 +1,4 @@
 <x-app-layout>
-   
 
     @php
         $isEdit = isset($famille);
@@ -16,9 +15,9 @@
     @endphp
 
     <div class="container py-5">
-        {{-- Titre Principal Bilingue --}}
+        
         <div class="mb-5">
-            <h2 class="fw-bolder mb-0">
+            <h2 class="fw-bolder mb-0 text-break">
                 @if($isEdit)
                     {{ __('famille.edit_title', ['id' => $famille->idFamille], 'eus') }}
                 @else
@@ -39,7 +38,7 @@
         <form id="mainForm" onsubmit="return false;" class="admin-form">
             @csrf
 
-            {{-- Section Utilisateurs --}}
+
             <div class="mb-3">
                 <h3 class="fw-bold mb-0">{{ __('famille.users_section', [], 'eus') }}</h3>
                 @if (Lang::getLocale() == 'fr')
@@ -48,21 +47,25 @@
             </div>
 
             <div class="row g-4 mb-4">
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <label for="role-search" class="form-label small text-muted fw-bold">
                         {{ __('famille.search_label', [], 'eus') }}
                         @if (Lang::getLocale() == 'fr') | {{ __('famille.search_label') }} @endif
                     </label>
-                    <input type="text" id="role-search" class="form-control mb-2"
+                    <input type="text"
+                           id="role-search"
+                           class="form-control mb-2"
                            placeholder="{{ __('famille.search_ajax_placeholder', [], 'eus') }}"
                            onkeyup="searchUsersAJAX(this.value)">
 
                     <div id="available-roles" class="border rounded p-3 bg-white shadow-sm" style="height: auto; max-height: 500px; overflow-y: auto;">
                         @if($isEdit)
-                            {{-- MODE ÉDITION --}}
+
                             @foreach($famille->utilisateurs as $user)
-                                <button type="button" class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start" onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
-                                    <span class="text-dark item-name">{{ $user->nom }} {{ $user->prenom }}</span>
+                                <button type="button"
+                                        class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
+                                        onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
+                                    <span class="text-dark item-name text-truncate me-2">{{ $user->nom }} {{ $user->prenom }}</span>
                                     <div class="ms-auto d-flex align-items-center text-secondary">
                                         <span class="me-3 small fw-bold">{{ __('famille.parent_label', [], 'eus') }}</span>
                                         <i class="bi bi-plus-circle text-dark fs-5"></i>
@@ -70,8 +73,10 @@
                                 </button>
                             @endforeach
                             @foreach($famille->enfants as $enfant)
-                                <button type="button" class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start" style="border-left: 4px solid #0dcaf0 !important;" onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
-                                    <span class="text-dark item-name">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
+                                <button type="button"
+                                        class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
+                                        onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
+                                    <span class="text-dark item-name text-truncate me-2">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
                                     <div class="ms-auto d-flex align-items-center text-secondary">
                                         <span class="me-3 small fw-bold">{{ __('famille.child_label', [], 'eus') }}</span>
                                         <i class="bi bi-plus-circle text-dark fs-5"></i>
@@ -83,8 +88,10 @@
                             <div id="parents-list">
                                 @if(isset($tousUtilisateurs))
                                     @foreach($tousUtilisateurs as $user)
-                                        <button type="button" class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start" onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
-                                            <span class="text-dark item-name">{{ $user->nom }} {{ $user->prenom }}</span>
+                                        <button type="button"
+                                                class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
+                                                onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
+                                            <span class="text-dark item-name text-truncate me-2">{{ $user->nom }} {{ $user->prenom }}</span>
                                             <div class="ms-auto d-flex align-items-center text-secondary">
                                                 <span class="me-3 small fw-bold">{{ __('famille.parent_label', [], 'eus') }}</span>
                                                 <i class="bi bi-plus-circle text-dark fs-5"></i>
@@ -95,8 +102,10 @@
 
                                 @if(isset($tousEnfants))
                                     @foreach($tousEnfants as $enfant)
-                                        <button type="button" class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start" style="border-left: 4px solid #0dcaf0 !important;" onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
-                                            <span class="text-dark item-name">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
+                                        <button type="button"
+                                                class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
+                                                onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
+                                            <span class="text-dark item-name text-truncate me-2">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
                                             <div class="ms-auto d-flex align-items-center text-secondary">
                                                 <span class="me-3 small fw-bold">{{ __('famille.child_label', [], 'eus') }}</span>
                                                 <i class="bi bi-plus-circle text-dark fs-5"></i>
@@ -109,7 +118,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <h6 class="form-label small text-muted mb-2 fw-bold">
                         {{ __('famille.selected_users', [], 'eus') }}
                         @if (Lang::getLocale() == 'fr') | {{ __('famille.selected_users') }} @endif
@@ -123,45 +132,82 @@
                 </div>
             </div>
 
-            <div id="financial-section" style="display: none;">
+            {{-- ================= SECTION FINANCIÈRE ================= --}}
+            <div id="financial-section" style="display: none;" class="mt-4">
                 <div x-data="{ ratio: {{ $defaultRatio }} }">
-                    <div class="d-flex flex-wrap align-items-center">
-                        <h5 class="mb-0 fw-bold me-5">
-                            {{ __('famille.financial_split', [], 'eus') }}
-                            @if (Lang::getLocale() == 'fr') <br><small class="text-muted fw-normal fs-6">{{ __('famille.financial_split') }}</small> @endif
-                        </h5>
 
-                        <span id="label-parent-1" class="fw-bold text-secondary text-nowrap me-3">Parent 1</span>
-                        <div class="border rounded px-2 py-2 bg-white d-flex align-items-center shadow-sm" style="width: 220px;">
-                            <input type="range" id="range-parite" class="form-range" min="0" max="100" x-model="ratio" x-ref="sliderParite" style="accent-color: orange;">
-                        </div>
-                        <span id="label-parent-2" class="fw-bold text-secondary text-nowrap ms-3">Parent 2</span>
+                    <div class="d-flex flex-column flex-lg-row align-items-lg-center w-100">
 
-                        <div class="ms-auto d-flex gap-2">
-                            <a href="{{ route('admin.familles.index')}}" class="btn px-3 py-2 fw-bold" style="background:white; border:1px solid orange; color:orange;">
-                                {{ __('famille.cancel', [], 'eus') }}
-                            </a>
-                            <button type="button" class="btn px-3 py-2 fw-bold" style="background:orange; color:white; border:1px solid orange;" @if($isEdit) onclick="saveParityOnly({{ $idFamille }})" @else onclick="createFamily()" @endif>
-                                {{ __('famille.save', [], 'eus') }}
-                            </button>
+                        {{-- 1. Le Titre --}}
+                        <div class="mb-3 mb-lg-0 text-center text-lg-start">
+                            <h5 class="mb-0 fw-bold">
+                                {{ __('famille.financial_split', [], 'eus') }}
+                                @if (Lang::getLocale() == 'fr')
+                                    <br><small class="text-muted fw-normal fs-6">{{ __('famille.financial_split') }}</small>
+                                @endif
+                            </h5>
                         </div>
-                    </div>
-                    <div class="mt-2 d-flex" style="padding-left: 330px;">
-                        <span class="fw-bolder fs-5 text-dark">
-                            <span x-text="ratio">{{ $defaultRatio }}</span> / <span x-text="100 - ratio">{{ 100 - $defaultRatio }}</span>
-                        </span>
+
+                        <div class="flex-grow-1 w-100 px-2 ms-lg-5">
+                            <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
+
+                                {{-- Parent 1 --}}
+                                <span id="label-parent-1" class="fw-bold text-secondary text-truncate text-end" style="width: 80px; min-width: 60px;">P1</span>
+
+                                {{-- Wrapper Vertical : Slider + Ratio (Compact) --}}
+                                <div class="d-flex flex-column align-items-center flex-grow-1 mx-3" style="max-width: 250px;">
+
+                                    {{-- Le Slider Compact --}}
+                                    <div class="border rounded px-2 py-1 bg-white d-flex align-items-center shadow-sm w-100">
+                                        <input type="range"
+                                               id="range-parite"
+                                               class="form-range my-1"
+                                               min="0"
+                                               max="100"
+                                               x-model="ratio"
+                                               x-ref="sliderParite"
+                                               style="accent-color: orange;">
+                                    </div>
+
+                                    
+                                    <div class="mt-1 fw-bolder fs-5 text-dark">
+                                        <span x-text="ratio">{{ $defaultRatio }}</span> / <span x-text="100 - ratio">{{ 100 - $defaultRatio }}</span>
+                                    </div>
+                                </div>
+
+                              
+                                <span id="label-parent-2" class="fw-bold text-secondary text-truncate text-start" style="width: 80px; min-width: 60px;">P2</span>
+                            </div>
+                        </div>
+
+                        
+                        <div class="mt-3 mt-lg-0 ms-lg-4 d-flex justify-content-center justify-content-lg-end">
+                            <div class="d-flex gap-2 w-100 w-lg-auto">
+                                <a href="{{ route('admin.familles.index')}}"
+                                   class="btn px-3 py-2 fw-bold flex-fill flex-lg-grow-0 text-center"
+                                   style="background:white; border:1px solid orange; color:orange;">
+                                    {{ __('famille.cancel', [], 'eus') }}
+                                </a>
+                                <button type="button"
+                                        class="btn px-3 py-2 fw-bold flex-fill flex-lg-grow-0"
+                                        style="background:orange; color:white; border:1px solid orange;"
+                                        @if($isEdit) onclick="saveParityOnly({{ $idFamille }})" @else onclick="createFamily()" @endif>
+                                    {{ __('famille.save', [], 'eus') }}
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </form>
     </div>
 
-    {{-- MODAL CONFIRMATION --}}
+    {{-- ================= MODAL CONFIRMATION ================= --}}
     <div class="modal fade" id="confirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
                 <div class="modal-header border-0 pb-0 ps-4 pt-4">
-                    {{-- SonarQube : Titre avec contenu par défaut pour accessibilité --}}
                     <h5 id="modalTitle" class="modal-title fw-bold fs-4 text-dark">Confirmation</h5>
                 </div>
                 <div id="modalMessage" class="modal-body ps-4 pe-4 pt-2 text-secondary">Action ?</div>
@@ -177,12 +223,17 @@
         </div>
     </div>
 
-    {{-- MODAL SUCCÈS --}}
+    {{-- ================= MODAL SUCCÈS ================= --}}
     <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
                 <div class="modal-body text-center p-5">
-                    <div class="mb-4 text-success"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                    <div class="mb-4 text-success">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
                     <h4 class="fw-bold mb-3">{{ __('famille.success_msg', [], 'eus') }}</h4>
                     @if (Lang::getLocale() == 'fr') <p class="text-muted">{{ __('famille.success_msg') }}</p> @endif
                     <button type="button" id="btnSuccessOk" class="btn px-5 py-2 fw-bold text-white" style="background: orange; border: 1px solid orange; border-radius: 6px;">OK</button>
@@ -191,6 +242,7 @@
         </div>
     </div>
 
+    {{-- ================= JAVASCRIPT ================= --}}
     <script>
         const translations = {
             errorNoChildren: { eus: "{{ __('famille.error_no_children', [], 'eus') }}", fr: "{{ __('famille.error_no_children', [], 'fr') }}" },
@@ -210,6 +262,7 @@
         const financialSection = document.getElementById('financial-section');
         const labelP1 = document.getElementById('label-parent-1');
         const labelP2 = document.getElementById('label-parent-2');
+
         let pendingData = null;
         let isCreateMode = false;
 
@@ -232,20 +285,40 @@
         }
 
         function searchUsersAJAX(query) {
-            fetch(`/api/search/users?q=${encodeURIComponent(query)}`)
-                .then(res => res.json())
+            
+            const url = "/api/search/users";
+
+            fetch(`${url}?q=${encodeURIComponent(query)}`)
+                .then(res => {
+                    if (!res.ok) throw new Error("Erreur HTTP " + res.status);
+                    return res.json();
+                })
                 .then(data => {
-                    const container = document.getElementById('parents-list');
-                    container.innerHTML = data.length === 0 ? `<div class="text-muted small fst-italic p-2">${translations.noUserFound}</div>` : '';
+                    const container = document.getElementById('available-roles');
+                    container.innerHTML = ''; 
+
+                    if (data.length === 0) {
+                        container.innerHTML = `<div class="text-muted small fst-italic p-2">${translations.noUserFound}</div>`;
+                        return;
+                    }
+
                     data.forEach(user => {
                         const btn = document.createElement('button');
                         btn.type = 'button';
                         btn.className = 'role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start';
                         btn.onclick = () => addRole(user.idUtilisateur, user.nom + ' ' + user.prenom);
-                        btn.innerHTML = `<span class="text-dark item-name">${escapeHtml(user.nom + ' ' + user.prenom)}</span><div class="ms-auto d-flex align-items-center text-secondary"><span class="me-3 small fw-bold">${translations.parentLabel}</span><i class="bi bi-plus-circle text-dark fs-5"></i></div>`;
+
+                        btn.innerHTML = `
+                            <span class="text-dark item-name text-truncate me-2">${escapeHtml(user.nom + ' ' + user.prenom)}</span>
+                            <div class="ms-auto d-flex align-items-center text-secondary">
+                                <span class="me-3 small fw-bold">${translations.parentLabel}</span>
+                                <i class="bi bi-plus-circle text-dark fs-5"></i>
+                            </div>
+                        `;
                         container.appendChild(btn);
                     });
-                });
+                })
+                .catch(err => console.error("Erreur de recherche:", err));
         }
 
         function checkParityVisibility() {
@@ -255,23 +328,33 @@
 
             if (parentInputs.length > 0) {
                 financialSection.style.display = 'block';
-                labelP1.innerText = parentInputs[0].closest('.role-item').querySelector('.item-name').innerText.split(' ')[0];
+                const p1NameEl = parentInputs[0].closest('.role-item').querySelector('.item-name');
+                if (p1NameEl) {
+                    labelP1.innerText = p1NameEl.innerText.split(' ')[0];
+                }
 
                 if (parentInputs.length === 1) {
                     labelP2.style.display = 'none';
                     slider.value = 100;
-                    if(alpineData) alpineData.ratio = 100;
-                    slider.disabled = true; slider.style.opacity = '0.5';
+                    if (alpineData) alpineData.ratio = 100;
+                    slider.disabled = true;
+                    slider.style.opacity = '0.5';
                 } else {
-                    labelP2.innerText = parentInputs[1].closest('.role-item').querySelector('.item-name').innerText.split(' ')[0];
-                    labelP2.style.display = 'inline';
-                    slider.disabled = false; slider.style.opacity = '1';
+                    const p2NameEl = parentInputs[1].closest('.role-item').querySelector('.item-name');
+                    if (p2NameEl) {
+                        labelP2.innerText = p2NameEl.innerText.split(' ')[0];
+                        labelP2.style.display = 'inline';
+                    }
+                    slider.disabled = false;
+                    slider.style.opacity = '1';
                     const targetVal = isEditMode ? dbRatio : 50;
                     slider.value = targetVal;
-                    if(alpineData) alpineData.ratio = targetVal;
+                    if (alpineData) alpineData.ratio = targetVal;
                 }
                 slider.dispatchEvent(new Event('input'));
-            } else { financialSection.style.display = 'none'; }
+            } else {
+                financialSection.style.display = 'none';
+            }
         }
 
         function addRole(id, name) {
@@ -287,7 +370,7 @@
             btn.type = 'button';
             btn.className = 'role-item d-flex align-items-center p-2 mb-1 border rounded shadow-sm w-100 text-start text-white';
             btn.style.backgroundColor = 'orange';
-            btn.innerHTML = `<span class="fw-bold small item-name">${escapeHtml(name)}</span><div class="ms-auto d-flex align-items-center gap-2"><small>${translations.parentLabel}</small><b class="fs-5">&times;</b></div><input type="hidden" class="user-id" value="${id}">`;
+            btn.innerHTML = `<span class="fw-bold small item-name text-truncate me-2">${escapeHtml(name)}</span><div class="ms-auto d-flex align-items-center gap-2"><small>${translations.parentLabel}</small><b class="fs-5">&times;</b></div><input type="hidden" class="user-id" value="${id}">`;
             btn.onclick = () => { btn.remove(); checkEmpty(); checkParityVisibility(); };
             selectedRoles.appendChild(btn);
             checkParityVisibility();
@@ -298,25 +381,39 @@
             clearEmptyMsg();
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'role-item d-flex align-items-center p-2 mb-1 border rounded shadow-sm bg-white border-start border-4 border-info w-100 text-start';
-            btn.innerHTML = `<span class="fw-bold small item-name text-dark">${escapeHtml(name)}</span><div class="ms-auto d-flex align-items-center gap-2 text-info"><small>${translations.childLabel}</small><b class="text-dark fs-5">&times;</b></div><input type="hidden" class="child-id" value="${id}">`;
+           
+            btn.className = 'role-item d-flex align-items-center p-2 mb-1 border rounded shadow-sm bg-white w-100 text-start';
+            btn.innerHTML = `<span class="fw-bold small item-name text-dark text-truncate me-2">${escapeHtml(name)}</span><div class="ms-auto d-flex align-items-center gap-2 text-secondary"><small>${translations.childLabel}</small><b class="text-dark fs-5">&times;</b></div><input type="hidden" class="child-id" value="${id}">`;
             btn.onclick = () => { btn.remove(); checkEmpty(); };
             selectedRoles.appendChild(btn);
         }
 
-        function clearEmptyMsg() { const m = selectedRoles.querySelector('.role-list-empty-message'); if(m) m.remove(); }
-        function checkEmpty() { if (selectedRoles.querySelectorAll('.role-item').length === 0) selectedRoles.innerHTML = `<div class="role-list-empty-message text-muted text-center mt-5">${translations.emptyMsg}</div>`; }
+        function clearEmptyMsg() {
+            const m = selectedRoles.querySelector('.role-list-empty-message');
+            if (m) m.remove();
+        }
+
+        function checkEmpty() {
+            if (selectedRoles.querySelectorAll('.role-item').length === 0) {
+                selectedRoles.innerHTML = `<div class="role-list-empty-message text-muted text-center mt-5">${translations.emptyMsg}</div>`;
+            }
+        }
 
         function createFamily() {
             const parents = selectedRoles.querySelectorAll('input.user-id');
             const children = selectedRoles.querySelectorAll('input.child-id');
+
             if (!parents.length || !children.length) {
                 alert(translations.errorSelection.eus + (showFrench ? "\n" + translations.errorSelection.fr : ""));
                 return;
             }
+
             const slider = document.querySelector('[x-ref="sliderParite"]');
             pendingData = {
-                utilisateurs: Array.from(parents).map((p, i) => ({ idUtilisateur: p.value, parite: parents.length === 2 ? (i === 0 ? slider.value : 100 - slider.value) : 100 })),
+                utilisateurs: Array.from(parents).map((p, i) => ({
+                    idUtilisateur: p.value,
+                    parite: parents.length === 2 ? (i === 0 ? slider.value : 100 - slider.value) : 100
+                })),
                 enfants: Array.from(children).map(c => ({ idEnfant: c.value }))
             };
             isCreateMode = true;
@@ -325,7 +422,11 @@
 
         function saveParityOnly(id) {
             const slider = document.querySelector('[x-ref="sliderParite"]');
-            pendingData = { idFamille: id, idUtilisateur: selectedRoles.querySelector('input.user-id').value, parite: slider.value };
+            pendingData = {
+                idFamille: id,
+                idUtilisateur: selectedRoles.querySelector('input.user-id').value,
+                parite: slider.value
+            };
             isCreateMode = false;
             showConfirm(translations.confirmParityTitle, translations.confirmParityMsg);
         }
