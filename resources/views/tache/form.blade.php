@@ -7,7 +7,7 @@
         </div>
     </div>
 
-    <div class="card p-4">
+    <div>
 
         <form action="{{ isset($tache) ? route('tache.update', $tache->idTache) : route('tache.store') }}"
               method="POST" id="tache-form">

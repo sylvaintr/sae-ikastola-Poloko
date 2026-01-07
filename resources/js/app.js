@@ -14,6 +14,8 @@ import 'datatables.net-dt';
 import 'datatables.net-responsive';
 import 'datatables.net-responsive-dt';
 
+// Importation de Bootstrap Icons
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 export const dataTableLangs = {
     fr: {
@@ -45,4 +47,3 @@ export const dataTableLangs = {
         },
     },
 };
-
