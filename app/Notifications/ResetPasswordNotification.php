@@ -9,7 +9,6 @@ class ResetPasswordNotification extends ResetPassword
 {
     public function toMail($notifiable): MailMessage
     {
-        // Priorité : langue en base > langue session > langue par défaut
         $locale = session('locale')
             ?? $notifiable->languePref
             ?? config('app.locale');

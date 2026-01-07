@@ -38,10 +38,10 @@ class NewPasswordController extends Controller
                 'string',
                 'min:12',
                 'confirmed',
-                'regex:/[a-z]/',         // minuscule
-                'regex:/[A-Z]/',         // majuscule
-                'regex:/[0-9]/',         // chiffre
-                'regex:/[^A-Za-z0-9]/',  // symbole
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[^A-Za-z0-9]/',
             ],
         ], [
             'password.min' => __('auth.password_rule_length'),
