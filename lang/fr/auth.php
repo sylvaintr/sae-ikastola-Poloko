@@ -77,4 +77,21 @@ return [
 
     'notification_reset_line1' => "Vous recevez cet e-mail car nous avons reçu une demande de réinitialisation de mot de passe.",
     'notification_reset_line2' => "Si vous n’avez pas demandé cette réinitialisation, aucune action n’est requise.",
+
+
+    'password_strength_hint' => 'Force du mot de passe :',
+    'password_requirements' => 'Conseil : 12+ caractères, majuscule, minuscule, chiffre et symbole.',
+    'password_strength_empty' => 'Saisissez un mot de passe.',
+    'password_strength_weak' => 'Faible',
+    'password_strength_medium' => 'Moyen',
+    'password_strength_strong' => 'Fort',
+    'password_strength_very_strong' => 'Très fort',
+    'password_match_empty' => 'Confirmez votre mot de passe.',
+    'password_match_ok' => 'Les mots de passe correspondent.',
+    'password_match_no' => 'Les mots de passe ne correspondent pas.',
+    'password_rule_length' => 'Au moins 12 caractères',
+    'password_rule_lower' => 'Une lettre minuscule',
+    'password_rule_upper' => 'Une lettre majuscule',
+    'password_rule_number' => 'Un chiffre',
+    'password_rule_symbol' => 'Un symbole',
 ];

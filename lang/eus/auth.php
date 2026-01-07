@@ -62,4 +62,20 @@ return [
 
     'notification_reset_line1' => "Mezu hau bidali dizugu pasahitza berrezartzeko eskaera jaso dugulako.",
     'notification_reset_line2' => "Ez baduzu eskaera hau egin, ez da ekintzarik behar.",
+
+    'password_strength_hint' => 'Pasahitzaren indarra:',
+    'password_requirements' => 'Gomendioa: 12+ karaktere, maiuskula, minuskula, zenbakia eta sinboloa.',
+    'password_strength_empty' => 'Idatzi pasahitz bat.',
+    'password_strength_weak' => 'Ahula',
+    'password_strength_medium' => 'Ertaina',
+    'password_strength_strong' => 'Indartsua',
+    'password_strength_very_strong' => 'Oso indartsua',
+    'password_match_empty' => 'Berretsi zure pasahitza.',
+    'password_match_ok' => 'Pasahitzak bat datoz.',
+    'password_match_no' => 'Pasahitzak ez datoz bat.',
+    'password_rule_length' => 'Gutxienez 12 karaktere',
+    'password_rule_lower' => 'Letra minuskula bat',
+    'password_rule_upper' => 'Letra maiuskula bat',
+    'password_rule_number' => 'Zenbaki bat',
+    'password_rule_symbol' => 'Sinbolo bat',
 ];

@@ -1382,3 +1382,37 @@
         width: 100%;
     }
 }
+#password-criteria li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+#password-criteria .criterion-icon svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+}
+
+#password-criteria li.valid {
+    color: #28a745;
+}
+
+#password-criteria li.invalid {
+    color: #dc3545;
+}
+
+#password-criteria li.valid .criterion-icon svg {
+    fill: currentColor;
+}
+
+#password-criteria li.invalid .criterion-icon svg {
+    fill: currentColor;
+}
+
+.auth-input[readonly],
+input[readonly] {
+    background-color: #f9fafb;
+    cursor: not-allowed;
+}
