@@ -1,5 +1,15 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}" class="auth-form" id="register-form">
+    @php
+        $recaptchaEnabled = config('services.recaptcha.enabled', true);
+        $recaptchaSiteKey = config('services.recaptcha.site_key');
+    @endphp
+
+    <form method="POST"
+        action="{{ route('register') }}"
+        class="auth-form"
+        id="register-form"
+        data-recaptcha-enabled="{{ ($recaptchaEnabled && !empty($recaptchaSiteKey)) ? '1' : '0' }}"
+        data-recaptcha-message="{{ __('auth.recaptcha_required') }}">
         @csrf
 
         <!-- Prénom and Nom -->
@@ -74,10 +84,6 @@
         </div>
 
         <!-- reCAPTCHA -->
-        @php
-            $recaptchaEnabled = config('services.recaptcha.enabled', true);
-            $recaptchaSiteKey = config('services.recaptcha.site_key');
-        @endphp
         @if($recaptchaEnabled && !empty($recaptchaSiteKey))
         <div class="mt-3">
             <div class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired"></div>
@@ -90,7 +96,7 @@
                 {{ __('auth.deja_inscrit') }}
             </a>
 
-            <x-primary-button id="submit-button" type="submit" @if($recaptchaEnabled && !empty($recaptchaSiteKey)) disabled @endif>
+            <x-primary-button id="submit-button" type="submit">
                 {{ __('auth.inscription') }}
             </x-primary-button>
         </div>
@@ -129,38 +135,46 @@
             });
 
             // Gestion du bouton submit avec reCAPTCHA
-            @if($recaptchaEnabled && !empty($recaptchaSiteKey))
-            const submitButton = document.getElementById('submit-button');
             const registerForm = document.getElementById('register-form');
-            let recaptchaValidated = false;
-            
-            // Fonction appelée quand le reCAPTCHA est validé
-            window.onRecaptchaSuccess = function() {
-                recaptchaValidated = true;
-                if (submitButton) {
-                    submitButton.disabled = false;
-                }
-            };
+            const recaptchaEnabled = registerForm?.dataset.recaptchaEnabled === '1';
+            const recaptchaMessage = registerForm?.dataset.recaptchaMessage || 'Veuillez compléter la vérification reCAPTCHA avant de vous inscrire.';
 
-            // Fonction appelée quand le reCAPTCHA expire
-            window.onRecaptchaExpired = function() {
-                recaptchaValidated = false;
+            if (recaptchaEnabled) {
+                const submitButton = document.getElementById('submit-button');
+                let recaptchaValidated = false;
+
+                // Désactiver le bouton tant que le captcha n'est pas validé
                 if (submitButton) {
                     submitButton.disabled = true;
                 }
-            };
-
-            // Empêcher la soumission du formulaire si le captcha n'est pas validé
-            if (registerForm) {
-                registerForm.addEventListener('submit', function(e) {
-                    if (!recaptchaValidated) {
-                        e.preventDefault();
-                        alert('{{ __("auth.recaptcha_required") }}');
-                        return false;
+                
+                // Fonction appelée quand le reCAPTCHA est validé
+                window.onRecaptchaSuccess = function() {
+                    recaptchaValidated = true;
+                    if (submitButton) {
+                        submitButton.disabled = false;
                     }
-                });
+                };
+
+                // Fonction appelée quand le reCAPTCHA expire
+                window.onRecaptchaExpired = function() {
+                    recaptchaValidated = false;
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                    }
+                };
+
+                // Empêcher la soumission du formulaire si le captcha n'est pas validé
+                if (registerForm) {
+                    registerForm.addEventListener('submit', function(e) {
+                        if (!recaptchaValidated) {
+                            e.preventDefault();
+                            alert(recaptchaMessage);
+                            return false;
+                        }
+                    });
+                }
             }
-            @endif
         });
     </script>
     <style>
