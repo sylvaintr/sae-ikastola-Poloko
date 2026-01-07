@@ -803,18 +803,21 @@
     height: 320px;
 }
 
-.demande-history-table th {
+.demande-history-table th,
+.datatable-taches th {
     border-bottom: none;
     font-weight: 600;
 }
 
-.demande-history-table td {
+.demande-history-table td,
+.datatable-taches td {
     border-top: 1px solid #f1f1f1;
     padding: 1rem 0.5rem;
     color: #4b5563;
 }
 
-.demande-history-table td:first-child {
+.demande-history-table td:first-child,
+.datatable-taches td:first-child {
     font-weight: 600;
     color: #111;
 }
@@ -1383,6 +1386,56 @@ table.dataTable th, table.dataTable td {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* DataTables 2.x – supprime complètement les icônes natives */
+table.dataTable thead th .dt-column-order,
+table.dataTable thead th .dt-column-order::before,
+table.dataTable thead th .dt-column-order::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Remplacer les flèches des DataTables par des chevrons Bootstrap */
+
+/* Base */
+table.dataTable thead th {
+    position: relative;
+    padding-right: 2rem;
+    cursor: pointer;
+}
+
+/* Colonne triable (neutre) */
+table.dataTable thead th.dt-orderable-asc::after,
+table.dataTable thead th.dt-orderable-desc::after {
+    content: "\f282"; /* chevron-down */
+    color: #999;
+    font-family: "bootstrap-icons";
+    font-size: 0.75rem;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Ascendant */
+table.dataTable thead th.dt-ordering-asc::after {
+    content: "\f286"; /* chevron-up */
+    color: #000;
+}
+
+/* Descendant */
+table.dataTable thead th.dt-ordering-desc::after {
+    content: "\f282"; /* chevron-down */
+    color: #000;
+}
+
+/* Chevrons oranges au survol */
+table.dataTable thead th.dt-orderable-asc:hover::after,
+table.dataTable thead th.dt-orderable-desc:hover::after {
+    color: #f29201;
+}
+
+
 
 /* Empêche le "shift" causé par l'apparition de la scrollbar */
 .row.overflow-auto {

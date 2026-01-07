@@ -104,37 +104,40 @@ class TacheController extends Controller
                     $showUrl = route('tache.show', $row);
                     $editUrl = route('tache.edit', $row);
                     $deleteUrl = route('tache.delete', $row);
-                    $doingUrl = route('tache.markDoing', $row->idTache);
                     $doneUrl = route('tache.markDone', $row->idTache);
 
                     // Si déjà terminée => désactiver la coche
                     $etat = $row->etat;
 
                     if ($etat === 'done') {
-                        $confirmationButton = '<i class="bi bi-check-circle-fill big-icon text-success" title="Tâche terminée" style="opacity:0.5; cursor:not-allowed;"></i>';
-                    }
-                    elseif ($etat === 'doing') {
-                        $confirmationButton = '<a href="#" class="mark-done" title="Marquer comme terminée" data-url="'.$doneUrl.'" style="color: black;">
-                                <i class="bi bi-check-lg"></i>
-                        </a>';
+                        $confirmationButton = '<i class="bi bi-check-circle-fill demande-action-btn big-icon text-success" title="Tâche terminée" style="opacity: 0.5; cursor:not-allowed;"></i>';
                     }
                     else {
-                        $confirmationButton = '<a href="#" class="mark-doing" title="Marquer comme en cours" data-url="'.$doingUrl.'" style="color: black;">
-                                <i class="bi bi-play big-icon"></i>
+                        $confirmationButton = '<a href="#" class="mark-done demande-action-btn text-success" title="Marquer comme terminée" data-url="'.$doneUrl.'" style="color: black;">
+                            <i class="bi bi-check-lg"></i>
                         </a>';
                     }
 
                     return '
                         <div class="d-flex align-items-center justify-content-center gap-2">
-                            <a href="'.$showUrl.'" title="Voir plus" style="color: black;"><i class="bi bi-eye-fill"></i></a>
-                            <a href="'.$editUrl.'" title="Modifier la tâche" style="color: black;"><i class="bi bi-pencil-square"></i></a>
+                            <a href="'.$showUrl.'" title="Voir plus" class="demande-action-btn"><i class="bi bi-eye"></i></a>
+                            <a href="'.$editUrl.'" title="Modifier la tâche" class="demande-action-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706l-1 1a.5.5 0 0 1-.708 0L13 2.207l1-1a.5.5 0 0 1 .707 0l.795.733z"></path>
+                                    <path d="M13.5 3.207L6 10.707V13h2.293l7.5-7.5L13.5 3.207zm-10 8.647V14h2.146l8.147-8.146-2.146-2.147L3.5 11.854z"></path>
+                                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 1,00000 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"></path>
+                                </svg>
+                            </a>
 
                             <a href="#"
-                            class="delete-tache"
+                            class="delete-tache demande-action-btn"
                             data-url="'.$deleteUrl.'"
                             title="Supprimer la tâche"
                             style="color:black;">
-                                <i class="bi bi-x-lg"></i>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5"></path>
+                                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM14.5 2h-13v1h13z"></path>
+                                </svg>
                             </a>
 
                             '.$confirmationButton.'
@@ -192,6 +195,7 @@ class TacheController extends Controller
 
         return view('tache.form', compact('tache', 'utilisateurs'));
     }
+
     public function update(Request $request, Tache $tache)
     {
         $validated = $request->validate([
@@ -265,15 +269,6 @@ class TacheController extends Controller
     {
         $tache = Tache::findOrFail($id);
         $tache->etat = 'done';
-        $tache->save();
-
-        return response()->json(['success' => true]);
-    }
-
-    public function markDoing($id)
-    {
-        $tache = Tache::findOrFail($id);
-        $tache->etat = 'doing';
         $tache->save();
 
         return response()->json(['success' => true]);

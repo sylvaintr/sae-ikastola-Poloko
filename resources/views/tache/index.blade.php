@@ -1,8 +1,8 @@
 <x-app-layout>
-    <div class="container py-4">
+    <div class="container py-4 demande-page">
 
         {{-- HEADER --}}
-        <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-4 mb-5">
+        <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-4 mb-3">
             <div>
                 <h1 class="fw-bold display-4 mb-1" style="font-size: 2.5rem;">Orbana</h1>
                 <p class="text-muted mb-0" style="font-size: 0.9rem;">Tâches</p>
@@ -106,8 +106,8 @@
         </div>
 
         {{-- TABLE --}}
-        <div class="row overflow-auto" style="width: 100%; max-height: 75vh;">
-            <table class="table align-middle admin-table datatable-taches w-100">
+        <div class="table-responsive row overflow-auto" style="width: 100%; max-height: 75vh;">
+            <table class="table align-middle datatable-taches mb-0">
                 <thead>
                     <tr>
                         <th>
@@ -134,7 +134,7 @@
                             <span class="admin-table-heading">Egoera</span>
                             <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Statut</p>
                         </th>
-                        <th>
+                        <th style="min-width: 140px;">
                             <span class="admin-table-heading">Ekintzak</span>
                             <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Actions</p>
                         </th>
@@ -215,9 +215,18 @@
                 lengthChange: false,
                 pageLength: 50,
                 scrollX: true,
+
                 language: {
                     url: "/datatables/i18n/fr-FR.json"
                 },
+                
+                columnDefs: [
+                    {
+                        targets: 0,
+                        className: 'text-start'
+                    }
+                ],
+
                 ajax: {
                     url: "{{ route('tache.get-datatable') }}",
                     data: function (d) {
@@ -232,9 +241,9 @@
                     { data: 'idTache' },
                     { data: 'dateD' },
                     { data: 'titre' },
-                    { data: 'assignation', orderable: false, searchable: false },
-                    { data: 'urgence', orderable: false, searchable: false },
-                    { data: 'etat', orderable: false, searchable: false },
+                    { data: 'assignation' },
+                    { data: 'urgence' },
+                    { data: 'etat' },
                     { data: 'action', orderable: false, searchable: false },
                 ],
                 drawCallback: function () {
@@ -311,35 +320,6 @@
                                 openConfirmModal(
                                     'Erreur',
                                     'Impossible de marquer la tâche comme terminée.',
-                                    function () {}
-                                );
-                            }
-                        });
-                    }
-                );
-            });
-
-            {{-- MARK DOING --}}
-            $(document).on('click', '.mark-doing', function (e) {
-                e.preventDefault();
-
-                const $btn = $(this);
-                const url = $btn.data('url');
-
-                openConfirmModal(
-                    'Marquer comme en cours',
-                    'Voulez-vous vraiment marquer cette tâche comme en cours ?',
-                    function () {
-                        $.ajax({
-                            url: url,
-                            type: 'PATCH',
-                            success: function () {
-                                table.ajax.reload(null, false);
-                            },
-                            error: function () {
-                                openConfirmModal(
-                                    'Erreur',
-                                    'Impossible de marquer la tâche comme en cours.',
                                     function () {}
                                 );
                             }
