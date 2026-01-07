@@ -30,14 +30,39 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validation du reCAPTCHA (si activé)
+        if (config('services.recaptcha.enabled', true)) {
+            $recaptchaResponse = $request->input('g-recaptcha-response');
+            if (!$recaptchaResponse || !$this->verifyRecaptcha($recaptchaResponse)) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['g-recaptcha-response' => __('auth.recaptcha_failed')]);
+            }
+        }
+
         $request->validate([
             // Accept either a single 'name' (compatibility) or prenom+nom
             'name' => ['required_without:prenom', 'string', 'max:255'],
             'prenom' => ['required_without:name', 'string', 'max:255'],
             'nom' => ['required_without:name', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . Utilisateur::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'languePref' => ['nullable', 'string', 'max:10'],
+            'email' => [
+                'required', 
+                'string', 
+                'lowercase', 
+                'email', 
+                'max:255', 
+                'unique:utilisateur,email'
+            ],
+            'password' => [
+                'required', 
+                'confirmed', 
+                Rules\Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+            ],
+            'languePref' => ['nullable', 'string', 'in:fr,eus'],
         ]);
 
         // Map 'name' -> prenom/nom when provided
@@ -73,5 +98,49 @@ class RegisteredUserController extends Controller
         // Rediriger vers la page de connexion avec un message de confirmation
         return redirect(route('login'))
             ->with('status', __('auth.registration_pending_validation'));
+    }
+
+    /**
+     * Verify reCAPTCHA response
+     */
+    private function verifyRecaptcha(string $response): bool
+    {
+        $secretKey = config('services.recaptcha.secret_key');
+        
+        if (!$secretKey) {
+            return false;
+        }
+
+        // En environnement local, utiliser les clés de test qui acceptent toujours la validation
+        // Les clés de test de Google acceptent toujours la réponse "test" comme valide
+        if (config('app.env') === 'local' && $secretKey === '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe') {
+            // Clés de test : accepter toute réponse non vide
+            return !empty($response);
+        }
+
+        $url = 'https://www.google.com/recaptcha/api/siteverify';
+        $data = [
+            'secret' => $secretKey,
+            'response' => $response,
+            'remoteip' => request()->ip(),
+        ];
+
+        $options = [
+            'http' => [
+                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method' => 'POST',
+                'content' => http_build_query($data),
+            ],
+        ];
+
+        $context = stream_context_create($options);
+        $result = @file_get_contents($url, false, $context);
+
+        if ($result === false) {
+            return false;
+        }
+
+        $json = json_decode($result, true);
+        return isset($json['success']) && $json['success'] === true;
     }
 }

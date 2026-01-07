@@ -31,4 +31,10 @@ return [
         ],
     ],
 
+    'recaptcha' => [
+        'site_key' => env('RECAPTCHA_SITE_KEY', env('APP_ENV') === 'local' ? '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' : null),
+        'secret_key' => env('RECAPTCHA_SECRET_KEY', env('APP_ENV') === 'local' ? '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe' : null),
+        'enabled' => env('RECAPTCHA_ENABLED', true),
+    ],
+
 ];

@@ -22,6 +22,12 @@ return [
     'nom' => 'Nom',
     'confirmer_mot_de_passe' => 'Confirmer le mot de passe',
     'mot_de_passe_confirme_a' => 'Mot de passe confirmé à :time',
+    'password_requirements' => 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.',
+    'password_req_length' => 'Au moins 8 caractères',
+    'password_req_uppercase' => 'Une majuscule',
+    'password_req_lowercase' => 'Une minuscule',
+    'password_req_number' => 'Un chiffre',
+    'password_req_special' => 'Un caractère spécial',
 
 
     // Actions / Links
@@ -78,4 +84,6 @@ return [
     // Messages d'inscription
     'registration_pending_validation' => 'Votre compte a été créé avec succès. Il est en attente de validation par un administrateur. Vous pourrez vous connecter une fois votre compte validé.',
     'account_not_validated' => 'Votre compte n\'a pas encore été validé par un administrateur. Veuillez patienter jusqu\'à ce que votre compte soit validé.',
+    'recaptcha_failed' => 'La vérification reCAPTCHA a échoué. Veuillez réessayer.',
+    'recaptcha_required' => 'Veuillez compléter la vérification reCAPTCHA avant de vous inscrire.',
 ];

@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}" class="auth-form">
+    <form method="POST" action="{{ route('register') }}" class="auth-form" id="register-form">
         @csrf
 
         <!-- Prénom and Nom -->
@@ -23,7 +23,7 @@
             <x-input-label for="languePref" :value="__('Langue')" />
             <select id="languePref" name="languePref" class="form-select auth-input">
                 <option value="fr" {{ old('languePref') === 'fr' ? 'selected' : '' }}>Français</option>
-                <option value="en" {{ old('languePref') === 'en' ? 'selected' : '' }}>English</option>
+                <option value="eus" {{ old('languePref') === 'eus' ? 'selected' : '' }}>Euskara</option>
             </select>
             <x-input-error :messages="$errors->get('languePref')" />
         </div>
@@ -41,6 +41,24 @@
             <x-input-label for="password" :value="__('auth.mot_de_passe')" />
 
             <x-text-input id="password" class="auth-input" type="password" name="password" required autocomplete="new-password" />
+            
+            <div id="password-requirements" class="mt-2">
+                <div id="req-length" class="password-req-item text-danger">
+                    <span class="req-icon">✗</span> {{ __('auth.password_req_length') }}
+                </div>
+                <div id="req-uppercase" class="password-req-item text-danger">
+                    <span class="req-icon">✗</span> {{ __('auth.password_req_uppercase') }}
+                </div>
+                <div id="req-lowercase" class="password-req-item text-danger">
+                    <span class="req-icon">✗</span> {{ __('auth.password_req_lowercase') }}
+                </div>
+                <div id="req-number" class="password-req-item text-danger">
+                    <span class="req-icon">✗</span> {{ __('auth.password_req_number') }}
+                </div>
+                <div id="req-special" class="password-req-item text-danger">
+                    <span class="req-icon">✗</span> {{ __('auth.password_req_special') }}
+                </div>
+            </div>
 
             <x-input-error :messages="$errors->get('password')" />
         </div>
@@ -55,14 +73,107 @@
             <x-input-error :messages="$errors->get('password_confirmation')" />
         </div>
 
+        <!-- reCAPTCHA -->
+        @php
+            $recaptchaEnabled = config('services.recaptcha.enabled', true);
+            $recaptchaSiteKey = config('services.recaptcha.site_key');
+        @endphp
+        @if($recaptchaEnabled && !empty($recaptchaSiteKey))
+        <div class="mt-3">
+            <div class="g-recaptcha" data-sitekey="{{ $recaptchaSiteKey }}" data-callback="onRecaptchaSuccess" data-expired-callback="onRecaptchaExpired"></div>
+            <x-input-error :messages="$errors->get('g-recaptcha-response')" />
+        </div>
+        @endif
+
         <div class="d-flex justify-content-end mt-3">
             <a class="small text-decoration-underline text-muted me-3" href="{{ route('login') }}">
                 {{ __('auth.deja_inscrit') }}
             </a>
 
-            <x-primary-button class="">
+            <x-primary-button id="submit-button" type="submit" @if($recaptchaEnabled && !empty($recaptchaSiteKey)) disabled @endif>
                 {{ __('auth.inscription') }}
             </x-primary-button>
         </div>
     </form>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const requirements = {
+                'req-length': (pwd) => pwd.length >= 8,
+                'req-uppercase': (pwd) => /[A-Z]/.test(pwd),
+                'req-lowercase': (pwd) => /[a-z]/.test(pwd),
+                'req-number': (pwd) => /[0-9]/.test(pwd),
+                'req-special': (pwd) => /[^A-Za-z0-9]/.test(pwd),
+            };
+
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                
+                Object.keys(requirements).forEach(reqId => {
+                    const reqElement = document.getElementById(reqId);
+                    const reqIcon = reqElement.querySelector('.req-icon');
+                    const isValid = requirements[reqId](password);
+                    
+                    if (isValid) {
+                        reqElement.classList.remove('text-danger');
+                        reqElement.classList.add('text-success');
+                        reqIcon.textContent = '✓';
+                    } else {
+                        reqElement.classList.remove('text-success');
+                        reqElement.classList.add('text-danger');
+                        reqIcon.textContent = '✗';
+                    }
+                });
+            });
+
+            // Gestion du bouton submit avec reCAPTCHA
+            @if($recaptchaEnabled && !empty($recaptchaSiteKey))
+            const submitButton = document.getElementById('submit-button');
+            const registerForm = document.getElementById('register-form');
+            let recaptchaValidated = false;
+            
+            // Fonction appelée quand le reCAPTCHA est validé
+            window.onRecaptchaSuccess = function() {
+                recaptchaValidated = true;
+                if (submitButton) {
+                    submitButton.disabled = false;
+                }
+            };
+
+            // Fonction appelée quand le reCAPTCHA expire
+            window.onRecaptchaExpired = function() {
+                recaptchaValidated = false;
+                if (submitButton) {
+                    submitButton.disabled = true;
+                }
+            };
+
+            // Empêcher la soumission du formulaire si le captcha n'est pas validé
+            if (registerForm) {
+                registerForm.addEventListener('submit', function(e) {
+                    if (!recaptchaValidated) {
+                        e.preventDefault();
+                        alert('{{ __("auth.recaptcha_required") }}');
+                        return false;
+                    }
+                });
+            }
+            @endif
+        });
+    </script>
+    <style>
+        .password-req-item {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            transition: color 0.3s ease;
+        }
+        .req-icon {
+            display: inline-block;
+            width: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+    @endpush
 </x-guest-layout>
