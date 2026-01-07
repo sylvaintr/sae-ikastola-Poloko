@@ -3,7 +3,7 @@ services:
     build: .
     container_name: laravel-app
     volumes:
-      - .:/var/www/html
+      - ./:/var/www/html
     depends_on:
       - mysql
       - mailpit
@@ -16,7 +16,9 @@ services:
     ports:
       - "80:80"
     volumes:
-      - .:/var/www/html
+      - ./:/var/www/html
+      - /var/www/html/vendor
+      - /var/www/html/node_modules
       - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app

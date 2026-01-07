@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Lang;
 
 class ActualiteController extends Controller
 {
+    private const DATE_FORMAT = 'd/m/Y';
     /**
      * Affiche la liste publique des actualités (Front-end).
      */
@@ -61,6 +62,47 @@ class ActualiteController extends Controller
         return view('actualites.index', compact('actualites', 'etiquettes', 'selected'));
     }
 
+    public function actualitesAdmin()
+    {
+        return view('admin.actualites.index');
+    }
+
+    public function getDatatable(Request $request)
+    {
+        if($request->ajax()){
+            return DataTables::of(Actualite::query())
+                ->editColumn('dateP', function ($row) {
+                    return \Carbon\Carbon::parse($row->dateP)->format(self::DATE_FORMAT);
+                })
+                ->editColumn('archive', function ($row) {
+                    return $row->archive ? 'Archivé' : 'Publié';
+                })
+                ->addColumn('action', function ($row) {
+                    $showUrl = route('actualite-show', $row);
+                    $editUrl = route('admin.actualites.edit', $row);
+                    $deleteUrl = route('admin.actualites.delete', $row);
+                
+                    return '
+                        <a href="'.$showUrl.'" style="color: black;"><i class="bi bi-eye"></i></a>
+                        <a href="'.$editUrl.'" style="color: black;"><i class="bi bi-pencil-fill"></i></a>
+                
+                        <form action="'.$deleteUrl.'" method="POST" style="display:inline;">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button type="submit" style="border: none; padding: 0px"
+                                onclick="return confirm(\'Supprimer cette actualité ?\')">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </form>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.actualites.index');
+    }
+
     /**
      * Traite le formulaire de filtre (POST -> Session -> Redirect).
      */
@@ -89,7 +131,7 @@ class ActualiteController extends Controller
         } else {
             // Ensure slashed dates (d/m/Y) are normalized before validation
             if ($request->has('dateP') && str_contains($request->dateP, '/')) {
-                $d = \DateTime::createFromFormat('d/m/Y', $request->dateP);
+                $d = \DateTime::createFromFormat(self::DATE_FORMAT, $request->dateP);
                 if ($d) {
                     $request->merge(['dateP' => $d->format('Y-m-d')]);
                 }
@@ -145,7 +187,7 @@ class ActualiteController extends Controller
         } else {
             // Normalize slashed date format before validating as StoreActualiteRequest is not executed
             if ($request->has('dateP') && str_contains($request->dateP, '/')) {
-                $d = \DateTime::createFromFormat('d/m/Y', $request->dateP);
+                $d = \DateTime::createFromFormat(self::DATE_FORMAT, $request->dateP);
                 if ($d) {
                     $request->merge(['dateP' => $d->format('Y-m-d')]);
                 }
@@ -249,13 +291,14 @@ class ActualiteController extends Controller
             ->addColumn('etat', fn($actu) => $actu->archive ? Lang::get('actualite.archived') : Lang::get('actualite.active'))
             ->addColumn('actions', fn($actu) => view('actualites.template.colonne-action', ['actualite' => $actu]))
             
-            // Filtre Titre (recherche globale) — use direct callable to improve testability
-            ->filterColumn('titre', [$this, 'filterColumnTitreInline'])
-            // Filtre Etiquettes (recherche textuelle) — use direct callable
-            ->filterColumn('etiquettes', [$this, 'filterColumnEtiquettesInline'])
-            // Register callable wrappers so unit tests can invoke them directly
-            ->filterColumn('titre', [$this, 'filterColumnTitreCallback'])
-            ->filterColumn('etiquettes', [$this, 'filterColumnEtiquettesCallback'])
+            // Filtre Titre (recherche globale)
+            ->filterColumn('titre', function($query, $keyword) {
+                $query->where(fn($sq) => $sq->where('titrefr', 'like', "%{$keyword}%")->orWhere('titreeus', 'like', "%{$keyword}%"));
+            })
+            // Filtre Etiquettes (recherche textuelle)
+            ->filterColumn('etiquettes', function($query, $keyword) {
+                $query->whereHas('etiquettes', fn($sq) => $sq->where('nom', 'like', "%{$keyword}%"));
+            })
             ->rawColumns(['actions'])
             ->make(true);
     }
@@ -282,19 +325,7 @@ class ActualiteController extends Controller
         throw new \BadMethodCallException("Method {$method} does not exist.");
     }
 
-    /**
-     * Inline titre filter extracted to a private method so unit tests can target it.
-     */
-    private function filterColumnTitreInline($q, $keyword)
-    {
-        $q->where(fn($sq) => $sq->where('titrefr', 'like', "%{$keyword}%")->orWhere('titreeus', 'like', "%{$keyword}%"));
-    }
 
-    /**
-     * Inline etiquettes filter extracted to a private method so unit tests can target it.
-     */
-    private function filterColumnEtiquettesInline($q, $keyword)
-    {
-        $q->whereHas('etiquettes', fn($sq) => $sq->where('nom', 'like', "%{$keyword}%"));
-    }
+
+
 }
