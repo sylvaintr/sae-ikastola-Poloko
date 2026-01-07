@@ -123,12 +123,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
     Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
     Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
-   Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
+   
     
     });
 
            
         });
+        Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
  Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 
         // ---------------- Présence ----------------

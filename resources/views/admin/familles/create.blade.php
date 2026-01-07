@@ -15,6 +15,7 @@
     @endphp
 
     <div class="container py-5">
+        {{-- ================= TITRE ================= --}}
         <div class="mb-5">
             <h2 class="fw-bolder mb-0 text-break">
                 @if($isEdit)
@@ -37,6 +38,7 @@
         <form id="mainForm" onsubmit="return false;" class="admin-form">
             @csrf
 
+            {{-- ================= SECTION UTILISATEURS ================= --}}
             <div class="mb-3">
                 <h3 class="fw-bold mb-0">{{ __('famille.users_section', [], 'eus') }}</h3>
                 @if (Lang::getLocale() == 'fr')
@@ -45,6 +47,7 @@
             </div>
 
             <div class="row g-4 mb-4">
+                {{-- Colonne Recherche --}}
                 <div class="col-12 col-md-6">
                     <label for="role-search" class="form-label small text-muted fw-bold">
                         {{ __('famille.search_label', [], 'eus') }}
@@ -58,6 +61,7 @@
 
                     <div id="available-roles" class="border rounded p-3 bg-white shadow-sm" style="height: auto; max-height: 500px; overflow-y: auto;">
                         @if($isEdit)
+                            {{-- MODE ÉDITION --}}
                             @foreach($famille->utilisateurs as $user)
                                 <button type="button"
                                         class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
@@ -81,6 +85,7 @@
                                 </button>
                             @endforeach
                         @else
+                            {{-- MODE CRÉATION --}}
                             <div id="parents-list">
                                 @if(isset($tousUtilisateurs))
                                     @foreach($tousUtilisateurs as $user)
@@ -114,6 +119,7 @@
                     </div>
                 </div>
 
+                {{-- Colonne Sélection --}}
                 <div class="col-12 col-md-6">
                     <h6 class="form-label small text-muted mb-2 fw-bold">
                         {{ __('famille.selected_users', [], 'eus') }}
@@ -128,9 +134,14 @@
                 </div>
             </div>
 
+            {{-- ================= SECTION FINANCIÈRE ================= --}}
             <div id="financial-section" style="display: none;" class="mt-4">
                 <div x-data="{ ratio: {{ $defaultRatio }} }">
+
+                    {{-- Conteneur Flexbox Responsive --}}
                     <div class="d-flex flex-column flex-lg-row align-items-lg-center w-100">
+
+                        {{-- 1. Le Titre --}}
                         <div class="mb-3 mb-lg-0 text-center text-lg-start">
                             <h5 class="mb-0 fw-bold">
                                 {{ __('famille.financial_split', [], 'eus') }}
@@ -140,10 +151,17 @@
                             </h5>
                         </div>
 
+                        {{-- 2. Zone Slider + Noms + Ratio --}}
                         <div class="flex-grow-1 w-100 px-2 ms-lg-5">
                             <div class="d-flex align-items-center justify-content-center justify-content-lg-start">
+
+                                {{-- Parent 1 --}}
                                 <span id="label-parent-1" class="fw-bold text-secondary text-truncate text-end" style="width: 80px; min-width: 60px;">P1</span>
+
+                                {{-- Wrapper Vertical : Slider + Ratio (Compact) --}}
                                 <div class="d-flex flex-column align-items-center flex-grow-1 mx-3" style="max-width: 250px;">
+
+                                    {{-- Le Slider Compact --}}
                                     <div class="border rounded px-2 py-1 bg-white d-flex align-items-center shadow-sm w-100">
                                         <input type="range"
                                                id="range-parite"
@@ -154,14 +172,19 @@
                                                x-ref="sliderParite"
                                                style="accent-color: orange;">
                                     </div>
+
+                                    {{-- Le Texte Ratio --}}
                                     <div class="mt-1 fw-bolder fs-5 text-dark">
                                         <span x-text="ratio">{{ $defaultRatio }}</span> / <span x-text="100 - ratio">{{ 100 - $defaultRatio }}</span>
                                     </div>
                                 </div>
+
+                                {{-- Parent 2 --}}
                                 <span id="label-parent-2" class="fw-bold text-secondary text-truncate text-start" style="width: 80px; min-width: 60px;">P2</span>
                             </div>
                         </div>
 
+                        {{-- 3. Les Boutons --}}
                         <div class="mt-3 mt-lg-0 ms-lg-4 d-flex justify-content-center justify-content-lg-end">
                             <div class="d-flex gap-2 w-100 w-lg-auto">
                                 <a href="{{ route('admin.familles.index')}}"
@@ -177,12 +200,14 @@
                                 </button>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </form>
     </div>
 
+    {{-- ================= MODAL CONFIRMATION ================= --}}
     <div class="modal fade" id="confirmationModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
@@ -202,6 +227,7 @@
         </div>
     </div>
 
+    {{-- ================= MODAL SUCCÈS ================= --}}
     <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
@@ -220,6 +246,7 @@
         </div>
     </div>
 
+    {{-- ================= JAVASCRIPT ================= --}}
     <script>
         const translations = {
             errorNoChildren: { eus: "{{ __('famille.error_no_children', [], 'eus') }}", fr: "{{ __('famille.error_no_children', [], 'fr') }}" },
@@ -242,6 +269,8 @@
 
         let pendingData = null;
         let isCreateMode = false;
+        // Variable pour stocker la liste initiale des utilisateurs
+        let initialRolesHTML = '';
 
         const dbRatio = {{ $defaultRatio }};
         const nbEnfantsInitial = {{ $countEnfants }};
@@ -262,6 +291,14 @@
         }
 
         function searchUsersAJAX(query) {
+            const container = document.getElementById('available-roles');
+
+            // 1. Si le champ est vide (ou contient juste des espaces), on restaure la liste initiale
+            if (query.trim().length === 0) {
+                container.innerHTML = initialRolesHTML;
+                return; // On arrête là, pas besoin d'appeler le serveur
+            }
+
             const url = "/api/search/users";
 
             fetch(`${url}?q=${encodeURIComponent(query)}`)
@@ -270,7 +307,6 @@
                     return res.json();
                 })
                 .then(data => {
-                    const container = document.getElementById('available-roles');
                     container.innerHTML = '';
 
                     if (data.length === 0) {
@@ -419,7 +455,14 @@
             });
         };
 
-        document.addEventListener('DOMContentLoaded', () => checkParityVisibility());
+        document.addEventListener('DOMContentLoaded', () => {
+            checkParityVisibility();
+            // On sauvegarde le contenu initial de la liste pour pouvoir le restaurer plus tard
+            const container = document.getElementById('available-roles');
+            if (container) {
+                initialRolesHTML = container.innerHTML;
+            }
+        });
     </script>
 </x-app-layout>
 
