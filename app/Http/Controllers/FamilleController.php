@@ -14,7 +14,6 @@ class FamilleController extends Controller
     private const FAMILLE_NOT_FOUND = 'Famille non trouvée';
     private const DEFAULT_PASSWORD = 'defaultpassword';
 
-    // Ajout d'une famille
     public function ajouter(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -22,8 +21,8 @@ class FamilleController extends Controller
             'utilisateurs' => 'array',
         ]);
 
-        // Création de la famille
         $famille = Famille::create(['aineDansAutreSeaska' => false]);
+
         $this->createEnfants($data['enfants'] ?? [], $famille->idFamille);
         $this->createUtilisateurs($data['utilisateurs'] ?? [], $famille);
 
@@ -35,26 +34,23 @@ class FamilleController extends Controller
         ], 201);
     }
 
-    // Affichage d'une famille
     public function show($id)
     {
         $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
 
-        if (!$famille) {
-            if (request()->wantsJson()) {
-                return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
-            }
-            return redirect()->route('admin.familles.index');
+        if (request()->wantsJson()) {
+            return $famille
+                ? response()->json($famille)
+                : response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
 
-        if (request()->wantsJson()) {
-            return response()->json($famille);
+        if (!$famille) {
+            return redirect()->route('admin.familles.index');
         }
 
         return view('admin.familles.show', compact('famille'));
     }
 
-    // Formulaire de création
     public function create(): View
     {
         $tousUtilisateurs = Utilisateur::doesntHave('familles')->get();
@@ -67,7 +63,6 @@ class FamilleController extends Controller
         return view('admin.familles.create', compact('tousUtilisateurs', 'tousEnfants'));
     }
 
-    // Formulaire d'édition
     public function edit($id)
     {
         $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
@@ -79,7 +74,6 @@ class FamilleController extends Controller
         return view('admin.familles.create', compact('famille'));
     }
 
-    // Liste des familles
     public function index()
     {
         $familles = Famille::with(['enfants', 'utilisateurs'])->get();
@@ -91,7 +85,6 @@ class FamilleController extends Controller
         return view('admin.familles.index', compact('familles'));
     }
 
-    // Suppression d'une famille
     public function delete($id): JsonResponse
     {
         $famille = Famille::find($id);
@@ -107,7 +100,6 @@ class FamilleController extends Controller
         return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
     }
 
-    // Recherche de familles par parent
     public function searchByParent(Request $request): JsonResponse
     {
         $request->validate([
@@ -135,7 +127,6 @@ class FamilleController extends Controller
         return response()->json($familles);
     }
 
-    // Recherche d'utilisateurs
     public function searchUsers(Request $request): JsonResponse
     {
         $request->validate([
@@ -159,7 +150,6 @@ class FamilleController extends Controller
         return response()->json($users);
     }
 
-    // Mise à jour d'une famille
     public function update(Request $request, int $id): JsonResponse
     {
         $famille = Famille::find($id);
@@ -200,6 +190,7 @@ class FamilleController extends Controller
             }
         }
     }
+
     private function createUtilisateurs(array $usersData, Famille $famille): void
     {
         foreach ($usersData as $userData) {
@@ -221,6 +212,7 @@ class FamilleController extends Controller
             }
         }
     }
+
     private function updateEnfants(array $enfantsData): void
     {
         foreach ($enfantsData as $childData) {
@@ -241,7 +233,7 @@ class FamilleController extends Controller
             }
         }
     }
-    
+
     private function updateUtilisateurs(array $usersData): void
     {
         foreach ($usersData as $userData) {
