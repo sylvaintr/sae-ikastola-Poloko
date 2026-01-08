@@ -19,6 +19,17 @@ class LierController extends Controller
         $idFamille = $request->idFamille;
         $idParent1 = $request->idUtilisateur;
 
+        // --- CORRECTION : Vérifier si le lien existe AVANT de faire l'update ---
+        $exists = DB::table('lier')
+            ->where('idFamille', $idFamille)
+            ->where('idUtilisateur', $idParent1)
+            ->exists();
+
+        if (! $exists) {
+            return response()->json(['message' => 'Lien introuvable'], 404);
+        }
+        // -----------------------------------------------------------------------
+
         $partParent1 = $request->parite;
         $partParent2 = 100 - $partParent1;
 

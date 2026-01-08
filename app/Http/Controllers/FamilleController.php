@@ -74,6 +74,9 @@ class FamilleController extends Controller
         if (!$famille) {
             return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
+        if (request()->wantsJson()) {
+            return response()->json($famille);
+        }
 
         return view('admin.familles.show', compact('famille'));
     }
@@ -107,6 +110,10 @@ class FamilleController extends Controller
     public function index()
     {
         $familles = Famille::with(['enfants', 'utilisateurs'])->get();
+        // AJOUT OBLIGATOIRE POUR LE TEST
+        if (request()->wantsJson()) {
+            return response()->json($familles);
+        }
 
         return view('admin.familles.index', compact('familles'));
     }
@@ -179,54 +186,50 @@ class FamilleController extends Controller
         return response()->json($users);
     }
 
-    public function update(Request $request, int $id)
-{
-    $famille = Famille::find($id);
+   public function update(Request $request, int $id)
+    {
+        $famille = Famille::find($id);
 
-    if ($famille === null) {
+        if ($famille === null) {
+            return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
+        }
+
+        $data = $request->validate([
+            'enfants' => 'array',
+            'utilisateurs' => 'array',
+        ]);
+
+        // --- Mise à jour des enfants (Sans utiliser update() pour éviter le blocage Model) ---
+        foreach ($data['enfants'] ?? [] as $childData) {
+            if (isset($childData['idEnfant'])) {
+                $enfant = Enfant::find($childData['idEnfant']);
+                if ($enfant) {
+                    // On assigne manuellement les champs si présents
+                    if (isset($childData['nom'])) $enfant->nom = $childData['nom'];
+                    if (isset($childData['prenom'])) $enfant->prenom = $childData['prenom'];
+                    
+                    $enfant->save(); // Sauvegarde forcée
+                }
+            }
+        }
+
+        // --- Mise à jour des utilisateurs ---
+        foreach ($data['utilisateurs'] ?? [] as $userData) {
+            if (isset($userData['idUtilisateur'])) {
+                $utilisateur = Utilisateur::find($userData['idUtilisateur']);
+                if ($utilisateur) {
+                    // On assigne manuellement
+                    if (isset($userData['languePref'])) $utilisateur->languePref = $userData['languePref'];
+                    
+                    $utilisateur->save(); // Sauvegarde forcée
+                }
+            }
+        }
+
         return response()->json([
-            'message' => self::FAMILLE_NOT_FOUND
-        ], 404);
+            'message' => 'Famille mise à jour (enfants + utilisateurs)',
+        ], 200);
     }
-
-    $data = $request->validate([
-        'enfants' => 'array',
-        'utilisateurs' => 'array',
-    ]);
-
-    // --- Mise à jour des enfants ---
-    foreach ($data['enfants'] ?? [] as $childData) {
-        if (isset($childData['idEnfant'])) {
-            $enfant = Enfant::find($childData['idEnfant']);
-
-            if ($enfant) {
-                // On met à jour uniquement les champs envoyés
-                $enfant->update(array_filter([
-                    'nom' => $childData['nom'] ?? null,
-                    'prenom' => $childData['prenom'] ?? null,
-                ], fn($value) => $value !== null));
-            }
-        }
-    }
-
-    // --- Mise à jour des utilisateurs ---
-    foreach ($data['utilisateurs'] ?? [] as $userData) {
-        if (isset($userData['idUtilisateur'])) {
-            $utilisateur = Utilisateur::find($userData['idUtilisateur']);
-
-            if ($utilisateur) {
-                // On met à jour uniquement les champs envoyés
-                $utilisateur->update(array_filter([
-                    'languePref' => $userData['languePref'] ?? null,
-                ], fn($value) => $value !== null));
-            }
-        }
-    }
-
-    return response()->json([
-        'message' => 'Famille mise à jour (enfants + utilisateurs)',
-    ], 200);
-}
 
 
 
