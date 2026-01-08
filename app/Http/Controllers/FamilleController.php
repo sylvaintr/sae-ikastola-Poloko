@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Utilisateur;
@@ -13,8 +12,9 @@ use App\Models\Utilisateur;
 class FamilleController extends Controller
 {
     private const FAMILLE_NOT_FOUND = 'Famille non trouvée';
+    private const DEFAULT_PASSWORD = 'defaultpassword';
 
-    // Ajout d'une famille complète (Enfants + Utilisateurs)
+    // Ajout d'une famille
     public function ajouter(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -22,45 +22,10 @@ class FamilleController extends Controller
             'utilisateurs' => 'array',
         ]);
 
+        // Création de la famille
         $famille = Famille::create(['aineDansAutreSeaska' => false]);
-
-        // Gestion des enfants
-        foreach ($data['enfants'] ?? [] as $enfantData) {
-            if (isset($enfantData['idEnfant'])) {
-                Enfant::where('idEnfant', $enfantData['idEnfant'])
-                    ->update(['idFamille' => $famille->idFamille]);
-            } else {
-                Enfant::create([
-                    'nom' => $enfantData['nom'],
-                    'prenom' => $enfantData['prenom'],
-                    'dateN' => $enfantData['dateN'],
-                    'sexe' => $enfantData['sexe'],
-                    'NNI' => $enfantData['NNI'],
-                    'idClasse' => $enfantData['idClasse'],
-                    'idFamille' => $famille->idFamille,
-                ]);
-            }
-        }
-
-        // Gestion des utilisateurs
-        foreach ($data['utilisateurs'] ?? [] as $userData) {
-            if (isset($userData['idUtilisateur'])) {
-                $famille->utilisateurs()->attach($userData['idUtilisateur'], [
-                    'parite' => $userData['parite'] ?? null,
-                ]);
-            } else {
-                $newUser = Utilisateur::create([
-                    'nom' => $userData['nom'],
-                    'prenom' => $userData['prenom'],
-                    'mdp' => $userData['mdp'] ?? bcrypt('defaultpassword'),
-                    'languePref' => $userData['languePref'] ?? 'fr',
-                ]);
-
-                $famille->utilisateurs()->attach($newUser->idUtilisateur, [
-                    'parite' => $userData['parite'] ?? null,
-                ]);
-            }
-        }
+        $this->createEnfants($data['enfants'] ?? [], $famille->idFamille);
+        $this->createUtilisateurs($data['utilisateurs'] ?? [], $famille);
 
         $famille->load('enfants', 'utilisateurs');
 
@@ -194,6 +159,7 @@ class FamilleController extends Controller
         return response()->json($users);
     }
 
+    // Mise à jour d'une famille
     public function update(Request $request, int $id): JsonResponse
     {
         $famille = Famille::find($id);
@@ -215,6 +181,46 @@ class FamilleController extends Controller
         ], 200);
     }
 
+    private function createEnfants(array $enfantsData, int $familleId): void
+    {
+        foreach ($enfantsData as $enfantData) {
+            if (isset($enfantData['idEnfant'])) {
+                Enfant::where('idEnfant', $enfantData['idEnfant'])
+                    ->update(['idFamille' => $familleId]);
+            } else {
+                Enfant::create([
+                    'nom' => $enfantData['nom'],
+                    'prenom' => $enfantData['prenom'],
+                    'dateN' => $enfantData['dateN'],
+                    'sexe' => $enfantData['sexe'],
+                    'NNI' => $enfantData['NNI'],
+                    'idClasse' => $enfantData['idClasse'],
+                    'idFamille' => $familleId,
+                ]);
+            }
+        }
+    }
+    private function createUtilisateurs(array $usersData, Famille $famille): void
+    {
+        foreach ($usersData as $userData) {
+            if (isset($userData['idUtilisateur'])) {
+                $famille->utilisateurs()->attach($userData['idUtilisateur'], [
+                    'parite' => $userData['parite'] ?? null,
+                ]);
+            } else {
+                $newUser = Utilisateur::create([
+                    'nom' => $userData['nom'],
+                    'prenom' => $userData['prenom'],
+                    'mdp' => $userData['mdp'] ?? bcrypt(self::DEFAULT_PASSWORD),
+                    'languePref' => $userData['languePref'] ?? 'fr',
+                ]);
+
+                $famille->utilisateurs()->attach($newUser->idUtilisateur, [
+                    'parite' => $userData['parite'] ?? null,
+                ]);
+            }
+        }
+    }
     private function updateEnfants(array $enfantsData): void
     {
         foreach ($enfantsData as $childData) {
@@ -235,7 +241,7 @@ class FamilleController extends Controller
             }
         }
     }
-
+    
     private function updateUtilisateurs(array $usersData): void
     {
         foreach ($usersData as $userData) {
