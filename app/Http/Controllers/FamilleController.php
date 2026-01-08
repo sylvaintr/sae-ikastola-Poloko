@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Utilisateur;
@@ -11,18 +14,17 @@ class FamilleController extends Controller
 {
     private const FAMILLE_NOT_FOUND = 'Famille non trouvée';
 
-    // -------------------- Ajout d'une famille --------------------
-    public function ajouter(Request $request)
+    // Ajout d'une famille complète (Enfants + Utilisateurs)
+    public function ajouter(Request $request): JsonResponse
     {
         $data = $request->validate([
             'enfants' => 'array',
             'utilisateurs' => 'array',
         ]);
 
-        // Ensure required boolean field has a default to avoid DB errors in tests/environments
         $famille = Famille::create(['aineDansAutreSeaska' => false]);
 
-        // Gestion des enfants (TA VERSION)
+        // Gestion des enfants
         foreach ($data['enfants'] ?? [] as $enfantData) {
             if (isset($enfantData['idEnfant'])) {
                 Enfant::where('idEnfant', $enfantData['idEnfant'])
@@ -60,20 +62,26 @@ class FamilleController extends Controller
             }
         }
 
+        $famille->load('enfants', 'utilisateurs');
+
         return response()->json([
             'message' => 'Famille construite avec succès',
             'famille' => $famille,
         ], 201);
     }
 
-    // -------------------- Afficher une famille spécifique --------------------
+    // Affichage d'une famille
     public function show($id)
     {
         $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
 
         if (!$famille) {
-            return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
+            if (request()->wantsJson()) {
+                return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
+            }
+            return redirect()->route('admin.familles.index');
         }
+
         if (request()->wantsJson()) {
             return response()->json($famille);
         }
@@ -81,8 +89,8 @@ class FamilleController extends Controller
         return view('admin.familles.show', compact('famille'));
     }
 
-    // -------------------- Page de création --------------------
-    public function create()
+    // Formulaire de création
+    public function create(): View
     {
         $tousUtilisateurs = Utilisateur::doesntHave('familles')->get();
 
@@ -94,7 +102,7 @@ class FamilleController extends Controller
         return view('admin.familles.create', compact('tousUtilisateurs', 'tousEnfants'));
     }
 
-    // -------------------- Page de modification --------------------
+    // Formulaire d'édition
     public function edit($id)
     {
         $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
@@ -106,11 +114,11 @@ class FamilleController extends Controller
         return view('admin.familles.create', compact('famille'));
     }
 
-    // -------------------- Afficher la liste des familles --------------------
+    // Liste des familles
     public function index()
     {
         $familles = Famille::with(['enfants', 'utilisateurs'])->get();
-        // AJOUT OBLIGATOIRE POUR LE TEST
+
         if (request()->wantsJson()) {
             return response()->json($familles);
         }
@@ -118,8 +126,8 @@ class FamilleController extends Controller
         return view('admin.familles.index', compact('familles'));
     }
 
-    // -------------------- Supprimer une famille --------------------
-    public function delete($id)
+    // Suppression d'une famille
+    public function delete($id): JsonResponse
     {
         $famille = Famille::find($id);
 
@@ -134,8 +142,8 @@ class FamilleController extends Controller
         return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
     }
 
-    // -------------------- Recherche par parent --------------------
-    public function searchByParent(Request $request)
+    // Recherche de familles par parent
+    public function searchByParent(Request $request): JsonResponse
     {
         $request->validate([
             'q' => 'nullable|string|min:2|max:50',
@@ -162,8 +170,8 @@ class FamilleController extends Controller
         return response()->json($familles);
     }
 
-    // -------------------- Recherche AJAX Utilisateurs --------------------
-    public function searchUsers(Request $request)
+    // Recherche d'utilisateurs
+    public function searchUsers(Request $request): JsonResponse
     {
         $request->validate([
             'q' => 'nullable|string|min:2|max:50',
@@ -186,7 +194,7 @@ class FamilleController extends Controller
         return response()->json($users);
     }
 
-   public function update(Request $request, int $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         $famille = Famille::find($id);
 
@@ -199,39 +207,51 @@ class FamilleController extends Controller
             'utilisateurs' => 'array',
         ]);
 
-        // --- Mise à jour des enfants (Sans utiliser update() pour éviter le blocage Model) ---
-        foreach ($data['enfants'] ?? [] as $childData) {
-            if (isset($childData['idEnfant'])) {
-                $enfant = Enfant::find($childData['idEnfant']);
-                if ($enfant) {
-                    // On assigne manuellement les champs si présents
-                    if (isset($childData['nom'])) $enfant->nom = $childData['nom'];
-                    if (isset($childData['prenom'])) $enfant->prenom = $childData['prenom'];
-                    
-                    $enfant->save(); // Sauvegarde forcée
-                }
-            }
-        }
-
-        // --- Mise à jour des utilisateurs ---
-        foreach ($data['utilisateurs'] ?? [] as $userData) {
-            if (isset($userData['idUtilisateur'])) {
-                $utilisateur = Utilisateur::find($userData['idUtilisateur']);
-                if ($utilisateur) {
-                    // On assigne manuellement
-                    if (isset($userData['languePref'])) $utilisateur->languePref = $userData['languePref'];
-                    
-                    $utilisateur->save(); // Sauvegarde forcée
-                }
-            }
-        }
+        $this->updateEnfants($data['enfants'] ?? []);
+        $this->updateUtilisateurs($data['utilisateurs'] ?? []);
 
         return response()->json([
             'message' => 'Famille mise à jour (enfants + utilisateurs)',
         ], 200);
     }
 
+    private function updateEnfants(array $enfantsData): void
+    {
+        foreach ($enfantsData as $childData) {
+            if (!isset($childData['idEnfant'])) {
+                continue;
+            }
 
+            $enfant = Enfant::find($childData['idEnfant']);
 
+            if ($enfant) {
+                if (isset($childData['nom'])) {
+                    $enfant->nom = $childData['nom'];
+                }
+                if (isset($childData['prenom'])) {
+                    $enfant->prenom = $childData['prenom'];
+                }
+                $enfant->save();
+            }
+        }
+    }
 
+    private function updateUtilisateurs(array $usersData): void
+    {
+        foreach ($usersData as $userData) {
+            if (!isset($userData['idUtilisateur'])) {
+                continue;
+            }
+
+            $utilisateur = Utilisateur::find($userData['idUtilisateur']);
+
+            if ($utilisateur) {
+                if (isset($userData['languePref'])) {
+                    $utilisateur->languePref = $userData['languePref'];
+                }
+                $utilisateur->save();
+            }
+        }
+    }
 }
+
