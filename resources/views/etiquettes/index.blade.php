@@ -51,11 +51,11 @@
         {{-- Filtres serveur --}}
         <form id="etiquettes-filters" method="GET" action="{{ route('admin.etiquettes.index') }}" class="row g-3 align-items-end admin-actualites-filters mb-3">
             <div class="col-sm-4">
-                <label class="form-label fw-semibold">{{ __('etiquette.nom') }}</label>
+                <label for="filter-etiquette-search" class="form-label fw-semibold">{{ __('etiquette.nom') }}</label>
                 <input type="text" id="filter-etiquette-search" name="search" class="form-control" value="{{ $filters['search'] ?? '' }}" placeholder="{{ $searchPlaceholder }}">
             </div>
             <div class="col-sm-4">
-                <label class="form-label fw-semibold">{{ __('etiquette.roles') }}</label>
+                <label for="filter-etiquette-role" class="form-label fw-semibold">{{ __('etiquette.roles') }}</label>
                 <select name="role" id="filter-etiquette-role" class="form-select">
                     <option value="">{{ $allRolesLabel }}</option>
                     @foreach($roles as $r)

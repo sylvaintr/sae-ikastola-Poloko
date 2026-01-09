@@ -43,12 +43,12 @@
         {{-- Filtres serveur --}}
         <form method="GET" action="{{ route('admin.classes.index') }}" class="row g-3 align-items-end admin-actualites-filters mb-3">
             <div class="col-sm-4">
-                <label class="form-label fw-semibold">{{ __('classes.nom') }}</label>
-                <input type="text" name="search" class="form-control" value="{{ $filters['search'] ?? '' }}" placeholder="{{ $placeholderSearch }}">
+                <label for="filter-classes-search" class="form-label fw-semibold">{{ __('classes.nom') }}</label>
+                <input type="text" id="filter-classes-search" name="search" class="form-control" value="{{ $filters['search'] ?? '' }}" placeholder="{{ $placeholderSearch }}">
             </div>
             <div class="col-sm-4">
-                <label class="form-label fw-semibold">{{ __('classes.niveau') }}</label>
-                <select name="niveau" class="form-select">
+                <label for="filter-classes-niveau" class="form-label fw-semibold">{{ __('classes.niveau') }}</label>
+                <select id="filter-classes-niveau" name="niveau" class="form-select">
                     <option value="">{{ $allLevelsLabel }}</option>
                     @foreach($levels as $level)
                         <option value="{{ $level }}" @selected(($filters['niveau'] ?? '') === $level)>{{ $level }}</option>

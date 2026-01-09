@@ -66,7 +66,7 @@
                 {{-- Filtres serveur (sans DataTables) --}}
                 <form id="actualites-filters" method="GET" action="{{ route('admin.actualites.index') }}" class="row g-3 align-items-end admin-actualites-filters mb-3">
                     <div class="col-sm-3">
-                        <label class="form-label fw-semibold">{{ __('actualite.type') }}</label>
+                        <label for="filter-type" class="form-label fw-semibold">{{ __('actualite.type') }}</label>
                         <select id="filter-type" name="type" class="form-select">
                             <option value="">{{ __('actualite.all_types') ?? 'Tous les types' }}</option>
                             <option value="public" @selected(($filters['type'] ?? '') === 'public')>{{ __('actualite.public') }}</option>
@@ -74,7 +74,7 @@
                         </select>
                     </div>
                     <div class="col-sm-3">
-                        <label class="form-label fw-semibold">{{ __('actualite.visibilite') }}</label>
+                        <label for="filter-etat" class="form-label fw-semibold">{{ __('actualite.visibilite') }}</label>
                         <select id="filter-etat" name="etat" class="form-select">
                             <option value="">{{ __('actualite.visibilite') }}</option>
                             <option value="active" @selected(($filters['etat'] ?? '') === 'active')>{{ __('actualite.active')  }}</option>
@@ -82,7 +82,7 @@
                         </select>
                     </div>
                     <div class="col-sm-3">
-                        <label class="form-label fw-semibold">{{ __('etiquette.all') }}</label>
+                        <label for="filter-etiquette" class="form-label fw-semibold">{{ __('etiquette.all') }}</label>
                         <select id="filter-etiquette" name="etiquette" class="form-select">
                             <option value="">{{ __('etiquette.all')}}</option>
                             @foreach($etiquettes as $et)
@@ -91,7 +91,7 @@
                         </select>
                     </div>
                     <div class="col-sm-3">
-                        <label class="form-label fw-semibold">{{ __('actualite.titre') }}</label>
+                        <label for="filter-search" class="form-label fw-semibold">{{ __('actualite.titre') }}</label>
                         <input type="text" id="filter-search" name="search" class="form-control" value="{{ $filters['search'] ?? '' }}" placeholder="{{ $searchPlaceholder }}">
                     </div>
                     <div class="col-sm-12 d-flex gap-2 justify-content-end">
