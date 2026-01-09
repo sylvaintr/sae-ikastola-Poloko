@@ -10,12 +10,16 @@ RUN apt-get update && apt-get install -y \
 
 # Installation de Node.js et npm
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
+    && apt-get install -y nodejs netcat-openbsd
 
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
 # Installation de Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Copie du script d'entrée
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Configuration PHP (facultatif)
 COPY ./docker/php.ini /usr/local/etc/php/conf.d/custom.ini
@@ -23,18 +27,20 @@ COPY ./docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 # Définition du dossier de travail
 WORKDIR /var/www/html
 
-# Copie des fichiers du projet
-COPY . .
-
-RUN php artisan storage:link || true
+# Copie des fichiers de configuration d'abord (pour optimiser le cache Docker)
+COPY composer.json composer.lock ./
+COPY package.json package-lock.json* ./
 
 # Installation dépendances Laravel
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
-# Installation dépendances Node.js
-RUN npm install
+# Installation dépendances Node.js (seulement si package.json existe)
+RUN if [ -f package.json ]; then npm install; fi
 
-# Droits pour Laravel
+# Copie du reste des fichiers du projet
+COPY . .
+
+# Création des dossiers et permissions pour Laravel
 RUN mkdir -p storage/logs \
     && mkdir -p storage/framework/cache \
     && mkdir -p storage/framework/sessions \
@@ -43,7 +49,11 @@ RUN mkdir -p storage/logs \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R ug+rwX storage bootstrap/cache
 
+# Lien symbolique pour le stockage (après l'installation de composer)
+RUN php artisan storage:link || true
+
 # Port du serveur PHP-FPM
 EXPOSE 9000
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["php-fpm"]

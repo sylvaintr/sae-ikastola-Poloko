@@ -2,6 +2,7 @@ services:
   app:
     build: .
     container_name: laravel-app
+    user: root
     volumes:
       - .:/var/www/html
     depends_on:
