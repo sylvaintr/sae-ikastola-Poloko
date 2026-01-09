@@ -179,17 +179,5 @@
             }
         });
     </script>
-    <style>
-        .password-req-item {
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-            transition: color 0.3s ease;
-        }
-        .req-icon {
-            display: inline-block;
-            width: 1.2em;
-            font-weight: bold;
-        }
-    </style>
     @endpush
 </x-guest-layout>
