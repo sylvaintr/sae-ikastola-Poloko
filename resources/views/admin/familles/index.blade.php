@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="container mt-4">
 
+        {{-- En-tête --}}
         <div class="mb-4">
             <h2 class="fw-bolder mb-0">{{ __('famille.title', [], 'eus') }}</h2>
             @if (Lang::getLocale() == 'fr')
@@ -8,8 +9,9 @@
             @endif
         </div>
 
+        {{-- Barre d'outils (Recherche + Bouton Ajouter) --}}
         <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-3">
-            {{-- Recherche --}}
+            {{-- Recherche AJAX --}}
             <div class="text-end">
                 <label for="searchUser" class="visually-hidden">{{ __('famille.search_user_placeholder') }}</label>
                 <input type="text"
@@ -35,6 +37,7 @@
             </div>
         </div>
 
+        {{-- Vue Ordinateur (Tableau) --}}
         <div class="d-none d-md-block mt-4">
             <table class="table table-borderless">
                 <thead class="table-light">
@@ -109,6 +112,7 @@
             </table>
         </div>
 
+        {{-- Vue Mobile (Cartes) --}}
         <div class="d-md-none mt-4">
             @forelse($familles as $famille)
                 @php
@@ -116,7 +120,7 @@
                     $p1 = $parents->get(0);
                     $p2 = $parents->get(1);
                 @endphp
-                <div class="border rounded p-3 mb-3 shadow-sm">
+                <div class="border rounded p-3 mb-3 shadow-sm" id="famille-card-{{ $famille->idFamille }}">
                     <div><strong>{{ __('famille.id', [], 'eus') }}:</strong> #{{ $famille->idFamille }}</div>
                     <div><strong>{{ __('famille.parent1_nom', [], 'eus') }}:</strong> {{ $p1->nom ?? '-' }}</div>
                     <div><strong>{{ __('famille.parent1_prenom', [], 'eus') }}:</strong> {{ $p1->prenom ?? '-' }}</div>
@@ -144,7 +148,7 @@
         </div>
     </div>
 
-
+    {{-- Modal de confirmation de suppression --}}
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-3">
@@ -178,7 +182,7 @@
         </div>
     </div>
 
-
+    {{-- Scripts JavaScript Corrigés --}}
     <script>
         const jsTrans = {
             noResults: "{{ __('famille.no_results', [], 'eus') }} @if(Lang::getLocale() == 'fr') - {{ __('famille.no_results') }} @endif"
@@ -186,6 +190,23 @@
 
         let idToDelete = null;
         let deleteModalInstance = null;
+
+        /**
+         * Fonction pour détecter automatiquement le dossier racine du site.
+         * Indispensable pour que ça marche sur Wamp / sous-dossiers.
+         */
+        function getRootUrl() {
+            let path = window.location.pathname;
+            // On cherche où commence "/admin/familles" dans l'URL
+            let index = path.indexOf('/admin/familles');
+            
+            if (index > -1) {
+                // On garde tout ce qu'il y a avant (ex: "/sae-ikastola-Poloko/public")
+                return path.substring(0, index);
+            }
+            // Fallback (si jamais l'URL change)
+            return '';
+        }
 
         function escapeHtml(text) {
             if (!text) return '';
@@ -203,6 +224,7 @@
             deleteModalInstance.show();
         }
 
+        // --- Logique de Suppression ---
         document.getElementById('btnConfirmDelete').addEventListener('click', function() {
             if (!idToDelete) return;
 
@@ -213,7 +235,11 @@
             btn.innerText = "...";
             btn.disabled = true;
 
-            fetch(`/admin/familles/${idToDelete}`, {
+            // Construction de l'URL dynamique
+            const rootUrl = getRootUrl();
+            const deleteUrl = `${rootUrl}/admin/familles/${idToDelete}`;
+
+            fetch(deleteUrl, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -226,8 +252,17 @@
             })
             .then(() => {
                 deleteModalInstance.hide();
+                
+                // Suppression de la ligne du tableau
                 const row = document.getElementById(`famille-row-${idToDelete}`);
                 if (row) row.remove();
+
+                // Suppression de la carte mobile
+                const card = document.getElementById(`famille-card-${idToDelete}`);
+                if (card) card.remove();
+
+                // Si ni l'un ni l'autre n'est trouvé (cas rare), on recharge
+                if (!row && !card) window.location.reload();
             })
             .catch(error => {
                 errorDiv.innerText = "Error: " + error.message;
@@ -240,17 +275,22 @@
             });
         });
 
+        // --- Logique de Recherche ---
         document.getElementById('searchUser').addEventListener('keyup', function() {
             const q = this.value.trim();
             const tbody = document.getElementById('famillesTableBody');
 
             if (q.length === 0) {
-                location.reload();
+                location.reload(); // On recharge pour récupérer la liste complète propre
                 return;
             }
             if (q.length < 2) return;
 
-            fetch(`/api/search?q=${encodeURIComponent(q)}`, {
+            // Construction de l'URL dynamique pour la recherche
+            const rootUrl = getRootUrl();
+            const searchUrl = `${rootUrl}/api/search?q=${encodeURIComponent(q)}`;
+
+            fetch(searchUrl, {
                 headers: { 'Accept': 'application/json' }
             })
             .then(res => res.json())
@@ -260,10 +300,15 @@
                     tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">${jsTrans.noResults}</td></tr>`;
                     return;
                 }
+                
                 data.forEach(famille => {
                     const p1 = famille.utilisateurs[0] || {};
                     const p2 = famille.utilisateurs[1] || {};
                     const enfantCount = famille.enfants ? famille.enfants.length : 0;
+
+                    // Reconstruction des liens corrects
+                    const showLink = `${rootUrl}/admin/familles/${famille.idFamille}`;
+                    const editLink = `${rootUrl}/admin/familles/${famille.idFamille}/edit`;
 
                     tbody.insertAdjacentHTML('beforeend', `
                         <tr id="famille-row-${famille.idFamille}">
@@ -275,10 +320,10 @@
                             <td class="text-center align-middle">${enfantCount}</td>
                             <td class="text-center align-middle">
                                 <div class="d-flex justify-content-center gap-3">
-                                    <a href="/admin/familles/${famille.idFamille}" class="text-dark">
+                                    <a href="${showLink}" class="text-dark">
                                         <i class="bi bi-eye fs-4"></i>
                                     </a>
-                                    <a href="/admin/familles/${famille.idFamille}/edit" class="text-dark">
+                                    <a href="${editLink}" class="text-dark">
                                         <i class="bi bi-pencil-square fs-4"></i>
                                     </a>
                                     <button type="button" class="border-0 bg-transparent text-dark" onclick="prepareDelete(${famille.idFamille})">

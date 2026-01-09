@@ -269,7 +269,6 @@
 
         let pendingData = null;
         let isCreateMode = false;
-        // Variable pour stocker la liste initiale des utilisateurs
         let initialRolesHTML = '';
 
         const dbRatio = {{ $defaultRatio }};
@@ -290,16 +289,18 @@
             new globalThis.bootstrap.Modal(document.getElementById('confirmationModal')).show();
         }
 
+        // --- CORRECTION ICI : URL compatible WAMP/XAMPP ---
         function searchUsersAJAX(query) {
             const container = document.getElementById('available-roles');
 
-            // 1. Si le champ est vide (ou contient juste des espaces), on restaure la liste initiale
+            // 1. Si le champ est vide, on remet la liste initiale
             if (query.trim().length === 0) {
                 container.innerHTML = initialRolesHTML;
-                return; // On arrête là, pas besoin d'appeler le serveur
+                return;
             }
 
-            const url = "/api/search/users";
+            // 2. On utilise Blade pour générer l'URL complète
+            const url = "{{ url('/api/search/users') }}";
 
             fetch(`${url}?q=${encodeURIComponent(query)}`)
                 .then(res => {
@@ -457,7 +458,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             checkParityVisibility();
-            // On sauvegarde le contenu initial de la liste pour pouvoir le restaurer plus tard
             const container = document.getElementById('available-roles');
             if (container) {
                 initialRolesHTML = container.innerHTML;
