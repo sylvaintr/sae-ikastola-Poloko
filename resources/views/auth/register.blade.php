@@ -111,7 +111,9 @@
                 'req-uppercase': (pwd) => /[A-Z]/.test(pwd),
                 'req-lowercase': (pwd) => /[a-z]/.test(pwd),
                 'req-number': (pwd) => /[0-9]/.test(pwd),
-                'req-special': (pwd) => /[^A-Za-z0-9]/.test(pwd),
+                // Match Laravel Rules\Password::symbols() default symbol set:
+                // !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+                'req-special': (pwd) => /[!"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~]/.test(pwd),
             };
 
             passwordInput.addEventListener('input', function() {
@@ -177,17 +179,5 @@
             }
         });
     </script>
-    <style>
-        .password-req-item {
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-            transition: color 0.3s ease;
-        }
-        .req-icon {
-            display: inline-block;
-            width: 1.2em;
-            font-weight: bold;
-        }
-    </style>
     @endpush
 </x-guest-layout>
