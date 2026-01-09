@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     try {
-        var table = new DataTable("#TableFacture", {
+        const table = new DataTable("#TableFacture", {
             processing: true,
             serverSide: true,
             autoWidth: false,
@@ -46,7 +46,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     name: "dateC",
                     render: function (data) {
                         const date = new Date(data);
-                        return date.toLocaleDateString(); // Format local
+                        
+                        return date.toLocaleDateString('fr-FR'); // Formatage de la date au format JJ/MM/AAAA
                     },
                 },
                 {
@@ -70,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         });
         $('#filtreEtat').on('change', function () {
-        var valeurSelectionnee = $(this).val();
+        const valeurSelectionnee = $(this).val();
 
         // On applique le filtre sur la colonne Index 2 (Etat)
         // .search( val ) prépare la recherche

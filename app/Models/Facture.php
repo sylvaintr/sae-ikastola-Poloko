@@ -98,7 +98,7 @@ class Facture extends Model
 			return;
 		}
 
-		if (is_string($value) && in_array($value, ['manuel', 'brouillon', 'verifier'], true)) {
+		if (is_string($value) && in_array($value, ['manuel', 'brouillon', 'verifier', 'manuel verifier'], true)) {
 			$this->attributes['etat'] = $value;
 			return;
 		}
@@ -112,10 +112,6 @@ class Facture extends Model
 	 */
 	public function getEtatAttribute($value)
 	{
-		if ($value === null) {
-			return false;
-		}
-
-		return $value === 'verifier' ? true : false;
+		return $value;
 	}
 }
