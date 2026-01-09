@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 
 # Installation de Node.js et npm
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
+    && apt-get install -y nodejs=20.11.1-1nodesource1
 
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug
