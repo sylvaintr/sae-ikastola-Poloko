@@ -9,7 +9,6 @@
         </div>
 
         <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-3">
-            {{-- Recherche --}}
             <div class="text-end">
                 <label for="searchUser" class="visually-hidden">{{ __('famille.search_user_placeholder') }}</label>
                 <input type="text"
@@ -22,7 +21,6 @@
                 @endif
             </div>
 
-            {{-- Bouton Ajouter --}}
             <div class="text-center">
                 <a href="{{ route('admin.familles.create')}}"
                    class="btn text-white fw-bold"
@@ -116,7 +114,7 @@
                     $p1 = $parents->get(0);
                     $p2 = $parents->get(1);
                 @endphp
-                <div class="border rounded p-3 mb-3 shadow-sm">
+                <div class="border rounded p-3 mb-3 shadow-sm" id="famille-card-{{ $famille->idFamille }}">
                     <div><strong>{{ __('famille.id', [], 'eus') }}:</strong> #{{ $famille->idFamille }}</div>
                     <div><strong>{{ __('famille.parent1_nom', [], 'eus') }}:</strong> {{ $p1->nom ?? '-' }}</div>
                     <div><strong>{{ __('famille.parent1_prenom', [], 'eus') }}:</strong> {{ $p1->prenom ?? '-' }}</div>
@@ -143,7 +141,6 @@
             @endforelse
         </div>
     </div>
-
 
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
@@ -178,7 +175,6 @@
         </div>
     </div>
 
-
     <script>
         const jsTrans = {
             noResults: "{{ __('famille.no_results', [], 'eus') }} @if(Lang::getLocale() == 'fr') - {{ __('famille.no_results') }} @endif"
@@ -186,6 +182,15 @@
 
         let idToDelete = null;
         let deleteModalInstance = null;
+
+        function getRootUrl() {
+            let path = window.location.pathname;
+            let index = path.indexOf('/admin/familles');
+            if (index > -1) {
+                return path.substring(0, index);
+            }
+            return '';
+        }
 
         function escapeHtml(text) {
             if (!text) return '';
@@ -213,7 +218,10 @@
             btn.innerText = "...";
             btn.disabled = true;
 
-            fetch(`/admin/familles/${idToDelete}`, {
+            const rootUrl = getRootUrl();
+            const deleteUrl = `${rootUrl}/admin/familles/${idToDelete}`;
+
+            fetch(deleteUrl, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -228,6 +236,9 @@
                 deleteModalInstance.hide();
                 const row = document.getElementById(`famille-row-${idToDelete}`);
                 if (row) row.remove();
+                const card = document.getElementById(`famille-card-${idToDelete}`);
+                if (card) card.remove();
+                if (!row && !card) window.location.reload();
             })
             .catch(error => {
                 errorDiv.innerText = "Error: " + error.message;
@@ -250,7 +261,10 @@
             }
             if (q.length < 2) return;
 
-            fetch(`/api/search?q=${encodeURIComponent(q)}`, {
+            const rootUrl = getRootUrl();
+            const searchUrl = `${rootUrl}/api/search?q=${encodeURIComponent(q)}`;
+
+            fetch(searchUrl, {
                 headers: { 'Accept': 'application/json' }
             })
             .then(res => res.json())
@@ -260,10 +274,14 @@
                     tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">${jsTrans.noResults}</td></tr>`;
                     return;
                 }
+                
                 data.forEach(famille => {
                     const p1 = famille.utilisateurs[0] || {};
                     const p2 = famille.utilisateurs[1] || {};
                     const enfantCount = famille.enfants ? famille.enfants.length : 0;
+
+                    const showLink = `${rootUrl}/admin/familles/${famille.idFamille}`;
+                    const editLink = `${rootUrl}/admin/familles/${famille.idFamille}/edit`;
 
                     tbody.insertAdjacentHTML('beforeend', `
                         <tr id="famille-row-${famille.idFamille}">
@@ -275,10 +293,10 @@
                             <td class="text-center align-middle">${enfantCount}</td>
                             <td class="text-center align-middle">
                                 <div class="d-flex justify-content-center gap-3">
-                                    <a href="/admin/familles/${famille.idFamille}" class="text-dark">
+                                    <a href="${showLink}" class="text-dark">
                                         <i class="bi bi-eye fs-4"></i>
                                     </a>
-                                    <a href="/admin/familles/${famille.idFamille}/edit" class="text-dark">
+                                    <a href="${editLink}" class="text-dark">
                                         <i class="bi bi-pencil-square fs-4"></i>
                                     </a>
                                     <button type="button" class="border-0 bg-transparent text-dark" onclick="prepareDelete(${famille.idFamille})">
