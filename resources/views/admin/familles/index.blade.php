@@ -1,7 +1,6 @@
 <x-app-layout>
     <div class="container mt-4">
 
-        {{-- En-tête --}}
         <div class="mb-4">
             <h2 class="fw-bolder mb-0">{{ __('famille.title', [], 'eus') }}</h2>
             @if (Lang::getLocale() == 'fr')
@@ -9,9 +8,7 @@
             @endif
         </div>
 
-        {{-- Barre d'outils (Recherche + Bouton Ajouter) --}}
         <div class="d-flex justify-content-end align-items-center mb-4 flex-wrap gap-3">
-            {{-- Recherche AJAX --}}
             <div class="text-end">
                 <label for="searchUser" class="visually-hidden">{{ __('famille.search_user_placeholder') }}</label>
                 <input type="text"
@@ -24,7 +21,6 @@
                 @endif
             </div>
 
-            {{-- Bouton Ajouter --}}
             <div class="text-center">
                 <a href="{{ route('admin.familles.create')}}"
                    class="btn text-white fw-bold"
@@ -37,7 +33,6 @@
             </div>
         </div>
 
-        {{-- Vue Ordinateur (Tableau) --}}
         <div class="d-none d-md-block mt-4">
             <table class="table table-borderless">
                 <thead class="table-light">
@@ -112,7 +107,6 @@
             </table>
         </div>
 
-        {{-- Vue Mobile (Cartes) --}}
         <div class="d-md-none mt-4">
             @forelse($familles as $famille)
                 @php
@@ -148,7 +142,6 @@
         </div>
     </div>
 
-    {{-- Modal de confirmation de suppression --}}
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-3">
@@ -182,7 +175,6 @@
         </div>
     </div>
 
-    {{-- Scripts JavaScript Corrigés --}}
     <script>
         const jsTrans = {
             noResults: "{{ __('famille.no_results', [], 'eus') }} @if(Lang::getLocale() == 'fr') - {{ __('famille.no_results') }} @endif"
@@ -191,20 +183,12 @@
         let idToDelete = null;
         let deleteModalInstance = null;
 
-        /**
-         * Fonction pour détecter automatiquement le dossier racine du site.
-         * Indispensable pour que ça marche sur Wamp / sous-dossiers.
-         */
         function getRootUrl() {
             let path = window.location.pathname;
-            // On cherche où commence "/admin/familles" dans l'URL
             let index = path.indexOf('/admin/familles');
-            
             if (index > -1) {
-                // On garde tout ce qu'il y a avant (ex: "/sae-ikastola-Poloko/public")
                 return path.substring(0, index);
             }
-            // Fallback (si jamais l'URL change)
             return '';
         }
 
@@ -224,7 +208,6 @@
             deleteModalInstance.show();
         }
 
-        // --- Logique de Suppression ---
         document.getElementById('btnConfirmDelete').addEventListener('click', function() {
             if (!idToDelete) return;
 
@@ -235,7 +218,6 @@
             btn.innerText = "...";
             btn.disabled = true;
 
-            // Construction de l'URL dynamique
             const rootUrl = getRootUrl();
             const deleteUrl = `${rootUrl}/admin/familles/${idToDelete}`;
 
@@ -252,16 +234,10 @@
             })
             .then(() => {
                 deleteModalInstance.hide();
-                
-                // Suppression de la ligne du tableau
                 const row = document.getElementById(`famille-row-${idToDelete}`);
                 if (row) row.remove();
-
-                // Suppression de la carte mobile
                 const card = document.getElementById(`famille-card-${idToDelete}`);
                 if (card) card.remove();
-
-                // Si ni l'un ni l'autre n'est trouvé (cas rare), on recharge
                 if (!row && !card) window.location.reload();
             })
             .catch(error => {
@@ -275,18 +251,16 @@
             });
         });
 
-        // --- Logique de Recherche ---
         document.getElementById('searchUser').addEventListener('keyup', function() {
             const q = this.value.trim();
             const tbody = document.getElementById('famillesTableBody');
 
             if (q.length === 0) {
-                location.reload(); // On recharge pour récupérer la liste complète propre
+                location.reload();
                 return;
             }
             if (q.length < 2) return;
 
-            // Construction de l'URL dynamique pour la recherche
             const rootUrl = getRootUrl();
             const searchUrl = `${rootUrl}/api/search?q=${encodeURIComponent(q)}`;
 
@@ -306,7 +280,6 @@
                     const p2 = famille.utilisateurs[1] || {};
                     const enfantCount = famille.enfants ? famille.enfants.length : 0;
 
-                    // Reconstruction des liens corrects
                     const showLink = `${rootUrl}/admin/familles/${famille.idFamille}`;
                     const editLink = `${rootUrl}/admin/familles/${famille.idFamille}/edit`;
 
