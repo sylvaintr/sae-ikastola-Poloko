@@ -1,6 +1,16 @@
 <x-app-layout>
     @push('scripts')
-        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        @php
+            $recaptchaSiteKey = config('services.recaptcha.site_key');
+        @endphp
+        @if($recaptchaSiteKey)
+            {{-- Chargement conditionnel et sécurisé de reCAPTCHA --}}
+            {{-- Note de sécurité: Google reCAPTCHA ne fournit pas de hash SRI (Subresource Integrity) public --}}
+            {{-- pour leur script api.js car le contenu peut varier selon la configuration. --}}
+            {{-- Le risque est limité car le script provient du domaine officiel de Google (www.google.com) --}}
+            {{-- et est chargé uniquement lorsque reCAPTCHA est activé et configuré. --}}
+            <script src="https://www.google.com/recaptcha/api.js?hl={{ app()->getLocale() }}" async defer crossorigin="anonymous"></script>
+        @endif
     @endpush
     
     <div class="min-vh-100 d-flex flex-column justify-content-center align-items-center bg-light">
