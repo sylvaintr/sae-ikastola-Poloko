@@ -46,16 +46,16 @@ class RegisteredUserController extends Controller
             'prenom' => ['required_without:name', 'string', 'max:255'],
             'nom' => ['required_without:name', 'string', 'max:255'],
             'email' => [
-                'required', 
-                'string', 
-                'lowercase', 
-                'email', 
-                'max:255', 
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
                 'unique:utilisateur,email'
             ],
             'password' => [
-                'required', 
-                'confirmed', 
+                'required',
+                'confirmed',
                 Rules\Password::min(8)
                     ->letters()
                     ->mixedCase()
@@ -106,7 +106,7 @@ class RegisteredUserController extends Controller
     private function verifyRecaptcha(string $response): bool
     {
         $secretKey = config('services.recaptcha.secret_key');
-        
+
         if (!$secretKey) {
             return false;
         }
@@ -136,11 +136,7 @@ class RegisteredUserController extends Controller
         $context = stream_context_create($options);
         $result = @file_get_contents($url, false, $context);
 
-        if ($result === false) {
-            return false;
-        }
-
-        $json = json_decode($result, true);
+        $json = $result !== false ? json_decode($result, true) : null;
         return isset($json['success']) && $json['success'] === true;
     }
 }

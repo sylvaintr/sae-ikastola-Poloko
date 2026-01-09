@@ -1,5 +1,7 @@
 <?php
 
+const INVALID_SELECTED_ATTRIBUTE_FR = 'Le champ :attribute sélectionné n\'est pas valide.';
+
 return [
 
     /*
@@ -51,8 +53,8 @@ return [
     'doesnt_start_with' => 'Le champ :attribute ne doit pas commencer par l\'un des éléments suivants : :values.',
     'email' => 'Le champ :attribute doit être une adresse e-mail valide.',
     'ends_with' => 'Le champ :attribute doit se terminer par l\'un des éléments suivants : :values.',
-    'enum' => 'Le champ :attribute sélectionné n\'est pas valide.',
-    'exists' => 'Le champ :attribute sélectionné n\'est pas valide.',
+    'enum' => INVALID_SELECTED_ATTRIBUTE_FR,
+    'exists' => INVALID_SELECTED_ATTRIBUTE_FR,
     'extensions' => 'Le champ :attribute doit avoir une des extensions suivantes : :values.',
     'file' => 'Le champ :attribute doit être un fichier.',
     'filled' => 'Le champ :attribute doit avoir une valeur.',
@@ -70,7 +72,7 @@ return [
     ],
     'hex_color' => 'Le champ :attribute doit être une couleur hexadécimale valide.',
     'image' => 'Le champ :attribute doit être une image.',
-    'in' => 'Le champ :attribute sélectionné n\'est pas valide.',
+    'in' => INVALID_SELECTED_ATTRIBUTE_FR,
     'in_array' => 'Le champ :attribute doit exister dans :other.',
     'integer' => 'Le champ :attribute doit être un entier.',
     'ip' => 'Le champ :attribute doit être une adresse IP valide.',
@@ -114,7 +116,7 @@ return [
     'missing_with' => 'Le champ :attribute doit être absent lorsque :values est présent.',
     'missing_with_all' => 'Le champ :attribute doit être absent lorsque :values sont présents.',
     'multiple_of' => 'Le champ :attribute doit être un multiple de :value.',
-    'not_in' => 'Le champ :attribute sélectionné n\'est pas valide.',
+    'not_in' => INVALID_SELECTED_ATTRIBUTE_FR,
     'not_regex' => 'Le format du champ :attribute n\'est pas valide.',
     'numeric' => 'Le champ :attribute doit être un nombre.',
     'password' => [

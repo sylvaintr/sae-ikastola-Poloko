@@ -1,5 +1,7 @@
 <?php
 
+const INVALID_SELECTED_ATTRIBUTE_EUS = 'Hautatutako :attribute ez da baliozkoa.';
+
 return [
 
     /*
@@ -51,8 +53,8 @@ return [
     'doesnt_start_with' => ':attribute ez da honela hasi behar: :values.',
     'email' => ':attribute helbide elektroniko baliozkoa izan behar du.',
     'ends_with' => ':attribute honela amaitzen behar da: :values.',
-    'enum' => 'Hautatutako :attribute ez da baliozkoa.',
-    'exists' => 'Hautatutako :attribute ez da baliozkoa.',
+    'enum' => INVALID_SELECTED_ATTRIBUTE_EUS,
+    'exists' => INVALID_SELECTED_ATTRIBUTE_EUS,
     'extensions' => ':attribute eremuak ondorengo luzapenetako bat izan behar du: :values.',
     'file' => ':attribute fitxategi bat izan behar du.',
     'filled' => ':attribute eremuak balioa izan behar du.',
@@ -70,7 +72,7 @@ return [
     ],
     'hex_color' => ':attribute kolore hexadezimal baliozkoa izan behar du.',
     'image' => ':attribute irudi bat izan behar du.',
-    'in' => 'Hautatutako :attribute ez da baliozkoa.',
+    'in' => INVALID_SELECTED_ATTRIBUTE_EUS,
     'in_array' => ':attribute eremua :other-en existitzen behar da.',
     'integer' => ':attribute zenbaki osoa izan behar du.',
     'ip' => ':attribute IP helbide baliozkoa izan behar du.',
@@ -114,7 +116,7 @@ return [
     'missing_with' => ':attribute eremua falta behar da :values presente dagoenean.',
     'missing_with_all' => ':attribute eremua falta behar da :values presente daudenean.',
     'multiple_of' => ':attribute :value-ren multiploa izan behar du.',
-    'not_in' => 'Hautatutako :attribute ez da baliozkoa.',
+    'not_in' => INVALID_SELECTED_ATTRIBUTE_EUS,
     'not_regex' => ':attribute formatua ez da baliozkoa.',
     'numeric' => ':attribute zenbakia izan behar du.',
     'password' => [
