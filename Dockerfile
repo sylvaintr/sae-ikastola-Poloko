@@ -52,5 +52,4 @@ RUN php artisan storage:link || true
 # Port du serveur PHP-FPM
 EXPOSE 9000
 
-ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["php-fpm"]
