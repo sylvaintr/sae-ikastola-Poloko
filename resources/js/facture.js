@@ -13,12 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
             serverSide: true,
             autoWidth: false,
             ajax: location.pathname + "s-data",
-            responsive: {
-                details: {
-                    type: 'column',
-                    target: 'tr'
-                }
-            },
             columnDefs: [
                 { responsivePriority: 1, targets: 0 }, // ID Facture
                 { responsivePriority: 2, targets: 5 }, // Actions
@@ -27,6 +21,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 { responsivePriority: 5, targets: 3 }, // ID Famille
                 { responsivePriority: 6, targets: 4 }  // Date
             ],
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr'
+                }
+            },
             columns: [
                 { data: 'idFacture', name: 'idFacture', className: 'all dt-left' },
                 { data: 'titre', name: 'titre' },
