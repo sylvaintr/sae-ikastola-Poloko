@@ -28,7 +28,7 @@ class Document extends Model
 
 	protected $casts = [
 		'idDocument' => 'int',
-		'idTache' => 'int'
+		'idTache' => 'int',
 	];
 
 	/**
