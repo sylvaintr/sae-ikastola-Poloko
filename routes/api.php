@@ -6,24 +6,29 @@ use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\LierController;
 
-
-
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// Utilisateurs
+// --- Utilisateurs ---
 Route::post('utilisateurs', [UtilisateurController::class, 'store']);
 Route::get('utilisateurs', [UtilisateurController::class, 'searchByNom']);
 
-// Lier
+// --- Lier (Parité) ---
 Route::post('lier', [LierController::class, 'store']);
-Route::put('parite', [LierController::class, 'updateParite']);
+Route::put('lier/update-parite', [LierController::class, 'updateParite']);
 
-// Familles
-Route::get('/familles/{id}', [FamilleController::class, 'show']);
-Route::delete('/familles/{id}', [FamilleController::class, 'delete']);
-Route::put('/familles2/{id}', [FamilleController::class, 'update']);
-Route::post('/familles', [FamilleController::class, 'ajouter']);
-Route::get('familles2', [FamilleController::class, 'index']);
+// --- Familles ---
+// Constante pour éviter la duplication de chaîne (Correction Sonar "Define a constant")
+$familleIdPath = 'familles/{id}';
+
+Route::get('search', [FamilleController::class, 'searchByParent']);
+Route::get('familles', [FamilleController::class, 'index']);
+Route::post('familles', [FamilleController::class, 'ajouter']);
+
+// Utilisation de la variable pour les routes avec ID
+Route::get($familleIdPath, [FamilleController::class, 'show']);
+Route::put($familleIdPath, [FamilleController::class, 'update']);
+Route::delete($familleIdPath, [FamilleController::class, 'delete']);
+
 

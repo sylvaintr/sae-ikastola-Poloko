@@ -9,6 +9,12 @@ return [
     'inscription' => 'Erregistratu',
     'nom' => 'Izena',
     'confirmer_mot_de_passe' => 'Pasahitza berretsi',
+    'password_requirements' => 'Pasahitzak gutxienez 8 karaktere izan behar ditu, maiuskula bat, minuskula bat, zenbaki bat eta karaktere berezi bat.',
+    'password_req_length' => 'Gutxienez 8 karaktere',
+    'password_req_uppercase' => 'Maiuskula bat',
+    'password_req_lowercase' => 'Minuskula bat',
+    'password_req_number' => 'Zenbaki bat',
+    'password_req_special' => 'Karaktere berezi bat',
 
     'titre_connexion_secondaire' => 'Sartu zure kontuan',
     'email_principal' => 'Posta elektronikoa',
@@ -65,4 +71,9 @@ return [
     'failed' => 'Kredentzial hauek ez datoz bat kontu batekin ere.',
     'password' => 'Emandako pasahitza okerra da.',
     'throttle' => 'Saioa hasteko saiakera gehiegi. Mesedez, saiatu berriro :seconds segundo barru.',
+    // Erregistro mezuak
+    'registration_pending_validation' => 'Zure kontua ongi sortu da. Administratzaile baten baliozkotzearen zain dago. Zure kontua balioztatutakoan saioa hasi ahal izango duzu.',
+    'account_not_validated' => 'Zure kontua ez da oraindik administratzaile batek balioztatu. Mesedez, itxaron zure kontua balioztatu arte.',
+    'recaptcha_failed' => 'reCAPTCHA egiaztapenak huts egin du. Mesedez, saiatu berriro.',
+    'recaptcha_required' => 'Mesedez, osatu reCAPTCHA egiaztapena erregistratu aurretik.',
 ];
