@@ -17,9 +17,6 @@ RUN pecl install xdebug \
 # Installation de Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copie du script d'entrée
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Configuration PHP (facultatif)
 COPY ./docker/php.ini /usr/local/etc/php/conf.d/custom.ini
