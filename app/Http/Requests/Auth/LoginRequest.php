@@ -53,6 +53,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Vérifier si le compte est validé avant de permettre la connexion
+        if ($user && !$user->statutValidation) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.account_not_validated'),
+            ]);
+        }
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
