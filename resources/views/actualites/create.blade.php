@@ -124,7 +124,7 @@
 
             {{-- ... LE DÉBUT DE VOTRE FORMULAIRE (Code inchangé pour les onglets FR/EU) ... --}}
             <div class="row">
-                <div class="col-lg-8">
+                <div class="col-12 col-lg-8">
                     {{-- Je garde votre code existant pour la colonne de gauche --}}
                     <div class="card shadow-sm mb-4">
                         <div class="card-header bg-white p-0">
@@ -211,7 +211,7 @@
                 </div>
 
                 {{-- COLONNE DROITE : PARAMÈTRES --}}
-                <div class="col-lg-4">
+                <div class="col-12 col-lg-4 mt-4 mt-lg-0">
                     <div class="card shadow-sm bg-light border-0">
                         <div class="card-body">
                             <h5 class="card-title fw-bold mb-3">{{ __('actualite.parametres') }}</h5>

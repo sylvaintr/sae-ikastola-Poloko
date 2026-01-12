@@ -97,6 +97,9 @@ class Tache extends Model
 
 	public function historiques()
 	{
-		return $this->hasMany(TacheHistorique::class, 'idTache', 'idTache')->orderByDesc('date_evenement')->orderByDesc('id');
+		return $this->hasMany(\App\Models\DemandeHistorique::class, 'idDemande', 'idTache')
+			->orderByDesc('date_evenement')
+			->orderByDesc('id');
 	}
+
 }
