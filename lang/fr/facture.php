@@ -17,4 +17,9 @@ return [
     'texte_confirmation_validation' => 'Êtes-vous sûr de vouloir valider cette facture ? Cette action est irréversible.',
     'texte_confirmation_envoi' => 'Êtes-vous sûr de vouloir envoyer cette facture ?',
     'valider_facture' => 'Valider la facture',
+    'remplacer' => 'Remplacer la facture',
+    'selectionner_facture' => 'Sélectionner un fichier word ou odt pour remplacer la facture actuelle.',
+    'dejasvalidee' => 'La facture est déjà validée et ne peut plus être modifiée.',
+    'invalidfile' => 'Type de fichier invalide. Veuillez télécharger un fichier .docx, .doc ou .odt.',
+    'etatupdatesuccess' => 'La facture a été mise à jour avec succès.',
 ];
