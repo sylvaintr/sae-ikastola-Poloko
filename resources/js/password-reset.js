@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!passwordInput || !confirmInput || !submitBtn) return;
 
-    const labels = window.passwordI18n;
+    const labels = globalThis.passwordI18n;
 
     let isStrongEnough = false;
     let isMatching = false;
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         length: (pw) => pw.length >= 12,
         lower: (pw) => /[a-z]/.test(pw),
         upper: (pw) => /[A-Z]/.test(pw),
-        number: (pw) => /[0-9]/.test(pw),
+        number: (pw) => /\d/.test(pw),
         symbol: (pw) => /[^A-Za-z0-9]/.test(pw),
     };
 

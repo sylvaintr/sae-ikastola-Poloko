@@ -38,22 +38,22 @@ class NewPasswordController extends Controller
                 'string',
                 'min:12',
                 'confirmed',
-                function ($attribute, $value, $fail) {
+                function ($value, $fail) {
                     if (!preg_match('/[a-z]/', $value)) {
                         $fail(__('auth.password_rule_lowercase'));
                     }
                 },
-                function ($attribute, $value, $fail) {
+                function ($value, $fail) {
                     if (!preg_match('/[A-Z]/', $value)) {
                         $fail(__('auth.password_rule_uppercase'));
                     }
                 },
-                function ($attribute, $value, $fail) {
-                    if (!preg_match('/[0-9]/', $value)) {
+                function ($value, $fail) {
+                    if (!preg_match('/\d/', $value)) {
                         $fail(__('auth.password_rule_number'));
                     }
                 },
-                function ($attribute, $value, $fail) {
+                function ($value, $fail) {
                     if (!preg_match('/[^A-Za-z0-9]/', $value)) {
                         $fail(__('auth.password_rule_symbol'));
                     }
