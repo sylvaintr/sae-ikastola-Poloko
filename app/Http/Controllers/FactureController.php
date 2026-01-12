@@ -160,42 +160,45 @@ class FactureController extends Controller
                     ->header('Content-Disposition', 'attachment; filename="' . $manualFile['filename'] . '"');
 
             }
-        }
-
-        $htmlInlined = $this->factureExporter->renderHtml([
-            'facture' => $montants['facture'],
-            'famille' => $montants['famille'],
-            'enfants' => $montants['enfants'],
-            'montantcotisation' => $montants['montantcotisation'] ?? 0,
-            'montantparticipation' => $montants['montantparticipation'] ?? 0,
-            'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
-            'montangarderie' => $montants['montangarderie'] ?? 0,
-            'montanttotal' => $montants['montanttotal'] ?? 0,
-            'totalPrevisionnel' => $montants['totalPrevisionnel'] ?? 0,
-        ]);
-
-
-
-
-        if ($facture->getRawOriginal('etat') === 'verifier') {
-
-            $pdfexporter = $this->factureExporter->renderPdfFromHtml($htmlInlined);
-
-            if ($returnBinary) {
-                $reponce = $pdfexporter;
+        }else {
+            
+            $htmlInlined = $this->factureExporter->renderHtml([
+                'facture' => $montants['facture'],
+                'famille' => $montants['famille'],
+                'enfants' => $montants['enfants'],
+                'montantcotisation' => $montants['montantcotisation'] ?? 0,
+                'montantparticipation' => $montants['montantparticipation'] ?? 0,
+                'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
+                'montangarderie' => $montants['montangarderie'] ?? 0,
+                'montanttotal' => $montants['montanttotal'] ?? 0,
+                'totalPrevisionnel' => $montants['totalPrevisionnel'] ?? 0,
+            ]);
+    
+    
+    
+    
+            if ($facture->getRawOriginal('etat') === 'verifier') {
+    
+                $pdfexporter = $this->factureExporter->renderPdfFromHtml($htmlInlined);
+    
+                if ($returnBinary) {
+                    $reponce = $pdfexporter;
+                } else {
+    
+                    $reponce = response($pdfexporter, 200)
+                        ->header('Content-Type', self::PDF_APPLICATION)
+                        ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.pdf"');
+                }
             } else {
-
-                $reponce = response($pdfexporter, 200)
-                    ->header('Content-Type', self::PDF_APPLICATION)
-                    ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.pdf"');
+    
+    
+                $reponce = response($htmlInlined, 200)
+                    ->header('Content-Type', self::WORD_APPLICATION)
+                    ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.doc"');
             }
-        } else {
 
-
-            $reponce = response($htmlInlined, 200)
-                ->header('Content-Type', self::WORD_APPLICATION)
-                ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.doc"');
         }
+
         return $reponce;
     }
 
