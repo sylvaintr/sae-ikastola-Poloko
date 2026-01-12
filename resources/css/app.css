@@ -1,6 +1,6 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
-@import "datatables.net-dt/css/dataTables.dataTables.min.css";
-@import "datatables.net-responsive-dt/css/responsive.dataTables.min.css";
+@import "datatables.net-bs5/css/dataTables.bootstrap5.min.css";
+@import "datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css";
 @import url('https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap');
 @import "bootstrap-icons/font/bootstrap-icons.css";
 

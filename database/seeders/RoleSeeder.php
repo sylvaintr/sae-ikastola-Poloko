@@ -23,6 +23,7 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo('gerer-presence');
         $role->givePermissionTo('gerer-actualites');
         $role->givePermissionTo('gerer-etiquettes');
+        $role->givePermissionTo('gerer-tache');
 
         $role = Role::firstOrCreate(['name' => 'parent']);
         $role->givePermissionTo('access-demande');

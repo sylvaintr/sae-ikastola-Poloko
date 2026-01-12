@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tache;
+use App\Models\TacheHistorique;
 use App\Models\Utilisateur;
 use App\Models\Role;
 use App\Models\Evenement;
@@ -118,9 +119,12 @@ class TacheController extends Controller
                         </a>';
                     }
 
-                    return '
+                    $actionsHTML = '
                         <div class="d-flex align-items-center justify-content-center gap-2">
                             <a href="'.$showUrl.'" title="Voir plus" class="demande-action-btn"><i class="bi bi-eye"></i></a>
+                    ';
+                    if (auth()->user()->can('gerer-tache')) {
+                        $actionsHTML .= '
                             <a href="'.$editUrl.'" title="Modifier la tâche" class="demande-action-btn">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                                     <path d="M15.502 1.94a.5.5 0 0 1 0 .706l-1 1a.5.5 0 0 1-.708 0L13 2.207l1-1a.5.5 0 0 1 .707 0l.795.733z"></path>
@@ -132,17 +136,20 @@ class TacheController extends Controller
                             <a href="#"
                             class="delete-tache demande-action-btn"
                             data-url="'.$deleteUrl.'"
-                            title="Supprimer la tâche"
-                            style="color:black;">
+                            title="Supprimer la tâche">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5"></path>
                                     <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM14.5 2h-13v1h13z"></path>
                                 </svg>
                             </a>
 
-                            '.$confirmationButton.'
-                        </div>
+                            '.$confirmationButton;
+                    }
+                    $actionsHTML .= '
+                    </div>
                     ';
+
+                    return $actionsHTML;
                 })
 
                 ->rawColumns(['action'])
@@ -182,12 +189,25 @@ class TacheController extends Controller
                 $tache->realisateurs()->attach($uId, ['dateM' => now(), 'description' => null]);
             }
         }
+        // historique initial avec création de la tâche
+        TacheHistorique::create([
+            'idTache' => $tache->idTache,
+            'statut' => __('taches.history_statuses.created'),
+            'titre' => $tache->titre,
+            'responsable' => auth()->user()->name ?? '',
+            'date_evenement' => $tache->dateD ?? now(),
+            'description' => $tache->description,
+        ]);
 
-        return redirect()->route('tache.index')->with('success', 'Tâche ajoutée avec succès.');
+        return to_route('tache.index')->with('status', __('taches.messages.created'));
     }
 
     public function edit(Tache $tache)
     {
+        if ($tache->etat === "done") {
+            return to_route('tache.show', $tache)->with('status', __('taches.messages.locked'));
+        }
+
         // eager load realisateurs pour préremplir
         $tache->load('realisateurs');
 
@@ -198,6 +218,10 @@ class TacheController extends Controller
 
     public function update(Request $request, Tache $tache)
     {
+        if ($tache->etat === "done") {
+            return to_route('tache.show', $tache)->with('status', __('taches.messages.locked'));
+        }
+
         $validated = $request->validate([
             'titre' => 'required|string|max:255',
             'description' => 'required|string',
@@ -221,7 +245,7 @@ class TacheController extends Controller
             }
         }
 
-        return redirect()->route('tache.index')->with('success', 'Tâche mise à jour.');
+        return redirect()->route('tache.index')->with('status', __('taches.messages.updated'));
     }
 
     public function delete(Request $request, Tache $tache)
@@ -233,14 +257,14 @@ class TacheController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Tâche supprimée avec succès.'
+                    'message' => __('taches.messages.deleted')
                 ]);
             }
 
             // fallback normal (non AJAX)
             return redirect()
                 ->route('tache.index')
-                ->with('success', 'Tâche supprimée avec succès.');
+                ->with('status', __('taches.messages.deleted'));
 
         } catch (\Exception $e) {
 
@@ -257,12 +281,15 @@ class TacheController extends Controller
         }
     }
 
-
     public function show($id)
     {
         $tache = Tache::with(['realisateurs'])->findOrFail($id);
 
-        return view('tache.show', compact('tache'));
+        $historique = TacheHistorique::where('idTache', $tache->idTache)
+            ->orderBy('date_evenement', 'asc')
+            ->get();
+
+        return view('tache.show', compact('tache', 'historique'));
     }
 
     public function markDone($id)
@@ -271,7 +298,73 @@ class TacheController extends Controller
         $tache->etat = 'done';
         $tache->save();
 
+        // Fin de la tâche renseignée dans l'historique
+        TacheHistorique::create([
+            'idTache' => $tache->idTache,
+            'statut' => __('taches.history_statuses.done'),
+            'titre' => $tache->titre,
+            'responsable' => auth()->user()->name ?? '',
+            'date_evenement' => $tache->dateD ?? now(),
+            'description' => __('taches.history_statuses.done_description'),
+        ]);
+
         return response()->json(['success' => true]);
     }
 
+    public function createHistorique(Tache $tache)
+    {
+        if ($tache->etat === 'done') {
+            return to_route('tache.show', $tache)
+                ->with('status', __('taches.messages.history_locked'));
+        }
+
+        // Accès réservé au CA ET aux utilisateurs assignés à la tâche
+        if (
+            !$tache->realisateurs->contains('idUtilisateur', auth()->user()->idUtilisateur)
+            && !auth()->user()->can('gerer-tache')
+        ) {
+            return to_route('tache.show', $tache)
+                ->with('status', __('taches.messages.history_not_allowed'));
+        }
+
+        return view('tache.historique.create', compact('tache'));
+    }
+
+
+    public function storeHistorique(Request $request, Tache $tache)
+    {
+        if ($tache->etat === "done") {
+            return to_route('tache.show', $tache)->with('status', __('taches.messages.history_locked'));
+        }
+
+        // Accès réservé au CA ET aux utilisateurs assignés à la tâche
+        if (
+            !$tache->realisateurs->contains('idUtilisateur', auth()->user()->idUtilisateur)
+            && !auth()->user()->can('gerer-tache')
+        ) {
+            return to_route('tache.show', $tache)
+                ->with('status', __('taches.messages.history_not_allowed'));
+        }
+
+        $validated = $request->validate([
+            'titre' => ['required', 'string', 'max:60'],
+            'description' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        TacheHistorique::create([
+            'idTache' => $tache->idTache,
+            'statut' => __('taches.history_statuses.progress'),
+            'date_evenement' => now(),
+            'titre' => $validated['titre'],
+            'responsable' => auth()->user()->name ?? '',
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        if ($tache->etat !== "doing") {
+            $tache->etat = 'doing';
+            $tache->save();
+        }
+
+        return to_route('tache.show', $tache)->with('status', __('taches.messages.history_added'));
+    }
 }

@@ -8,15 +8,29 @@
                 <p class="text-muted mb-0" style="font-size: 0.9rem;">Tâches</p>
             </div>
 
-            <div class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
-                <div class="d-flex flex-column align-items-start">
-                    <a href="{{ route('tache.create') }}" class="admin-add-button">
-                        Gehitu zeregin bat
-                    </a>
-                    <p class="text-muted mb-0 admin-button-subtitle">Ajouter une tâche</p>
+            @can('gerer-tache')
+                <div class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
+                    <div class="d-flex flex-column align-items-start">
+                        <a href="{{ route('tache.create') }}" class="admin-add-button">
+                            Gehitu zeregin bat
+                        </a>
+                        <p class="text-muted mb-0 admin-button-subtitle">Ajouter une tâche</p>
+                    </div>
+                </div>
+            @endcan
+        </div>
+
+        @if (session('status'))
+            <div id="demande-toast" class="demande-toast shadow-sm">
+                <div class="d-flex align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <span>{{ session('status') }}</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-sm" aria-label="{{ __('demandes.actions.close') }}"></button>
                 </div>
             </div>
-        </div>
+        @endif
 
         <div class="row g-3 align-items-start">
             {{-- RECHERCHE --}}
@@ -186,7 +200,6 @@
 
                 <div class="modal-body">
                     <p class="mb-0">
-                        Cette action est <strong>irréversible</strong>.<br>
                         Voulez-vous vraiment supprimer cette tâche ?
                     </p>
                 </div>
@@ -208,16 +221,42 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
+            // Toast
+            const toast = document.getElementById('demande-toast');
+            if (toast) {
+                const closeBtn = toast.querySelector('.btn-close');
+                const hideToast = () => {
+                    toast.classList.add('hide');
+                    setTimeout(() => toast.remove(), 250);
+                };
+                closeBtn?.addEventListener('click', hideToast);
+                setTimeout(hideToast, 3200);
+            }
+
+            // Charger la datatable
             let table = $('.datatable-taches').DataTable({
+                paging: true,
                 processing: true,
                 serverSide: true,
                 searching: false,
                 lengthChange: false,
                 pageLength: 50,
                 scrollX: true,
+                info: true,
+
+                dom:
+                    "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
 
                 language: {
-                    url: "/datatables/i18n/fr-FR.json"
+                    url: "/datatables/i18n/fr-FR.json",
+                    paginate: {
+                        first: '‹‹',
+                        previous: '‹',
+                        next: '›',
+                        last: '››'
+                    }
                 },
                 
                 columnDefs: [

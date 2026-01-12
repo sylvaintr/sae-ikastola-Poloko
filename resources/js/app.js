@@ -10,9 +10,10 @@ import './children-selector';
 // Register jQuery DataTables plugin globally so legacy inline scripts using
 // `$('.datatable-taches').DataTable()` work correctly.
 import 'datatables.net';
-import 'datatables.net-dt';
+import 'datatables.net-bs5';
+
 import 'datatables.net-responsive';
-import 'datatables.net-responsive-dt';
+import 'datatables.net-responsive-bs5';
 
 // Importation de Bootstrap Icons
 import 'bootstrap-icons/font/bootstrap-icons.css';
