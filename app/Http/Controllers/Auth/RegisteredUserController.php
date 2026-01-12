@@ -111,10 +111,12 @@ class RegisteredUserController extends Controller
             return false;
         }
 
-        // En environnement local, utiliser les clés de test qui acceptent toujours la validation
-        // Les clés de test de Google acceptent toujours la réponse "test" comme valide
-        if (config('app.env') === 'local' && $secretKey === config('services.recaptcha.test_secret_key')) {
-            // Clés de test : accepter toute réponse non vide
+        // En environnement local avec les clés de test, accepter toute réponse non vide
+        // Les clés de test de Google acceptent toujours n'importe quelle réponse
+        // La clé de test est récupérée depuis la configuration, pas hardcodée
+        $testSecretKey = config('services.recaptcha.test_secret_key');
+        if (config('app.env') === 'local' && $secretKey === $testSecretKey) {
+            // Clés de test : accepter toute réponse non vide pour le développement
             return !empty($response);
         }
 

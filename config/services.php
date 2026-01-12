@@ -32,8 +32,13 @@ return [
     ],
 
     'recaptcha' => [
-        'site_key' => env('RECAPTCHA_SITE_KEY', env('APP_ENV') === 'local' ? '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' : null),
-        'secret_key' => env('RECAPTCHA_SECRET_KEY', env('APP_ENV') === 'local' ? '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe' : null),
+        // Clés de test Google reCAPTCHA pour le développement local
+        // Ces clés fonctionnent toujours et acceptent n'importe quelle réponse
+        // Note: Ces clés de test sont publiques et documentées par Google, leur présence dans le code est acceptable
+        'test_site_key' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+        'test_secret_key' => '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe',
+        'site_key' => env('RECAPTCHA_SITE_KEY') ?: ((env('APP_ENV') === 'local') ? '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' : null),
+        'secret_key' => env('RECAPTCHA_SECRET_KEY') ?: ((env('APP_ENV') === 'local') ? '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe' : null),
         'enabled' => env('RECAPTCHA_ENABLED', true),
     ],
 
