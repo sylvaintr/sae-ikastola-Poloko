@@ -38,15 +38,30 @@ class NewPasswordController extends Controller
                 'string',
                 'min:12',
                 'confirmed',
-                'regex:/[a-z]/',
-                'regex:/[A-Z]/',
-                'regex:/[0-9]/',
-                'regex:/[^A-Za-z0-9]/',
+                function ($attribute, $value, $fail) {
+                    if (!preg_match('/[a-z]/', $value)) {
+                        $fail(__('auth.password_rule_lowercase'));
+                    }
+                },
+                function ($attribute, $value, $fail) {
+                    if (!preg_match('/[A-Z]/', $value)) {
+                        $fail(__('auth.password_rule_uppercase'));
+                    }
+                },
+                function ($attribute, $value, $fail) {
+                    if (!preg_match('/[0-9]/', $value)) {
+                        $fail(__('auth.password_rule_number'));
+                    }
+                },
+                function ($attribute, $value, $fail) {
+                    if (!preg_match('/[^A-Za-z0-9]/', $value)) {
+                        $fail(__('auth.password_rule_symbol'));
+                    }
+                },
             ],
         ], [
             'password.min' => __('auth.password_rule_length'),
             'password.confirmed' => __('auth.password_match_no'),
-            'password.regex' => __('auth.password_rules_failed'),
         ]);
 
         $status = Password::reset(
