@@ -73,7 +73,7 @@
             <x-input-error :messages="$errors->get('password_confirmation')" />
 
             {{-- Password match --}}
-            <small id="password-match-text" class="d-block mt-2"></small>
+            <small id="password-match-text" class="d-block mt-2" aria-live="polite"></small>
         </div>
 
 
