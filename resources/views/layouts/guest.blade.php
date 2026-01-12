@@ -10,10 +10,9 @@
             {{-- Le risque est accepté et limité car: --}}
             {{-- 1. Le script provient du domaine officiel sécurisé de Google (www.google.com) --}}
             {{-- 2. Le chargement est conditionnel (seulement si activé) --}}
-            {{-- 3. L'attribut crossorigin="anonymous" est présent pour la sécurité CORS --}}
+            {{-- Note: L'attribut crossorigin n'est pas utilisé car Google reCAPTCHA ne le supporte pas --}}
             {{-- Référence: https://developers.google.com/recaptcha/docs/display --}}
             <script src="https://www.google.com/recaptcha/api.js?hl={{ app()->getLocale() }}"
-                    crossorigin="anonymous"
                     async
                     defer></script>
         @endpush
