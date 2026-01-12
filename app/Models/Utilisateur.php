@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Spatie\Permission\Traits\HasRoles;
+use App\Notifications\ResetPasswordNotification;
+
 
 /**
  * Class Utilisateur
@@ -110,7 +112,7 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	 */
 	public function sendPasswordResetNotification($token)
 	{
-		$this->notify(new \Illuminate\Auth\Notifications\ResetPassword($token));
+		$this->notify(new ResetPasswordNotification($token));
 	}
 
 

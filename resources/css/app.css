@@ -1,7 +1,7 @@
-@import "bootstrap/dist/css/bootstrap.min.css";
-@import "datatables.net-dt/css/dataTables.dataTables.min.css";
-@import "datatables.net-responsive-dt/css/responsive.dataTables.min.css";
-@import "bootstrap-icons/font/bootstrap-icons.css";
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'datatables.net-dt/css/dataTables.dataTables.min.css';
+@import 'datatables.net-responsive-dt/css/responsive.dataTables.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
 
 .auth-body {
     min-height: 100vh;
@@ -239,6 +239,21 @@ form .btn-primary:not(.btn-login):focus {
     background-color: #d67f00 !important;
     border-color: #d67f00 !important;
     color: #fff !important;
+}
+
+.btn-login:disabled,
+.btn-login.disabled {
+    background-color: #cbd5e1;
+    border-color: #cbd5e1;
+    color: #ffffff;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+.btn-login:disabled:hover,
+.btn-login.disabled:hover {
+    background-color: #cbd5e1;
+    border-color: #cbd5e1;
 }
 
 .auth-status {
@@ -692,8 +707,8 @@ form .btn-primary:not(.btn-login):focus {
 }
 
 .demande-btn-primary {
-    background-color: #F29201;
-    border-color: #F29201;
+    background-color: #f29201;
+    border-color: #f29201;
     color: #fff;
 }
 
@@ -704,9 +719,22 @@ form .btn-primary:not(.btn-login):focus {
     border-color: #d67c00;
 }
 
+.btn-primary {
+    background-color: #f29201;
+    border-color: #f29201;
+    color: #fff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    color: #fff;
+    background-color: #d67c00;
+    border-color: #d67c00;
+}
+
 .demande-btn-outline {
-    border-color: #F29201;
-    color: #F29201;
+    border-color: #f29201;
+    color: #f29201;
     background: #fff;
     border-width: 2px;
     box-shadow: inset 0 0 0 1px rgba(242, 146, 1, 0.4);
@@ -714,12 +742,12 @@ form .btn-primary:not(.btn-login):focus {
 
 .demande-btn-outline:hover,
 .demande-btn-outline:focus {
-    background-color: #F29201;
+    background-color: #f29201;
     color: #fff;
 }
 
 .demande-link-primary {
-    color: #F29201;
+    color: #f29201;
     text-decoration: none;
     transition: color 0.15s ease;
 }
@@ -773,7 +801,7 @@ form .btn-primary:not(.btn-login):focus {
 }
 
 .demande-action-btn:hover {
-    color: #F29201;
+    color: #f29201;
 }
 
 .demande-header-cell {
@@ -804,7 +832,7 @@ form .btn-primary:not(.btn-login):focus {
 }
 
 .demande-sort-link:hover {
-    color: #F29201;
+    color: #f29201;
 }
 
 .demande-toast {
@@ -844,7 +872,7 @@ form .btn-primary:not(.btn-login):focus {
     border-radius: 8px;
 }
 
-.demande-create-form input[type="date"] {
+.demande-create-form input[type='date'] {
     padding-right: 2.4rem;
 }
 
@@ -897,7 +925,7 @@ form .btn-primary:not(.btn-login):focus {
 .demande-upload-btn {
     display: inline-block;
     border-radius: 8px;
-    background: #F29201;
+    background: #f29201;
     color: #fff;
     padding: 0.65rem 1.5rem;
     cursor: pointer;
@@ -941,7 +969,7 @@ form .btn-primary:not(.btn-login):focus {
     padding: 0.4rem 1rem;
     border-radius: 999px;
     background: rgba(242, 146, 1, 0.15);
-    color: #F29201;
+    color: #f29201;
     font-weight: 700;
     font-size: 1.05rem;
 }
@@ -1360,8 +1388,7 @@ form .btn-primary:not(.btn-login):focus {
     justify-content: flex-end;
 }
 
-.admin-pagination-container
-    .d-flex.justify-items-center.justify-content-between {
+.admin-pagination-container .d-flex.justify-items-center.justify-content-between {
     display: flex !important;
     width: 100%;
     justify-content: flex-end;
@@ -1500,8 +1527,7 @@ form .btn-primary:not(.btn-login):focus {
     }
 
     .admin-pagination-container nav,
-    .admin-pagination-container
-        .d-flex.justify-items-center.justify-content-between,
+    .admin-pagination-container .d-flex.justify-items-center.justify-content-between,
     .admin-pagination-container .d-none.flex-sm-fill.d-sm-flex {
         align-items: center;
     }
@@ -1514,17 +1540,49 @@ form .btn-primary:not(.btn-login):focus {
         text-align: center;
     }
 
-    .admin-pagination-container
-        .d-flex.justify-content-between.flex-fill.d-sm-none {
+    .admin-pagination-container .d-flex.justify-content-between.flex-fill.d-sm-none {
         width: 100%;
     }
 
-    .admin-pagination-container
-        .d-flex.justify-content-between.flex-fill.d-sm-none
-        .pagination {
+    .admin-pagination-container .d-flex.justify-content-between.flex-fill.d-sm-none .pagination {
         justify-content: center;
         width: 100%;
     }
+}
+
+#password-criteria li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+#password-criteria .criterion-icon svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+}
+
+#password-criteria li.valid {
+    color: #28a745;
+}
+
+#password-criteria li.invalid {
+    color: #dc3545;
+}
+
+#password-criteria li.valid .criterion-icon svg {
+    fill: currentColor;
+}
+
+#password-criteria li.invalid .criterion-icon svg {
+    fill: currentColor;
+}
+
+.auth-input[readonly],
+input[readonly] {
+    background-color: #f9fafb;
+    cursor: not-allowed;
 }
 
 /* ============================================

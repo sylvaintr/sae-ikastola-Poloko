@@ -9,13 +9,6 @@ return [
     'inscription' => 'Erregistratu',
     'nom' => 'Izena',
     'confirmer_mot_de_passe' => 'Pasahitza berretsi',
-    'password_requirements' => 'Pasahitzak gutxienez 8 karaktere izan behar ditu, maiuskula bat, minuskula bat, zenbaki bat eta karaktere berezi bat.',
-    'password_req_length' => 'Gutxienez 8 karaktere',
-    'password_req_uppercase' => 'Maiuskula bat',
-    'password_req_lowercase' => 'Minuskula bat',
-    'password_req_number' => 'Zenbaki bat',
-    'password_req_special' => 'Karaktere berezi bat',
-
     'titre_connexion_secondaire' => 'Sartu zure kontuan',
     'email_principal' => 'Posta elektronikoa',
     'email_secondaire' => 'Emaila',
@@ -66,6 +59,26 @@ return [
     'confirmer' => 'Berretsi',
     'nonconnecte' => 'Saioa hasi behar duzu baliabide honetara sartzeko.',
     'accesrefuse' => 'Ez duzu baimenik orrialde honetara sartzeko.',
+<<<<<<< HEAD
+
+    'notification_reset_line1' => "Mezu hau bidali dizugu pasahitza berrezartzeko eskaera jaso dugulako.",
+    'notification_reset_line2' => "Ez baduzu eskaera hau egin, ez da ekintzarik behar.",
+
+    'password_strength_hint' => 'Pasahitzaren indarra:',
+    'password_requirements' => 'Gomendioa: 12+ karaktere, maiuskula, minuskula, zenbakia eta sinboloa.',
+    'password_strength_empty' => 'Idatzi pasahitz bat.',
+    'password_strength_weak' => 'Ahula',
+    'password_strength_medium' => 'Ertaina',
+    'password_strength_strong' => 'Indartsua',
+    'password_strength_very_strong' => 'Oso indartsua',
+    'password_match_empty' => 'Berretsi zure pasahitza.',
+    'password_match_ok' => 'Pasahitzak bat datoz.',
+    'password_match_no' => 'Pasahitzak ez datoz bat.',
+    'password_rule_length' => 'Gutxienez 12 karaktere',
+    'password_rule_lower' => 'Letra minuskula bat',
+    'password_rule_upper' => 'Letra maiuskula bat',
+    'password_rule_number' => 'Zenbaki bat',
+    'password_rule_symbol' => 'Sinbolo bat',
     
     // Autentifikazio errore mezuak
     'failed' => 'Kredentzial hauek ez datoz bat kontu batekin ere.',
