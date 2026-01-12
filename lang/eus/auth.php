@@ -60,4 +60,47 @@ return [
     'confirmer' => 'Berretsi',
     'nonconnecte' => 'Saioa hasi behar duzu baliabide honetara sartzeko.',
     'accesrefuse' => 'Ez duzu baimenik orrialde honetara sartzeko.',
+    
+    // Profile sections
+    'mon_profil' => 'Nire profila',
+    'date_naissance' => 'Jaiotze data',
+    'role' => 'Rola',
+    'statut_compte' => 'Kontuaren egoera',
+    'comptes_lies' => 'Profil hau lotutako kontuak',
+    'mes_documents' => 'Nire dokumentuak',
+    'valide' => 'Baliozkoa',
+    'en_attente' => 'Itxaroten',
+    
+    // Family information
+    'informations_famille' => 'Familiaren informazioa',
+    'famille_id' => 'Familia ID',
+    'parite' => 'Paritatea',
+    'enfants' => 'Haurrak',
+    'aucun_enfant' => 'Ez dago erregistratutako haurrik',
+    'aucune_famille' => 'Ez dago profil hau lotutako familiarik',
+    
+    // Documents
+    'upload_document' => 'Dokumentu bat igo',
+    'upload_document_hint' => 'Onartutako formatuak: PDF, DOC, DOCX, JPG, JPEG, PNG (gehienez 10MB)',
+    'upload' => 'Igo',
+    'nom_document' => 'Izena',
+    'type' => 'Mota',
+    'actions' => 'Ekintzak',
+    'voir' => 'Ikusi',
+    'supprimer' => 'Ezabatu',
+    'aucun_document' => 'Une honetan igo gabeko dokumenturik ez',
+    'document_uploaded' => 'Dokumentua arrakastaz igo da',
+    'document_deleted' => 'Dokumentua arrakastaz ezabatu da',
+    'confirm_delete_document' => 'Ziur al zaude dokumentu hau ezabatu nahi duzula?',
+    
+    // Obligatory documents
+    'documents_obligatoires' => 'Beharrezko dokumentuak',
+    'etat_document' => 'Egoera',
+    'non_remis' => 'Ez entregatua',
+    'remis' => 'Entregatua',
+    'en_cours_validation' => 'Baliozkotzea prozesuan',
+    'valide_document' => 'Baliozkoa',
+    'uploader_document' => 'Igo',
+    'document_non_uploadable' => 'Dokumentu hau jada baliozkotzea prozesuan dago edo baliozkoa da. Ezin duzu bertsio berri bat igo.',
+    'aucun_document_obligatoire' => 'Zure rolarentzat beharrezko dokumenturik ez',
 ];

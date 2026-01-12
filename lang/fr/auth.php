@@ -74,4 +74,37 @@ return [
     'en_attente' => 'En attente',
     'accesrefuse' => "Vous n'avez pas la permission d'accéder à cette page.",
     'nonconnecte' => "Vous devez être connecté pour accéder à cette page.",
+    
+    // Family information
+    'informations_famille' => 'Informations de la famille',
+    'famille_id' => 'Famille ID',
+    'parite' => 'Parité',
+    'enfants' => 'Enfants',
+    'aucun_enfant' => 'Aucun enfant enregistré',
+    'aucune_famille' => 'Aucune famille associée à ce profil',
+    
+    // Documents
+    'upload_document' => 'Télécharger un document',
+    'upload_document_hint' => 'Formats acceptés : PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)',
+    'upload' => 'Télécharger',
+    'nom_document' => 'Nom',
+    'type' => 'Type',
+    'actions' => 'Actions',
+    'voir' => 'Voir',
+    'supprimer' => 'Supprimer',
+    'aucun_document' => 'Aucun document téléchargé pour le moment',
+    'document_uploaded' => 'Document téléchargé avec succès',
+    'document_deleted' => 'Document supprimé avec succès',
+    'confirm_delete_document' => 'Êtes-vous sûr de vouloir supprimer ce document ?',
+    
+    // Obligatory documents
+    'documents_obligatoires' => 'Documents obligatoires',
+    'etat_document' => 'État',
+    'non_remis' => 'Non remis',
+    'remis' => 'Remis',
+    'en_cours_validation' => 'En cours de validation',
+    'valide_document' => 'Validé',
+    'uploader_document' => 'Télécharger',
+    'document_non_uploadable' => 'Ce document est déjà en cours de validation ou validé. Vous ne pouvez pas télécharger une nouvelle version.',
+    'aucun_document_obligatoire' => 'Aucun document obligatoire image.pngrequis pour votre rôle',
 ];
