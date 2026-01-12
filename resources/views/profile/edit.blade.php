@@ -152,12 +152,24 @@
                         @endif
                         
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table class="table align-middle admin-table">
                                 <thead>
                                     <tr>
-                                        <th>{{ __('auth.nom_document') }}</th>
-                                        <th>{{ __('auth.etat_document') }}</th>
-                                        <th>{{ __('auth.actions') }}</th>
+                                        <th scope="col">
+                                            <div class="text-center">
+                                                <span class="admin-table-heading">{{ __('auth.nom_document') }}</span>
+                                            </div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="text-center">
+                                                <span class="admin-table-heading">{{ __('auth.etat_document') }}</span>
+                                            </div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="text-center">
+                                                <span class="admin-table-heading">{{ __('auth.actions') }}</span>
+                                            </div>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -173,30 +185,36 @@
                                             $peutUploader = !in_array($docOblig->etat, ['en_cours_validation', 'valide']);
                                         @endphp
                                         <tr>
-                                            <td class="fw-semibold">{{ $docOblig->nom }}</td>
-                                            <td>
+                                            <td class="fw-semibold text-center">{{ $docOblig->nom }}</td>
+                                            <td class="text-center">
                                                 <span class="badge {{ $etat['badge'] }}">{{ $etat['label'] }}</span>
                                             </td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
+                                            <td class="text-center">
+                                                <div class="d-flex gap-2 justify-content-center flex-wrap">
                                                     @if($docOblig->documentUploaded)
-                                                        <a href="{{ Storage::disk('public')->url($docOblig->documentUploaded->chemin) }}" 
-                                                           target="_blank" 
-                                                           class="btn btn-outline-primary btn-sm">
-                                                            <i class="bi bi-eye"></i> {{ __('auth.voir') }}
+                                                        <a href="{{ route('profile.document.download', $docOblig->documentUploaded->idDocument) }}" 
+                                                           class="btn admin-btn-download">
+                                                            <i class="bi bi-download"></i> {{ __('auth.telecharger') }}
                                                         </a>
-                                                    @endif
-                                                    
-                                                    @if($peutUploader)
+                                                        
+                                                        @if($docOblig->documentUploaded->etat !== 'valide')
+                                                            <form action="{{ route('profile.document.delete', $docOblig->documentUploaded->idDocument) }}" 
+                                                                  method="POST" 
+                                                                  class="d-inline"
+                                                                  onsubmit="return confirm('{{ __('auth.confirm_delete_document') }}');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn admin-btn-delete">
+                                                                    <i class="bi bi-trash"></i> {{ __('auth.supprimer') }}
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    @elseif($peutUploader)
                                                         <button type="button" 
-                                                                class="btn btn-primary btn-sm" 
+                                                                class="btn admin-btn-upload" 
                                                                 data-bs-toggle="modal" 
                                                                 data-bs-target="#uploadModal{{ $docOblig->idDocumentObligatoire }}">
                                                             <i class="bi bi-upload"></i> {{ __('auth.uploader_document') }}
-                                                        </button>
-                                                    @else
-                                                        <button type="button" class="btn btn-secondary btn-sm" disabled>
-                                                            {{ __('auth.uploader_document') }}
                                                         </button>
                                                     @endif
                                                 </div>

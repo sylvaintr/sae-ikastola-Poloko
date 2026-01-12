@@ -28,6 +28,15 @@ return [
         'invoices' => 'Fakturak',
         'notifications' => 'Jakinarazpenak',
         'obligatory_documents' => 'Beharrezko dokumentuak',
+        'descriptions' => [
+            'add_message' => 'Erabiltzaileek ikus ditzaketen argitalpenak eta berriak kudeatu',
+            'accounts' => 'Erabiltzaile kontuak, beren rolak eta balioztatzeak kudeatu',
+            'families' => 'Familiak eta elkartutako kideak kudeatu',
+            'classes' => 'Klaseak eta beren antolakuntza kudeatu',
+            'obligatory_documents' => 'Erabiltzaileentzat beharrezkoak diren dokumentuak kudeatu',
+            'invoices' => 'Fakturak eta ordainketak kudeatu',
+            'notifications' => 'Jakinarazpenak eta sistema alertak kudeatu',
+        ],
     ],
     'accounts_page' => [
         'title' => 'Kontuak',
@@ -82,6 +91,18 @@ return [
             'no_roles' => 'Ez dago esleituriko rolarik',
             'archived_notice' => 'Kontu hau artxibatuta dago. Kontsulta bakarrik baimenduta dago.',
             'details_title' => 'Kontuaren informazioa',
+            'documents_title' => 'Beharrezko dokumentuak',
+            'documents' => [
+                'name' => 'Izena',
+                'state' => 'Egoera',
+                'date_remise' => 'Entregatze data',
+                'actions' => 'Ekintzak',
+                'not_uploaded' => 'Ez entregatua',
+                'validate' => 'Balioztatu',
+                'invalidate' => 'Baliogabetu',
+                'confirm_validate' => 'Ziur al zaude dokumentu hau balioztatu nahi duzula?',
+                'confirm_invalidate' => 'Ziur al zaude dokumentu hau baliogabetu nahi duzula?',
+            ],
         ],
         'messages' => [
             'deleted' => 'Kontua behar bezala ezabatu da.',
@@ -91,6 +112,8 @@ return [
             'archived' => 'Kontua artxibatu da. Kontsulta bakarrik baimenduta dago.',
             'already_archived' => 'Kontu hau jada artxibatuta dago.',
             'archived_readonly' => 'Kontu hau artxibatuta dago: kontsulta soilik baimenduta.',
+            'document_validated' => 'Dokumentuaren egoera arrakastaz aldatu da.',
+            'document_deleted' => 'Dokumentua arrakastaz ezabatu da.',
         ],
         'edit' => [
             'title' => 'Kontua aldatu',

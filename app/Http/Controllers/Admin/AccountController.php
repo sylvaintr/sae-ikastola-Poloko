@@ -5,10 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Utilisateur;
 use App\Models\Role;
+use App\Models\DocumentObligatoire;
+use App\Models\Document;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 use Illuminate\View\View;
 
 class AccountController extends Controller
@@ -143,8 +147,58 @@ class AccountController extends Controller
         $account->load(['rolesCustom' => function($query) {
             $query->select('role.idRole', 'role.name');
         }]);
+        
+        // Charger les documents obligatoires pour les rôles de l'utilisateur
+        $userRoleIds = $account->rolesCustom()->pluck('avoir.idRole')->toArray();
+        
+        if (empty($userRoleIds)) {
+            $documentsObligatoiresAvecEtat = collect([]);
+        } else {
+            $documentsObligatoires = DocumentObligatoire::whereHas('roles', function($query) use ($userRoleIds) {
+                $query->whereIn('attribuer.idRole', $userRoleIds);
+            })->get();
+            
+            // Pour chaque document obligatoire, trouver les documents uploadés par l'utilisateur
+            $documentsObligatoiresAvecEtat = $documentsObligatoires->map(function($docOblig) use ($account) {
+                // Récupérer tous les documents de l'utilisateur qui correspondent au nom du document obligatoire
+                $documentsUtilisateur = $account->documents()
+                    ->where('nom', 'like', '%' . $docOblig->nom . '%')
+                    ->orWhere('nom', $docOblig->nom)
+                    ->orderBy('idDocument', 'desc')
+                    ->get();
+                
+                // Prendre le dernier document (le plus récent)
+                $dernierDocument = $documentsUtilisateur->first();
+                
+                if (!$dernierDocument) {
+                    $docOblig->etat = 'non_remis';
+                    $docOblig->documentUploaded = null;
+                    $docOblig->dateRemise = null;
+                } else {
+                    // Mapper les états : actif = remis, en_attente = en_cours_validation, valide = valide
+                    $etatMapping = [
+                        'actif' => 'remis',
+                        'en_attente' => 'en_cours_validation',
+                        'valide' => 'valide'
+                    ];
+                    $docOblig->etat = $etatMapping[$dernierDocument->etat] ?? 'remis';
+                    $docOblig->documentUploaded = $dernierDocument;
+                    
+                    // Récupérer la date de remise (date de modification du fichier)
+                    if (Storage::disk('public')->exists($dernierDocument->chemin)) {
+                        $docOblig->dateRemise = \Carbon\Carbon::createFromTimestamp(
+                            Storage::disk('public')->lastModified($dernierDocument->chemin)
+                        );
+                    } else {
+                        $docOblig->dateRemise = null;
+                    }
+                }
+                
+                return $docOblig;
+            });
+        }
 
-        return view('admin.accounts.show', compact('account'));
+        return view('admin.accounts.show', compact('account', 'documentsObligatoiresAvecEtat'));
     }
 
     public function edit(Utilisateur $account): View|RedirectResponse
@@ -293,6 +347,115 @@ class AccountController extends Controller
         return redirect()
             ->route('admin.accounts.index')
             ->with('status', trans('admin.accounts_page.messages.deleted'));
+    }
+    
+    /**
+     * Valide ou invalide un document obligatoire d'un utilisateur
+     */
+    public function validateDocument(Request $request, Utilisateur $account, Document $document): RedirectResponse
+    {
+        // Vérifier que le document appartient à l'utilisateur
+        if (!$account->documents()->where('document.idDocument', $document->idDocument)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $validated = $request->validate([
+            'etat' => ['required', 'string', 'in:valide,en_attente'],
+        ]);
+        
+        // Si on valide, passer à 'valide', sinon passer à 'en_attente' (en cours de validation)
+        $document->update(['etat' => $validated['etat']]);
+        
+        return redirect()
+            ->route('admin.accounts.show', $account)
+            ->with('status', 'document_validated');
+    }
+    
+    /**
+     * Supprime un document obligatoire d'un utilisateur
+     */
+    public function deleteDocument(Request $request, Utilisateur $account, Document $document): RedirectResponse
+    {
+        // Vérifier que le document appartient à l'utilisateur
+        if (!$account->documents()->where('document.idDocument', $document->idDocument)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        // Ne pas permettre la suppression si le document est validé
+        if ($document->etat === 'valide') {
+            return redirect()
+                ->route('admin.accounts.show', $account)
+                ->with('error', __('auth.document_validated_cannot_delete'));
+        }
+        
+        // Supprimer le fichier physique
+        if (Storage::disk('public')->exists($document->chemin)) {
+            Storage::disk('public')->delete($document->chemin);
+        }
+        
+        // Détacher le document de l'utilisateur
+        $account->documents()->detach($document->idDocument);
+        
+        // Supprimer le document si aucun autre utilisateur ne l'utilise
+        if ($document->utilisateurs()->count() === 0) {
+            $document->delete();
+        }
+        
+        return redirect()
+            ->route('admin.accounts.show', $account)
+            ->with('status', 'document_deleted');
+    }
+    
+    /**
+     * Télécharge un document obligatoire d'un utilisateur
+     */
+    public function downloadDocument(Request $request, Utilisateur $account, Document $document)
+    {
+        // Vérifier que le document appartient à l'utilisateur
+        if (!$account->documents()->where('document.idDocument', $document->idDocument)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        // Vérifier que le fichier existe
+        if (!Storage::disk('public')->exists($document->chemin)) {
+            abort(404, 'File not found.');
+        }
+        
+        // Trouver le document obligatoire correspondant
+        // Le nom du document est formaté comme "NomDocumentObligatoire - nom_fichier_original"
+        $nomParts = explode(' - ', $document->nom, 2);
+        $nomDocumentObligatoire = $nomParts[0];
+        
+        // Récupérer l'extension du fichier original
+        $extension = pathinfo($document->chemin, PATHINFO_EXTENSION);
+        if (empty($extension)) {
+            // Si pas d'extension dans le chemin, essayer de la récupérer depuis le nom du document
+            $extensionParts = explode('.', $document->nom);
+            if (count($extensionParts) > 1) {
+                $extension = strtolower(end($extensionParts));
+            } else {
+                $extension = 'pdf'; // Par défaut
+            }
+        }
+        
+        // Générer le nom de fichier : Nom_Prenom_NomDocumentObligatoire.extension
+        $nomUtilisateur = $account->nom ?? '';
+        $prenomUtilisateur = $account->prenom ?? '';
+        
+        // Nettoyer les noms (remplacer les caractères spéciaux par des underscores)
+        $nomUtilisateur = preg_replace('/[^a-zA-Z0-9]/', '_', $nomUtilisateur);
+        $prenomUtilisateur = preg_replace('/[^a-zA-Z0-9]/', '_', $prenomUtilisateur);
+        $nomDocumentObligatoire = preg_replace('/[^a-zA-Z0-9]/', '_', $nomDocumentObligatoire);
+        
+        // Construire le nom de fichier
+        $fileName = trim($nomUtilisateur . '_' . $prenomUtilisateur . '_' . $nomDocumentObligatoire);
+        $fileName = preg_replace('/_+/', '_', $fileName); // Remplacer les underscores multiples par un seul
+        $fileName = trim($fileName, '_'); // Enlever les underscores en début/fin
+        $fileName .= '.' . $extension;
+        
+        $filePath = Storage::disk('public')->path($document->chemin);
+        
+        return Response::download($filePath, $fileName);
     }
 }
 

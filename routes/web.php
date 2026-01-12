@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/document', [ProfileController::class, 'uploadDocument'])->name('profile.document.upload');
+    Route::get('/profile/document/{document}/download', [ProfileController::class, 'downloadDocument'])->name('profile.document.download');
     Route::delete('/profile/document/{document}', [ProfileController::class, 'deleteDocument'])->name('profile.document.delete');
 
     // ---------------- Gestion Demandes ----------------
@@ -82,6 +83,9 @@ Route::middleware('auth')->group(function () {
                     Route::patch("{$accountRoute}" . ROUTE_VALIDATE, 'validateAccount')->name('validate');
                     Route::patch("{$accountRoute}" . ROUTE_ARCHIVE, 'archive')->name('archive');
                     Route::delete($accountRoute, 'destroy')->name('destroy');
+                    Route::patch("{$accountRoute}/documents/{document}/validate", 'validateDocument')->name('documents.validate');
+                    Route::get("{$accountRoute}/documents/{document}/download", 'downloadDocument')->name('documents.download');
+                    Route::delete("{$accountRoute}/documents/{document}", 'deleteDocument')->name('documents.delete');
                 });
 
             // ---------------- Classes ----------------

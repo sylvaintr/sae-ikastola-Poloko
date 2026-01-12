@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -118,59 +119,187 @@ class ProfileController extends Controller
      */
     public function uploadDocument(Request $request): RedirectResponse
     {
-        $request->validate([
-            'document' => ['required', 'file', 'max:10240', 'mimes:pdf,doc,docx,jpg,jpeg,png'],
-            'idDocumentObligatoire' => ['required', 'integer', 'exists:documentObligatoire,idDocumentObligatoire'],
-        ]);
+        try {
+            $request->validate([
+                'document' => [
+                    'required',
+                    'file',
+                    'max:10240',
+                    'mimes:pdf,doc,docx,jpg,jpeg,png'
+                ],
+                'idDocumentObligatoire' => ['required', 'integer', 'exists:documentObligatoire,idDocumentObligatoire'],
+            ], [
+                'document.required' => __('auth.document_required'),
+                'document.file' => __('auth.document_must_be_file'),
+                'document.max' => __('auth.document_size_exceeded', ['max' => '10']),
+                'document.mimes' => __('auth.document_invalid_format'),
+            ]);
 
-        $user = $request->user();
-        $file = $request->file('document');
-        $idDocumentObligatoire = $request->input('idDocumentObligatoire');
-        
-        // Vérifier que le document obligatoire est bien associé à un rôle de l'utilisateur
-        $userRoleIds = $user->rolesCustom()->pluck('avoir.idRole')->toArray();
-        $documentObligatoire = DocumentObligatoire::whereHas('roles', function($query) use ($userRoleIds) {
-            $query->whereIn('attribuer.idRole', $userRoleIds);
-        })->findOrFail($idDocumentObligatoire);
-        
-        // Vérifier que le document n'est pas déjà en cours de validation ou validé
-        // On utilise le nom du document obligatoire pour trouver les documents existants
-        $dernierDocument = $user->documents()
-            ->where(function($query) use ($documentObligatoire) {
-                $query->where('nom', 'like', '%' . $documentObligatoire->nom . '%')
-                      ->orWhere('nom', $documentObligatoire->nom);
-            })
-            ->orderBy('idDocument', 'desc')
-            ->first();
-        
-        if ($dernierDocument && in_array($dernierDocument->etat, ['en_attente', 'valide'])) {
+            $user = $request->user();
+            $file = $request->file('document');
+            $idDocumentObligatoire = $request->input('idDocumentObligatoire');
+            
+            // Vérifier que le document obligatoire est bien associé à un rôle de l'utilisateur
+            $userRoleIds = $user->rolesCustom()->pluck('avoir.idRole')->toArray();
+            $documentObligatoire = DocumentObligatoire::whereHas('roles', function($query) use ($userRoleIds) {
+                $query->whereIn('attribuer.idRole', $userRoleIds);
+            })->findOrFail($idDocumentObligatoire);
+            
+            // Vérifier que le document n'est pas déjà en cours de validation ou validé
+            // On utilise le nom du document obligatoire pour trouver les documents existants
+            $dernierDocument = $user->documents()
+                ->where(function($query) use ($documentObligatoire) {
+                    $query->where('nom', 'like', '%' . $documentObligatoire->nom . '%')
+                          ->orWhere('nom', $documentObligatoire->nom);
+                })
+                ->orderBy('idDocument', 'desc')
+                ->first();
+            
+            if ($dernierDocument && in_array($dernierDocument->etat, ['en_attente', 'valide'])) {
+                return Redirect::route('profile.edit')
+                    ->with('error', __('auth.document_non_uploadable'));
+            }
+            
+            // Vérifier le format du fichier en analysant les premiers octets (magic bytes)
+            $extension = strtolower($file->getClientOriginalExtension());
+            $allowedExtensions = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+            
+            if (!in_array($extension, $allowedExtensions)) {
+                return Redirect::route('profile.edit')
+                    ->with('error', __('auth.invalid_file_format'));
+            }
+            
+            // Vérifier les magic bytes du fichier
+            $magicBytesValidation = $this->validateFileMagicBytes($file, $extension);
+            if (!$magicBytesValidation['valid']) {
+                return Redirect::route('profile.edit')
+                    ->with('error', $magicBytesValidation['message'] ?? __('auth.invalid_file_format'));
+            }
+            
+            // Déterminer le type de fichier (limité à 5 caractères max selon la migration)
+            $type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' : 'doc';
+            
+            // Stocker le fichier
+            $path = $file->store('profiles/' . $user->idUtilisateur . '/obligatoires', 'public');
+            
+            // Créer le document avec le nom du fichier (limité à 50 caractères max)
+            $nomFichier = $file->getClientOriginalName();
+            $nomComplet = $documentObligatoire->nom . ' - ' . $nomFichier;
+            $nomFinal = strlen($nomComplet) > 50 ? substr($nomComplet, 0, 47) . '...' : $nomComplet;
+            
+            $document = Document::create([
+                'nom' => $nomFinal,
+                'chemin' => $path,
+                'type' => $type,
+                'etat' => 'en_attente', // En cours de validation
+            ]);
+            
+            // Lier le document à l'utilisateur
+            $user->documents()->attach($document->idDocument);
+            
+            return Redirect::route('profile.edit')->with('status', 'document-uploaded');
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return Redirect::route('profile.edit')
-                ->with('error', __('auth.document_non_uploadable'));
+                ->withErrors($e->errors())
+                ->with('error', __('auth.upload_error'));
+        } catch (\Exception $e) {
+            // En cas d'erreur, supprimer le fichier s'il a été créé
+            if (isset($path) && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+            
+            return Redirect::route('profile.edit')
+                ->with('error', __('auth.upload_error') . ': ' . $e->getMessage());
         }
-        
-        // Déterminer le type de fichier
-        $extension = strtolower($file->getClientOriginalExtension());
-        $type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' : 'document';
-        
-        // Stocker le fichier
-        $path = $file->store('profiles/' . $user->idUtilisateur . '/obligatoires', 'public');
-        
-        // Créer le document avec le nom du fichier (limité à 50 caractères max)
-        $nomFichier = $file->getClientOriginalName();
-        $nomComplet = $documentObligatoire->nom . ' - ' . $nomFichier;
-        $nomFinal = strlen($nomComplet) > 50 ? substr($nomComplet, 0, 47) . '...' : $nomComplet;
-        
-        $document = Document::create([
-            'nom' => $nomFinal,
-            'chemin' => $path,
-            'type' => $type,
-            'etat' => 'en_attente', // En cours de validation
-        ]);
-        
-        // Lier le document à l'utilisateur
-        $user->documents()->attach($document->idDocument);
-        
-        return Redirect::route('profile.edit')->with('status', 'document-uploaded');
+    }
+    
+    /**
+     * Valide le format d'un fichier en analysant les premiers octets (magic bytes)
+     * 
+     * @param \Illuminate\Http\UploadedFile $file
+     * @param string $extension
+     * @return array ['valid' => bool, 'message' => string|null]
+     */
+    private function validateFileMagicBytes($file, string $extension): array
+    {
+        try {
+            $handle = fopen($file->getRealPath(), 'rb');
+            if (!$handle) {
+                return ['valid' => false, 'message' => __('auth.cannot_read_file')];
+            }
+            
+            // Lire les premiers octets du fichier (suffisant pour identifier la plupart des formats)
+            $bytes = fread($handle, 12);
+            fclose($handle);
+            
+            if ($bytes === false || strlen($bytes) < 4) {
+                return ['valid' => false, 'message' => __('auth.invalid_file_format')];
+            }
+            
+            // Convertir les premiers octets en hexadécimal pour comparaison
+            $hex = bin2hex($bytes);
+            
+            // Définir les magic bytes pour chaque type de fichier autorisé
+            $magicBytes = [
+                'pdf' => ['25504446'], // %PDF
+                'jpg' => ['ffd8ff'], // JPEG
+                'jpeg' => ['ffd8ff'], // JPEG
+                'png' => ['89504e47'], // PNG
+                'doc' => ['d0cf11e0', '0d444f43'], // MS Office (DOC, XLS, PPT)
+                'docx' => ['504b0304'], // ZIP/Office Open XML (DOCX, XLSX, PPTX)
+            ];
+            
+            if (!isset($magicBytes[$extension])) {
+                return ['valid' => false, 'message' => __('auth.unsupported_file_type')];
+            }
+            
+            // Vérifier si les magic bytes correspondent
+            $valid = false;
+            foreach ($magicBytes[$extension] as $magicHex) {
+                if (strpos($hex, $magicHex) === 0) {
+                    $valid = true;
+                    break;
+                }
+            }
+            
+            // Pour DOCX, vérifier aussi qu'il contient "word" dans le ZIP si l'extension est disponible
+            if ($extension === 'docx' && !$valid && class_exists('ZipArchive')) {
+                // DOCX est un ZIP, on vérifie les magic bytes ZIP
+                if (strpos($hex, '504b0304') === 0) {
+                    // Ouvrir le fichier comme ZIP pour vérifier qu'il contient word/
+                    $zip = new \ZipArchive();
+                    if ($zip->open($file->getRealPath()) === true) {
+                        $hasWord = false;
+                        for ($i = 0; $i < $zip->numFiles; $i++) {
+                            if (strpos($zip->getNameIndex($i), 'word/') === 0) {
+                                $hasWord = true;
+                                break;
+                            }
+                        }
+                        $zip->close();
+                        $valid = $hasWord;
+                    }
+                }
+            }
+            
+            // Si DOCX a les bons magic bytes ZIP mais qu'on ne peut pas vérifier le contenu, on accepte quand même
+            if ($extension === 'docx' && !$valid && strpos($hex, '504b0304') === 0) {
+                $valid = true;
+            }
+            
+            if (!$valid) {
+                return [
+                    'valid' => false, 
+                    'message' => __('auth.file_type_mismatch', ['expected' => strtoupper($extension)])
+                ];
+            }
+            
+            return ['valid' => true, 'message' => null];
+            
+        } catch (\Exception $e) {
+            return ['valid' => false, 'message' => __('auth.file_validation_error')];
+        }
     }
 
     /**
@@ -181,14 +310,14 @@ class ProfileController extends Controller
         $user = $request->user();
         
         // Vérifier que le document appartient à l'utilisateur
-        if (!$user->documents()->where('idDocument', $document->idDocument)->exists()) {
+        if (!$user->documents()->where('document.idDocument', $document->idDocument)->exists()) {
             abort(403, 'Unauthorized action.');
         }
         
-        // Ne pas permettre la suppression si le document est en cours de validation ou validé
-        if (in_array($document->etat, ['en_attente', 'valide'])) {
+        // Ne pas permettre la suppression si le document est validé
+        if ($document->etat === 'valide') {
             return Redirect::route('profile.edit')
-                ->with('error', __('auth.document_non_uploadable'));
+                ->with('error', __('auth.document_validated_cannot_delete'));
         }
         
         // Supprimer le fichier physique
@@ -205,5 +334,59 @@ class ProfileController extends Controller
         }
         
         return Redirect::route('profile.edit')->with('status', 'document-deleted');
+    }
+    
+    /**
+     * Méthode pour télécharger un document du profil de l'utilisateur
+     */
+    public function downloadDocument(Request $request, Document $document)
+    {
+        $user = $request->user();
+        
+        // Vérifier que le document appartient à l'utilisateur
+        if (!$user->documents()->where('document.idDocument', $document->idDocument)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        // Vérifier que le fichier existe
+        if (!Storage::disk('public')->exists($document->chemin)) {
+            abort(404, 'File not found.');
+        }
+        
+        // Trouver le document obligatoire correspondant
+        // Le nom du document est formaté comme "NomDocumentObligatoire - nom_fichier_original"
+        $nomParts = explode(' - ', $document->nom, 2);
+        $nomDocumentObligatoire = $nomParts[0];
+        
+        // Récupérer l'extension du fichier original
+        $extension = pathinfo($document->chemin, PATHINFO_EXTENSION);
+        if (empty($extension)) {
+            // Si pas d'extension dans le chemin, essayer de la récupérer depuis le nom du document
+            $extensionParts = explode('.', $document->nom);
+            if (count($extensionParts) > 1) {
+                $extension = strtolower(end($extensionParts));
+            } else {
+                $extension = 'pdf'; // Par défaut
+            }
+        }
+        
+        // Générer le nom de fichier : Nom_Prenom_NomDocumentObligatoire.extension
+        $nomUtilisateur = $user->nom ?? '';
+        $prenomUtilisateur = $user->prenom ?? '';
+        
+        // Nettoyer les noms (remplacer les caractères spéciaux par des underscores)
+        $nomUtilisateur = preg_replace('/[^a-zA-Z0-9]/', '_', $nomUtilisateur);
+        $prenomUtilisateur = preg_replace('/[^a-zA-Z0-9]/', '_', $prenomUtilisateur);
+        $nomDocumentObligatoire = preg_replace('/[^a-zA-Z0-9]/', '_', $nomDocumentObligatoire);
+        
+        // Construire le nom de fichier
+        $fileName = trim($nomUtilisateur . '_' . $prenomUtilisateur . '_' . $nomDocumentObligatoire);
+        $fileName = preg_replace('/_+/', '_', $fileName); // Remplacer les underscores multiples par un seul
+        $fileName = trim($fileName, '_'); // Enlever les underscores en début/fin
+        $fileName .= '.' . $extension;
+        
+        $filePath = Storage::disk('public')->path($document->chemin);
+        
+        return Response::download($filePath, $fileName);
     }
 }
