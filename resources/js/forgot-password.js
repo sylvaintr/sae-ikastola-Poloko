@@ -1,19 +1,14 @@
-import * as yup from 'yup';
+function isValidEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return typeof email === 'string' && emailPattern.test(email.trim());
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const emailInput = document.getElementById('email');
     const submitBtn = document.getElementById('submit-btn');
 
-    const schema = yup.object({
-        email: yup.string().email().required(),
-    });
-
-    emailInput.addEventListener('input', async () => {
-        try {
-            await schema.validate({ email: emailInput.value });
-            submitBtn.disabled = false;
-        } catch (e) {
-            submitBtn.disabled = true;
-        }
+    emailInput.addEventListener('input', () => {
+        const isValid = isValidEmail(emailInput.value);
+        submitBtn.disabled = !isValid;
     });
 });
