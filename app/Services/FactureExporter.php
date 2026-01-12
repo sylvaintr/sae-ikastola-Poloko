@@ -7,9 +7,14 @@ use Pelago\Emogrifier\CssInliner;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Response;
 
 class FactureExporter
 {
+
+
+
+
     public function loadManualFile(Facture $facture): ?array
     {
         $nom = 'facture-' . $facture->idFacture;
@@ -61,7 +66,7 @@ class FactureExporter
     /**
  * Handles logic for serving an existing uploaded file.
  */
- public function serveManualFile($facture, bool $returnBinary): ?string
+ public function serveManualFile(Facture $facture, bool $returnBinary): Response|string|null
 {
     $manualFile = $this->loadManualFile($facture);
 
@@ -73,7 +78,7 @@ class FactureExporter
         return $manualFile['content'];
     }
 
-    $contentType = $this->factureExporter->contentTypeForExt($manualFile['ext']);
+    $contentType = $this->contentTypeForExt($manualFile['ext']);
     
     return response($manualFile['content'], 200)
         ->header('Content-Type', $contentType)
@@ -86,7 +91,7 @@ class FactureExporter
 public function generateAndServeFacture(array $montants, $facture, bool $returnBinary): Response|string
 {
     // 1. Prepare Data
-    $htmlInlined = $this->factureExporter->renderHtml([
+    $htmlInlined = $this->renderHtml([
         'facture'                    => $montants['facture'],
         'famille'                    => $montants['famille'],
         'enfants'                    => $montants['enfants'],
@@ -102,12 +107,12 @@ public function generateAndServeFacture(array $montants, $facture, bool $returnB
     $isPdfState = $facture->getRawOriginal('etat') === 'verifier';
     
     if ($isPdfState) {
-        $fileContent = $this->factureExporter->renderPdfFromHtml($htmlInlined);
-        $contentType = self::PDF_APPLICATION;
+        $fileContent = $this->renderPdfFromHtml($htmlInlined);
+        $contentType = 'application/pdf';
         $extension   = 'pdf';
     } else {
         $fileContent = $htmlInlined;
-        $contentType = self::WORD_APPLICATION;
+        $contentType = 'application/vnd.ms-word';
         $extension   = 'doc';
     }
 

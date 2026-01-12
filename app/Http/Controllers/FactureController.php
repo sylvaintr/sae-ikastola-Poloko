@@ -34,7 +34,7 @@ use App\Services\FactureCalculator;
 class FactureController extends Controller
 {
     private const DIR_FACTURES = 'factures/';
-    private const PDF_APPLICATION = 'application/pdf';
+    
     private $factureCalculator;
     private $factureExporter;
 
@@ -181,7 +181,7 @@ class FactureController extends Controller
             $piecejointe = $this->exportFacture($id, true);
 
             $mail->attachData($piecejointe, 'facture-' . $facture->idFacture . '.pdf', [
-                'mime' => self::PDF_APPLICATION,
+                'mime' => 'application/pdf',
             ]);
 
             Mail::to($client->email)->send($mail);
