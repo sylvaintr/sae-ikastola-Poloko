@@ -11,18 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tache_historique', function (Blueprint $table) {
-            $table->id();
-            $table->integer('idTache');
-            $table->string('statut', 30);
-            $table->string('titre', 50)->nullable();
-            $table->string('responsable', 60)->nullable();
-            $table->decimal('depense', 8, 2)->nullable();
+        Schema::create('demande_historique', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->integer('idDemande')->index('demande_historique_iddemande');
+            $table->string('statut', 50);
+            $table->string('titre', 100)->nullable();
+            $table->string('responsable', 100)->nullable();
+            $table->decimal('depense', 10, 2)->nullable();
             $table->date('date_evenement')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
-
-            $table->index('idTache');
         });
     }
 
@@ -31,7 +29,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tache_historique');
+        Schema::dropIfExists('demande_historique');
     }
 };
 

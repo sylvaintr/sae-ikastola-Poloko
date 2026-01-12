@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TacheHistorique extends Model
+class DemandeHistorique extends Model
 {
     use HasFactory;
 
-    protected $table = 'tache_historique';
+    protected $table = 'demande_historique';
 
     protected $fillable = [
-        'idTache',
+        'idDemande',
         'statut',
         'titre',
         'responsable',
@@ -22,13 +22,14 @@ class TacheHistorique extends Model
     ];
 
     protected $casts = [
+        'idDemande' => 'int',
         'date_evenement' => 'date',
         'depense' => 'float',
     ];
 
-    public function tache()
+    public function demande()
     {
-        return $this->belongsTo(Tache::class, 'idTache', 'idTache');
+        return $this->belongsTo(Tache::class, 'idDemande', 'idTache');
     }
 }
 

@@ -21,7 +21,7 @@
         </div>
 
         <div class="mt-3">
-            <x-primary-button class="btn-login w-100" id="submit-btn" disabled>
+            <x-primary-button class="btn-login w-100" id="submit-btn">
                 {{ __('auth.envoyer_lien_reinitialisation') }}
             </x-primary-button>
         </div>

@@ -59,6 +59,7 @@ return [
     'confirmer' => 'Berretsi',
     'nonconnecte' => 'Saioa hasi behar duzu baliabide honetara sartzeko.',
     'accesrefuse' => 'Ez duzu baimenik orrialde honetara sartzeko.',
+<<<<<<< HEAD
 
     'notification_reset_line1' => "Mezu hau bidali dizugu pasahitza berrezartzeko eskaera jaso dugulako.",
     'notification_reset_line2' => "Ez baduzu eskaera hau egin, ez da ekintzarik behar.",
@@ -78,4 +79,14 @@ return [
     'password_rule_upper' => 'Letra maiuskula bat',
     'password_rule_number' => 'Zenbaki bat',
     'password_rule_symbol' => 'Sinbolo bat',
+    
+    // Autentifikazio errore mezuak
+    'failed' => 'Kredentzial hauek ez datoz bat kontu batekin ere.',
+    'password' => 'Emandako pasahitza okerra da.',
+    'throttle' => 'Saioa hasteko saiakera gehiegi. Mesedez, saiatu berriro :seconds segundo barru.',
+    // Erregistro mezuak
+    'registration_pending_validation' => 'Zure kontua ongi sortu da. Administratzaile baten baliozkotzearen zain dago. Zure kontua balioztatutakoan saioa hasi ahal izango duzu.',
+    'account_not_validated' => 'Zure kontua ez da oraindik administratzaile batek balioztatu. Mesedez, itxaron zure kontua balioztatu arte.',
+    'recaptcha_failed' => 'reCAPTCHA egiaztapenak huts egin du. Mesedez, saiatu berriro.',
+    'recaptcha_required' => 'Mesedez, osatu reCAPTCHA egiaztapena erregistratu aurretik.',
 ];

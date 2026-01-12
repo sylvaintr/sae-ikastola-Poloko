@@ -3,7 +3,9 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './bootstrap';
 import './children-selector';
 import './forgot-password';
-
+import Alpine from 'alpinejs';
+globalThis.Alpine = Alpine;
+Alpine.start();
 export const dataTableLangs = {
     fr: {
         decimal: ',',
