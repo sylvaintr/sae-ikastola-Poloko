@@ -106,12 +106,4 @@ class Facture extends Model
 		$this->attributes['etat'] = 'brouillon';
 	}
 
-	/**
-	 * Accessor to return a boolean for `etat` when used in application logic.
-	 * Returns true when stored value is 'verifier', false otherwise.
-	 */
-	public function getEtatAttribute($value)
-	{
-		return $value;
-	}
 }

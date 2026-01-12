@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schedule;
 use App\Http\Controllers\FactureController;
 
 Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
+    $this->comment(Inspiring::quote())->hourly();
 })->purpose('Display an inspiring quote');
 
 // Schedule a monthly task that resolves the controller and calls the method.

@@ -31,11 +31,16 @@
                 </label>
 
                 <select id="filtreEtat" class="form-select">
-                    <option value="">-- Tous les états --</option>
-                    <option value="manuel">manuel</option>
-                    <option value="verifier">En attente</option>
-                    <option value="brouillon">brouillon</option>
-
+                    
+                    <option value="">  
+                        {{ Lang::get('facture.tous_les_etats', [], 'eus') }}  
+                        @if (Lang::getLocale() == 'fr')  
+                            / {{ Lang::get('facture.tous_les_etats') }}  
+                        @endif  
+                    </option>  
+                    <option value="manuel">{{ __('facture.manuel') }}</option>
+                    <option value="verifier">{{ __('facture.verifier') }}</option>
+                    <option value="brouillon">{{ __('facture.brouillon') }}</option>
                 </select>
             </div>
         </div>

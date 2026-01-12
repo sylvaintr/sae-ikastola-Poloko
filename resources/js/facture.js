@@ -46,7 +46,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     name: "dateC",
                     render: function (data) {
                         const date = new Date(data);
-                        
+                        const userLocale =  
+                            (typeof navigator !== "undefined" && (navigator.language || navigator.userLanguage)) ||  
+                            undefined;  
                         return date.toLocaleDateString('fr-FR'); // Formatage de la date au format JJ/MM/AAAA
                     },
                 },

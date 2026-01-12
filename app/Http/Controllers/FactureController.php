@@ -84,7 +84,11 @@ class FactureController extends Controller
                     'facture' => $facture,
                     'fichierpdf' => $urlPublique,
                 ]);
-            }
+            }else {
+            // CRITICAL FIX: Do not fall through. Handle the error.
+            return redirect()->route('admin.facture.index')
+                ->with('error', 'facture.fichierpdfintrouvable');
+        }
 
         }
 
@@ -257,17 +261,16 @@ class FactureController extends Controller
             }
 
 
+            $extention = $file->getClientOriginalExtension();
+            $filename = 'facture-' . $facture->idFacture . '.' . $extention;
+            $path =  $file->storeAs('factures', $filename, 'public');
 
-            $filename = 'facture-' . $facture->idFacture . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('factures', $filename, 'public');
+            $inputPath = Storage::disk('local')->path($path);
+            $outputDir = storage_path('app/factures_private/');
 
-            $chemin = 'factures/' . $filename;
-
-            if (Storage::disk('public')->exists($chemin)) {
-
-                $fichier = Storage::disk('public')->path($chemin);
-
-                exec('libreoffice --headless --convert-to pdf ' . escapeshellarg($fichier) . ' --outdir ' . escapeshellarg(storage_path('app/public/factures/')));
+            if (file_exists($inputPath)) {
+                $command = 'libreoffice --headless --convert-to pdf ' . escapeshellarg($inputPath) . ' --outdir ' . escapeshellarg($outputDir);
+                exec($command);
 
 
             }
@@ -290,22 +293,24 @@ class FactureController extends Controller
         $mois = Carbon::now()->month;
 
         $previsionnel = !in_array($mois, [2, 8], true);
-        foreach ($familles as $famille) {
-            $parents = $famille->utilisateurs()->get();
-            foreach ($parents as $parent) {
+        Famille::chunkById(100, function ($familles) use ($previsionnel) {  
+            foreach ($familles as $famille) {  
+                $parents = $famille->utilisateurs()->get();  
+                foreach ($parents as $parent) {  
 
-                if (($parent->pivot->parite ?? 0) > 0) {
+                    if (($parent->pivot->parite ?? 0) > 0) {  
 
-                    $facture = new Facture();
-                    $facture->idFamille = $famille->idFamille;
-                    $facture->idUtilisateur = $parent->idUtilisateur;
-                    $facture->previsionnel = $previsionnel;
-                    $facture->dateC = now();
-                    $facture->etat = 'brouillon';
-                    $facture->save();
-                }
-            }
-        }
+                        $facture = new Facture();  
+                        $facture->idFamille = $famille->idFamille;  
+                        $facture->idUtilisateur = $parent->idUtilisateur;  
+                        $facture->previsionnel = $previsionnel;  
+                        $facture->dateC = now();  
+                        $facture->etat = 'brouillon';  
+                        $facture->save();  
+                    }  
+                }  
+            }  
+        });
     }
 
 
@@ -313,8 +318,8 @@ class FactureController extends Controller
 
     /**
      *  calcule le montant de la regulation  pour une famille
-     * @param mixed $idfamille identifiant de la famille
-     * @return int monta de la regulation
+     * @param int $idfamille identifiant de la famille
+     * @return int montant de la regulation
      */
     public function calculerRegularisation(int $idfamille): int
     {

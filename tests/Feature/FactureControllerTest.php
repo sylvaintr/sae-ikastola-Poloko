@@ -148,7 +148,7 @@ class FactureControllerTest extends TestCase
     }
 
   
-    public function test_calculer_regularisation()
+    public function test_calculer_regularisation_negatif_ou_zero_sans_activites()
     {
         
         $famille = Famille::factory()->create();
@@ -165,14 +165,14 @@ class FactureControllerTest extends TestCase
 
     }
 
-        public function test_calculer_regularisation_positif()
+        public function test_calculer_regularisation_positif_quand_nombreux_activites()
     {
         $famille = Famille::create(['idFamille' => 999999, 'aineDansAutreSeaska' => false]);
         $enfant = Enfant::factory()->create(['nbFoisGarderie' => 0, 'idFamille' => $famille->idFamille, 'idEnfant' => 999999]);
         for ($i=0; $i < 30; $i++) {
             
-            Etre::create(['idEnfant' => $enfant->idEnfant, 'activite' => 'garderie soire', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
-            Activite::create(['activite' => 'garderie soire', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
+            Etre::create(['idEnfant' => $enfant->idEnfant, 'activite' => 'garderie soir', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
+            Activite::create(['activite' => 'garderie soir', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
         }
 
         Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel'=> true ,  'dateC' => Carbon::now()->subMonths(5)]);
@@ -187,7 +187,7 @@ class FactureControllerTest extends TestCase
 
     }
 
-    public function test_createFacture_generates_factures()
+    public function test_createFacture_cree_facture_pour_parent_avec_parite_100()
     {
         $famille = Famille::factory()->create();
         $parent1 = Utilisateur::factory()->create();

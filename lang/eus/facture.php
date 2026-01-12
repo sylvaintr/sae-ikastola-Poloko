@@ -22,6 +22,11 @@ return [
     'dejasvalidee' => 'Faktura jada egiaztatuta dago eta ezin da aldatu.',
     'invalidfile' => 'Fitxategi mota baliogabea. Mesedez, igo .docx, .doc edo .odt fitxategi bat.',
     'etatupdatesuccess' => 'Faktura arrakastaz eguneratu da.',
+    'manuel' => 'Eskuzkoa',
+    'verifier' => 'Egiaztatzen',
+    'brouillon' => 'Zirriborroa',
+    'tous_les_etats' => 'Egoera guztiak',
+    'fichierpdfintrouvable' => 'Faktura eskuzko honen PDF fitxategia ezin da aurkitu.',
     
 
 ];

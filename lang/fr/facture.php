@@ -22,4 +22,9 @@ return [
     'dejasvalidee' => 'La facture est déjà validée et ne peut plus être modifiée.',
     'invalidfile' => 'Type de fichier invalide. Veuillez télécharger un fichier .docx, .doc ou .odt.',
     'etatupdatesuccess' => 'La facture a été mise à jour avec succès.',
+    'manuel' => 'Manuel',
+    'verifier' => 'En attente',
+    'brouillon' => 'Brouillon',
+    'tous_les_etats' => 'Tous les états',
+    'fichierpdfintrouvable' => 'Le fichier PDF de cette facture manuelle est introuvable.',
 ];
