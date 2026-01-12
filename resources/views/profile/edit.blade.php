@@ -2,14 +2,14 @@
     <div class="container-fluid py-4 profile-page">
         <div class="row">
             <!-- Section 1: Mon profil -->
-            <div class="col-md-6 mb-4">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
                         <h2 class="h4 fw-bold mb-4">{{ __('auth.mon_profil') }}</h2>
                         
-                        <div class="d-flex align-items-start">
+                        <div class="d-flex flex-column flex-sm-row align-items-start">
                             <!-- Photo de profil -->
-                            <div class="me-4" style="flex-shrink: 0;">
+                            <div class="me-0 me-sm-4 mb-3 mb-sm-0" style="flex-shrink: 0;">
                                 <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
                                      style="width: 100px; height: 100px; overflow: hidden; background-color: #f5e6d3;">
                                     @php
@@ -24,7 +24,7 @@
                             </div>
                             
                             <!-- Informations -->
-                            <div class="flex-grow-1">
+                            <div class="flex-grow-1 w-100">
                                 <div class="mb-3">
                                     <span class="text-muted small">{{ __('auth.nom') }} :</span>
                                     <span class="fw-semibold">{{ Auth::user()->nom ?? '-' }}</span>
@@ -68,7 +68,7 @@
             </div>
             
             <!-- Section 2: Informations de la famille -->
-            <div class="col-md-6 mb-4">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
                         <h2 class="h4 fw-bold mb-4">{{ __('auth.informations_famille') ?? 'Informations de la famille' }}</h2>
@@ -125,7 +125,7 @@
             
             <!-- Section 3: Documents obligatoires -->
             @if(isset($documentsObligatoires) && $documentsObligatoires->count() > 0)
-            <div class="col-md-12 mb-4">
+            <div class="col-12 mb-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
                         <h2 class="h4 fw-bold mb-4">{{ __('auth.documents_obligatoires') }}</h2>
