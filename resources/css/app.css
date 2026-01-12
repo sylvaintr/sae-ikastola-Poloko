@@ -1118,7 +1118,7 @@
 }
 
 #available-roles:empty::after {
-    content: 'Aucun rôle disponible';
+    content: "Aucun rôle disponible";
     display: block;
     padding: 1rem;
     text-align: center;
