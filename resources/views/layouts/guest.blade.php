@@ -13,7 +13,6 @@
             {{-- 3. L'attribut crossorigin="anonymous" est présent pour la sécurité CORS --}}
             {{-- Référence: https://developers.google.com/recaptcha/docs/display --}}
             <script src="https://www.google.com/recaptcha/api.js?hl={{ app()->getLocale() }}"
-                    crossorigin="anonymous"
                     async
                     defer></script>
         @endpush

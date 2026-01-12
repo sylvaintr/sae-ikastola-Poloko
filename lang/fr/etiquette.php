@@ -30,5 +30,13 @@ return [
     'etiquette_associee' => 'Cette étiquette est associée aux rôles suivants :',
     'all_roles' => 'Tous les rôles',
     'gerer_les_etiquettes' => 'Gérer les étiquettes',
+    'apply' => 'Appliquer',
+    'reset' => 'Réinitialiser les filtres',
+    'filtres' => 'Filtres',
+    'is_public' => 'Étiquette publique',
+    'is_public_help' => 'Si coché, les actualités avec cette étiquette seront visibles même pour les visiteurs déconnectés.',
+    'type' => 'Type',
+    'public' => 'Publique',
+    'private' => 'Privée',
    
 ];
