@@ -111,13 +111,15 @@ class RegisteredUserController extends Controller
             return false;
         }
 
-        // Clé secrète de test de Google reCAPTCHA
+        // Clé secrète de test de Google reCAPTCHA (utilisée uniquement en développement local)
+        // Cette clé API de test accepte toujours n'importe quelle réponse pour faciliter le développement
+        // En production, les vraies clés API doivent être configurées dans le .env
         $testSecretKey = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
 
         // En environnement local avec les clés de test, accepter toute réponse non vide
         // Les clés de test de Google acceptent toujours n'importe quelle réponse
         if (config('app.env') === 'local' && $secretKey === $testSecretKey) {
-            // Clés de test : accepter toute réponse non vide
+            // Clés de test : accepter toute réponse non vide pour le développement
             return !empty($response);
         }
 
