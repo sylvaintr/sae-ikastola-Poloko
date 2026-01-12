@@ -57,4 +57,70 @@ class FactureExporter
         }
         return 'application/vnd.ms-word';
     }
+
+    /**
+ * Handles logic for serving an existing uploaded file.
+ */
+ public function serveManualFile($facture, bool $returnBinary): ?string
+{
+    $manualFile = $this->loadManualFile($facture);
+
+    if ($manualFile === null) {
+        return null;
+    }
+
+    if ($returnBinary) {
+        return $manualFile['content'];
+    }
+
+    $contentType = $this->factureExporter->contentTypeForExt($manualFile['ext']);
+    
+    return response($manualFile['content'], 200)
+        ->header('Content-Type', $contentType)
+        ->header('Content-Disposition', 'attachment; filename="' . $manualFile['filename'] . '"');
+}
+
+/**
+ * Handles logic for generating HTML and converting to PDF or DOC.
+ */
+public function generateAndServeFacture(array $montants, $facture, bool $returnBinary): Response|string
+{
+    // 1. Prepare Data
+    $htmlInlined = $this->factureExporter->renderHtml([
+        'facture'                    => $montants['facture'],
+        'famille'                    => $montants['famille'],
+        'enfants'                    => $montants['enfants'],
+        'montantcotisation'          => $montants['montantcotisation'] ?? 0,
+        'montantparticipation'       => $montants['montantparticipation'] ?? 0,
+        'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
+        'montangarderie'             => $montants['montangarderie'] ?? 0,
+        'montanttotal'               => $montants['montanttotal'] ?? 0,
+        'totalPrevisionnel'          => $montants['totalPrevisionnel'] ?? 0,
+    ]);
+
+    // 2. Determine Format (Content & Meta)
+    $isPdfState = $facture->getRawOriginal('etat') === 'verifier';
+    
+    if ($isPdfState) {
+        $fileContent = $this->factureExporter->renderPdfFromHtml($htmlInlined);
+        $contentType = self::PDF_APPLICATION;
+        $extension   = 'pdf';
+    } else {
+        $fileContent = $htmlInlined;
+        $contentType = self::WORD_APPLICATION;
+        $extension   = 'doc';
+    }
+
+    // 3. Early Exit: Binary
+    if ($returnBinary) {
+        return $fileContent;
+    }
+
+    // 4. Default Exit: HTTP Response
+    $filename = sprintf('facture-%s.%s', $facture->idFacture ?? 'unknown', $extension);
+
+    return response($fileContent, 200)
+        ->header('Content-Type', $contentType)
+        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+}
 }

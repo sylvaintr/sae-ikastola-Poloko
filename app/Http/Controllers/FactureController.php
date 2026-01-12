@@ -35,7 +35,6 @@ class FactureController extends Controller
 {
     private const DIR_FACTURES = 'factures/';
     private const PDF_APPLICATION = 'application/pdf';
-    private const WORD_APPLICATION = 'application/vnd.ms-word';
     private $factureCalculator;
     private $factureExporter;
 
@@ -139,9 +138,6 @@ class FactureController extends Controller
     public function exportFacture(string $id, bool $returnBinary = false): Response|RedirectResponse|string
     {
 
-
-
-
         $montants = $this->factureCalculator->calculerMontantFacture($id);
 
         if ($montants instanceof RedirectResponse) {
@@ -150,56 +146,18 @@ class FactureController extends Controller
 
         $facture = $montants['facture'];
 
-        // If the invoice has an uploaded/manual file, prefer serving that file
-        if ($facture->etat === 'manuel' || $facture->etat === 'manuel verifier') {
-            $manualFile = $this->factureExporter->loadManualFile($facture);
-            if ($manualFile !== null) {
-
-                $reponce = $returnBinary ? $manualFile['content'] : response($manualFile['content'], 200)
-                    ->header('Content-Type', $this->factureExporter->contentTypeForExt($manualFile['ext']))
-                    ->header('Content-Disposition', 'attachment; filename="' . $manualFile['filename'] . '"');
-
+    
+        if (in_array($facture->etat, ['manuel', 'manuel verifier'])) {
+        
+            $manualResponse = $this->factureExporter->serveManualFile($facture, $returnBinary);
+            if ($manualResponse) {
+                return $manualResponse;
             }
-        }else {
-            
-            $htmlInlined = $this->factureExporter->renderHtml([
-                'facture' => $montants['facture'],
-                'famille' => $montants['famille'],
-                'enfants' => $montants['enfants'],
-                'montantcotisation' => $montants['montantcotisation'] ?? 0,
-                'montantparticipation' => $montants['montantparticipation'] ?? 0,
-                'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
-                'montangarderie' => $montants['montangarderie'] ?? 0,
-                'montanttotal' => $montants['montanttotal'] ?? 0,
-                'totalPrevisionnel' => $montants['totalPrevisionnel'] ?? 0,
-            ]);
-    
-    
-    
-    
-            if ($facture->getRawOriginal('etat') === 'verifier') {
-    
-                $pdfexporter = $this->factureExporter->renderPdfFromHtml($htmlInlined);
-    
-                if ($returnBinary) {
-                    $reponce = $pdfexporter;
-                } else {
-    
-                    $reponce = response($pdfexporter, 200)
-                        ->header('Content-Type', self::PDF_APPLICATION)
-                        ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.pdf"');
-                }
-            } else {
-    
-    
-                $reponce = response($htmlInlined, 200)
-                    ->header('Content-Type', self::WORD_APPLICATION)
-                    ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.doc"');
-            }
+        } else {
 
+            return $this->factureExporter->generateAndServeFacture($montants, $facture, $returnBinary);
         }
 
-        return $reponce;
     }
 
 
@@ -431,5 +389,3 @@ class FactureController extends Controller
     }
 
 }
-
-

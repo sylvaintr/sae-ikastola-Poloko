@@ -66,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     },
                 },
             ],
-            responsive: true,
             language: dataTableLangs[currentLang] || dataTableLangs.eus,
 
         });
