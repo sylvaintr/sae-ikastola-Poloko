@@ -91,7 +91,7 @@ return [
     
     // Documents
     'upload_document' => 'Télécharger un document',
-    'upload_document_hint' => 'Formats acceptés : PDF, DOC, DOCX, JPG, JPEG, PNG (max 10MB)',
+    'upload_document_hint' => 'Formats acceptés : PDF, DOC, DOCX, JPG, JPEG, PNG (max 8MB)',
     'upload' => 'Télécharger',
     'nom_document' => 'Nom',
     'type' => 'Type',

@@ -87,7 +87,7 @@ return [
     
     // Documents
     'upload_document' => 'Dokumentu bat igo',
-    'upload_document_hint' => 'Onartutako formatuak: PDF, DOC, DOCX, JPG, JPEG, PNG (gehienez 10MB)',
+    'upload_document_hint' => 'Onartutako formatuak: PDF, DOC, DOCX, JPG, JPEG, PNG (gehienez 8MB)',
     'upload' => 'Igo',
     'nom_document' => 'Izena',
     'type' => 'Mota',

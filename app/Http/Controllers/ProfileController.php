@@ -22,12 +22,14 @@ class ProfileController extends Controller
     /**
      * Taille maximale autorisée pour les documents obligatoires (en kilo-octets).
      *
-     * 10240 KB = 10 MB. Cette limite est choisie pour :
+     * 8192 KB = 8 MB. Cette limite respecte les recommandations de sécurité SonarQube
+     * (limite recommandée : inférieure ou égale à 8 MB pour les uploads de fichiers).
+     * Cette limite est choisie pour :
      * - limiter l'impact mémoire/disque des uploads,
      * - rester suffisante pour les documents administratifs usuels (PDF, images),
      * - réduire les risques d'attaque par upload de fichiers trop volumineux.
      */
-    private const MAX_DOCUMENT_SIZE_KB = 10240; // 10 MB
+    private const MAX_DOCUMENT_SIZE_KB = 8192; // 8 MB - Compliant avec les recommandations SonarQube
     /**
      * Methode pour afficher le formulaire de profil de l'utilisateur
      */
@@ -145,7 +147,7 @@ class ProfileController extends Controller
             ], [
                 'document.required' => __('auth.document_required'),
                 'document.file' => __('auth.document_must_be_file'),
-                'document.max' => __('auth.document_size_exceeded', ['max' => '10']),
+                'document.max' => __('auth.document_size_exceeded', ['max' => '8']),
                 'document.mimes' => __('auth.document_invalid_format'),
             ]);
 
