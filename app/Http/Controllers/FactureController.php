@@ -74,22 +74,20 @@ class FactureController extends Controller
             // return le fichier de la facture
             $nomfichier = 'facture-' . $facture->idFacture;
 
-
             $chemin = self::DIR_FACTURES . $nomfichier . '.pdf';
             if (Storage::disk('public')->exists($chemin)) {
-
-
-                $urlPublique = Storage::url(self::DIR_FACTURES . $nomfichier . '.pdf');
-                return view('facture.show', [
+                $urlPublique = Storage::url($chemin);
+                $return = view('facture.show', [
                     'facture' => $facture,
                     'fichierpdf' => $urlPublique,
                 ]);
-            }else {
-            // CRITICAL FIX: Do not fall through. Handle the error.
-            return redirect()->route('admin.facture.index')
-                ->with('error', 'facture.fichierpdfintrouvable');
-        }
+            } else {
+                // File not found: redirect with error
+                $return = redirect()->route('admin.facture.index')
+                    ->with('error', 'facture.fichierpdfintrouvable');
+            }
 
+            return $return;
         }
 
 
@@ -151,7 +149,7 @@ class FactureController extends Controller
         $facture = $montants['facture'];
 
     
-        if (in_array($facture->etat, ['manuel', 'manuel verifier'])) {
+        if (in_array($facture->etat, ['manuel', 'manuel verifier'], true)) {
         
             $manualResponse = $this->factureExporter->serveManualFile($facture, $returnBinary);
             if ($manualResponse) {
@@ -177,7 +175,7 @@ class FactureController extends Controller
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
         $client = $facture->famille()->first()->utilisateurs()->first();
-        if ($facture->etat) {
+        if (in_array($facture->etat, ['verifier', 'manuel verifier'], true)) {
 
             $famille = Famille::find($facture->idFamille);
 
@@ -265,8 +263,8 @@ class FactureController extends Controller
             $filename = 'facture-' . $facture->idFacture . '.' . $extention;
             $path =  $file->storeAs('factures', $filename, 'public');
 
-            $inputPath = Storage::disk('local')->path($path);
-            $outputDir = storage_path('app/factures_private/');
+            $inputPath = Storage::disk('public')->path($path);
+            $outputDir = storage_path('app/public/factures/');
 
             if (file_exists($inputPath)) {
                 $command = 'libreoffice --headless --convert-to pdf ' . escapeshellarg($inputPath) . ' --outdir ' . escapeshellarg($outputDir);
@@ -289,27 +287,26 @@ class FactureController extends Controller
      */
     public function createFacture(): void
     {
-        $familles = Famille::all();
         $mois = Carbon::now()->month;
 
         $previsionnel = !in_array($mois, [2, 8], true);
-        Famille::chunkById(100, function ($familles) use ($previsionnel) {  
-            foreach ($familles as $famille) {  
-                $parents = $famille->utilisateurs()->get();  
-                foreach ($parents as $parent) {  
+        Famille::chunkById(100, function ($familles) use ($previsionnel) {
+            foreach ($familles as $famille) {
+                $parents = $famille->utilisateurs()->get();
+                foreach ($parents as $parent) {
 
-                    if (($parent->pivot->parite ?? 0) > 0) {  
+                    if (($parent->pivot->parite ?? 0) > 0) {
 
-                        $facture = new Facture();  
-                        $facture->idFamille = $famille->idFamille;  
-                        $facture->idUtilisateur = $parent->idUtilisateur;  
-                        $facture->previsionnel = $previsionnel;  
-                        $facture->dateC = now();  
-                        $facture->etat = 'brouillon';  
-                        $facture->save();  
-                    }  
-                }  
-            }  
+                        $facture = new Facture();
+                        $facture->idFamille = $famille->idFamille;
+                        $facture->idUtilisateur = $parent->idUtilisateur;
+                        $facture->previsionnel = $previsionnel;
+                        $facture->dateC = now();
+                        $facture->etat = 'brouillon';
+                        $facture->save();
+                    }
+                }
+            }
         });
     }
 

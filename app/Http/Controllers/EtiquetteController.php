@@ -14,8 +14,9 @@ class EtiquetteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(?Request $request = null)
     {
+        $request = $request ?? request();
         $this->ensureEtiquetteIsPublicColumn();
 
         $filters = [

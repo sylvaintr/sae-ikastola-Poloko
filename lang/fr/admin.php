@@ -1,6 +1,9 @@
 <?php
 
-const OBLIGATORY_DOCUMENTS_LABEL = 'Documents obligatoires';
+if (!defined('OBLIGATORY_DOCUMENTS_LABEL')) {
+    define('OBLIGATORY_DOCUMENTS_LABEL', 'Documents obligatoires');
+}
+
 
 $common = [
     'roles' => 'Rôles',

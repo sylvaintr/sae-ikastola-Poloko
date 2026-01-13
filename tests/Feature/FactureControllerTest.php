@@ -86,12 +86,12 @@ class FactureControllerTest extends TestCase
 
     public function test_valider_facture_changes_state()
     {
-        $facture = Facture::factory()->create(['etat' => false]);
+        $facture = Facture::factory()->create(['etat' => 'brouillon']);
 
         $response = $this->get(route('admin.facture.valider', $facture->id));
 
         $response->assertRedirect(route('admin.facture.index', $facture->id));
-        $this->assertTrue(Facture::find($facture->id)->etat);
+        $this->assertEquals('verifier', Facture::find($facture->id)->etat);
     }
 
     public function test_envoyer_facture_sends_email_when_valid()
@@ -103,7 +103,7 @@ class FactureControllerTest extends TestCase
         $famille->utilisateurs()->detach();
         $famille->utilisateurs()->attach($utilisateur->id);
         $facture = Facture::factory()->create([
-            'etat' => true,
+            'etat' => 'verifier',
             'idFamille' => $famille->idFamille
         ]);
 
@@ -122,7 +122,7 @@ class FactureControllerTest extends TestCase
 
         $utilisateur = Utilisateur::factory()->create();
         $facture = Facture::factory()->create([
-            'etat' => false,
+            'etat' => 'brouillon',
             'idUtilisateur' => $utilisateur->id
         ]);
 

@@ -1,20 +1,19 @@
     # --- Image PHP-FPM 8.4 sur Alpine ---
     FROM php:8.4-fpm-alpine
 
-    # Récupération de l'installateur d'extensions (outil très pratique)
-    COPY --from=mlocati/php-extension-installer@sha256:4d4554c37920d31481b23932e67df1415df84b80e4b78c9371253c3937107297 /usr/bin/install-php-extensions /usr/local/bin/
+    # Récupération de l'installateur d'extensions 
+    COPY --from=mlocati/php-extension-installer:2 /usr/bin/install-php-extensions /usr/local/bin/
 
-    # 1. Installation des dépendances système (Pour Alpine : apk au lieu de apt-get)
+    # 1. Installation des dépendances système 
     RUN apk add --no-cache \
         nodejs \
         npm \
         bash \
         git \
         netcat-openbsd \
-        libreoffice 
-
-    # 2. Installation des extensions PHP + Composer
-    RUN install-php-extensions \
+        libreoffice \
+        ttf-freefont \
+        && install-php-extensions \
         pdo_mysql \
         pdo_pgsql \
         exif \

@@ -88,7 +88,7 @@ class CalculMontantFactureTest extends TestCase
     // Helper methods to reduce duplication across tests
     private function createFamille(array $attrs = []): Famille
     {
-        return Famille::create(array_merge(['aineDansAutreSeaska' => false], $attrs));
+        return Famille::factory()->create(array_merge(['aineDansAutreSeaska' => false], $attrs));
     }
 
     private function createEnfant(Famille $famille, array $attrs = []): Enfant
@@ -129,8 +129,7 @@ class CalculMontantFactureTest extends TestCase
 
     private function invokeCalculerMontantFacture(Facture $facture)
     {
-        $controller = new \App\Http\Controllers\FactureController();
-        $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
-        return $ref->invoke($controller, $facture->idFacture);
+        $calculator = new \App\Services\FactureCalculator();
+        return $calculator->calculerMontantFacture($facture->idFacture);
     }
 }

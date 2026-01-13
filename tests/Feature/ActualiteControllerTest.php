@@ -166,7 +166,7 @@ class ActualiteControllerTest extends TestCase
     {
         $act = Actualite::factory()->create(['dateP' => now()]);
         $controller = new ActualiteController();
-        $response = $controller->adminIndex();
+        $response = $controller->adminIndex(new Request());
         $this->assertInstanceOf(\Illuminate\View\View::class, $response);
         $data = $response->getData();
         $this->assertArrayHasKey('actualites', $data);
