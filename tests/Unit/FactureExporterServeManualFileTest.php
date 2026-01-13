@@ -12,7 +12,7 @@ class FactureExporterServeManualFileTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_serveManualFile_returns_null_when_no_manual_file()
+    public function test_servir_fichier_manuel_retourne_null_quand_aucun_fichier_manuel()
     {
         Storage::fake('public');
 

@@ -10,7 +10,7 @@ class StoreActualiteRequestTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_prepare_for_validation_converts_slash_date_and_sets_archive_true()
+    public function test_prepare_pour_validation_convertit_date_avec_slash_et_definit_archive_true()
     {
         $req = new StoreActualiteRequest();
         // Simulate incoming request data
@@ -28,7 +28,7 @@ class StoreActualiteRequestTest extends TestCase
         $this->assertTrue($req->get('archive'));
     }
 
-    public function test_prepare_for_validation_handles_missing_or_invalid_date_and_archive_false()
+    public function test_prepare_pour_validation_gere_date_manquante_ou_invalide_et_archive_false()
     {
         $req = new StoreActualiteRequest();
         $req->merge([
@@ -45,7 +45,7 @@ class StoreActualiteRequestTest extends TestCase
         $this->assertEquals('', $req->get('dateP'));
     }
 
-    public function test_authorize_returns_true_for_authenticated_and_false_for_guest()
+    public function test_authorize_retourne_true_pour_authentifie_et_false_pour_invite()
     {
         // Guest should be unauthorized
         $req = new StoreActualiteRequest();

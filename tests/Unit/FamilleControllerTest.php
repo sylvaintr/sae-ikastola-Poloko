@@ -16,7 +16,7 @@ class FamilleControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_ajouter_creates_famille_with_children_and_users()
+    public function test_ajouter_cree_famille_avec_enfants_et_utilisateurs()
     {
         // given: a classe exists for enfants
         $classe = Classe::factory()->create();
@@ -65,7 +65,7 @@ class FamilleControllerTest extends TestCase
         // basic check: response includes the famille object and status code already asserted above
     }
 
-    public function test_show_json_returns_404_when_not_found()
+    public function test_show_json_retourne_404_si_introuvable()
     {
         // given: request wants json
         $req = Request::create('/', 'GET', [], [], [], ['HTTP_ACCEPT' => 'application/json']);
@@ -78,7 +78,7 @@ class FamilleControllerTest extends TestCase
         $this->assertEquals(404, $resp->getStatusCode());
     }
 
-    public function test_show_json_returns_family_when_found()
+    public function test_show_json_retourne_famille_si_trouvee()
     {
         $famille = Famille::factory()->create();
 
@@ -92,7 +92,7 @@ class FamilleControllerTest extends TestCase
         $this->assertEquals(200, $resp->getStatusCode());
     }
 
-    public function test_delete_nonexistent_returns_404()
+    public function test_suppression_introuvable_retourne_404()
     {
         $ctrl = new FamilleController();
         $resp = $ctrl->delete(999999);
@@ -101,7 +101,7 @@ class FamilleControllerTest extends TestCase
         $this->assertEquals(404, $resp->getStatusCode());
     }
 
-    public function test_searchByParent_without_query_returns_empty()
+    public function test_recherche_par_parent_sans_requete_retourne_vide()
     {
         $req = Request::create('/', 'GET', []);
         $this->app->instance('request', $req);
@@ -113,7 +113,7 @@ class FamilleControllerTest extends TestCase
         $this->assertEquals([], $resp->getData(true));
     }
 
-    public function test_update_nonexistent_returns_404()
+    public function test_mise_a_jour_introuvable_retourne_404()
     {
         $req = Request::create('/', 'POST', ['enfants' => [], 'utilisateurs' => []]);
         $this->app->instance('request', $req);

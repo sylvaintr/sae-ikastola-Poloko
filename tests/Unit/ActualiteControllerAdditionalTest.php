@@ -13,7 +13,7 @@ class ActualiteControllerAdditionalTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_calling_undefined_method_throws_bad_method_call_exception()
+    public function test_appel_methode_indefinie_lance_bad_method_call_exception()
     {
         $this->expectException(\BadMethodCallException::class);
 
@@ -22,7 +22,7 @@ class ActualiteControllerAdditionalTest extends TestCase
         $controller->thisMethodDoesNotExistAtAll();
     }
 
-    public function test_data_filter_etiquettes_whereHas_restricts_results()
+    public function test_filtre_donnees_etiquettes_whereHas_restreint_resultats()
     {
         // Create an etiquette and an actualite that references it
         $et = Etiquette::factory()->create(['nom' => 'special-tag']);
@@ -42,7 +42,7 @@ class ActualiteControllerAdditionalTest extends TestCase
         $this->assertEquals('WithTag', $results->first()->titrefr);
     }
 
-    public function test_data_endpoint_triggers_inline_titre_and_etiquettes_filters()
+    public function test_endpoint_data_declenche_filtres_inline_titre_et_etiquettes()
     {
         // create data
         $et = Etiquette::factory()->create(['nom' => 'special']);
@@ -81,7 +81,7 @@ class ActualiteControllerAdditionalTest extends TestCase
         $this->assertTrue($foundEtiq, 'Expected at least one row with etiquettes containing special');
     }
 
-    public function test_inline_filter_methods_are_callable_and_filter_correctly()
+    public function test_methodes_filtre_inline_sont_callable_et_filtrent_correctement()
     {
         $et = Etiquette::factory()->create(['nom' => 'inline-tag']);
         $a1 = Actualite::factory()->create(['titrefr' => 'InlineMatch', 'archive' => false]);

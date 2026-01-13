@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class FactureExporterAdditionalTest extends TestCase
 {
-    public function test_render_pdf_from_html_returns_pdf()
+    public function test_rendre_pdf_depuis_html_retourne_pdf()
     {
         $exporter = new FactureExporter();
         $html = '<html><body><p>Hello PDF</p></body></html>';
@@ -20,7 +20,7 @@ class FactureExporterAdditionalTest extends TestCase
         $this->assertStringContainsString('%PDF', $pdf);
     }
 
-    public function test_generate_and_serve_facture_returns_binary_and_response()
+    public function test_generer_et_servir_facture_retourne_binaire_et_reponse()
     {
         $exporter = new FactureExporter();
 
@@ -47,7 +47,7 @@ class FactureExporterAdditionalTest extends TestCase
         $this->assertStringContainsString('attachment', $response->headers->get('Content-Disposition'));
     }
 
-    public function test_load_and_serve_manual_file_pdf_and_doc()
+    public function test_charger_et_servir_fichier_manuel_pdf_et_doc()
     {
         \Illuminate\Support\Facades\Storage::fake('public');
 
@@ -81,7 +81,7 @@ class FactureExporterAdditionalTest extends TestCase
         $this->assertEquals('DOCDATA', $servedBinary2);
     }
 
-    public function test_content_type_for_ext()
+    public function test_type_contenu_pour_extension_supplementaire()
     {
         $exporter = new FactureExporter();
         $this->assertEquals('application/pdf', $exporter->contentTypeForExt('pdf'));

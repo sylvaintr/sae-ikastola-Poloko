@@ -16,7 +16,7 @@ class CoverageExtras2Test extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_store_and_update_with_formrequest_like_object()
+    public function test_enregistrement_et_mise_a_jour_avec_objet_similaire_formrequest()
     {
         $controller = new ActualiteController();
 
@@ -80,7 +80,7 @@ class CoverageExtras2Test extends TestCase
         $this->assertEquals('updated', Actualite::find($act->idActualite)->titrefr);
     }
 
-    public function test_storeactualiterequest_prepare_for_validation_and_rules()
+    public function test_storeactualiterequest_prepare_validation_et_regles()
     {
         $req = StoreActualiteRequest::create('/','POST', ['dateP' => '10/12/2025']);
         $ref = new \ReflectionMethod(StoreActualiteRequest::class, 'prepareForValidation');
@@ -93,7 +93,7 @@ class CoverageExtras2Test extends TestCase
         $this->assertArrayHasKey('dateP', $rules);
     }
 
-    public function test_accountcontroller_redirect_if_archived()
+    public function test_accountcontroller_redirige_si_archive()
     {
         $controller = new AccountController();
 
@@ -108,7 +108,7 @@ class CoverageExtras2Test extends TestCase
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
     }
 
-    public function test_presencecontroller_extract_class_ids_private()
+    public function test_presencecontroller_extrait_ids_classe_prive()
     {
         $controller = new PresenceController();
 

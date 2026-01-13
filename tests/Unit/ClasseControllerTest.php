@@ -53,7 +53,7 @@ class ClasseControllerTest extends TestCase
         $this->assertEquals($children->count(), Enfant::whereNull('idClasse')->count());
     }
 
-    public function test_index_returns_view()
+    public function test_index_retourne_vue()
     {
         Classe::factory()->count(2)->create();
 
@@ -65,7 +65,7 @@ class ClasseControllerTest extends TestCase
         $this->assertInstanceOf(\Illuminate\View\View::class, $view);
     }
 
-    public function test_data_returns_json()
+    public function test_data_retourne_json()
     {
         Classe::factory()->count(2)->create();
 
@@ -75,7 +75,7 @@ class ClasseControllerTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $resp);
     }
 
-    public function test_show_returns_view_with_children()
+    public function test_show_retourne_vue_avec_enfants()
     {
         $classe = Classe::factory()->create();
         $child = Enfant::factory()->create(['idClasse' => $classe->idClasse, 'idEnfant' => 3000]);
@@ -87,7 +87,7 @@ class ClasseControllerTest extends TestCase
         $this->assertArrayHasKey('classe', $view->getData());
     }
 
-    public function test_edit_returns_view()
+    public function test_edit_retourne_vue()
     {
         $classe = Classe::factory()->create();
         $ctrl = new ClasseController();
@@ -95,7 +95,7 @@ class ClasseControllerTest extends TestCase
         $this->assertInstanceOf(\Illuminate\View\View::class, $view);
     }
 
-    public function test_create_returns_view()
+    public function test_create_retourne_vue()
     {
         // prepare some available enfants
         Enfant::factory()->create(['idFamille' => 0, 'idEnfant' => 5000]);

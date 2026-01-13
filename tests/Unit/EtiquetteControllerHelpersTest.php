@@ -12,7 +12,7 @@ class EtiquetteControllerHelpersTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_applyRoleWhereHas_adds_where_binding()
+    public function test_applyRoleWhereHas_ajoute_clause_where()
     {
         $controller = new EtiquetteController();
 
@@ -22,7 +22,7 @@ class EtiquetteControllerHelpersTest extends TestCase
         $this->assertContains(42, $q->getBindings());
     }
 
-    public function test_filterRolesColumnByKeyword_adds_like_bindings()
+    public function test_filterRolesColumn_par_mot_cle_ajoute_like()
     {
         $controller = new EtiquetteController();
 
@@ -32,7 +32,7 @@ class EtiquetteControllerHelpersTest extends TestCase
         $this->assertContains('%term%', $query->getBindings());
     }
 
-    public function test_columnActionsHtml_returns_view_with_etiquette()
+    public function test_actions_colonne_html_retourne_vue_avec_etiquette()
     {
         $etiquette = Etiquette::factory()->create(['nom' => 'T']);
         $controller = new EtiquetteController();

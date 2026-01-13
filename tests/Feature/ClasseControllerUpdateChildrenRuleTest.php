@@ -12,7 +12,7 @@ class ClasseControllerUpdateChildrenRuleTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_update_fails_when_child_belongs_to_another_class()
+    public function test_mise_a_jour_echoue_si_enfant_appartient_autre_classe()
     {
         // classes
         $target = Classe::factory()->create(['nom' => 'Target', 'niveau' => 'CP']);

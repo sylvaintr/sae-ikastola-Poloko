@@ -13,7 +13,7 @@ class HandlesDocumentDownloadsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_downloadDocumentWithFormattedName_uses_extension_from_nom_when_path_has_no_extension()
+    public function test_telechargement_nom_formatte_utilise_extension_depuis_nom_si_chemin_sans_extension()
     {
         $this->withoutMiddleware();
         Storage::fake('public');
@@ -50,7 +50,7 @@ class HandlesDocumentDownloadsTest extends TestCase
         $this->assertStringContainsString('Dupont_Jean_Attestation.pdf', $disposition);
     }
 
-    public function test_downloadDocumentWithFormattedName_defaults_to_pdf_when_nom_has_no_extension()
+    public function test_telechargement_nom_formatte_defaut_pdf_si_nom_sans_extension()
     {
         $this->withoutMiddleware();
         Storage::fake('public');

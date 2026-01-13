@@ -8,7 +8,7 @@ use Tests\TestCase;
 
 class TacheModelTest extends TestCase
 {
-    public function test_relations_return_relation_instances()
+    public function test_relations_retournent_instances_relation()
     {
         // given
         $t = new Tache();

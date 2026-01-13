@@ -7,7 +7,7 @@ use App\Http\Controllers\ProfileController;
 
 class ProfileControllerValidateFileMagicBytesUnsupportedTest extends TestCase
 {
-    public function test_validateFileMagicBytes_sets_unsupported_message_when_no_magic_bytes_for_extension()
+    public function test_validate_magic_bytes_definit_message_non_supporte_quand_pas_de_magic_bytes_pour_extension()
     {
         $controller = new ProfileController();
 

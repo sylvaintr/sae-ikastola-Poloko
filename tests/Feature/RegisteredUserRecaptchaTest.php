@@ -10,7 +10,7 @@ class RegisteredUserRecaptchaTest extends TestCase
     use RefreshDatabase;
     public const EXEMPLE_MOT_DE_PASSE = 'P@ssw0rd123!';
 
-    public function test_registration_fails_when_recaptcha_required_but_missing()
+    public function test_inscription_echoue_si_recaptcha_requis_manquant()
     {
         // Enable recaptcha and ensure secret key is empty => verifyRecaptcha will return false
         config(['services.recaptcha.enabled' => true]);
@@ -29,7 +29,7 @@ class RegisteredUserRecaptchaTest extends TestCase
         $response->assertSessionHasErrors(['g-recaptcha-response']);
     }
 
-    public function test_registration_succeeds_with_recaptcha_in_local_test_keys()
+    public function test_inscription_reussit_avec_recaptcha_cles_locales_de_test()
     {
         // Enable recaptcha and set test keys so verifyRecaptcha accepts non-empty responses in local env
         config(['services.recaptcha.enabled' => true]);

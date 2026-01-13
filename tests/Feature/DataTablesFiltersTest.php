@@ -15,7 +15,7 @@ class DataTablesFiltersTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_actualite_datatables_column_search_titre_matches()
+    public function test_recherche_colonne_titre_datatables_actualite_correspond()
     {
         $unique = 'UniqueTitle' . uniqid();
         $a = Actualite::factory()->create(['titrefr' => $unique]);
@@ -39,7 +39,7 @@ class DataTablesFiltersTest extends TestCase
         $this->assertStringContainsString($unique, json_encode($payload['data']));
     }
 
-    public function test_actualite_datatables_column_search_etiquettes_matches()
+    public function test_recherche_colonne_etiquettes_datatables_actualite_correspond()
     {
         $label = 'Label' . uniqid();
         $et = Etiquette::factory()->create(['nom' => $label]);
@@ -63,7 +63,7 @@ class DataTablesFiltersTest extends TestCase
         $this->assertStringContainsString($label, json_encode($payload['data']));
     }
 
-    public function test_etiquette_datatables_role_column_search_and_role_filter()
+    public function test_datatables_etiquette_recherche_colonne_role_et_filtre_role()
     {
         $role = Role::factory()->create(['name' => 'RoleSearch' . substr(uniqid(), -6)]);
         $et = Etiquette::factory()->create(['nom' => 'Etag' . uniqid()]);

@@ -10,7 +10,7 @@ class FamilleControllerSearchByParentTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_searchByParent_returns_message_when_no_families_found()
+    public function test_recherche_par_parent_retourne_message_quand_aucune_famille_trouvee()
     {
         $request = Request::create('/','GET', ['q' => 'zzzz']);
 

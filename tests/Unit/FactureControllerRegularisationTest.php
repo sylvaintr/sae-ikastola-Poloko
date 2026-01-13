@@ -15,7 +15,7 @@ class FactureControllerRegularisationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_calculerRegularisation_adds_10_when_nbfoisgarderie_between_1_and_8()
+    public function test_calculer_regularisation_ajoute_10_si_nbfoisgarderie_entre_1_et_8()
     {
         // Setup family, child, activity and an Etre record within the facture month
         $famille = Famille::factory()->create();

@@ -18,7 +18,7 @@ class FactureControllerUnitTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_export_facture_delegates_to_exporter_and_returns_response()
+    public function test_export_facture_delegue_a_exporteur_et_retourne_reponse()
     {
         // given
         $facture = Facture::factory()->create(['etat' => 'verifier']);
@@ -42,7 +42,7 @@ class FactureControllerUnitTest extends TestCase
         $this->assertEquals('application/pdf', $resp->headers->get('Content-Type'));
     }
 
-    public function test_envoyer_facture_sends_mail_when_verified()
+    public function test_envoyer_facture_envoie_mail_si_verifie()
     {
         // given
         Mail::fake();
@@ -73,7 +73,7 @@ class FactureControllerUnitTest extends TestCase
         Mail::assertSent(FactureMail::class);
     }
 
-    public function test_update_without_file_sets_facture_to_manuel()
+    public function test_mise_a_jour_sans_fichier_definit_facture_manuel()
     {
         // given
         $facture = Facture::factory()->create(['etat' => 'brouillon']);

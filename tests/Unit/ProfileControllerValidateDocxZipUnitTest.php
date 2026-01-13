@@ -7,7 +7,7 @@ use App\Http\Controllers\ProfileController;
 
 class ProfileControllerValidateDocxZipUnitTest extends TestCase
 {
-    public function test_validateDocxZip_returns_false_when_open_fails()
+    public function test_validate_docx_zip_retourne_false_si_ouverture_echoue()
     {
         $controller = new ProfileController();
         $ref = new \ReflectionMethod(ProfileController::class, 'validateDocxZip');
@@ -32,7 +32,7 @@ class ProfileControllerValidateDocxZipUnitTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function test_validateDocxZip_returns_false_when_no_word_folder()
+    public function test_validate_docx_zip_retourne_false_si_pas_de_dossier_word()
     {
         $controller = new ProfileController();
         $ref = new \ReflectionMethod(ProfileController::class, 'validateDocxZip');
@@ -61,7 +61,7 @@ class ProfileControllerValidateDocxZipUnitTest extends TestCase
         $this->assertFalse($result);
     }
 
-    public function test_validateDocxZip_returns_true_when_word_folder_present()
+    public function test_validate_docx_zip_retourne_true_si_dossier_word_present()
     {
         $controller = new ProfileController();
         $ref = new \ReflectionMethod(ProfileController::class, 'validateDocxZip');

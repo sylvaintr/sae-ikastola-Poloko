@@ -12,8 +12,9 @@ class ProfileControllerDeleteDocumentTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_delete_document_denied_when_valid()
+    public function test_suppression_document_refuse_si_non_autorise()
     {
+        // given
         Storage::fake('public');
 
         $user = Utilisateur::factory()->create();
@@ -27,14 +28,17 @@ class ProfileControllerDeleteDocumentTest extends TestCase
 
         $user->documents()->attach($document->idDocument);
 
+        // when
         $response = $this->actingAs($user)->delete(route('profile.document.delete', ['document' => $document->idDocument]));
 
+        // then
         $response->assertRedirect();
         $response->assertSessionHas('error');
     }
 
-    public function test_delete_document_success_removes_file_and_detaches()
+    public function test_suppression_document_succes_supprime_fichier_et_detache()
     {
+        // given
         Storage::fake('public');
 
         $user = Utilisateur::factory()->create();
@@ -51,8 +55,10 @@ class ProfileControllerDeleteDocumentTest extends TestCase
 
         $user->documents()->attach($document->idDocument);
 
+        // when
         $response = $this->actingAs($user)->delete(route('profile.document.delete', ['document' => $document->idDocument]));
 
+        // then
         $response->assertRedirect();
         $response->assertSessionHas('status');
         Storage::disk('public')->assertMissing($path);

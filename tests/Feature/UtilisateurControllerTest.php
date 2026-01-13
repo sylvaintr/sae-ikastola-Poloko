@@ -18,12 +18,12 @@ class UtilisateurControllerTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_class_has_searchByNom_method(): void
+    public function test_classe_possede_methode_searchByNom(): void
     {
         $this->assertTrue(method_exists(\App\Http\Controllers\UtilisateurController::class, 'searchByNom'));
     }
 
-    public function test_searchByNom_without_nom_returns_400(): void
+    public function test_searchByNom_sans_nom_retourne_400(): void
     {
         $controller = new UtilisateurController();
         $request = Request::create('/search', 'GET');
@@ -33,7 +33,7 @@ class UtilisateurControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    public function test_searchByNom_with_no_results_returns_404(): void
+    public function test_searchByNom_sans_resultats_retourne_404(): void
     {
         // Use a very unlikely name to avoid needing mocks
         $name = 'no_such_name_' . uniqid();

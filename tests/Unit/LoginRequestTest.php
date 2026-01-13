@@ -12,7 +12,7 @@ class LoginRequestTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_authenticate_throws_if_user_exists_but_not_validated()
+    public function test_authentification_lance_exception_si_utilisateur_existe_mais_non_valide()
     {
         $user = Utilisateur::factory()->create([
             'email' => 'notvalid@example.com',

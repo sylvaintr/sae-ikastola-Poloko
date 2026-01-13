@@ -16,7 +16,7 @@ class DemandeControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_index_returns_view_and_defaults()
+    public function test_index_retourne_vue_et_valeurs_par_defaut()
     {
         Tache::factory()->count(3)->create();
 
@@ -32,7 +32,7 @@ class DemandeControllerTest extends TestCase
         $this->assertArrayHasKey('urgences', $data);
     }
 
-    public function test_create_returns_view()
+    public function test_create_retourne_vue()
     {
         $controller = new DemandeController();
         $view = $controller->create();
@@ -43,7 +43,7 @@ class DemandeControllerTest extends TestCase
         $this->assertArrayHasKey('urgences', $data);
     }
 
-    public function test_show_returns_view_with_photos_and_histories()
+    public function test_show_retourne_vue_avec_photos_et_historique()
     {
         Storage::fake('public');
 
@@ -68,7 +68,7 @@ class DemandeControllerTest extends TestCase
         $this->assertEquals(20.0, $data['totalDepense']);
     }
 
-    public function test_store_creates_tache_and_history_without_photos()
+    public function test_store_cree_tache_et_historique_sans_photos()
     {
         $payload = [
             'titre' => 'New demande',
@@ -102,7 +102,7 @@ class DemandeControllerTest extends TestCase
         $this->assertDatabaseHas('demande_historique', ['idDemande' => $tache->idTache]);
     }
 
-    public function test_edit_redirects_when_terminated()
+    public function test_edit_redirige_quand_termine()
     {
         $tache = Tache::factory()->create(['etat' => 'Terminé']);
         $controller = new DemandeController();
@@ -111,7 +111,7 @@ class DemandeControllerTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
     }
 
-    public function test_update_applies_updates()
+    public function test_update_applique_mises_a_jour()
     {
         $tache = Tache::factory()->create(['titre' => 'old']);
 
@@ -136,7 +136,7 @@ class DemandeControllerTest extends TestCase
         $this->assertDatabaseHas('tache', ['idTache' => $tache->idTache, 'titre' => 'updated']);
     }
 
-    public function test_storeHistorique_creates_history()
+    public function test_storeHistorique_cree_historique()
     {
         $tache = Tache::factory()->create(['etat' => 'En cours']);
 
@@ -161,7 +161,7 @@ class DemandeControllerTest extends TestCase
         $this->assertDatabaseHas('demande_historique', ['idDemande' => $tache->idTache, 'titre' => $tache->titre]);
     }
 
-    public function test_validateDemande_sets_terminated_and_creates_history()
+    public function test_validate_demande_definit_termine_et_cree_historique()
     {
         $tache = Tache::factory()->create(['etat' => 'En cours']);
 
@@ -173,7 +173,7 @@ class DemandeControllerTest extends TestCase
         $this->assertDatabaseHas('demande_historique', ['idDemande' => $tache->idTache]);
     }
 
-    public function test_destroy_deletes_files_and_records()
+    public function test_destroy_supprime_fichiers_et_enregistrements()
     {
         Storage::fake('public');
 

@@ -23,7 +23,7 @@ class FactureControllerExtraTest extends TestCase
         $this->withoutMiddleware();
     }
 
-    public function test_export_calls_manual_service_and_returns_binary()
+    public function test_export_appelle_service_manuel_et_retourne_binaire()
     {
         $facture = Facture::factory()->create(['etat' => 'manuel']);
 
@@ -38,7 +38,7 @@ class FactureControllerExtraTest extends TestCase
         $this->assertEquals('BINARY_CONTENT', $response->getContent());
     }
 
-    public function test_valider_facture_deletes_old_document_files_when_manual()
+    public function test_valider_facture_supprime_anciens_fichiers_quand_manuel()
     {
         Storage::fake('public');
 
@@ -60,7 +60,7 @@ class FactureControllerExtraTest extends TestCase
         $this->assertEquals('manuel verifier', Facture::find($facture->idFacture)->etat);
     }
 
-    public function test_update_rejects_invalid_file_by_magic_bytes()
+    public function test_mise_a_jour_rejette_fichier_invalide_par_magic_bytes()
     {
         $facture = Facture::factory()->create();
 
@@ -74,7 +74,7 @@ class FactureControllerExtraTest extends TestCase
         $response->assertSessionHas('error', 'facture.invalidfile');
     }
 
-    public function test_envoyer_facture_attaches_pdf_and_sends_mail_when_verified()
+    public function test_envoyer_facture_attache_pdf_et_envoie_mail_si_verifie()
     {
         Mail::fake();
         Storage::fake('public');

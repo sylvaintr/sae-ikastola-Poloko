@@ -30,7 +30,7 @@ class FamilleControllerTest extends TestCase
         $this->adminUser->roles()->attach(Role::where('name', 'CA')->first());
     }
 
-    public function test_api_index_returns_json_list()
+    public function test_api_index_retourne_liste_json()
     {
         Famille::factory()->count(3)->create();
 
@@ -40,7 +40,7 @@ class FamilleControllerTest extends TestCase
         $this->assertGreaterThanOrEqual(3, count($response->json()));
     }
 
-    public function test_web_admin_index_returns_view()
+    public function test_web_admin_index_retourne_vue()
     {
         $response = $this->actingAs($this->adminUser)
                          ->get(route('admin.familles.index'));
@@ -50,7 +50,7 @@ class FamilleControllerTest extends TestCase
         $response->assertViewHas('familles');
     }
 
-    public function test_api_show_returns_json_family()
+    public function test_api_show_retourne_famille_json()
     {
         $famille = Famille::factory()->create();
         $response = $this->getJson('/api/familles/' . $famille->idFamille);
@@ -59,7 +59,7 @@ class FamilleControllerTest extends TestCase
                  ->assertJsonFragment(['idFamille' => $famille->idFamille]);
     }
 
-    public function test_web_admin_show_returns_view()
+    public function test_web_admin_show_retourne_vue()
     {
         $famille = Famille::factory()->create();
         
@@ -71,7 +71,7 @@ class FamilleControllerTest extends TestCase
         $response->assertViewHas('famille');
     }
 
-    public function test_show_returns_404_if_missing_json()
+    public function test_show_retourne_404_si_json_manquant()
     {
         $response = $this->getJson('/api/familles/999999999');
         $response->assertStatus(404);
@@ -85,7 +85,7 @@ class FamilleControllerTest extends TestCase
         $response->assertRedirect(route('admin.familles.index'));
     }
 
-    public function test_web_create_returns_view()
+    public function test_web_create_retourne_vue()
     {
         $response = $this->actingAs($this->adminUser)
                          ->get(route('admin.familles.create'));
@@ -95,7 +95,7 @@ class FamilleControllerTest extends TestCase
         $response->assertViewHas(['tousUtilisateurs', 'tousEnfants']);
     }
 
-    public function test_web_edit_returns_view()
+    public function test_web_edit_retourne_vue()
     {
         $famille = Famille::factory()->create();
         
@@ -107,7 +107,7 @@ class FamilleControllerTest extends TestCase
         $response->assertViewHas('famille');
     }
 
-    public function test_web_edit_redirects_if_missing()
+    public function test_web_edit_redirige_si_manquant()
     {
         $response = $this->actingAs($this->adminUser)
                          ->get(route('admin.familles.edit', 999999));
@@ -156,7 +156,7 @@ class FamilleControllerTest extends TestCase
         $this->assertDatabaseMissing('famille', ['idFamille' => $famille->idFamille]);
     }
 
-    public function test_delete_returns_404_if_missing()
+    public function test_suppression_retourne_404_si_introuvable()
     {
         $response = $this->actingAs($this->adminUser)
                          ->delete(route('admin.familles.delete', 999999));
@@ -176,7 +176,7 @@ class FamilleControllerTest extends TestCase
         $response->assertJsonFragment(['nom' => 'SearchableName']);
     }
 
-    public function test_search_by_parent_short_query_returns_validation_error()
+    public function test_recherche_par_parent_requete_courte_retourne_erreur_validation()
     {
         $response = $this->getJson('/api/search?q=a');
         $response->assertStatus(422);

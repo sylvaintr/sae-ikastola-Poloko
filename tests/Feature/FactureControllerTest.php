@@ -28,7 +28,7 @@ class FactureControllerTest extends TestCase
         $this->withoutMiddleware();
     }
 
-    public function test_index_returns_view()
+    public function test_index_retourne_vue()
     {
         $response = $this->get(route('admin.facture.index'));
 
@@ -36,7 +36,7 @@ class FactureControllerTest extends TestCase
         $response->assertViewIs('facture.index');
     }
 
-    public function test_show_returns_view_with_data()
+    public function test_show_retourne_vue_avec_donnees()
     {
 
         $famille = Famille::factory()->create();
@@ -50,7 +50,7 @@ class FactureControllerTest extends TestCase
         $response->assertViewHasAll(['facture', 'famille', 'enfants']);
     }
 
-    public function test_factures_data_returns_json()
+    public function test_donnees_factures_retournent_json()
     {
         Facture::factory()->count(3)->create();
 
@@ -64,7 +64,7 @@ class FactureControllerTest extends TestCase
         ]);
     }
 
-    public function test_export_facture_returns_pdf_or_doc()
+    public function test_export_facture_retourne_pdf_ou_doc()
     {
         $facture = Facture::factory()->create(['etat' => true]);
         $famille = Famille::factory()->create();
@@ -84,7 +84,7 @@ class FactureControllerTest extends TestCase
         $response->assertHeader('Content-Type', 'application/vnd.ms-word');
     }
 
-    public function test_valider_facture_changes_state()
+    public function test_valider_facture_change_etat()
     {
         $facture = Facture::factory()->create(['etat' => 'brouillon']);
 
@@ -94,7 +94,7 @@ class FactureControllerTest extends TestCase
         $this->assertEquals('verifier', Facture::find($facture->id)->etat);
     }
 
-    public function test_envoyer_facture_sends_email_when_valid()
+    public function test_envoyer_facture_envoie_email_si_valide()
     {
         Mail::fake();
 
@@ -116,7 +116,7 @@ class FactureControllerTest extends TestCase
     }
 
 
-    public function test_envoyer_facture_does_not_send_email_when_invalid()
+    public function test_envoyer_facture_n_envoie_pas_email_si_invalide()
     {
         Mail::fake();
 

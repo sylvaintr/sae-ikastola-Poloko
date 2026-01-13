@@ -14,7 +14,7 @@ class FactureControllerUpdateTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_update_returns_early_on_invalid_magic_bytes_and_does_not_change_etat()
+    public function test_mise_a_jour_retourne_tot_si_magic_bytes_invalide_et_ne_change_pas_etat()
     {
         $facture = Facture::factory()->create(['etat' => 'brouillon']);
 
@@ -30,7 +30,7 @@ class FactureControllerUpdateTest extends TestCase
         $this->assertEquals('brouillon', $facture->etat);
     }
 
-    public function test_update_with_valid_magic_bytes_sets_etat_to_manuel_and_saves()
+    public function test_mise_a_jour_avec_magic_bytes_valide_definit_etat_manuel_et_enregistre()
     {
         $facture = Facture::factory()->create(['etat' => 'brouillon']);
 
@@ -58,7 +58,7 @@ class FactureControllerUpdateTest extends TestCase
         $this->assertEquals('manuel', $facture->etat);
     }
 
-    public function test_update_deletes_existing_files_when_present()
+    public function test_mise_a_jour_supprime_fichiers_existants_si_present()
     {
         $facture = Facture::factory()->create(['etat' => 'brouillon']);
 
@@ -86,7 +86,7 @@ class FactureControllerUpdateTest extends TestCase
         $this->assertEquals('manuel', $facture->etat);
     }
 
-    public function test_update_calls_exec_when_inputfile_exists()
+    public function test_mise_a_jour_appelle_exec_quand_fichier_entree_existe()
     {
         $facture = Facture::factory()->create(['etat' => 'brouillon']);
 

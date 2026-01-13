@@ -7,7 +7,7 @@ use App\Http\Controllers\ProfileController;
 
 class ProfileControllerValidateDocxIfNeededNoZipTest extends TestCase
 {
-    public function test_validateDocxIfNeeded_returns_true_when_no_ZipArchive_class()
+    public function test_validate_docx_si_necessaire_retourne_true_quand_pas_de_classe_ZipArchive()
     {
         $controller = new ProfileController();
 

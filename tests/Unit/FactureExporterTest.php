@@ -13,7 +13,7 @@ class FactureExporterTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_content_type_for_ext()
+    public function test_type_contenu_pour_extension()
     {
         // given
         $e = new FactureExporter();
@@ -27,7 +27,7 @@ class FactureExporterTest extends TestCase
         $this->assertSame('application/vnd.ms-word', $docType);
     }
 
-    public function test_load_and_serve_manual_file_with_storage_simple()
+    public function test_charger_et_servir_fichier_manuel_avec_storage_simple()
     {
         // given
         Storage::fake('public');
@@ -48,7 +48,7 @@ class FactureExporterTest extends TestCase
         $this->assertStringContainsString('facture-' . $facture->idFacture . '.pdf', $response->headers->get('Content-Disposition'));
     }
 
-    public function test_loadManualFile_returns_null_when_missing_and_array_when_present()
+    public function test_charger_fichier_manuel_retourne_null_quand_manquant_et_tableau_quand_present()
     {
         // given
         Storage::fake('public');
@@ -71,7 +71,7 @@ class FactureExporterTest extends TestCase
         $this->assertEquals('docx', $arr['ext']);
     }
 
-    public function test_serveManualFile_returns_binary_and_response()
+    public function test_servir_fichier_manuel_retourne_binaire_et_reponse()
     {
         // given
         Storage::fake('public');
@@ -92,7 +92,7 @@ class FactureExporterTest extends TestCase
         $this->assertStringContainsString('attachment; filename="facture-', $resp->headers->get('Content-Disposition'));
     }
 
-    public function test_generateAndServeFacture_respects_pdf_and_doc_paths()
+    public function test_generer_et_servir_facture_respecte_chemins_pdf_et_doc()
     {
         // given
         $facture = Facture::factory()->create(['etat' => 'verifier']);
@@ -137,7 +137,7 @@ class FactureExporterTest extends TestCase
         $this->assertIsString($bin);
     }
 
-    public function test_render_pdf_from_html_returns_bytes()
+    public function test_rendre_pdf_depuis_html_retourne_octets()
     {
         // given
         $exporter = new FactureExporter();

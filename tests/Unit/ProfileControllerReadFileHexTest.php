@@ -7,7 +7,7 @@ use App\Http\Controllers\ProfileController;
 
 class ProfileControllerReadFileHexTest extends TestCase
 {
-    public function test_readFileHex_returns_null_when_fopen_fails()
+    public function test_lire_octets_hex_retourne_null_si_fopen_echoue()
     {
         $controller = new ProfileController();
 

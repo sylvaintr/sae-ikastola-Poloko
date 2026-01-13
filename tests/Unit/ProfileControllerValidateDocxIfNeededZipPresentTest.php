@@ -7,7 +7,7 @@ use App\Http\Controllers\ProfileController;
 
 class ProfileControllerValidateDocxIfNeededZipPresentTest extends TestCase
 {
-    public function test_validateDocxIfNeeded_calls_validateDocxZip_when_ZipArchive_available()
+    public function test_validate_docx_si_necessaire_appelle_validate_docx_zip_si_ZipArchive_disponible()
     {
         $controller = new ProfileController();
 

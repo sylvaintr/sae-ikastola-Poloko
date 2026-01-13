@@ -16,7 +16,7 @@ class AvoirEtreModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_avoir_model_basic(): void
+    public function test_modele_avoir_de_base(): void
     {
         // Create a pivot record via DB to exercise the model behavior
         $user = Utilisateur::factory()->create();
@@ -32,7 +32,7 @@ class AvoirEtreModelTest extends TestCase
         $this->assertNotNull($avoir);
     }
 
-    public function test_etre_model_basic(): void
+    public function test_modele_etre_de_base(): void
     {
         $classe = Classe::factory()->create();
         $famille = Famille::factory()->create();

@@ -11,7 +11,7 @@ class EtiquetteControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_column_methods_return_expected_values()
+    public function test_methodes_colonne_retournent_valeurs_attendues()
     {
         $etiquette = Etiquette::factory()->create(['nom' => 'Tag1']);
 

@@ -11,7 +11,7 @@ class PivotSyncTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_roles_custom_sync_sets_idUtilisateur_on_pivot()
+    public function test_roles_custom_sync_definit_idUtilisateur_sur_pivot()
     {
         $this->withoutMiddleware();
 
@@ -32,7 +32,7 @@ class PivotSyncTest extends TestCase
         $this->assertDatabaseHas('avoir', ['idUtilisateur' => $user->idUtilisateur, 'idRole' => $role->idRole]);
     }
 
-    public function test_update_then_sync_retains_primary_key()
+    public function test_mise_a_jour_puis_sync_conserve_cle_primaire()
     {
         $this->withoutMiddleware();
 

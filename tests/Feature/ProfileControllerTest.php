@@ -17,7 +17,7 @@ class ProfileControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_update_resets_email_verification_and_redirects()
+    public function test_mise_a_jour_reinitialise_verif_email_et_redirige()
     {
         $user = Utilisateur::factory()->create([
             'email' => 'old@example.com',
@@ -40,7 +40,7 @@ class ProfileControllerTest extends TestCase
         ]);
     }
 
-    public function test_destroy_requires_password_and_deletes_user()
+    public function test_suppression_exige_mot_de_passe_et_supprime_utilisateur()
     {
         $user = Utilisateur::factory()->create([
             'password' => 'password',
@@ -60,7 +60,7 @@ class ProfileControllerTest extends TestCase
         ]);
     }
 
-    public function test_delete_document_removes_file_and_detaches_document()
+    public function test_suppression_document_supprime_fichier_et_detache_document()
     {
         Storage::fake('public');
 
@@ -91,7 +91,7 @@ class ProfileControllerTest extends TestCase
         ]);
     }
 
-    public function test_edit_returns_view_with_user_and_documents()
+    public function test_edit_retourne_vue_avec_utilisateur_et_documents()
     {
         $user = Utilisateur::factory()->create();
 
@@ -103,7 +103,7 @@ class ProfileControllerTest extends TestCase
             ->assertViewHas('documentsObligatoires');
     }
 
-    public function test_upload_document_validation_failure_returns_errors()
+    public function test_upload_document_echec_validation_retourne_erreurs()
     {
         $user = Utilisateur::factory()->create();
 
@@ -113,7 +113,7 @@ class ProfileControllerTest extends TestCase
             ->assertSessionHasErrors();
     }
 
-    public function test_download_document_forbidden_when_not_owner()
+    public function test_telechargement_document_interdit_si_pas_proprietaire()
     {
         Storage::fake('public');
 
@@ -135,7 +135,7 @@ class ProfileControllerTest extends TestCase
             ->assertStatus(403);
     }
 
-    public function test_download_document_success_returns_file()
+    public function test_telechargement_document_succes_retourne_fichier()
     {
         Storage::fake('public');
 
@@ -158,7 +158,7 @@ class ProfileControllerTest extends TestCase
         $this->assertStringContainsString('attachment', $response->headers->get('content-disposition'));
     }
 
-    public function test_upload_document_success_stores_and_attaches()
+    public function test_upload_document_succes_stocke_et_attache()
     {
         Storage::fake('public');
 
@@ -193,7 +193,7 @@ class ProfileControllerTest extends TestCase
         unlink($tmpPath);
     }
 
-    public function test_upload_document_non_uploadable_returns_error()
+    public function test_upload_document_non_uploadable_retourne_erreur()
     {
         Storage::fake('public');
 
@@ -226,7 +226,7 @@ class ProfileControllerTest extends TestCase
         unlink($tmpPath);
     }
 
-    public function test_upload_document_magic_bytes_invalid_returns_error()
+    public function test_upload_document_magic_bytes_invalide_retourne_erreur()
     {
         Storage::fake('public');
 
@@ -255,7 +255,7 @@ class ProfileControllerTest extends TestCase
         unlink($tmpPath);
     }
 
-    public function test_upload_document_invalid_extension_returns_error()
+    public function test_upload_document_extension_invalide_retourne_erreur()
     {
         Storage::fake('public');
 
@@ -276,7 +276,7 @@ class ProfileControllerTest extends TestCase
         unlink($tmpPath);
     }
 
-    public function test_delete_document_forbidden_when_not_owner()
+    public function test_suppression_document_interdite_si_pas_proprietaire()
     {
         $owner = Utilisateur::factory()->create();
         $other = Utilisateur::factory()->create();
@@ -289,7 +289,7 @@ class ProfileControllerTest extends TestCase
             ->assertStatus(403);
     }
 
-    public function test_delete_document_cannot_delete_validated()
+    public function test_suppression_document_ne_peut_pas_supprimer_valide()
     {
         Storage::fake('public');
 
@@ -313,7 +313,7 @@ class ProfileControllerTest extends TestCase
         Storage::disk('public')->assertExists($path);
     }
     
-    public function test_upload_docx_without_word_folder_returns_error()
+    public function test_upload_docx_sans_dossier_word_retourne_erreur()
     {
         Storage::fake('public');
 
@@ -347,7 +347,7 @@ class ProfileControllerTest extends TestCase
         @unlink($tmp);
     }
 
-    public function test_upload_empty_file_cannot_read_returns_error()
+    public function test_upload_fichier_vide_impossible_lecture_retourne_erreur()
     {
         Storage::fake('public');
 
@@ -376,7 +376,7 @@ class ProfileControllerTest extends TestCase
         @unlink($tmp);
     }
 
-    public function test_upload_document_not_for_user_roles_returns_error()
+    public function test_upload_document_pas_pour_roles_utilisateur_retourne_erreur()
     {
         Storage::fake('public');
 
@@ -405,7 +405,7 @@ class ProfileControllerTest extends TestCase
         @unlink($tmp);
     }
 
-    public function test_download_document_missing_file_returns_404()
+    public function test_telechargement_document_fichier_manquant_retourne_404()
     {
         $user = Utilisateur::factory()->create(['prenom' => 'X', 'nom' => 'Y']);
         $path = 'profiles/' . $user->idUtilisateur . '/obligatoires/missing.pdf';

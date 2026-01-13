@@ -18,7 +18,7 @@ class PresenceControllerTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_class_has_methods(): void
+    public function test_classe_a_les_methodes_attendues(): void
     {
         $this->assertTrue(method_exists(PresenceController::class, 'classes'));
         $this->assertTrue(method_exists(PresenceController::class, 'students'));
@@ -26,7 +26,7 @@ class PresenceControllerTest extends TestCase
         $this->assertTrue(method_exists(PresenceController::class, 'save'));
     }
 
-    public function test_students_without_classe_id_returns_empty_array(): void
+    public function test_eleves_sans_classe_retourne_tableau_vide(): void
     {
         $controller = new PresenceController();
         $request = Request::create('/students', 'GET');
@@ -37,7 +37,7 @@ class PresenceControllerTest extends TestCase
         $this->assertEquals([], $response->getData(true));
     }
 
-    public function test_status_without_params_returns_presentIds_empty(): void
+    public function test_status_sans_param_retourne_presentIds_vide(): void
     {
         $controller = new PresenceController();
         $request = Request::create('/status', 'GET');
@@ -50,7 +50,7 @@ class PresenceControllerTest extends TestCase
         $this->assertEquals([], $data['presentIds']);
     }
 
-    public function test_save_missing_fields_throws_validation_exception(): void
+    public function test_enregistrement_champs_manquants_lance_exception_validation(): void
     {
         $this->expectException(ValidationException::class);
 

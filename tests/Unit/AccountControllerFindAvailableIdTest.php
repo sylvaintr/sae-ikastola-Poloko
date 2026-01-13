@@ -11,7 +11,7 @@ class AccountControllerFindAvailableIdTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_find_available_id_on_empty_returns_one()
+    public function test_trouver_id_disponible_sur_table_vide_retourne_un()
     {
         // ensure table is empty
         Utilisateur::query()->delete();
@@ -25,7 +25,7 @@ class AccountControllerFindAvailableIdTest extends TestCase
         $this->assertEquals(1, $id);
     }
 
-    public function test_find_available_id_finds_gap()
+    public function test_trouver_id_disponible_trouve_un_ecart()
     {
         Utilisateur::query()->delete();
         Utilisateur::factory()->create(['idUtilisateur' => 1]);
@@ -39,7 +39,7 @@ class AccountControllerFindAvailableIdTest extends TestCase
         $this->assertEquals(3, $id);
     }
 
-    public function test_find_available_id_returns_max_plus_one_when_no_gaps()
+    public function test_trouver_id_disponible_retourne_max_plus_un_quand_pas_de_vide()
     {
         Utilisateur::query()->delete();
         for ($i = 1; $i <= 3; $i++) {
