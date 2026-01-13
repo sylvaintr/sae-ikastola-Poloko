@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\HandlesDocumentDownloads;
+use App\Models\Document;
 use App\Models\Utilisateur;
 use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class AccountController extends Controller
 {
+    use HandlesDocumentDownloads;
     public function index(Request $request): View
     {
         $query = Utilisateur::query();
@@ -293,6 +297,71 @@ class AccountController extends Controller
         return redirect()
             ->route('admin.accounts.index')
             ->with('status', trans('admin.accounts_page.messages.deleted'));
+    }
+    
+    /**
+     * Valide ou invalide un document obligatoire d'un utilisateur
+     */
+    public function validateDocument(Request $request, Utilisateur $account, Document $document): RedirectResponse
+    {
+        // Vérifier que le document appartient à l'utilisateur
+        if (!$account->documents()->where('document.idDocument', $document->idDocument)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $validated = $request->validate([
+            'etat' => ['required', 'string', 'in:valide,en_attente'],
+        ]);
+        
+        // Si on valide, passer à 'valide', sinon passer à 'en_attente' (en cours de validation)
+        $document->update(['etat' => $validated['etat']]);
+        
+        return redirect()
+            ->route('admin.accounts.show', $account)
+            ->with('status', 'document_validated');
+    }
+    
+    /**
+     * Supprime un document obligatoire d'un utilisateur
+     */
+    public function deleteDocument(Request $request, Utilisateur $account, Document $document): RedirectResponse
+    {
+        // Vérifier que le document appartient à l'utilisateur
+        if (!$account->documents()->where('document.idDocument', $document->idDocument)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        // Ne pas permettre la suppression si le document est validé
+        if ($document->etat === 'valide') {
+            return redirect()
+                ->route('admin.accounts.show', $account)
+                ->with('error', __('auth.document_validated_cannot_delete'));
+        }
+        
+        // Supprimer le fichier physique
+        if (Storage::disk('public')->exists($document->chemin)) {
+            Storage::disk('public')->delete($document->chemin);
+        }
+        
+        // Détacher le document de l'utilisateur
+        $account->documents()->detach($document->idDocument);
+        
+        // Supprimer le document si aucun autre utilisateur ne l'utilise
+        if ($document->utilisateurs()->count() === 0) {
+            $document->delete();
+        }
+        
+        return redirect()
+            ->route('admin.accounts.show', $account)
+            ->with('status', 'document_deleted');
+    }
+    
+    /**
+     * Télécharge un document obligatoire d'un utilisateur
+     */
+    public function downloadDocument(Request $request, Utilisateur $account, Document $document)
+    {
+        return $this->downloadDocumentWithFormattedName($account, $document);
     }
 }
 
