@@ -140,7 +140,7 @@ class ProfileController extends Controller
                 'document' => [
                     'required',
                     'file',
-                    'max:' . self::MAX_DOCUMENT_SIZE_KB,
+                    'max:' . (int) self::MAX_DOCUMENT_SIZE_KB, // 8MB max
                     'mimes:pdf,doc,docx,jpg,jpeg,png'
                 ],
                 'idDocumentObligatoire' => ['required', 'integer', 'exists:documentObligatoire,idDocumentObligatoire'],
