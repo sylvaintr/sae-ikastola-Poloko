@@ -102,6 +102,7 @@ return [
                 'invalidate' => 'Baliogabetu',
                 'confirm_validate' => 'Ziur al zaude dokumentu hau balioztatu nahi duzula?',
                 'confirm_invalidate' => 'Ziur al zaude dokumentu hau baliogabetu nahi duzula?',
+                'confirm_delete' => 'Ziur al zaude dokumentu hau ezabatu nahi duzula?',
             ],
         ],
         'messages' => [
