@@ -2,15 +2,12 @@
 
 namespace Tests\Unit;
 
-use App\Http\Controllers\FactureController;
 use App\Models\Facture;
 use App\Models\Famille;
+use App\Models\Utilisateur;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\Utilisateur;
-use App\Models\Classe;
-use App\Models\Enfant;
 use Illuminate\Http\UploadedFile;
 
 class FactureControllerTest extends TestCase
@@ -28,7 +25,7 @@ class FactureControllerTest extends TestCase
         Storage::disk('public')->put($base . '.doc', 'x');
         Storage::disk('public')->put($base . '.odt', 'y');
 
-        $ctrl = new FactureController();
+        $ctrl = new \App\Http\Controllers\FactureController();
         $resp = $ctrl->validerFacture((string)$facture->idFacture);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
@@ -44,7 +41,7 @@ class FactureControllerTest extends TestCase
     public function test_exportFacture_returns_manual_binary_when_present()
     {
         // given
-        $facture = \App\Models\Facture::factory()->create(['etat' => 'manuel']);
+        $facture = Facture::factory()->create(['etat' => 'manuel']);
 
         $mockCalculator = $this->getMockBuilder(\App\Services\FactureCalculator::class)->onlyMethods(['calculerMontantFacture'])->getMock();
         $mockCalculator->method('calculerMontantFacture')->willReturn(['facture' => $facture]);
@@ -66,7 +63,7 @@ class FactureControllerTest extends TestCase
     public function test_exportFacture_calls_generate_for_non_manual()
     {
         // given
-        $facture = \App\Models\Facture::factory()->create(['etat' => 'brouillon']);
+        $facture = Facture::factory()->create(['etat' => 'brouillon']);
 
         $mockCalculator = $this->getMockBuilder(\App\Services\FactureCalculator::class)->onlyMethods(['calculerMontantFacture'])->getMock();
         $mockCalculator->method('calculerMontantFacture')->willReturn(['facture' => $facture]);

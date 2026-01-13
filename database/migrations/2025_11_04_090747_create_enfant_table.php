@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('NNI');
             $table->integer('nbFoisGarderie')->default(0);
             $table->integer('idClasse')->nullable()->index('idclasse');
-            $table->integer('idFamille')->index('idfamille');
+            $table->integer('idFamille')->nullable()->index('idfamille');
         });
     }
 

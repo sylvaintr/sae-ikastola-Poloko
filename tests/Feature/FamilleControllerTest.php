@@ -32,14 +32,11 @@ class FamilleControllerTest extends TestCase
 
     public function test_api_index_returns_json_list()
     {
-        // Authenticate just in case, though API route might be open or different middleware
-        // api.php has 'familles' route.
         Famille::factory()->count(3)->create();
 
         $response = $this->getJson('/api/familles');
 
         $response->assertStatus(200);
-        // Depending on pagination or format, assert structure
         $this->assertGreaterThanOrEqual(3, count($response->json()));
     }
 
@@ -139,12 +136,9 @@ class FamilleControllerTest extends TestCase
             ]
         ];
 
-        // The route in api.php is POST /api/familles
-        
         $response = $this->postJson('/api/familles', $payload);
         $response->assertStatus(201);
         
-        // Handling potentially flat or nested response
         $idFamille = $response->json('famille.idFamille');
         $this->assertDatabaseHas('famille', ['idFamille' => $idFamille]);
         $this->assertDatabaseHas('enfant', ['nom' => 'Dupont', 'idFamille' => $idFamille]);
@@ -155,11 +149,10 @@ class FamilleControllerTest extends TestCase
     {
         $famille = Famille::factory()->create();
         
-        // This is a web admin route: DELETE /admin/familles/{id}
         $response = $this->actingAs($this->adminUser)
                          ->delete(route('admin.familles.delete', $famille->idFamille));
 
-        $response->assertStatus(200); // Controller returns JSON response even for web route
+        $response->assertStatus(200);
         $this->assertDatabaseMissing('famille', ['idFamille' => $famille->idFamille]);
     }
 

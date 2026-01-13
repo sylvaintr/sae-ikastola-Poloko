@@ -60,7 +60,7 @@
 
 
 <div class="dropdown d-flex flex-row-reverse mb-3">
-    <button type="button" class="btn btn-secondary dropdown-toggle w-100 w-sm-auto" data-bs-toggle="dropdown"
+    <button type="button" class="btn demande-btn-primary text-white" data-bs-toggle="dropdown"
         aria-expanded="false">
         {{ __('actualite.filter') }}
     </button>
