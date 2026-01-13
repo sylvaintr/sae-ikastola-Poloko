@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Response;
 
 trait HandlesDocumentDownloads
 {
+    private const REGEX_CLEAN_FILENAME = '/[^a-zA-Z0-9]/';
     /**
      * Télécharge un document obligatoire avec un nom de fichier formaté.
      *
@@ -52,9 +53,9 @@ trait HandlesDocumentDownloads
         $prenomUtilisateur = $user->prenom ?? '';
 
         // Nettoyer les noms (remplacer les caractères spéciaux par des underscores)
-        $nomUtilisateur = preg_replace('/[^a-zA-Z0-9]/', '_', $nomUtilisateur);
-        $prenomUtilisateur = preg_replace('/[^a-zA-Z0-9]/', '_', $prenomUtilisateur);
-        $nomDocumentObligatoire = preg_replace('/[^a-zA-Z0-9]/', '_', $nomDocumentObligatoire);
+        $nomUtilisateur = preg_replace(self::REGEX_CLEAN_FILENAME, '_', $nomUtilisateur);
+        $prenomUtilisateur = preg_replace(self::REGEX_CLEAN_FILENAME, '_', $prenomUtilisateur);
+        $nomDocumentObligatoire = preg_replace(self::REGEX_CLEAN_FILENAME, '_', $nomDocumentObligatoire);
 
         // Construire le nom de fichier
         $fileName = trim($nomUtilisateur . '_' . $prenomUtilisateur . '_' . $nomDocumentObligatoire);

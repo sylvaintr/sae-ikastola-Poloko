@@ -30,6 +30,9 @@ class ProfileController extends Controller
      * - réduire les risques d'attaque par upload de fichiers trop volumineux.
      */
     private const MAX_DOCUMENT_SIZE_KB = 8192; // 8 MB - Compliant avec les recommandations SonarQube
+    private const ZIP_MAGIC_BYTES = '504b0304'; // Magic bytes pour fichiers ZIP/DOCX
+    private const REGEX_CLEAN_FILENAME = '/[^a-zA-Z0-9]/'; // Regex pour nettoyer les noms de fichiers
+
     /**
      * Methode pour afficher le formulaire de profil de l'utilisateur
      */
@@ -136,99 +139,130 @@ class ProfileController extends Controller
     public function uploadDocument(Request $request): RedirectResponse
     {
         try {
-            $maxSize = (int) self::MAX_DOCUMENT_SIZE_KB;
-            $request->validate([
-                'document' => [
-                    'required',
-                    'file',
-                    'max:' . $maxSize,
-                    'mimes:pdf,doc,docx,jpg,jpeg,png'
-                ],
-                'idDocumentObligatoire' => ['required', 'integer', 'exists:documentObligatoire,idDocumentObligatoire'],
-            ], [
-                'document.required' => __('auth.document_required'),
-                'document.file' => __('auth.document_must_be_file'),
-                'document.max' => __('auth.document_size_exceeded', ['max' => '8']),
-                'document.mimes' => __('auth.document_invalid_format'),
-            ]);
-
+            $this->validateDocumentUpload($request);
             $user = $request->user();
             $file = $request->file('document');
             $idDocumentObligatoire = $request->input('idDocumentObligatoire');
-            
-            // Vérifier que le document obligatoire est bien associé à un rôle de l'utilisateur
-            $userRoleIds = $user->rolesCustom()->pluck('avoir.idRole')->toArray();
-            $documentObligatoire = DocumentObligatoire::whereHas('roles', function($query) use ($userRoleIds) {
-                $query->whereIn('attribuer.idRole', $userRoleIds);
-            })->findOrFail($idDocumentObligatoire);
-            
-            // Vérifier que le document n'est pas déjà en cours de validation ou validé
-            // On utilise le nom du document obligatoire pour trouver les documents existants
-            $dernierDocument = $user->documents()
-                ->where(function($query) use ($documentObligatoire) {
-                    $query->where('nom', 'like', '%' . $documentObligatoire->nom . '%')
-                          ->orWhere('nom', $documentObligatoire->nom);
-                })
-                ->orderBy('idDocument', 'desc')
-                ->first();
-            
-            if ($dernierDocument && in_array($dernierDocument->etat, ['en_attente', 'valide'])) {
-                return Redirect::route('profile.edit')
-                    ->with('error', __('auth.document_non_uploadable'));
+
+            $documentObligatoire = $this->getDocumentObligatoireForUser($user, $idDocumentObligatoire);
+            $error = $this->checkDocumentUploadability($user, $documentObligatoire);
+            if ($error) {
+                return $error;
             }
-            
-            // Vérifier le format du fichier en analysant les premiers octets (magic bytes)
+
             $extension = strtolower($file->getClientOriginalExtension());
-            $allowedExtensions = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
-            
-            if (!in_array($extension, $allowedExtensions)) {
-                return Redirect::route('profile.edit')
-                    ->with('error', __('auth.invalid_file_format'));
+            $error = $this->validateFileExtension($extension);
+            if ($error) {
+                return $error;
             }
-            
-            // Vérifier les magic bytes du fichier
-            $magicBytesValidation = $this->validateFileMagicBytes($file, $extension);
-            if (!$magicBytesValidation['valid']) {
-                return Redirect::route('profile.edit')
-                    ->with('error', $magicBytesValidation['message'] ?? __('auth.invalid_file_format'));
+
+            $error = $this->validateFileMagicBytesWrapper($file, $extension);
+            if ($error) {
+                return $error;
             }
-            
-            // Déterminer le type de fichier (limité à 5 caractères max selon la migration)
-            $type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' : 'doc';
-            
-            // Stocker le fichier
-            $path = $file->store('profiles/' . $user->idUtilisateur . '/obligatoires', 'public');
-            
-            // Créer le document avec le nom du fichier (limité à 50 caractères max)
-            $nomFichier = $file->getClientOriginalName();
-            $nomComplet = $documentObligatoire->nom . ' - ' . $nomFichier;
-            $nomFinal = strlen($nomComplet) > 50 ? substr($nomComplet, 0, 47) . '...' : $nomComplet;
-            
-            $document = Document::create([
-                'nom' => $nomFinal,
-                'chemin' => $path,
-                'type' => $type,
-                'etat' => 'en_attente', // En cours de validation
-            ]);
-            
-            // Lier le document à l'utilisateur
-            $user->documents()->attach($document->idDocument);
-            
+
+            $path = $this->storeDocument($file, $user, $documentObligatoire);
+            $this->attachDocumentToUser($user, $path, $documentObligatoire, $file, $extension);
+
             return Redirect::route('profile.edit')->with('status', 'document-uploaded');
-            
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             return Redirect::route('profile.edit')
                 ->withErrors($e->errors())
                 ->with('error', __('auth.upload_error'));
         } catch (\Exception $e) {
-            // En cas d'erreur, supprimer le fichier s'il a été créé
             if (isset($path) && Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->delete($path);
             }
-            
             return Redirect::route('profile.edit')
                 ->with('error', __('auth.upload_error') . ': ' . $e->getMessage());
         }
+    }
+
+    private function validateDocumentUpload(Request $request): void
+    {
+        $maxSize = (int) self::MAX_DOCUMENT_SIZE_KB;
+        $request->validate([
+            'document' => [
+                'required',
+                'file',
+                'max:' . $maxSize,
+                'mimes:pdf,doc,docx,jpg,jpeg,png'
+            ],
+            'idDocumentObligatoire' => ['required', 'integer', 'exists:documentObligatoire,idDocumentObligatoire'],
+        ], [
+            'document.required' => __('auth.document_required'),
+            'document.file' => __('auth.document_must_be_file'),
+            'document.max' => __('auth.document_size_exceeded', ['max' => '8']),
+            'document.mimes' => __('auth.document_invalid_format'),
+        ]);
+    }
+
+    private function getDocumentObligatoireForUser($user, int $idDocumentObligatoire): DocumentObligatoire
+    {
+        $userRoleIds = $user->rolesCustom()->pluck('avoir.idRole')->toArray();
+        return DocumentObligatoire::whereHas('roles', function($query) use ($userRoleIds) {
+            $query->whereIn('attribuer.idRole', $userRoleIds);
+        })->findOrFail($idDocumentObligatoire);
+    }
+
+    private function checkDocumentUploadability($user, DocumentObligatoire $documentObligatoire): ?RedirectResponse
+    {
+        $dernierDocument = $user->documents()
+            ->where(function($query) use ($documentObligatoire) {
+                $query->where('nom', 'like', '%' . $documentObligatoire->nom . '%')
+                      ->orWhere('nom', $documentObligatoire->nom);
+            })
+            ->orderBy('idDocument', 'desc')
+            ->first();
+
+        if ($dernierDocument && in_array($dernierDocument->etat, ['en_attente', 'valide'])) {
+            return Redirect::route('profile.edit')
+                ->with('error', __('auth.document_non_uploadable'));
+        }
+        return null;
+    }
+
+    private function validateFileExtension(string $extension): ?RedirectResponse
+    {
+        $allowedExtensions = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+        if (!in_array($extension, $allowedExtensions)) {
+            return Redirect::route('profile.edit')
+                ->with('error', __('auth.invalid_file_format'));
+        }
+        return null;
+    }
+
+    private function validateFileMagicBytesWrapper($file, string $extension): ?RedirectResponse
+    {
+        $magicBytesValidation = $this->validateFileMagicBytes($file, $extension);
+        if (!$magicBytesValidation['valid']) {
+            return Redirect::route('profile.edit')
+                ->with('error', $magicBytesValidation['message'] ?? __('auth.invalid_file_format'));
+        }
+        return null;
+    }
+
+    private function storeDocument($file, $user, DocumentObligatoire $documentObligatoire): string
+    {
+        return $file->store('profiles/' . $user->idUtilisateur . '/obligatoires', 'public');
+    }
+
+    private function attachDocumentToUser($user, string $path, DocumentObligatoire $documentObligatoire, $file, string $extension): void
+    {
+        $type = in_array($extension, ['jpg', 'jpeg', 'png']) ? 'image' : 'doc';
+        $nomFichier = $file->getClientOriginalName();
+        $nomComplet = $documentObligatoire->nom . ' - ' . $nomFichier;
+        $nomFinal = strlen($nomComplet) > 50 ? substr($nomComplet, 0, 47) . '...' : $nomComplet;
+
+        $document = Document::create([
+            'nom' => $nomFinal,
+            'chemin' => $path,
+            'type' => $type,
+            'etat' => 'en_attente',
+        ]);
+
+        $user->documents()->attach($document->idDocument);
     }
     
     /**
@@ -264,7 +298,7 @@ class ProfileController extends Controller
                 'jpeg' => ['ffd8ff'], // JPEG
                 'png' => ['89504e47'], // PNG
                 'doc' => ['d0cf11e0', '0d444f43'], // MS Office (DOC, XLS, PPT)
-                'docx' => ['504b0304'], // ZIP/Office Open XML (DOCX, XLSX, PPTX)
+                'docx' => [self::ZIP_MAGIC_BYTES], // ZIP/Office Open XML (DOCX, XLSX, PPTX)
             ];
             
             if (!isset($magicBytes[$extension])) {
@@ -272,36 +306,15 @@ class ProfileController extends Controller
             }
             
             // Vérifier si les magic bytes correspondent
-            $valid = false;
-            foreach ($magicBytes[$extension] as $magicHex) {
-                if (strpos($hex, $magicHex) === 0) {
-                    $valid = true;
-                    break;
-                }
-            }
+            $valid = $this->checkMagicBytes($hex, $magicBytes[$extension]);
             
             // Pour DOCX, vérifier aussi qu'il contient "word" dans le ZIP si l'extension est disponible
-            if ($extension === 'docx' && !$valid && class_exists('ZipArchive')) {
-                // DOCX est un ZIP, on vérifie les magic bytes ZIP
-                if (strpos($hex, '504b0304') === 0) {
-                    // Ouvrir le fichier comme ZIP pour vérifier qu'il contient word/
-                    $zip = new \ZipArchive();
-                    if ($zip->open($file->getRealPath()) === true) {
-                        $hasWord = false;
-                        for ($i = 0; $i < $zip->numFiles; $i++) {
-                            if (strpos($zip->getNameIndex($i), 'word/') === 0) {
-                                $hasWord = true;
-                                break;
-                            }
-                        }
-                        $zip->close();
-                        $valid = $hasWord;
-                    }
-                }
+            if ($extension === 'docx' && !$valid && class_exists('ZipArchive') && strpos($hex, self::ZIP_MAGIC_BYTES) === 0) {
+                $valid = $this->validateDocxZip($file);
             }
             
             // Si DOCX a les bons magic bytes ZIP mais qu'on ne peut pas vérifier le contenu, on accepte quand même
-            if ($extension === 'docx' && !$valid && strpos($hex, '504b0304') === 0) {
+            if ($extension === 'docx' && !$valid && strpos($hex, self::ZIP_MAGIC_BYTES) === 0) {
                 $valid = true;
             }
             
@@ -317,6 +330,40 @@ class ProfileController extends Controller
         } catch (\Exception $e) {
             return ['valid' => false, 'message' => __('auth.file_validation_error')];
         }
+    }
+
+    /**
+     * Vérifie si les magic bytes correspondent
+     */
+    private function checkMagicBytes(string $hex, array $magicBytesList): bool
+    {
+        foreach ($magicBytesList as $magicHex) {
+            if (strpos($hex, $magicHex) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Valide qu'un fichier DOCX contient bien un dossier word/
+     */
+    private function validateDocxZip($file): bool
+    {
+        $zip = new \ZipArchive();
+        if ($zip->open($file->getRealPath()) !== true) {
+            return false;
+        }
+
+        $hasWord = false;
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            if (strpos($zip->getNameIndex($i), 'word/') === 0) {
+                $hasWord = true;
+                break;
+            }
+        }
+        $zip->close();
+        return $hasWord;
     }
 
     /**

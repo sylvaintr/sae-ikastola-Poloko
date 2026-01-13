@@ -378,7 +378,7 @@ class AccountController extends Controller
     /**
      * Supprime un document obligatoire d'un utilisateur
      */
-    public function deleteDocument(Request $request, Utilisateur $account, Document $document): RedirectResponse
+    public function deleteDocument(Utilisateur $account, Document $document): RedirectResponse
     {
         // Vérifier que le document appartient à l'utilisateur
         if (!$account->documents()->where('document.idDocument', $document->idDocument)->exists()) {
@@ -413,7 +413,7 @@ class AccountController extends Controller
     /**
      * Télécharge un document obligatoire d'un utilisateur
      */
-    public function downloadDocument(Request $request, Utilisateur $account, Document $document)
+    public function downloadDocument(Utilisateur $account, Document $document)
     {
         return $this->downloadDocumentWithFormattedName($account, $document);
     }
