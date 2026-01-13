@@ -38,8 +38,10 @@ class ProfileController extends Controller
             $documentsObligatoiresAvecEtat = $documentsObligatoires->map(function($docOblig) use ($user) {
                 // Récupérer tous les documents de l'utilisateur qui correspondent au nom du document obligatoire
                 $documentsUtilisateur = $user->documents()
-                    ->where('nom', 'like', '%' . $docOblig->nom . '%')
-                    ->orWhere('nom', $docOblig->nom)
+                    ->where(function ($query) use ($docOblig) {
+                        $query->where('nom', 'like', '%' . $docOblig->nom . '%')
+                              ->orWhere('nom', $docOblig->nom);
+                    })
                     ->orderBy('idDocument', 'desc')
                     ->get();
                 
