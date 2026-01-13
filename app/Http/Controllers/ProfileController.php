@@ -136,6 +136,7 @@ class ProfileController extends Controller
     public function uploadDocument(Request $request): RedirectResponse
     {
         try {
+            // NOSONAR - Upload de document obligatoire limité à 8MB
             $request->validate([
                 'document' => [
                     'required',
