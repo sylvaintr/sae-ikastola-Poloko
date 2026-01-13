@@ -31,7 +31,6 @@ class ProfileController extends Controller
      */
     private const MAX_DOCUMENT_SIZE_KB = 8192; // 8 MB - Compliant avec les recommandations SonarQube
     private const ZIP_MAGIC_BYTES = '504b0304'; // Magic bytes pour fichiers ZIP/DOCX
-    private const REGEX_CLEAN_FILENAME = '/[^a-zA-Z0-9]/'; // Regex pour nettoyer les noms de fichiers
 
     /**
      * Methode pour afficher le formulaire de profil de l'utilisateur
@@ -39,17 +38,17 @@ class ProfileController extends Controller
     public function edit(Request $request): View
     {
         $user = $request->user()->load(['familles.enfants.classe']);
-        
+
         // Charger les documents obligatoires pour les rôles de l'utilisateur
         $userRoleIds = $user->rolesCustom()->pluck('avoir.idRole')->toArray();
-        
+
         if (empty($userRoleIds)) {
             $documentsObligatoiresAvecEtat = collect([]);
         } else {
             $documentsObligatoires = DocumentObligatoire::whereHas('roles', function($query) use ($userRoleIds) {
                 $query->whereIn('attribuer.idRole', $userRoleIds);
             })->get();
-            
+
             // Pour chaque document obligatoire, trouver les documents uploadés par l'utilisateur
             // On utilise le nom du document obligatoire pour faire le lien
             $documentsObligatoiresAvecEtat = $documentsObligatoires->map(function($docOblig) use ($user) {
@@ -61,10 +60,10 @@ class ProfileController extends Controller
                     })
                     ->orderBy('idDocument', 'desc')
                     ->get();
-                
+
                 // Prendre le dernier document (le plus récent)
                 $dernierDocument = $documentsUtilisateur->first();
-                
+
                 if (!$dernierDocument) {
                     $docOblig->etat = 'non_remis';
                     $docOblig->documentUploaded = null;
@@ -78,11 +77,11 @@ class ProfileController extends Controller
                     $docOblig->etat = $etatMapping[$dernierDocument->etat] ?? 'remis';
                     $docOblig->documentUploaded = $dernierDocument;
                 }
-                
+
                 return $docOblig;
             });
         }
-        
+
         return view('profile.edit', [
             'user' => $user,
             'documentsObligatoires' => $documentsObligatoiresAvecEtat,
@@ -138,6 +137,9 @@ class ProfileController extends Controller
      */
     public function uploadDocument(Request $request): RedirectResponse
     {
+        $path = null;
+        $response = null;
+
         try {
             $this->validateDocumentUpload($request);
             $user = $request->user();
@@ -145,38 +147,46 @@ class ProfileController extends Controller
             $idDocumentObligatoire = $request->input('idDocumentObligatoire');
 
             $documentObligatoire = $this->getDocumentObligatoireForUser($user, $idDocumentObligatoire);
-            $error = $this->checkDocumentUploadability($user, $documentObligatoire);
-            if ($error) {
-                return $error;
+            $response = $this->checkDocumentUploadability($user, $documentObligatoire);
+
+            if (!$response) {
+                $extension = strtolower($file->getClientOriginalExtension());
+                $response = $this->validateFileExtension($extension);
             }
 
-            $extension = strtolower($file->getClientOriginalExtension());
-            $error = $this->validateFileExtension($extension);
-            if ($error) {
-                return $error;
+            if (!$response) {
+                $response = $this->validateFileMagicBytesWrapper($file, $extension);
             }
 
-            $error = $this->validateFileMagicBytesWrapper($file, $extension);
-            if ($error) {
-                return $error;
+            if (!$response) {
+                $path = $this->storeDocument($file, $user);
+                $this->attachDocumentToUser($user, $path, $documentObligatoire, $file, $extension);
+                $response = Redirect::route('profile.edit')->with('status', 'document-uploaded');
             }
-
-            $path = $this->storeDocument($file, $user, $documentObligatoire);
-            $this->attachDocumentToUser($user, $path, $documentObligatoire, $file, $extension);
-
-            return Redirect::route('profile.edit')->with('status', 'document-uploaded');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return Redirect::route('profile.edit')
-                ->withErrors($e->errors())
-                ->with('error', __('auth.upload_error'));
+            $response = $this->handleUploadError($e->errors(), $path);
         } catch (\Exception $e) {
-            if (isset($path) && Storage::disk('public')->exists($path)) {
-                Storage::disk('public')->delete($path);
-            }
-            return Redirect::route('profile.edit')
-                ->with('error', __('auth.upload_error') . ': ' . $e->getMessage());
+            $response = $this->handleUploadError($e->getMessage(), $path);
         }
+
+        return $response;
+    }
+
+    private function handleUploadError($error, ?string $path = null): RedirectResponse
+    {
+        if ($path && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
+
+        if (is_array($error)) {
+            return Redirect::route('profile.edit')
+                ->withErrors($error)
+                ->with('error', __('auth.upload_error'));
+        }
+
+        return Redirect::route('profile.edit')
+            ->with('error', __('auth.upload_error') . ': ' . $error);
     }
 
     private function validateDocumentUpload(Request $request): void
@@ -243,7 +253,7 @@ class ProfileController extends Controller
         return null;
     }
 
-    private function storeDocument($file, $user, DocumentObligatoire $documentObligatoire): string
+    private function storeDocument($file, $user): string
     {
         return $file->store('profiles/' . $user->idUtilisateur . '/obligatoires', 'public');
     }
@@ -264,72 +274,82 @@ class ProfileController extends Controller
 
         $user->documents()->attach($document->idDocument);
     }
-    
+
     /**
      * Valide le format d'un fichier en analysant les premiers octets (magic bytes)
-     * 
+     *
      * @param \Illuminate\Http\UploadedFile $file
      * @param string $extension
      * @return array ['valid' => bool, 'message' => string|null]
      */
     private function validateFileMagicBytes($file, string $extension): array
     {
+        $result = ['valid' => false, 'message' => null];
+
         try {
-            $handle = fopen($file->getRealPath(), 'rb');
-            if (!$handle) {
-                return ['valid' => false, 'message' => __('auth.cannot_read_file')];
+            $hex = $this->readFileHex($file);
+            if (!$hex) {
+                $result['message'] = __('auth.cannot_read_file');
+            } else {
+                $magicBytes = $this->getMagicBytesForExtension($extension);
+                if (!$magicBytes) {
+                    $result['message'] = __('auth.unsupported_file_type');
+                } else {
+                    $valid = $this->checkMagicBytes($hex, $magicBytes);
+                    $valid = $this->validateDocxIfNeeded($file, $extension, $hex, $valid);
+                    $result['valid'] = $valid;
+                    $result['message'] = $valid ? null : __('auth.file_type_mismatch', ['expected' => strtoupper($extension)]);
+                }
             }
-            
-            // Lire les premiers octets du fichier (suffisant pour identifier la plupart des formats)
-            $bytes = fread($handle, 12);
-            fclose($handle);
-            
-            if ($bytes === false || strlen($bytes) < 4) {
-                return ['valid' => false, 'message' => __('auth.invalid_file_format')];
-            }
-            
-            // Convertir les premiers octets en hexadécimal pour comparaison
-            $hex = bin2hex($bytes);
-            
-            // Définir les magic bytes pour chaque type de fichier autorisé
-            $magicBytes = [
-                'pdf' => ['25504446'], // %PDF
-                'jpg' => ['ffd8ff'], // JPEG
-                'jpeg' => ['ffd8ff'], // JPEG
-                'png' => ['89504e47'], // PNG
-                'doc' => ['d0cf11e0', '0d444f43'], // MS Office (DOC, XLS, PPT)
-                'docx' => [self::ZIP_MAGIC_BYTES], // ZIP/Office Open XML (DOCX, XLSX, PPTX)
-            ];
-            
-            if (!isset($magicBytes[$extension])) {
-                return ['valid' => false, 'message' => __('auth.unsupported_file_type')];
-            }
-            
-            // Vérifier si les magic bytes correspondent
-            $valid = $this->checkMagicBytes($hex, $magicBytes[$extension]);
-            
-            // Pour DOCX, vérifier aussi qu'il contient "word" dans le ZIP si l'extension est disponible
-            if ($extension === 'docx' && !$valid && class_exists('ZipArchive') && strpos($hex, self::ZIP_MAGIC_BYTES) === 0) {
-                $valid = $this->validateDocxZip($file);
-            }
-            
-            // Si DOCX a les bons magic bytes ZIP mais qu'on ne peut pas vérifier le contenu, on accepte quand même
-            if ($extension === 'docx' && !$valid && strpos($hex, self::ZIP_MAGIC_BYTES) === 0) {
-                $valid = true;
-            }
-            
-            if (!$valid) {
-                return [
-                    'valid' => false, 
-                    'message' => __('auth.file_type_mismatch', ['expected' => strtoupper($extension)])
-                ];
-            }
-            
-            return ['valid' => true, 'message' => null];
-            
         } catch (\Exception $e) {
-            return ['valid' => false, 'message' => __('auth.file_validation_error')];
+            $result['message'] = __('auth.file_validation_error');
         }
+
+        return $result;
+    }
+
+    private function readFileHex($file): ?string
+    {
+        $handle = fopen($file->getRealPath(), 'rb');
+        if (!$handle) {
+            return null;
+        }
+
+        $bytes = fread($handle, 12);
+        fclose($handle);
+
+        if ($bytes === false || strlen($bytes) < 4) {
+            return null;
+        }
+
+        return bin2hex($bytes);
+    }
+
+    private function getMagicBytesForExtension(string $extension): ?array
+    {
+        $magicBytes = [
+            'pdf' => ['25504446'], // %PDF
+            'jpg' => ['ffd8ff'], // JPEG
+            'jpeg' => ['ffd8ff'], // JPEG
+            'png' => ['89504e47'], // PNG
+            'doc' => ['d0cf11e0', '0d444f43'], // MS Office (DOC, XLS, PPT)
+            'docx' => [self::ZIP_MAGIC_BYTES], // ZIP/Office Open XML (DOCX, XLSX, PPTX)
+        ];
+
+        return $magicBytes[$extension] ?? null;
+    }
+
+    private function validateDocxIfNeeded($file, string $extension, string $hex, bool $valid): bool
+    {
+        if ($extension !== 'docx' || $valid || strpos($hex, self::ZIP_MAGIC_BYTES) !== 0) {
+            return $valid;
+        }
+
+        if (class_exists('ZipArchive')) {
+            return $this->validateDocxZip($file);
+        }
+
+        return true;
     }
 
     /**
@@ -372,34 +392,34 @@ class ProfileController extends Controller
     public function deleteDocument(Request $request, Document $document): RedirectResponse
     {
         $user = $request->user();
-        
+
         // Vérifier que le document appartient à l'utilisateur
         if (!$user->documents()->where('document.idDocument', $document->idDocument)->exists()) {
             abort(403, 'Unauthorized action.');
         }
-        
+
         // Ne pas permettre la suppression si le document est validé
         if ($document->etat === 'valide') {
             return Redirect::route('profile.edit')
                 ->with('error', __('auth.document_validated_cannot_delete'));
         }
-        
+
         // Supprimer le fichier physique
         if (Storage::disk('public')->exists($document->chemin)) {
             Storage::disk('public')->delete($document->chemin);
         }
-        
+
         // Détacher le document de l'utilisateur
         $user->documents()->detach($document->idDocument);
-        
+
         // Supprimer le document si aucun autre utilisateur ne l'utilise
         if ($document->utilisateurs()->count() === 0) {
             $document->delete();
         }
-        
+
         return Redirect::route('profile.edit')->with('status', 'document-deleted');
     }
-    
+
     /**
      * Méthode pour télécharger un document du profil de l'utilisateur
      */

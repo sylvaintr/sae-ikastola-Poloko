@@ -81,21 +81,21 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <h2 class="h5 fw-bold mb-4">{{ __('admin.accounts_page.show.documents_title') }}</h2>
-                
+
                 @if(session('status') === 'document_validated')
                     <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
                         {{ __('admin.accounts_page.messages.document_validated') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
-                
+
                 @if(session('status') === 'document_deleted')
                     <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
                         {{ __('admin.accounts_page.messages.document_deleted') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
-                
+
                 <div class="table-responsive">
                     <table class="table align-middle admin-table">
                         <thead>
@@ -148,42 +148,42 @@
                                     <td class="text-center">
                                         <div class="d-flex gap-2 justify-content-center flex-wrap">
                                             @if($docOblig->documentUploaded)
-                                                <a href="{{ route('admin.accounts.documents.download', [$account, $docOblig->documentUploaded->idDocument]) }}" 
+                                                <a href="{{ route('admin.accounts.documents.download', [$account, $docOblig->documentUploaded->idDocument]) }}"
                                                    class="btn admin-btn-download">
                                                     <i class="bi bi-download"></i> {{ __('auth.telecharger') }}
                                                 </a>
-                                                
+
                                                 @if($docOblig->documentUploaded->etat === 'valide')
-                                                    <form action="{{ route('admin.accounts.documents.validate', [$account, $docOblig->documentUploaded]) }}" 
-                                                          method="POST" 
+                                                    <form action="{{ route('admin.accounts.documents.validate', [$account, $docOblig->documentUploaded]) }}"
+                                                          method="POST"
                                                           class="d-inline">
                                                         @csrf
                                                         @method('PATCH')
                                                         <input type="hidden" name="etat" value="en_attente">
-                                                        <button type="submit" 
+                                                        <button type="submit"
                                                                 class="btn admin-btn-invalidate"
                                                                 onclick="return confirm('{{ __('admin.accounts_page.show.documents.confirm_invalidate') }}');">
                                                             <i class="bi bi-x-circle"></i> {{ __('admin.accounts_page.show.documents.invalidate') }}
                                                         </button>
                                                     </form>
                                                 @else
-                                                    <form action="{{ route('admin.accounts.documents.validate', [$account, $docOblig->documentUploaded]) }}" 
-                                                          method="POST" 
+                                                    <form action="{{ route('admin.accounts.documents.validate', [$account, $docOblig->documentUploaded]) }}"
+                                                          method="POST"
                                                           class="d-inline">
                                                         @csrf
                                                         @method('PATCH')
                                                         <input type="hidden" name="etat" value="valide">
-                                                        <button type="submit" 
+                                                        <button type="submit"
                                                                 class="btn admin-btn-validate"
                                                                 onclick="return confirm('{{ __('admin.accounts_page.show.documents.confirm_validate') }}');">
                                                             <i class="bi bi-check-circle"></i> {{ __('admin.accounts_page.show.documents.validate') }}
                                                         </button>
                                                     </form>
                                                 @endif
-                                                
+
                                                 @if($docOblig->documentUploaded->etat !== 'valide')
-                                                    <form action="{{ route('admin.accounts.documents.delete', [$account, $docOblig->documentUploaded]) }}" 
-                                                          method="POST" 
+                                                    <form action="{{ route('admin.accounts.documents.delete', [$account, $docOblig->documentUploaded]) }}"
+                                                          method="POST"
                                                           class="d-inline"
                                                           onsubmit="return confirm('{{ __('admin.accounts_page.show.documents.confirm_delete') }}');">
                                                         @csrf

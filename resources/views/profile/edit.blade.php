@@ -6,11 +6,11 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
                         <h2 class="h4 fw-bold mb-4">{{ __('auth.mon_profil') }}</h2>
-                        
+
                         <div class="d-flex flex-column flex-sm-row align-items-start">
                             <!-- Photo de profil -->
                             <div class="me-0 me-sm-4 mb-3 mb-sm-0" style="flex-shrink: 0;">
-                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
+                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center"
                                      style="width: 100px; height: 100px; overflow: hidden; background-color: #f5e6d3;">
                                     @php
                                         $initial = Auth::user()->nom ?: Auth::user()->prenom;
@@ -22,24 +22,24 @@
                                     @endif
                                 </div>
                             </div>
-                            
+
                             <!-- Informations -->
                             <div class="flex-grow-1 w-100">
                                 <div class="mb-3">
                                     <span class="text-muted small">{{ __('auth.nom') }} :</span>
                                     <span class="fw-semibold">{{ Auth::user()->nom ?? '-' }}</span>
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <span class="text-muted small">{{ __('auth.prenom') }} :</span>
                                     <span class="fw-semibold">{{ Auth::user()->prenom ?? '-' }}</span>
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <span class="text-muted small">{{ __('auth.date_naissance') }} :</span>
                                     <span class="fw-semibold">{{ Auth::user()->date_naissance ?? '-' }}</span>
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <span class="text-muted small">{{ __('auth.role') }} :</span>
                                     <span class="fw-semibold">
@@ -50,7 +50,7 @@
                                         @endif
                                     </span>
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <span class="text-muted small">{{ __('auth.statut_compte') }} :</span>
                                     <span class="fw-semibold">
@@ -66,13 +66,13 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Section 2: Informations de la famille -->
             <div class="col-12 col-md-6 mb-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
                         <h2 class="h4 fw-bold mb-4">{{ __('auth.informations_famille') ?? 'Informations de la famille' }}</h2>
-                        
+
                         @if($user->familles->count() > 0)
                             @foreach($user->familles as $famille)
                                 <div class="mb-4">
@@ -80,14 +80,14 @@
                                         <span class="text-muted small">{{ __('auth.famille_id') ?? 'Famille ID' }} :</span>
                                         <span class="fw-semibold">#{{ $famille->idFamille }}</span>
                                     </div>
-                                    
+
                                     @if($famille->pivot->parite)
                                         <div class="mb-3">
                                             <span class="text-muted small">{{ __('auth.parite') ?? 'Parité' }} :</span>
                                             <span class="fw-semibold">{{ $famille->pivot->parite }}</span>
                                         </div>
                                     @endif
-                                    
+
                                     @if($famille->enfants->count() > 0)
                                         <div class="mb-3">
                                             <span class="text-muted small d-block mb-2">{{ __('auth.enfants') ?? 'Enfants' }} :</span>
@@ -111,7 +111,7 @@
                                         <p class="text-muted small">{{ __('auth.aucun_enfant') ?? 'Aucun enfant enregistré' }}</p>
                                     @endif
                                 </div>
-                                
+
                                 @if(!$loop->last)
                                     <hr class="my-4">
                                 @endif
@@ -122,35 +122,35 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Section 3: Documents obligatoires -->
             @if(isset($documentsObligatoires) && $documentsObligatoires->count() > 0)
             <div class="col-12 mb-4">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
                         <h2 class="h4 fw-bold mb-4">{{ __('auth.documents_obligatoires') }}</h2>
-                        
+
                         @if(session('status') === 'document-uploaded')
                             <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
                                 {{ __('auth.document_uploaded') }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         @endif
-                        
+
                         @if(session('status') === 'document-deleted')
                             <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
                                 {{ __('auth.document_deleted') }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         @endif
-                        
+
                         @if(session('error'))
                             <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
                                 {{ session('error') }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         @endif
-                        
+
                         <div class="table-responsive">
                             <table class="table align-middle admin-table">
                                 <thead>
@@ -192,14 +192,14 @@
                                             <td class="text-center">
                                                 <div class="d-flex gap-2 justify-content-center flex-wrap">
                                                     @if($docOblig->documentUploaded)
-                                                        <a href="{{ route('profile.document.download', $docOblig->documentUploaded->idDocument) }}" 
+                                                        <a href="{{ route('profile.document.download', $docOblig->documentUploaded->idDocument) }}"
                                                            class="btn admin-btn-download">
                                                             <i class="bi bi-download"></i> {{ __('auth.telecharger') }}
                                                         </a>
-                                                        
+
                                                         @if($docOblig->documentUploaded->etat !== 'valide')
-                                                            <form action="{{ route('profile.document.delete', $docOblig->documentUploaded->idDocument) }}" 
-                                                                  method="POST" 
+                                                            <form action="{{ route('profile.document.delete', $docOblig->documentUploaded->idDocument) }}"
+                                                                  method="POST"
                                                                   class="d-inline"
                                                                   onsubmit="return confirm('{{ __('auth.confirm_delete_document') }}');">
                                                                 @csrf
@@ -210,15 +210,15 @@
                                                             </form>
                                                         @endif
                                                     @elseif($peutUploader)
-                                                        <button type="button" 
-                                                                class="btn admin-btn-upload" 
-                                                                data-bs-toggle="modal" 
+                                                        <button type="button"
+                                                                class="btn admin-btn-upload"
+                                                                data-bs-toggle="modal"
                                                                 data-bs-target="#uploadModal{{ $docOblig->idDocumentObligatoire }}">
                                                             <i class="bi bi-upload"></i> {{ __('auth.uploader_document') }}
                                                         </button>
                                                     @endif
                                                 </div>
-                                                
+
                                                 <!-- Modal d'upload -->
                                                 <div class="modal fade" id="uploadModal{{ $docOblig->idDocumentObligatoire }}" tabindex="-1">
                                                     <div class="modal-dialog">
@@ -233,10 +233,10 @@
                                                                 <div class="modal-body">
                                                                     <div class="mb-3">
                                                                         <label for="document{{ $docOblig->idDocumentObligatoire }}" class="form-label">{{ __('auth.upload_document') }}</label>
-                                                                        <input type="file" 
-                                                                               class="form-control @error('document') is-invalid @enderror" 
-                                                                               id="document{{ $docOblig->idDocumentObligatoire }}" 
-                                                                               name="document" 
+                                                                        <input type="file"
+                                                                               class="form-control @error('document') is-invalid @enderror"
+                                                                               id="document{{ $docOblig->idDocumentObligatoire }}"
+                                                                               name="document"
                                                                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                                                                required>
                                                                         @error('document')

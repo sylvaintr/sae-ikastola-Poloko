@@ -1,5 +1,7 @@
 <?php
 
+const OBLIGATORY_DOCUMENTS_LABEL = 'Beharrezko dokumentuak';
+
 $common = [
     'roles' => 'Rolak',
     'roles_search' => 'Rolaren bilaketa',
@@ -27,7 +29,7 @@ return [
         'classes' => 'Klaseak',
         'invoices' => 'Fakturak',
         'notifications' => 'Jakinarazpenak',
-        'obligatory_documents' => 'Beharrezko dokumentuak',
+        'obligatory_documents' => OBLIGATORY_DOCUMENTS_LABEL,
         'descriptions' => [
             'add_message' => 'Erabiltzaileek ikus ditzaketen argitalpenak eta berriak kudeatu',
             'accounts' => 'Erabiltzaile kontuak, beren rolak eta balioztatzeak kudeatu',
@@ -91,7 +93,7 @@ return [
             'no_roles' => 'Ez dago esleituriko rolarik',
             'archived_notice' => 'Kontu hau artxibatuta dago. Kontsulta bakarrik baimenduta dago.',
             'details_title' => 'Kontuaren informazioa',
-            'documents_title' => 'Beharrezko dokumentuak',
+            'documents_title' => OBLIGATORY_DOCUMENTS_LABEL,
             'documents' => [
                 'name' => 'Izena',
                 'state' => 'Egoera',
@@ -165,7 +167,7 @@ return [
         'archive_confirmation' => 'Ziur zaude :name kontua artxibatu nahi duzula ?',
     ],
     'obligatory_documents' => [
-        'title' => 'Beharrezko dokumentuak',
+        'title' => OBLIGATORY_DOCUMENTS_LABEL,
         'subtitle' => 'Beharrezko dokumentuaks',
         'description' => 'Orri honek beharrezko dokumentuak kudeatzeko aukera emango du.',
         'add_button' => 'Gehitu dokumentu bat',

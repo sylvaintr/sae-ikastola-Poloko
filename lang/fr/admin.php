@@ -1,5 +1,7 @@
 <?php
 
+const OBLIGATORY_DOCUMENTS_LABEL = 'Documents obligatoires';
+
 $common = [
     'roles' => 'Rôles',
     'roles_search' => 'Rechercher un rôle',
@@ -27,7 +29,7 @@ return [
         'classes' => 'Classes',
         'invoices' => 'Factures',
         'notifications' => 'Notifications',
-        'obligatory_documents' => 'Documents obligatoires',
+        'obligatory_documents' => OBLIGATORY_DOCUMENTS_LABEL,
         'descriptions' => [
             'add_message' => 'Gérez les publications et actualités visibles par les utilisateurs',
             'accounts' => 'Gérez les comptes utilisateurs, leurs rôles et leurs validations',
@@ -108,7 +110,7 @@ return [
             'no_roles_selected' => 'Aucun rôle n\'a été sélectionné',
             'archived_notice' => 'Ce compte est archivé. Seule la consultation est autorisée.',
             'details_title' => 'Informations du compte',
-            'documents_title' => 'Documents obligatoires',
+            'documents_title' => OBLIGATORY_DOCUMENTS_LABEL,
             'documents' => [
                 'name' => 'Nom',
                 'state' => 'État',
@@ -183,7 +185,7 @@ return [
         ];
     })(),
     'obligatory_documents' => [
-        'title' => 'Documents obligatoires',
+        'title' => OBLIGATORY_DOCUMENTS_LABEL,
         'subtitle' => 'Documents requis',
         'description' => 'Cette page permettra de gérer les documents obligatoires.',
         'add_button' => 'Ajouter un document',
