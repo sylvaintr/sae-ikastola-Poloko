@@ -162,8 +162,10 @@ class AccountController extends Controller
             $documentsObligatoiresAvecEtat = $documentsObligatoires->map(function($docOblig) use ($account) {
                 // Récupérer tous les documents de l'utilisateur qui correspondent au nom du document obligatoire
                 $documentsUtilisateur = $account->documents()
-                    ->where('nom', 'like', '%' . $docOblig->nom . '%')
-                    ->orWhere('nom', $docOblig->nom)
+                    ->where(function ($q) use ($docOblig) {
+                        $q->where('nom', 'like', '%' . $docOblig->nom . '%')
+                          ->orWhere('nom', $docOblig->nom);
+                    })
                     ->orderBy('idDocument', 'desc')
                     ->get();
                 
