@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\HandlesDocumentDownloads;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\Document;
 use App\Models\DocumentObligatoire;
@@ -16,6 +17,17 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    use HandlesDocumentDownloads;
+
+    /**
+     * Taille maximale autorisée pour les documents obligatoires (en kilo-octets).
+     *
+     * 10240 KB = 10 MB. Cette limite est choisie pour :
+     * - limiter l'impact mémoire/disque des uploads,
+     * - rester suffisante pour les documents administratifs usuels (PDF, images),
+     * - réduire les risques d'attaque par upload de fichiers trop volumineux.
+     */
+    private const MAX_DOCUMENT_SIZE_KB = 10240; // 10 MB
     /**
      * Methode pour afficher le formulaire de profil de l'utilisateur
      */
@@ -126,7 +138,7 @@ class ProfileController extends Controller
                 'document' => [
                     'required',
                     'file',
-                    'max:10240',
+                    'max:' . self::MAX_DOCUMENT_SIZE_KB,
                     'mimes:pdf,doc,docx,jpg,jpeg,png'
                 ],
                 'idDocumentObligatoire' => ['required', 'integer', 'exists:documentObligatoire,idDocumentObligatoire'],
@@ -344,51 +356,7 @@ class ProfileController extends Controller
     public function downloadDocument(Request $request, Document $document)
     {
         $user = $request->user();
-        
-        // Vérifier que le document appartient à l'utilisateur
-        if (!$user->documents()->where('document.idDocument', $document->idDocument)->exists()) {
-            abort(403, 'Unauthorized action.');
-        }
-        
-        // Vérifier que le fichier existe
-        if (!Storage::disk('public')->exists($document->chemin)) {
-            abort(404, 'File not found.');
-        }
-        
-        // Trouver le document obligatoire correspondant
-        // Le nom du document est formaté comme "NomDocumentObligatoire - nom_fichier_original"
-        $nomParts = explode(' - ', $document->nom, 2);
-        $nomDocumentObligatoire = $nomParts[0];
-        
-        // Récupérer l'extension du fichier original
-        $extension = pathinfo($document->chemin, PATHINFO_EXTENSION);
-        if (empty($extension)) {
-            // Si pas d'extension dans le chemin, essayer de la récupérer depuis le nom du document
-            $extensionParts = explode('.', $document->nom);
-            if (count($extensionParts) > 1) {
-                $extension = strtolower(end($extensionParts));
-            } else {
-                $extension = 'pdf'; // Par défaut
-            }
-        }
-        
-        // Générer le nom de fichier : Nom_Prenom_NomDocumentObligatoire.extension
-        $nomUtilisateur = $user->nom ?? '';
-        $prenomUtilisateur = $user->prenom ?? '';
-        
-        // Nettoyer les noms (remplacer les caractères spéciaux par des underscores)
-        $nomUtilisateur = preg_replace('/[^a-zA-Z0-9]/', '_', $nomUtilisateur);
-        $prenomUtilisateur = preg_replace('/[^a-zA-Z0-9]/', '_', $prenomUtilisateur);
-        $nomDocumentObligatoire = preg_replace('/[^a-zA-Z0-9]/', '_', $nomDocumentObligatoire);
-        
-        // Construire le nom de fichier
-        $fileName = trim($nomUtilisateur . '_' . $prenomUtilisateur . '_' . $nomDocumentObligatoire);
-        $fileName = preg_replace('/_+/', '_', $fileName); // Remplacer les underscores multiples par un seul
-        $fileName = trim($fileName, '_'); // Enlever les underscores en début/fin
-        $fileName .= '.' . $extension;
-        
-        $filePath = Storage::disk('public')->path($document->chemin);
-        
-        return Response::download($filePath, $fileName);
+
+        return $this->downloadDocumentWithFormattedName($user, $document);
     }
 }

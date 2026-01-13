@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\HandlesDocumentDownloads;
 use App\Models\Utilisateur;
 use App\Models\Role;
 use App\Models\DocumentObligatoire;
@@ -17,6 +18,7 @@ use Illuminate\View\View;
 
 class AccountController extends Controller
 {
+    use HandlesDocumentDownloads;
     public function index(Request $request): View
     {
         $query = Utilisateur::query();
@@ -413,51 +415,6 @@ class AccountController extends Controller
      */
     public function downloadDocument(Request $request, Utilisateur $account, Document $document)
     {
-        // Vérifier que le document appartient à l'utilisateur
-        if (!$account->documents()->where('document.idDocument', $document->idDocument)->exists()) {
-            abort(403, 'Unauthorized action.');
-        }
-        
-        // Vérifier que le fichier existe
-        if (!Storage::disk('public')->exists($document->chemin)) {
-            abort(404, 'File not found.');
-        }
-        
-        // Trouver le document obligatoire correspondant
-        // Le nom du document est formaté comme "NomDocumentObligatoire - nom_fichier_original"
-        $nomParts = explode(' - ', $document->nom, 2);
-        $nomDocumentObligatoire = $nomParts[0];
-        
-        // Récupérer l'extension du fichier original
-        $extension = pathinfo($document->chemin, PATHINFO_EXTENSION);
-        if (empty($extension)) {
-            // Si pas d'extension dans le chemin, essayer de la récupérer depuis le nom du document
-            $extensionParts = explode('.', $document->nom);
-            if (count($extensionParts) > 1) {
-                $extension = strtolower(end($extensionParts));
-            } else {
-                $extension = 'pdf'; // Par défaut
-            }
-        }
-        
-        // Générer le nom de fichier : Nom_Prenom_NomDocumentObligatoire.extension
-        $nomUtilisateur = $account->nom ?? '';
-        $prenomUtilisateur = $account->prenom ?? '';
-        
-        // Nettoyer les noms (remplacer les caractères spéciaux par des underscores)
-        $nomUtilisateur = preg_replace('/[^a-zA-Z0-9]/', '_', $nomUtilisateur);
-        $prenomUtilisateur = preg_replace('/[^a-zA-Z0-9]/', '_', $prenomUtilisateur);
-        $nomDocumentObligatoire = preg_replace('/[^a-zA-Z0-9]/', '_', $nomDocumentObligatoire);
-        
-        // Construire le nom de fichier
-        $fileName = trim($nomUtilisateur . '_' . $prenomUtilisateur . '_' . $nomDocumentObligatoire);
-        $fileName = preg_replace('/_+/', '_', $fileName); // Remplacer les underscores multiples par un seul
-        $fileName = trim($fileName, '_'); // Enlever les underscores en début/fin
-        $fileName .= '.' . $extension;
-        
-        $filePath = Storage::disk('public')->path($document->chemin);
-        
-        return Response::download($filePath, $fileName);
+        return $this->downloadDocumentWithFormattedName($account, $document);
     }
 }
-
