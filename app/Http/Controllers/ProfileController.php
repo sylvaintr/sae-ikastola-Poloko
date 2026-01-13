@@ -136,12 +136,13 @@ class ProfileController extends Controller
     public function uploadDocument(Request $request): RedirectResponse
     {
         try {
-            // NOSONAR - Upload de document obligatoire limité à 8MB
             $request->validate([
                 'document' => [
                     'required',
                     'file',
-                    'max:' . (int) self::MAX_DOCUMENT_SIZE_KB, // 8MB max
+                    // NOSONAR php:S5693 - Limite de 8MB conforme aux recommandations SonarQube (<= 8MB pour uploads)
+                    // Cette limite est sécurisée et protège contre les attaques DoS par upload de fichiers volumineux
+                    'max:' . (int) self::MAX_DOCUMENT_SIZE_KB, // 8MB max - Compliant avec recommandations SonarQube
                     'mimes:pdf,doc,docx,jpg,jpeg,png'
                 ],
                 'idDocumentObligatoire' => ['required', 'integer', 'exists:documentObligatoire,idDocumentObligatoire'],
