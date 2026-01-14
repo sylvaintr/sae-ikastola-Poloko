@@ -18,6 +18,12 @@ class DataTablesHelpersTest extends TestCase
 
     public function test_helpers_etiquette_ne_lancent_pas_exception_et_modifient_requete()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         // Ensure there is at least one role/etiquette record so queries have models
         Role::factory()->create();
         Etiquette::factory()->create();
@@ -47,6 +53,12 @@ class DataTablesHelpersTest extends TestCase
 
     public function test_helpers_actualite_ne_lancent_pas_exception_et_modifient_requete()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         Actualite::factory()->create();
         Etiquette::factory()->create();
 
@@ -72,8 +84,14 @@ class DataTablesHelpersTest extends TestCase
         $this->assertIsString($controller->columnEtiquettesText($act));
     }
 
-    public function test_methode_donnees_etiquette_s_exectue_et_retourne_json()
+    public function test_methode_donnees_etiquette_s_execute_et_retourne_json()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $role = Role::factory()->create(['name' => 'r1']);
         $et = Etiquette::factory()->create(['nom' => 'etag']);
         $et->roles()->attach($role->idRole);

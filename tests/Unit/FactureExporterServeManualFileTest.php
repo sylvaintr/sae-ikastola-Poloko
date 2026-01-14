@@ -14,15 +14,18 @@ class FactureExporterServeManualFileTest extends TestCase
 
     public function test_servir_fichier_manuel_retourne_null_quand_aucun_fichier_manuel()
     {
+        // given
         Storage::fake('public');
 
         $facture = Facture::factory()->create(['etat' => 'manuel']);
 
         $exporter = new FactureExporter();
 
+        // when
         $resultBinary = $exporter->serveManualFile($facture, true);
         $resultResponse = $exporter->serveManualFile($facture, false);
 
+        // then
         $this->assertNull($resultBinary);
         $this->assertNull($resultResponse);
     }

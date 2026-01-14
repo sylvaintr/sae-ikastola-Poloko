@@ -17,6 +17,12 @@ class CalculMontantFactureTest extends TestCase
 
     public function test_zero_enfants_retourne_montants_zero()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
         $facture = $this->createFacture($famille, ['previsionnel' => false]);
 
@@ -29,8 +35,14 @@ class CalculMontantFactureTest extends TestCase
         $this->assertEquals(0, $result['montanttotal']);
     }
 
-    public function test_un_enfant_previsionnel_utilise_nbFoisGarderie()
+    public function test_un_enfant_previsionnel_utilise_nbFois_garderie()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
 
         $this->createEnfant($famille, ['nbFoisGarderie' => 9]);
@@ -49,8 +61,14 @@ class CalculMontantFactureTest extends TestCase
         $this->assertEquals(0, $result['montantparticipationSeaska']);
     }
 
-    public function test_deux_enfants_avec_seaska_et_etre_comptes()
+    public function test_deux_enfants_avec_seaska_et_etre_sont_comptes()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => true]);
         $this->createEnfants($famille, 2);
 
@@ -74,6 +92,12 @@ class CalculMontantFactureTest extends TestCase
 
     public function test_trois_ou_plus_enfants_cotisation_75()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
 
         $this->createEnfants($famille, 3);

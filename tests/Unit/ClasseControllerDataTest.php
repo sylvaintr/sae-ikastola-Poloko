@@ -11,8 +11,14 @@ class ClasseControllerDataTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_data_returns_json_response()
+    public function test_data_retourne_une_reponse_json()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         Classe::factory()->count(3)->create();
 
         $ctrl = new ClasseController();

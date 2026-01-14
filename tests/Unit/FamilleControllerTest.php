@@ -16,7 +16,7 @@ class FamilleControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_ajouter_cree_famille_avec_enfants_et_utilisateurs()
+    public function test_ajouter_cree_une_famille_avec_enfants_et_utilisateurs()
     {
         // given: a classe exists for enfants
         $classe = Classe::factory()->create();
@@ -78,8 +78,14 @@ class FamilleControllerTest extends TestCase
         $this->assertEquals(404, $resp->getStatusCode());
     }
 
-    public function test_show_json_retourne_famille_si_trouvee()
+    public function test_show_json_retourne_la_famille_si_trouvee()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = Famille::factory()->create();
 
         $req = Request::create('/', 'GET', [], [], [], ['HTTP_ACCEPT' => 'application/json']);
@@ -94,6 +100,12 @@ class FamilleControllerTest extends TestCase
 
     public function test_suppression_introuvable_retourne_404()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $ctrl = new FamilleController();
         $resp = $ctrl->delete(999999);
 
@@ -103,6 +115,12 @@ class FamilleControllerTest extends TestCase
 
     public function test_recherche_par_parent_sans_requete_retourne_vide()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $req = Request::create('/', 'GET', []);
         $this->app->instance('request', $req);
 
@@ -115,6 +133,12 @@ class FamilleControllerTest extends TestCase
 
     public function test_mise_a_jour_introuvable_retourne_404()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $req = Request::create('/', 'POST', ['enfants' => [], 'utilisateurs' => []]);
         $this->app->instance('request', $req);
 
@@ -125,8 +149,14 @@ class FamilleControllerTest extends TestCase
         $this->assertEquals(404, $resp->getStatusCode());
     }
 
-    public function test_index_returns_view_and_json_when_requested()
+    public function test_index_retourne_vue_et_json_lors_demande()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         // create some families
         Famille::factory()->count(2)->create();
 
@@ -145,8 +175,14 @@ class FamilleControllerTest extends TestCase
         $this->assertIsArray($resp->getData(true));
     }
 
-    public function test_create_returns_view()
+    public function test_create_retourne_vue()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         // prepare some available utilisateurs and enfants
         $user = Utilisateur::factory()->create();
         $enfant = Enfant::factory()->create(['idFamille' => 0, 'idEnfant' => 2000]);
@@ -157,15 +193,27 @@ class FamilleControllerTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Contracts\View\View::class, $view);
     }
 
-    public function test_edit_redirects_when_not_found()
+    public function test_edit_redirige_si_introuvable()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $ctrl = new FamilleController();
         $resp = $ctrl->edit(999999);
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
     }
 
-    public function test_delete_existing_removes_family()
+    public function test_supprimer_famille_existante_supprime_la_famille()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = Famille::factory()->create();
         $enfant = Enfant::factory()->create(['idFamille' => $famille->idFamille, 'idEnfant' => 1000]);
         $user = Utilisateur::factory()->create();
@@ -178,7 +226,7 @@ class FamilleControllerTest extends TestCase
         $this->assertDatabaseMissing((new Famille())->getTable(), ['idFamille' => $famille->idFamille]);
     }
 
-    public function test_searchUsers_returns_results()
+    public function test_searchUsers_retourne_des_resultats()
     {
         // given: a user without famille matching query
         $user = Utilisateur::factory()->create(['nom' => 'Smith', 'prenom' => 'John']);
@@ -194,8 +242,14 @@ class FamilleControllerTest extends TestCase
         $this->assertNotEmpty($data);
     }
 
-    public function test_update_success_updates_children_and_users()
+    public function test_update_reussit_met_a_jour_enfants_et_utilisateurs()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = Famille::factory()->create();
         $enfant = Enfant::factory()->create(['idFamille' => $famille->idFamille, 'idEnfant' => 1001]);
         $user = Utilisateur::factory()->create();

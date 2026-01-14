@@ -9,6 +9,7 @@ class ProfileControllerValidateDocxZipUnitTest extends TestCase
 {
     public function test_validate_docx_zip_retourne_false_si_ouverture_echoue()
     {
+        // given
         $controller = new ProfileController();
         $ref = new \ReflectionMethod(ProfileController::class, 'validateDocxZip');
         $ref->setAccessible(true);
@@ -25,15 +26,17 @@ class ProfileControllerValidateDocxZipUnitTest extends TestCase
             private $path; public function __construct($p){ $this->path = $p; } public function getRealPath(){ return $this->path; }
         };
 
+        // when
         $result = $ref->invoke($controller, $fakeFile);
 
+        // then
         @unlink($tmp);
-
         $this->assertFalse($result);
     }
 
     public function test_validate_docx_zip_retourne_false_si_pas_de_dossier_word()
     {
+        // given
         $controller = new ProfileController();
         $ref = new \ReflectionMethod(ProfileController::class, 'validateDocxZip');
         $ref->setAccessible(true);
@@ -54,15 +57,17 @@ class ProfileControllerValidateDocxZipUnitTest extends TestCase
             private $path; public function __construct($p){ $this->path = $p; } public function getRealPath(){ return $this->path; }
         };
 
+        // when
         $result = $ref->invoke($controller, $fakeFile);
 
+        // then
         @unlink($tmp);
-
         $this->assertFalse($result);
     }
 
     public function test_validate_docx_zip_retourne_true_si_dossier_word_present()
     {
+        // given
         $controller = new ProfileController();
         $ref = new \ReflectionMethod(ProfileController::class, 'validateDocxZip');
         $ref->setAccessible(true);
@@ -83,10 +88,11 @@ class ProfileControllerValidateDocxZipUnitTest extends TestCase
             private $path; public function __construct($p){ $this->path = $p; } public function getRealPath(){ return $this->path; }
         };
 
+        // when
         $result = $ref->invoke($controller, $fakeFile);
 
+        // then
         @unlink($tmp);
-
         $this->assertTrue($result);
     }
 }

@@ -15,10 +15,9 @@ class AccountControllerFullTest extends TestCase
 
     public function test_store_creates_account_and_redirects(): void
     {
+        // given
         $role = Role::factory()->create();
-
         $controller = new AccountController();
-
         $request = Request::create('/admin/accounts/store', 'POST', [
             'prenom' => 'Prenom',
             'nom' => 'Nom',
@@ -29,18 +28,20 @@ class AccountControllerFullTest extends TestCase
             'roles' => [$role->idRole],
         ]);
 
+        // when
         $response = $controller->store($request);
 
+        // then
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertDatabaseHas('utilisateur', ['prenom' => 'Prenom', 'nom' => 'Nom']);
     }
 
     public function test_update_and_destroy(): void
     {
+        // given
         $role = Role::factory()->create();
         $user = Utilisateur::factory()->create();
         $controller = new AccountController();
-
         $request = Request::create('/admin/accounts/update', 'PUT', [
             'prenom' => 'NewPrenom',
             'nom' => 'NewNom',
@@ -49,11 +50,17 @@ class AccountControllerFullTest extends TestCase
             'roles' => [$role->idRole],
         ]);
 
+        // when
         $response = $controller->update($request, $user);
+
+        // then
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertDatabaseHas('utilisateur', ['idUtilisateur' => $user->idUtilisateur, 'prenom' => 'NewPrenom']);
 
+        // when (destroy)
         $respDel = $controller->destroy($user);
+
+        // then (destroy)
         $this->assertEquals(302, $respDel->getStatusCode());
         $this->assertDatabaseMissing('utilisateur', ['idUtilisateur' => $user->idUtilisateur]);
     }

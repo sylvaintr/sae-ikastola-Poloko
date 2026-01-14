@@ -7,29 +7,32 @@ use Tests\TestCase;
 
 class FactureModelTest extends TestCase
 {
-    public function test_set_etat_with_boolean_and_string()
+    public function test_set_etat_avec_booleen_et_chaine()
     {
         // given
         $f = new Facture();
 
-        // when / then: boolean true => 'verifier'
-        $f->etat = true; // when
-        $this->assertSame('verifier', $f->getAttributes()['etat']); // then
+        // when
+        $f->etat = true;
+        $val1 = $f->getAttributes()['etat'];
 
-        // when / then: boolean false => 'brouillon'
-        $f->etat = false; // when
-        $this->assertSame('brouillon', $f->getAttributes()['etat']); // then
+        $f->etat = false;
+        $val2 = $f->getAttributes()['etat'];
 
-        // when / then: explicit string preserved
-        $f->etat = 'manuel'; // when
-        $this->assertSame('manuel', $f->getAttributes()['etat']); // then
+        $f->etat = 'manuel';
+        $val3 = $f->getAttributes()['etat'];
 
-        // when / then: invalid string falls back to 'brouillon'
-        $f->etat = 'invalid-state'; // when
-        $this->assertSame('brouillon', $f->getAttributes()['etat']); // then
+        $f->etat = 'invalid-state';
+        $val4 = $f->getAttributes()['etat'];
+
+        // then
+        $this->assertSame('verifier', $val1);
+        $this->assertSame('brouillon', $val2);
+        $this->assertSame('manuel', $val3);
+        $this->assertSame('brouillon', $val4);
     }
 
-    public function test_get_id_alias()
+    public function test_get_alias_id()
     {
         // given
         $f = new Facture();

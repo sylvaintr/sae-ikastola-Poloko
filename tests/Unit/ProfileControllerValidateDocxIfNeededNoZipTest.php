@@ -7,8 +7,14 @@ use App\Http\Controllers\ProfileController;
 
 class ProfileControllerValidateDocxIfNeededNoZipTest extends TestCase
 {
-    public function test_validate_docx_si_necessaire_retourne_true_quand_pas_de_classe_ZipArchive()
+    public function test_validate_docx_si_necessaire_retourne_true_quand_pas_de_classe_ziparchive()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $controller = new ProfileController();
 
         $ref = new \ReflectionMethod(ProfileController::class, 'validateDocxIfNeeded');

@@ -16,22 +16,24 @@ class FactureControllerUpdateTest extends TestCase
 
     public function test_mise_a_jour_retourne_tot_si_magic_bytes_invalide_et_ne_change_pas_etat()
     {
+        // given
         $facture = Facture::factory()->create(['etat' => 'brouillon']);
-
         $invalid = UploadedFile::fake()->createWithContent('invalid.doc', 'NOT_MAGIC_BYTES');
-
         $request = Request::create('/', 'POST');
         $request->files->set('facture', $invalid);
 
+        // when
         $controller = new \App\Http\Controllers\FactureController();
         $response = $controller->update($request, (string)$facture->idFacture);
 
+        // then
         $facture->refresh();
         $this->assertEquals('brouillon', $facture->etat);
     }
 
     public function test_mise_a_jour_avec_magic_bytes_valide_definit_etat_manuel_et_enregistre()
     {
+        // given
         $facture = Facture::factory()->create(['etat' => 'brouillon']);
 
         // prepare a file that starts with OLE header (doc) so the magic-bytes check passes
@@ -51,15 +53,18 @@ class FactureControllerUpdateTest extends TestCase
         $request = Request::create('/', 'POST');
         $request->files->set('facture', $valid);
 
+        // when
         $controller = new \App\Http\Controllers\FactureController();
         $response = $controller->update($request, (string)$facture->idFacture);
 
+        // then
         $facture->refresh();
         $this->assertEquals('manuel', $facture->etat);
     }
 
     public function test_mise_a_jour_supprime_fichiers_existants_si_present()
     {
+        // given
         $facture = Facture::factory()->create(['etat' => 'brouillon']);
 
         $oleHeader = "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1";
@@ -79,15 +84,18 @@ class FactureControllerUpdateTest extends TestCase
         $request = Request::create('/', 'POST');
         $request->files->set('facture', $valid);
 
+        // when
         $controller = new \App\Http\Controllers\FactureController();
         $response = $controller->update($request, (string)$facture->idFacture);
 
+        // then
         $facture->refresh();
         $this->assertEquals('manuel', $facture->etat);
     }
 
     public function test_mise_a_jour_appelle_exec_quand_fichier_entree_existe()
     {
+        // given
         $facture = Facture::factory()->create(['etat' => 'brouillon']);
 
         $oleHeader = "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1";
@@ -117,9 +125,11 @@ class FactureControllerUpdateTest extends TestCase
         $request = Request::create('/', 'POST');
         $request->files->set('facture', $valid);
 
+        // when
         $controller = new \App\Http\Controllers\FactureController();
         $response = $controller->update($request, (string)$facture->idFacture);
 
+        // then
         $this->assertFileExists($inputPath);
         $this->assertFileExists($execLog);
         $log = file_get_contents($execLog);

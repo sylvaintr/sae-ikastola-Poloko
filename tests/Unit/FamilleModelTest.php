@@ -7,7 +7,7 @@ use Tests\TestCase;
 
 class FamilleModelTest extends TestCase
 {
-    public function test_get_id_attribute()
+    public function test_get_id_attribut()
     {
         // given
         $f = new Famille();

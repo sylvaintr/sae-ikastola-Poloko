@@ -13,8 +13,14 @@ class ActualiteControllerAdditionalTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_appel_methode_indefinie_lance_bad_method_call_exception()
+    public function test_appel_methode_indefinie_genere_badmethodcallexception()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $this->expectException(\BadMethodCallException::class);
 
         $controller = new ActualiteController();
@@ -22,8 +28,14 @@ class ActualiteControllerAdditionalTest extends TestCase
         $controller->thisMethodDoesNotExistAtAll();
     }
 
-    public function test_filtre_donnees_etiquettes_whereHas_restreint_resultats()
+    public function test_filtre_donnees_etiquettes_wherehas_restreint_les_resultats()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         // Create an etiquette and an actualite that references it
         $et = Etiquette::factory()->create(['nom' => 'special-tag']);
         $actWith = Actualite::factory()->create(['titrefr' => 'WithTag', 'archive' => false]);
@@ -42,8 +54,14 @@ class ActualiteControllerAdditionalTest extends TestCase
         $this->assertEquals('WithTag', $results->first()->titrefr);
     }
 
-    public function test_endpoint_data_declenche_filtres_inline_titre_et_etiquettes()
+    public function test_endpoint_data_declenche_les_filtres_inline_titre_et_etiquettes()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         // create data
         $et = Etiquette::factory()->create(['nom' => 'special']);
         $a1 = Actualite::factory()->create(['titrefr' => 'UniqueTitle', 'archive' => false, 'dateP' => now()]);
@@ -83,6 +101,12 @@ class ActualiteControllerAdditionalTest extends TestCase
 
     public function test_methodes_filtre_inline_sont_callable_et_filtrent_correctement()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $et = Etiquette::factory()->create(['nom' => 'inline-tag']);
         $a1 = Actualite::factory()->create(['titrefr' => 'InlineMatch', 'archive' => false]);
         $a1->etiquettes()->attach($et->idEtiquette);

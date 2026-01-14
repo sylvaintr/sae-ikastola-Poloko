@@ -13,13 +13,16 @@ class ClasseControllerIndexFiltersTest extends TestCase
 
     public function test_search_filter_is_applied()
     {
+        // given
         Classe::factory()->create(['nom' => 'Classe Alpha', 'niveau' => 'CP']);
         Classe::factory()->create(['nom' => 'Classe Beta', 'niveau' => 'CP']);
-
-        $request = Request::create('/admin/classes', 'GET', ['search' => 'Alpha']);
         $controller = new \App\Http\Controllers\ClasseController();
+
+        // when
+        $request = Request::create('/admin/classes', 'GET', ['search' => 'Alpha']);
         $view = $controller->index($request);
 
+        // then
         $data = $view->getData();
         $classes = $data['classes'];
 
@@ -29,13 +32,16 @@ class ClasseControllerIndexFiltersTest extends TestCase
 
     public function test_niveau_filter_is_applied()
     {
+        // given
         Classe::factory()->create(['nom' => 'Classe Une', 'niveau' => 'CE1']);
         Classe::factory()->create(['nom' => 'Classe Deux', 'niveau' => 'CM2']);
-
-        $request = Request::create('/admin/classes', 'GET', ['niveau' => 'CM2']);
         $controller = new \App\Http\Controllers\ClasseController();
+
+        // when
+        $request = Request::create('/admin/classes', 'GET', ['niveau' => 'CM2']);
         $view = $controller->index($request);
 
+        // then
         $data = $view->getData();
         $classes = $data['classes'];
 
@@ -45,14 +51,17 @@ class ClasseControllerIndexFiltersTest extends TestCase
 
     public function test_combined_filters_are_applied()
     {
+        // given
         Classe::factory()->create(['nom' => 'Alpha CE1', 'niveau' => 'CE1']);
         Classe::factory()->create(['nom' => 'Alpha CM2', 'niveau' => 'CM2']);
         Classe::factory()->create(['nom' => 'Beta CE1', 'niveau' => 'CE1']);
-
-        $request = Request::create('/admin/classes', 'GET', ['search' => 'Alpha', 'niveau' => 'CE1']);
         $controller = new \App\Http\Controllers\ClasseController();
+
+        // when
+        $request = Request::create('/admin/classes', 'GET', ['search' => 'Alpha', 'niveau' => 'CE1']);
         $view = $controller->index($request);
 
+        // then
         $data = $view->getData();
         $classes = $data['classes'];
 

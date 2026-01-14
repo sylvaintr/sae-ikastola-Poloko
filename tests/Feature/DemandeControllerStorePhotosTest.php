@@ -15,9 +15,9 @@ class DemandeControllerStorePhotosTest extends TestCase
 
     public function test_storePhotos_creates_documents_for_each_uploaded_file()
     {
+        // given
         $this->withoutMiddleware();
         Storage::fake('public');
-
         $demande = Tache::factory()->create();
 
         $files = [
@@ -33,9 +33,11 @@ class DemandeControllerStorePhotosTest extends TestCase
             }
         };
 
+        // when
         // call the protected method via the exposing wrapper
         $invoker->exposeStorePhotos($demande, $files);
 
+        // then
         // assert documents were created for this demande
         $count = Document::where('idTache', $demande->idTache)->count();
         $this->assertEquals(count($files), $count, 'storePhotos should create a document per uploaded file');

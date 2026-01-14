@@ -11,8 +11,14 @@ class ProfileControllerValidateMagicBytesTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_validateFileMagicBytesWrapper_returns_redirect_when_invalid()
+    public function test_validateFileMagicBytesWrapper_retourne_redirect_si_invalide()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $controller = new \App\Http\Controllers\ProfileController();
 
         $bad = UploadedFile::fake()->createWithContent('bad.pdf', 'NOT_PDF_BYTES');

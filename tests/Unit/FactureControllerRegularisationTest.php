@@ -15,8 +15,9 @@ class FactureControllerRegularisationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_calculer_regularisation_ajoute_10_si_nbfoisgarderie_entre_1_et_8()
+    public function test_calculer_regularisation_ajoute_dix_si_nbFois_garderie_entre_un_et_huit()
     {
+        // given
         // Setup family, child, activity and an Etre record within the facture month
         $famille = Famille::factory()->create();
 
@@ -58,9 +59,11 @@ class FactureControllerRegularisationTest extends TestCase
 
         $this->app->instance(\App\Services\FactureCalculator::class, $mockCalculator);
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $res = $ctrl->calculerRegularisation($famille->idFamille);
 
+        // then
         // Expect 10 because nbfoisgarderie == 1 (<=8 and >0)
         $this->assertSame(10, $res);
     }

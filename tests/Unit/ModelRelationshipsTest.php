@@ -13,8 +13,14 @@ class ModelRelationshipsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_famille_factures_relationship_returns_linked_factures()
+    public function test_relation_famille_factures_retourne_les_factures_liees()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = Famille::factory()->create();
 
         Facture::factory()->count(2)->create(['idFamille' => $famille->idFamille]);
@@ -26,8 +32,14 @@ class ModelRelationshipsTest extends TestCase
         $this->assertEquals($famille->idFamille, $famille->factures->first()->idFamille);
     }
 
-    public function test_demandehistorique_demande_belongs_to_tache()
+    public function test_demandehistorique_appartient_a_la_tache()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $tache = Tache::factory()->create();
 
         $historique = DemandeHistorique::create([

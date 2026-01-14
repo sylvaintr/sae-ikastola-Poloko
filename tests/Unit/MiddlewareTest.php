@@ -10,8 +10,14 @@ use Illuminate\Http\Response;
 
 class MiddlewareTest extends TestCase
 {
-    public function test_dev_csp_ajoute_entete_en_env_local()
+    public function test_dev_csp_ajoute_l_entete_environnement_local()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         config(['app.env' => 'local']);
 
         $middleware = new DevCspAllowRecaptcha();
@@ -24,8 +30,14 @@ class MiddlewareTest extends TestCase
         $this->assertStringContainsString("google.com", $response->headers->get('Content-Security-Policy'));
     }
 
-    public function test_prod_csp_ajoute_entete_hors_env_local()
+    public function test_prod_csp_ajoute_l_entete_hors_environnement_local()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         config(['app.env' => 'production']);
 
         $middleware = new ProdCspAllowRecaptcha();

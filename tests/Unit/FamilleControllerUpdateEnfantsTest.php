@@ -12,8 +12,14 @@ class FamilleControllerUpdateEnfantsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_update_enfants_skips_entries_without_idEnfant()
+    public function test_update_enfants_ignore_entrees_sans_idEnfant()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = Famille::factory()->create();
 
         // Create an enfant that should be updated

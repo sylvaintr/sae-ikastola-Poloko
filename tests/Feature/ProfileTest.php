@@ -26,17 +26,25 @@ class ProfileTest extends TestCase
 
     public function test_profile_page_is_displayed(): void
     {
+        // given
+        // user created in setUp
+
+        // when
         $response = $this
             ->actingAs($this->user)
             ->get($this->link);
 
+        // then
         $response->assertOk();
     }
 
     public function test_profile_information_can_be_updated(): void
     {
         $email = 'user' . rand(1, 1000) . '@example.com';
+        // given
+        // email unique for this update
 
+        // when
         $response = $this
             ->actingAs($this->user)
             ->patch($this->link, [
@@ -45,6 +53,7 @@ class ProfileTest extends TestCase
                 'email' => $email,
             ]);
 
+        // then
         $response
             ->assertSessionHasNoErrors()
             ->assertRedirect($this->link);
@@ -59,8 +68,10 @@ class ProfileTest extends TestCase
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void
     {
+        // given
+        // existing user with verified email
 
-
+        // when
         $response = $this
             ->actingAs($this->user)
             ->patch($this->link, [
@@ -68,6 +79,7 @@ class ProfileTest extends TestCase
                 'email' => $this->user->email,
             ]);
 
+        // then
         $response
             ->assertSessionHasNoErrors()
             ->assertRedirect($this->link);
@@ -77,13 +89,17 @@ class ProfileTest extends TestCase
 
     public function test_user_can_delete_their_account(): void
     {
+        // given
+        // user exists
 
+        // when
         $response = $this
             ->actingAs($this->user)
             ->delete($this->link, [
                 'password' => 'password',
             ]);
 
+        // then
         $response
             ->assertSessionHasNoErrors()
             ->assertRedirect(route('home'));
@@ -94,8 +110,10 @@ class ProfileTest extends TestCase
 
     public function test_correct_password_must_be_provided_to_delete_account(): void
     {
+        // given
+        // user created in setUp
 
-
+        // when
         $response = $this
             ->actingAs($this->user)
             ->from($this->link)
@@ -103,6 +121,7 @@ class ProfileTest extends TestCase
                 'password' => 'wrong-password',
             ]);
 
+        // then
         $response
             ->assertSessionHasErrorsIn('userDeletion', 'password')
             ->assertRedirect($this->link);

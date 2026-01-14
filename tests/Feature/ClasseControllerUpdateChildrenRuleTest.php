@@ -14,6 +14,7 @@ class ClasseControllerUpdateChildrenRuleTest extends TestCase
 
     public function test_mise_a_jour_echoue_si_enfant_appartient_autre_classe()
     {
+        // given
         // classes
         $target = Classe::factory()->create(['nom' => 'Target', 'niveau' => 'CP']);
         $other = Classe::factory()->create(['nom' => 'Other', 'niveau' => 'CP']);
@@ -32,9 +33,11 @@ class ClasseControllerUpdateChildrenRuleTest extends TestCase
             'children' => [$childOther->idEnfant],
         ];
 
+        // when
         $response = $this->from(route('admin.classes.edit', $target))
             ->put(route('admin.classes.update', $target), $payload);
 
+        // then
         $response->assertStatus(302);
         $response->assertSessionHasErrors('children.0');
     }

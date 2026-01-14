@@ -7,8 +7,14 @@ use App\Http\Controllers\ProfileController;
 
 class ProfileControllerValidateFileMagicBytesNoHexTest extends TestCase
 {
-    public function test_validate_magic_bytes_retourne_impossible_lire_si_hex_false()
+    public function test_validate_magic_bytes_retourne_impossible_de_lecture_si_hex_false()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $controller = new ProfileController();
 
         $ref = new \ReflectionMethod(ProfileController::class, 'validateFileMagicBytes');

@@ -14,6 +14,7 @@ class LoginRequestTest extends TestCase
 
     public function test_authentification_lance_exception_si_utilisateur_existe_mais_non_valide()
     {
+        // given
         $user = Utilisateur::factory()->create([
             'email' => 'notvalid@example.com',
             'statutValidation' => false,
@@ -26,15 +27,18 @@ class LoginRequestTest extends TestCase
 
         $request->setContainer($this->app);
 
-        $this->expectException(ValidationException::class);
-
+        // when
+        $caught = null;
         try {
             $request->authenticate();
         } catch (ValidationException $e) {
-            $messages = $e->errors();
-            $this->assertArrayHasKey('email', $messages);
-            $this->assertEquals(trans('auth.account_not_validated'), $messages['email'][0]);
-            throw $e;
+            $caught = $e;
         }
+
+        // then
+        $this->assertNotNull($caught);
+        $messages = $caught->errors();
+        $this->assertArrayHasKey('email', $messages);
+        $this->assertEquals(trans('auth.account_not_validated'), $messages['email'][0]);
     }
 }

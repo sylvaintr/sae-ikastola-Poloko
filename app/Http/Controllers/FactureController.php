@@ -34,6 +34,7 @@ use App\Services\FactureCalculator;
 class FactureController extends Controller
 {
     private const DIR_FACTURES = 'factures/';
+    private const ETAT_MANUEL_VERIFIER = 'manuel verifier';
     
     private $factureCalculator;
     private $factureExporter;
@@ -70,7 +71,7 @@ class FactureController extends Controller
         }
         $facture = $montants['facture'];
 
-        if ($facture->etat == "manuel") {
+        if (in_array($facture->etat, ['manuel', self::ETAT_MANUEL_VERIFIER], true)) {
             // return le fichier de la facture
             $nomfichier = 'facture-' . $facture->idFacture;
 
@@ -149,7 +150,7 @@ class FactureController extends Controller
         $facture = $montants['facture'];
 
     
-        if (in_array($facture->etat, ['manuel', 'manuel verifier'], true)) {
+        if (in_array($facture->etat, ['manuel', self::ETAT_MANUEL_VERIFIER], true)) {
         
             $manualResponse = $this->factureExporter->serveManualFile($facture, $returnBinary);
             if ($manualResponse) {
@@ -175,7 +176,7 @@ class FactureController extends Controller
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
         $client = $facture->famille()->first()->utilisateurs()->first();
-        if (in_array($facture->etat, ['verifier', 'manuel verifier'], true)) {
+        if (in_array($facture->etat, ['verifier', self::ETAT_MANUEL_VERIFIER], true)) {
 
             $famille = Famille::find($facture->idFamille);
 
@@ -203,7 +204,7 @@ class FactureController extends Controller
 
             $facture->etat = 'verifier';
         } elseif ($facture->etat == 'manuel') {
-            $facture->etat = 'manuel verifier';
+            $facture->etat = self::ETAT_MANUEL_VERIFIER;
             // suprimer le document word ou odt
             $nomfichier = 'facture-' . $facture->idFacture;
             $extensionsPossibles = ['doc', 'docx', 'odt'];

@@ -7,10 +7,10 @@ use App\Http\Controllers\ProfileController;
 
 class ProfileControllerValidateDocxIfNeededZipPresentTest extends TestCase
 {
-    public function test_validate_docx_si_necessaire_appelle_validate_docx_zip_si_ZipArchive_disponible()
+    public function test_validate_docx_si_necessaire_delegue_a_validate_docx_zip_si_ziparchive_disponible()
     {
+        // given
         $controller = new ProfileController();
-
         $ref = new \ReflectionMethod(ProfileController::class, 'validateDocxIfNeeded');
         $ref->setAccessible(true);
 
@@ -36,11 +36,12 @@ class ProfileControllerValidateDocxIfNeededZipPresentTest extends TestCase
             private $path; public function __construct($p){ $this->path = $p; } public function getRealPath(){ return $this->path; }
         };
 
+        // when
         $hex = '504b0304ff'; // ZIP magic bytes prefix
         $result = $ref->invoke($controller, $fakeFile, 'docx', $hex, false);
 
+        // then
         @unlink($tmp);
-
         $this->assertTrue($result, 'Expected validateDocxIfNeeded to delegate to validateDocxZip when ZipArchive available');
     }
 }

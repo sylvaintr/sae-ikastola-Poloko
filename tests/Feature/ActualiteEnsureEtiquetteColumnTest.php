@@ -14,6 +14,7 @@ class ActualiteEnsureEtiquetteColumnTest extends TestCase
 
     public function test_ensureEtiquette_table_called_when_is_public_column_missing()
     {
+        // given
         $this->withoutMiddleware();
 
         // Ensure hasColumn returns false so the controller will try to add the column
@@ -25,9 +26,11 @@ class ActualiteEnsureEtiquetteColumnTest extends TestCase
         // create a dummy etiquette so index can run without failing on empty DB
         Etiquette::factory()->create();
 
+        // when
         $controller = new ActualiteController();
         $resp = $controller->index(null);
 
+        // then
         $this->assertInstanceOf(\Illuminate\Contracts\View\View::class, $resp);
     }
 }

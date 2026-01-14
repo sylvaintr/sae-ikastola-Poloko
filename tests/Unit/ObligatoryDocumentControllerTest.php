@@ -24,8 +24,14 @@ class ObligatoryDocumentControllerTest extends TestCase
     }
 
 
-    public function test_getNomMaxLength_retourne_valeur_db_quand_presente()
+    public function test_get_nom_max_length_retourne_valeur_db_quand_presente()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $builder = Mockery::mock();
         $builder->shouldReceive('where')->andReturnSelf();
         $builder->shouldReceive('value')->with('character_maximum_length')->andReturn('150');
@@ -42,8 +48,14 @@ class ObligatoryDocumentControllerTest extends TestCase
         $this->assertSame(150, $result);
     }
 
-    public function test_getNomMaxLength_retourne_defaut_quand_null()
+    public function test_get_nom_max_length_retourne_defaut_quand_null()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $builder = Mockery::mock();
         $builder->shouldReceive('where')->andReturnSelf();
         $builder->shouldReceive('value')->with('character_maximum_length')->andReturn(null);
@@ -61,8 +73,14 @@ class ObligatoryDocumentControllerTest extends TestCase
     }
 
 
-    public function test_getNomMaxLength_retourne_defaut_sur_exception()
+    public function test_get_nom_max_length_retourne_defaut_sur_exception_via_builder()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $builder = Mockery::mock();
         $builder->shouldReceive('where')->andThrow(new \Exception('db error'));
 
@@ -80,6 +98,12 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_trouver_id_disponible_table_vide_retourne_un()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         DocumentObligatoire::query()->delete();
 
         $controller = new ObligatoryDocumentController();
@@ -92,6 +116,12 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_trouver_id_disponible_trouve_ecart_et_retourne_plus_petit_manquant()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         DocumentObligatoire::query()->delete();
 
         $d1 = new DocumentObligatoire();
@@ -116,6 +146,12 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_trouver_id_disponible_retourne_max_plus_un_quand_pas_de_gaps()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         DocumentObligatoire::query()->delete();
 
         for ($i = 1; $i <= 3; $i++) {
@@ -134,6 +170,12 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_get_nom_max_length_retourne_entier_et_est_mis_en_cache()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $controller = new ObligatoryDocumentController();
         $ref = new \ReflectionMethod($controller, 'getNomMaxLength');
         $ref->setAccessible(true);
@@ -149,6 +191,12 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_get_nom_max_length_retourne_defaut_sur_exception()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         DB::shouldReceive('table')->andThrow(new \Exception('boom'));
 
         $controller = new ObligatoryDocumentController();

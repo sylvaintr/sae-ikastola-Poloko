@@ -12,8 +12,13 @@ class DocumentModelTest extends TestCase
 
     public function test_document_factory_creates_record()
     {
+        // given
+        // no setup needed
+
+        // when
         $doc = Document::factory()->create();
 
+        // then
         $this->assertDatabaseHas('document', ['idDocument' => $doc->idDocument]);
         $this->assertGreaterThanOrEqual(0,  $doc->utilisateurs()->count());
         $this->assertGreaterThanOrEqual(0,  $doc->actualites()->count());

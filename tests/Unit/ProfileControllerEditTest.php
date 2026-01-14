@@ -15,8 +15,9 @@ class ProfileControllerEditTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_edit_populates_documents_obligatoires_when_user_has_roles()
+    public function test_edit_remplit_documents_obligatoires_lors_utilisateur_a_roles()
     {
+        // given
         $user = Utilisateur::factory()->create();
 
         // create a role and link it to the user via the avoir pivot
@@ -48,9 +49,11 @@ class ProfileControllerEditTest extends TestCase
         $request = Request::create('/', 'GET');
         $request->setUserResolver(function () use ($user) { return $user; });
 
+        // when
         $controller = new \App\Http\Controllers\ProfileController();
         $view = $controller->edit($request);
 
+        // then
         $this->assertInstanceOf(\Illuminate\View\View::class, $view);
 
         $data = $view->getData();
@@ -64,8 +67,9 @@ class ProfileControllerEditTest extends TestCase
         $this->assertNotNull($first->documentUploaded);
     }
 
-    public function test_edit_marks_document_non_remis_when_user_has_no_uploaded_document()
+    public function test_edit_marque_document_non_remis_si_utilisateur_n_a_pas_de_document_televerse()
     {
+        // given
         $user = Utilisateur::factory()->create();
 
         $role = Role::create(['name' => 'tester2', 'guard_name' => 'web']);
@@ -87,9 +91,11 @@ class ProfileControllerEditTest extends TestCase
         $request = Request::create('/', 'GET');
         $request->setUserResolver(function () use ($user) { return $user; });
 
+        // when
         $controller = new \App\Http\Controllers\ProfileController();
         $view = $controller->edit($request);
 
+        // then
         $data = $view->getData();
         $docs = $data['documentsObligatoires'];
         $this->assertNotEmpty($docs);

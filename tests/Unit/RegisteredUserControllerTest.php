@@ -12,7 +12,7 @@ class RegisteredUserControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_create_returns_view()
+    public function test_create_retourne_vue()
     {
         // given
         $ctrl = new RegisteredUserController();
@@ -24,7 +24,7 @@ class RegisteredUserControllerTest extends TestCase
         $this->assertInstanceOf(\Illuminate\View\View::class, $view);
     }
 
-    public function test_store_creates_user_when_valid_and_recaptcha_disabled()
+    public function test_store_cree_utilisateur_quand_valide_et_recaptcha_desactive()
     {
         // given
         config(['services.recaptcha.enabled' => false]);
@@ -46,25 +46,31 @@ class RegisteredUserControllerTest extends TestCase
         $this->assertDatabaseHas((new Utilisateur())->getTable(), ['email' => 'jean@example.test']);
     }
 
-    public function test_verify_recaptcha_behaviors()
+    public function test_verifie_recaptcha_sans_cle_et_environnement_local_accepte()
     {
         // given
         $ctrl = new RegisteredUserController();
         $rm = new \ReflectionMethod(RegisteredUserController::class, 'verifyRecaptcha');
         $rm->setAccessible(true);
 
-        // when / then: no secret -> false
+        // when
+        // case 1: no secret
         config(['services.recaptcha.secret_key' => null]);
-        $this->assertFalse($rm->invoke($ctrl, 'any'));
+        $result1 = $rm->invoke($ctrl, 'any');
 
-        // when / then: local env with test secret accepts non-empty
+        // case 2: local env with test secret
         config(['app.env' => 'local', 'services.recaptcha.secret_key' => 'TEST', 'services.recaptcha.test_secret_key' => 'TEST']);
-        $this->assertTrue($rm->invoke($ctrl, 'nonempty'));
+        $result2 = $rm->invoke($ctrl, 'nonempty');
+
+        // then
+        $this->assertFalse($result1);
+        $this->assertTrue($result2);
     }
 
-    public function test_store_fails_when_recaptcha_enabled_and_missing()
+    public function test_store_echoue_si_recaptcha_active_et_manquant()
     {
-        // given: recaptcha enabled but no response
+        // given
+        // recaptcha enabled but no response
         config(['services.recaptcha.enabled' => true, 'services.recaptcha.secret_key' => null]);
         $data = [
             'name' => 'Jean Dupont',
@@ -75,16 +81,19 @@ class RegisteredUserControllerTest extends TestCase
         ];
         $request = Request::create('/register', 'POST', $data);
 
+        // when
         $ctrl = new RegisteredUserController();
         $resp = $ctrl->store($request);
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
         $this->assertDatabaseMissing((new Utilisateur())->getTable(), ['email' => 'jean2@example.test']);
     }
 
-    public function test_store_with_recaptcha_test_keys_creates_user()
+    public function test_store_cree_utilisateur_avec_cles_recaptcha_de_test()
     {
-        // given: recaptcha enabled and test keys present in local env
+        // given
+        // recaptcha enabled and test keys present in local env
         config([
             'services.recaptcha.enabled' => true,
             'services.recaptcha.secret_key' => 'TEST',
@@ -101,14 +110,16 @@ class RegisteredUserControllerTest extends TestCase
         ];
         $request = Request::create('/register', 'POST', $data);
 
+        // when
         $ctrl = new RegisteredUserController();
         $resp = $ctrl->store($request);
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
         $this->assertDatabaseHas((new Utilisateur())->getTable(), ['email' => 'jean3@example.test']);
     }
 
-    public function test_store_assigns_parent_role_when_present()
+    public function test_store_attribue_role_parent_si_present()
     {
         // given
         \App\Models\Role::create(['name' => 'parent']);
@@ -122,17 +133,20 @@ class RegisteredUserControllerTest extends TestCase
         ];
         $request = Request::create('/register', 'POST', $data);
 
+        // when
         $ctrl = new RegisteredUserController();
         $resp = $ctrl->store($request);
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
         $user = Utilisateur::where('email', 'parentrole@example.test')->first();
         $this->assertNotNull($user);
         $this->assertGreaterThan(0, $user->rolesCustom()->count());
     }
 
-    public function test_store_with_prenom_nom_creates_user()
+    public function test_store_cree_utilisateur_avec_prenom_et_nom()
     {
+        // given
         config(['services.recaptcha.enabled' => false]);
         $data = [
             'prenom' => 'Pierre',
@@ -143,23 +157,29 @@ class RegisteredUserControllerTest extends TestCase
         ];
         $request = Request::create('/register', 'POST', $data);
 
+        // when
         $ctrl = new RegisteredUserController();
         $resp = $ctrl->store($request);
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
         $this->assertDatabaseHas((new Utilisateur())->getTable(), ['email' => 'pierre@example.test']);
     }
 
-    public function test_verify_recaptcha_remote_failure_returns_false()
+    public function test_verifie_recaptcha_remote_echoue_retourne_false()
     {
-        // given: remote recaptcha secret (non-test) and env not local
+        // given
+        // remote recaptcha secret (non-test) and env not local
         config(['services.recaptcha.secret_key' => 'REALKEY', 'app.env' => 'production']);
 
         $ctrl = new RegisteredUserController();
         $rm = new \ReflectionMethod(RegisteredUserController::class, 'verifyRecaptcha');
         $rm->setAccessible(true);
 
-        // when: call with a response; network call will likely fail in test env
-        $this->assertFalse($rm->invoke($ctrl, 'some-response'));
+        // when
+        $result = $rm->invoke($ctrl, 'some-response');
+
+        // then
+        $this->assertFalse($result);
     }
 }

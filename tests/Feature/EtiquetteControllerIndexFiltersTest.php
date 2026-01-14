@@ -15,12 +15,15 @@ class EtiquetteControllerIndexFiltersTest extends TestCase
 
     public function test_index_applies_search_filter()
     {
+        // given
         Etiquette::create(['nom' => 'Alpha']);
         Etiquette::create(['nom' => 'Beta']);
 
+        // when
         $ctrl = new EtiquetteController();
         $view = $ctrl->index(new Request(['search' => 'Alpha']));
 
+        // then
         $etiquettes = $view->getData()['etiquettes'];
         $this->assertCount(1, $etiquettes);
         $this->assertEquals('Alpha', $etiquettes->first()->nom);
@@ -28,6 +31,7 @@ class EtiquetteControllerIndexFiltersTest extends TestCase
 
     public function test_index_applies_role_filter()
     {
+        // given
         $role = Role::create(['name' => 'R1']);
 
         $e1 = Etiquette::create(['nom' => 'WithRole']);
@@ -35,9 +39,11 @@ class EtiquetteControllerIndexFiltersTest extends TestCase
 
         $e1->roles()->attach($role->idRole);
 
+        // when
         $ctrl = new EtiquetteController();
         $view = $ctrl->index(new Request(['role' => $role->idRole]));
 
+        // then
         $etiquettes = $view->getData()['etiquettes'];
         $this->assertCount(1, $etiquettes);
         $this->assertEquals('WithRole', $etiquettes->first()->nom);

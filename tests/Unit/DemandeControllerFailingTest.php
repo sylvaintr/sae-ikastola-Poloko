@@ -8,8 +8,14 @@ use App\Http\Controllers\DemandeController;
 
 class DemandeControllerFailingTest extends TestCase
 {
-    public function test_index_returns_json_but_it_will_fail()
+    public function test_index_retourne_json_mais_echoue()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         // Create a request that asks for JSON
         $req = Request::create('/', 'GET', [], [], [], ['HTTP_ACCEPT' => 'application/json']);
         $this->app->instance('request', $req);

@@ -17,6 +17,12 @@ class DataTablesDataCoverageTest extends TestCase
 
     public function test_donnees_etiquette_avec_role_zero_et_sans_role()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         Role::factory()->create();
         $et = Etiquette::factory()->create();
 
@@ -35,8 +41,14 @@ class DataTablesDataCoverageTest extends TestCase
         $this->assertArrayHasKey('data', $payload1);
     }
 
-    public function test_donnees_actualite_avec_etiquette_simple_et_tableau_et_filtre_etat()
+    public function test_donnees_actualite_avec_etiquette_simple_tableau_et_filtre_etat()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         // create one actualite and one etiquette to exercise queries
         Actualite::factory()->create(['archive' => false, 'titrefr' => 't1']);
         $et = Etiquette::factory()->create();
@@ -62,8 +74,14 @@ class DataTablesDataCoverageTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $respArchived);
     }
 
-    public function test_actions_colonne_retournent_instances_vue()
+    public function test_actions_colonne_retournent_des_instances_vue()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $et = Etiquette::factory()->create();
         $act = Actualite::factory()->create();
 

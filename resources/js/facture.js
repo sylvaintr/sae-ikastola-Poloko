@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         const userLocale =  
                             (typeof navigator !== "undefined" && (navigator.language || navigator.userLanguage)) ||  
                             undefined;  
-                        return date.toLocaleDateString('fr-FR'); // Formatage de la date au format JJ/MM/AAAA
+                        return date.toLocaleDateString(userLocale);
                     },
                 },
                 {

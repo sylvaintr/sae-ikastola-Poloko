@@ -7,8 +7,14 @@ use App\Http\Controllers\ProfileController;
 
 class ProfileControllerValidateFileMagicBytesCatchTest extends TestCase
 {
-    public function test_validateFileMagicBytes_catches_exceptions_and_returns_error_message()
+    public function test_validate_magic_bytes_attrape_exceptions_et_retourne_message_erreur()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $controller = new ProfileController();
 
         $ref = new \ReflectionMethod(ProfileController::class, 'validateFileMagicBytes');

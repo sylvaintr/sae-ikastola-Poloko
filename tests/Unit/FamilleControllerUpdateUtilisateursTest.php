@@ -12,8 +12,14 @@ class FamilleControllerUpdateUtilisateursTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_mise_a_jour_utilisateurs_ignore_entrees_sans_idUtilisateur()
+    public function test_mise_a_jour_utilisateurs_ignore_les_entrees_sans_idUtilisateur()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = Famille::factory()->create();
 
         // existing utilisateur that should be updated

@@ -14,10 +14,10 @@ class FactureControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_valider_facture_transitions_and_deletes_manual_files()
+    public function test_valider_facture_transitions_et_supprime_fichiers_manuels()
     {
+        // given
         Storage::fake('public');
-
         $facture = Facture::factory()->create(['etat' => 'manuel']);
 
         // create dummy manual files
@@ -25,9 +25,11 @@ class FactureControllerTest extends TestCase
         Storage::disk('public')->put($base . '.doc', 'x');
         Storage::disk('public')->put($base . '.odt', 'y');
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $resp = $ctrl->validerFacture((string)$facture->idFacture);
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
 
         $facture->refresh();
@@ -38,7 +40,7 @@ class FactureControllerTest extends TestCase
         $this->assertFalse(Storage::disk('public')->exists($base . '.odt'));
     }
 
-    public function test_exportFacture_returns_manual_binary_when_present()
+    public function test_exportFacture_retourne_binaire_manuel_si_present()
     {
         // given
         $facture = Facture::factory()->create(['etat' => 'manuel']);
@@ -60,7 +62,7 @@ class FactureControllerTest extends TestCase
         $this->assertSame('BINARYDATA', $result);
     }
 
-    public function test_exportFacture_calls_generate_for_non_manual()
+    public function test_exportFacture_appelle_generate_pour_non_manuel()
     {
         // given
         $facture = Facture::factory()->create(['etat' => 'brouillon']);
@@ -82,47 +84,54 @@ class FactureControllerTest extends TestCase
         $this->assertSame('PDFBIN', $result);
     }
 
-    public function test_envoyerFacture_returns_error_when_not_verified()
+    public function test_envoyerFacture_retourne_erreur_si_non_verifie()
     {
-        // given: a facture not in 'verifier' state
+        // given
         $famille = Famille::factory()->create();
         $user = Utilisateur::factory()->create(['email' => 'to@example.test']);
         $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 1]);
 
         $facture = Facture::factory()->create(['etat' => 'brouillon', 'idFamille' => $famille->idFamille, 'idUtilisateur' => $user->idUtilisateur]);
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $resp = $ctrl->envoyerFacture((string)$facture->idFacture);
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
     }
 
-    public function test_facturesData_returns_json()
+    public function test_facturesData_retourne_json()
     {
+        // given
         Facture::factory()->count(3)->create();
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $resp = $ctrl->facturesData();
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\JsonResponse::class, $resp);
     }
 
-    public function test_createFacture_creates_for_families_with_parents()
+    public function test_createFacture_cree_pour_familles_avec_parents()
     {
         // given
         $famille = Famille::factory()->create();
         $user = Utilisateur::factory()->create();
         $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 1]);
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $ctrl->createFacture();
 
+        // then
         $this->assertDatabaseHas((new Facture())->getTable(), ['idFamille' => $famille->idFamille]);
     }
 
-    public function test_calculerRegularisation_returns_expected_difference()
+    public function test_calculerRegularisation_retourne_difference_attendue()
     {
-        // given: famille with a non-previsionnel and a previsionnel facture in the same month
+        // given
         $famille = Famille::factory()->create();
         $monthDate = \Carbon\Carbon::now()->subMonth()->startOfDay();
 
@@ -139,15 +148,17 @@ class FactureControllerTest extends TestCase
 
         $this->app->instance(\App\Services\FactureCalculator::class, $mockCalculator);
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $res = $ctrl->calculerRegularisation($famille->idFamille);
 
+        // then
         $this->assertSame(5, $res);
     }
 
-    public function test_show_previsionnel_returns_view()
+    public function test_show_previsionnel_retourne_vue()
     {
-        // given: a facture that is not manual
+        // given
         $famille = Famille::factory()->create();
         $facture = Facture::factory()->create(['etat' => 'brouillon', 'previsionnel' => false, 'idFamille' => $famille->idFamille]);
 
@@ -166,14 +177,17 @@ class FactureControllerTest extends TestCase
 
         $this->app->instance(\App\Services\FactureCalculator::class, $mockCalculator);
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $view = $ctrl->show((string)$facture->idFacture);
 
+        // then
         $this->assertInstanceOf(\Illuminate\View\View::class, $view);
     }
 
-    public function test_show_manual_returns_view_with_pdf_url()
+    public function test_show_manual_retourne_vue_avec_url_pdf()
     {
+        // given
         Storage::fake('public');
 
         $famille = Famille::factory()->create();
@@ -182,38 +196,48 @@ class FactureControllerTest extends TestCase
         $path = 'factures/facture-' . $facture->idFacture . '.pdf';
         Storage::disk('public')->put($path, '%PDF%');
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $resp = $ctrl->show((string)$facture->idFacture);
 
+        // then
         $this->assertInstanceOf(\Illuminate\View\View::class, $resp);
         $this->assertStringContainsString('facture-' . $facture->idFacture, $resp->getData()['fichierpdf']);
     }
 
-    public function test_index_returns_view()
+    public function test_index_retourne_vue()
     {
+        // given
+        // none
+
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $view = $ctrl->index();
+
+        // then
         $this->assertInstanceOf(\Illuminate\View\View::class, $view);
     }
 
-    public function test_exportFacture_returns_calculator_redirect_when_calculator_returns_redirect()
+    public function test_exportFacture_retourne_redirect_calculateur_quand_calculateur_retourne_redirect()
     {
-        // given: calculator returns a RedirectResponse
+        // given
         $mockCalculator = $this->getMockBuilder(\App\Services\FactureCalculator::class)->onlyMethods(['calculerMontantFacture'])->getMock();
         $redirect = redirect()->route('admin.facture.index');
         $mockCalculator->method('calculerMontantFacture')->willReturn($redirect);
 
         $this->app->instance(\App\Services\FactureCalculator::class, $mockCalculator);
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $res = $ctrl->exportFacture('1');
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $res);
     }
 
-    public function test_show_manual_missing_pdf_redirects()
+    public function test_show_manual_missing_pdf_redirige()
     {
-        // given: manual facture but no pdf on disk
+        // given
         Storage::fake('public');
         $facture = Facture::factory()->create(['etat' => 'manuel']);
 
@@ -221,35 +245,43 @@ class FactureControllerTest extends TestCase
         $mockCalculator->method('calculerMontantFacture')->willReturn(['facture' => $facture]);
         $this->app->instance(\App\Services\FactureCalculator::class, $mockCalculator);
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $res = $ctrl->show((string)$facture->idFacture);
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $res);
     }
 
-    public function test_calculerRegularisation_returns_zero_when_no_factures()
+    public function test_calculerRegularisation_retourne_zero_si_aucune_facture()
     {
+        // given
         $famille = Famille::factory()->create();
         $mockCalculator = $this->getMockBuilder(\App\Services\FactureCalculator::class)->onlyMethods(['calculerMontantFacture'])->getMock();
         $this->app->instance(\App\Services\FactureCalculator::class, $mockCalculator);
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $res = $ctrl->calculerRegularisation($famille->idFamille);
 
+        // then
         $this->assertSame(0, $res);
     }
 
-    public function test_validerFacture_returns_error_when_already_validated()
+    public function test_validerFacture_retourne_erreur_si_deja_validee()
     {
+        // given
         $facture = Facture::factory()->create(['etat' => 'verifier']);
 
+        // when
         $ctrl = new \App\Http\Controllers\FactureController();
         $resp = $ctrl->validerFacture((string)$facture->idFacture);
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
     }
 
-    public function test_update_with_invalid_uploaded_file_returns_error()
+    public function test_update_avec_fichier_upload_invalide_retourne_erreur()
     {
         // given
         $facture = Facture::factory()->create(['etat' => 'brouillon']);
@@ -266,23 +298,35 @@ class FactureControllerTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
     }
 
-    public function test_envoyerFacture_returns_error_when_missing()
+    public function test_envoyerFacture_retourne_erreur_si_manquante()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $ctrl = new \App\Http\Controllers\FactureController();
         $resp = $ctrl->envoyerFacture('999999');
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
     }
 
-    public function test_validerFacture_returns_error_when_missing()
+    public function test_validerFacture_retourne_erreur_si_manquante()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $ctrl = new \App\Http\Controllers\FactureController();
         $resp = $ctrl->validerFacture('999999');
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
     }
 
-    public function test_envoyerFacture_sends_mail_when_verified()
+    public function test_envoyerFacture_envoie_mail_si_verifie()
     {
         // given
         \Illuminate\Support\Facades\Mail::fake();
@@ -310,7 +354,7 @@ class FactureControllerTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
     }
 
-    public function test_update_sets_manual_state_even_without_file()
+    public function test_update_definit_etat_manuel_meme_sans_fichier()
     {
         // given
         $facture = \App\Models\Facture::factory()->create(['etat' => 'brouillon']);

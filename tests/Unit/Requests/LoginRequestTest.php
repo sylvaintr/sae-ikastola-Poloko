@@ -18,6 +18,12 @@ class LoginRequestTest extends TestCase
 
     public function test_regles_retournent_structure_attendue()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $base = HttpRequest::create($this->pathtested, 'POST', ['email' => 'a@b.test', 'password' => 'secret']);
         $req = LoginRequest::createFromBase($base);
 
@@ -29,6 +35,12 @@ class LoginRequestTest extends TestCase
 
     public function test_authentification_reussie_efface_rate_limiter()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         // Arrange request with credentials
         $email = 'ok+' . uniqid() . '@example.test';
         Utilisateur::factory()->create(['email' => $email, 'archived_at' => null]);
@@ -48,6 +60,12 @@ class LoginRequestTest extends TestCase
 
     public function test_authentification_rejette_compte_archive()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $email = 'archived+' . uniqid() . '@example.test';
         Utilisateur::factory()->create(['email' => $email, 'archived_at' => now()]);
         $base = HttpRequest::create($this->pathtested, 'POST', ['email' => $email, 'password' => 'secret']);
@@ -68,6 +86,12 @@ class LoginRequestTest extends TestCase
 
     public function test_ensureIsNotRateLimited_lance_si_rate_limite()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $email = 'rl+' . uniqid() . '@example.test';
         $base = HttpRequest::create($this->pathtested, 'POST', ['email' => $email]);
         $req = LoginRequest::createFromBase($base);
@@ -81,6 +105,12 @@ class LoginRequestTest extends TestCase
 
     public function test_throttleKey_genere_format_attendu()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $email = 'Mix.Case+test@example.test';
         $ip = '127.0.0.1';
         $base = HttpRequest::create($this->pathtested, 'POST', ['email' => $email]);

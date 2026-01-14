@@ -9,6 +9,7 @@ class ProfileControllerReadFileHexTest extends TestCase
 {
     public function test_lire_octets_hex_retourne_null_si_fopen_echoue()
     {
+        // given
         $controller = new ProfileController();
 
         $ref = new \ReflectionMethod(ProfileController::class, 'readFileHex');
@@ -21,6 +22,7 @@ class ProfileControllerReadFileHexTest extends TestCase
             }
         };
 
+        // when
         // Temporarily suppress PHP warnings so fopen failure does not raise ErrorException
         $prevHandler = set_error_handler(function () { return true; });
         try {
@@ -31,6 +33,7 @@ class ProfileControllerReadFileHexTest extends TestCase
             }
         }
 
+        // then
         $this->assertNull($result);
     }
 }

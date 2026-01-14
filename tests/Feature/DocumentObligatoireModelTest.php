@@ -12,8 +12,13 @@ class DocumentObligatoireModelTest extends TestCase
 
     public function test_document_obligatoire_factory_creates_record()
     {
+        // given
+        // none
+
+        // when
         $documentObligatoire = DocumentObligatoire::factory()->create();
 
+        // then
         $this->assertDatabaseHas('documentObligatoire', ['idDocumentObligatoire' => $documentObligatoire->idDocumentObligatoire]);
         $this->assertGreaterThanOrEqual(0,  $documentObligatoire->roles()->count());
     }

@@ -9,8 +9,14 @@ use App\Notifications\ResetPasswordNotification;
 
 class ResetPasswordNotificationTest extends TestCase
 {
-    public function test_toMail_builds_mailmessage_and_uses_notifiable_language()
+    public function test_toMail_construit_mailmessage_et_utilise_langue_notifiable()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $notifiable = new class {
             public $languePref = 'eus';
             public function getEmailForPasswordReset() { return 'user@example.com'; }
@@ -34,8 +40,14 @@ class ResetPasswordNotificationTest extends TestCase
         $this->assertEquals('user@example.com', urldecode($qs['email'] ?? ''));
     }
 
-    public function test_toMail_uses_session_locale_over_user_pref()
+    public function test_toMail_utilise_locale_session_plutot_que_pref_utilisateur()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $this->withSession(['locale' => 'fr']);
 
         $notifiable = new class {
@@ -50,8 +62,14 @@ class ResetPasswordNotificationTest extends TestCase
         $this->assertEquals(__('auth.reinitialiser_mot_de_passe'), $mail->subject);
     }
 
-    public function test_toMail_falls_back_to_config_locale_for_unsupported()
+    public function test_toMail_retourne_locale_config_pour_non_supporte()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $notifiable = new class {
             public $languePref = 'en';
             public function getEmailForPasswordReset() { return 'u3@example.com'; }

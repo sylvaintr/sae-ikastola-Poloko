@@ -11,8 +11,9 @@ class EtiquetteControllerEnsurePublicColumnTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_ensure_etiquette_public_column_calls_schema_table_when_missing()
+    public function test_ajoute_colonne_is_public_si_absente_sur_etiquette()
     {
+        // given
         // Arrange: Schema::hasColumn returns false so the controller should call Schema::table
         Schema::shouldReceive('hasColumn')->once()->with('etiquette', 'is_public')->andReturn(false);
 
@@ -26,6 +27,7 @@ class EtiquetteControllerEnsurePublicColumnTest extends TestCase
 
         $controller = new EtiquetteController();
 
+        // when
         // Use reflection to call private method
         $ref = new \ReflectionClass(EtiquetteController::class);
         $method = $ref->getMethod('ensureEtiquetteIsPublicColumn');
@@ -34,6 +36,7 @@ class EtiquetteControllerEnsurePublicColumnTest extends TestCase
         // Act
         $method->invoke($controller);
 
+        // then
         // Assert: expectations on Schema mocked via shouldReceive are verified by Mockery on test teardown
         $this->assertTrue(true);
     }

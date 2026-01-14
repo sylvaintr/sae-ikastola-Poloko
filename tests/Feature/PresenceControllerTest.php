@@ -20,30 +20,46 @@ class PresenceControllerTest extends TestCase
 
     public function test_classe_a_les_methodes_attendues(): void
     {
-        $this->assertTrue(method_exists(PresenceController::class, 'classes'));
-        $this->assertTrue(method_exists(PresenceController::class, 'students'));
-        $this->assertTrue(method_exists(PresenceController::class, 'status'));
-        $this->assertTrue(method_exists(PresenceController::class, 'save'));
+        // given
+        // no setup required
+
+        // when
+        $hasClasses = method_exists(PresenceController::class, 'classes');
+        $hasStudents = method_exists(PresenceController::class, 'students');
+        $hasStatus = method_exists(PresenceController::class, 'status');
+        $hasSave = method_exists(PresenceController::class, 'save');
+
+        // then
+        $this->assertTrue($hasClasses);
+        $this->assertTrue($hasStudents);
+        $this->assertTrue($hasStatus);
+        $this->assertTrue($hasSave);
     }
 
     public function test_eleves_sans_classe_retourne_tableau_vide(): void
     {
+        // given
         $controller = new PresenceController();
         $request = Request::create('/students', 'GET');
 
+        // when
         $response = $controller->students($request);
 
+        // then
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals([], $response->getData(true));
     }
 
     public function test_status_sans_param_retourne_presentIds_vide(): void
     {
+        // given
         $controller = new PresenceController();
         $request = Request::create('/status', 'GET');
 
+        // when
         $response = $controller->status($request);
 
+        // then
         $this->assertEquals(200, $response->getStatusCode());
         $data = $response->getData(true);
         $this->assertArrayHasKey('presentIds', $data);
@@ -53,10 +69,11 @@ class PresenceControllerTest extends TestCase
     public function test_enregistrement_champs_manquants_lance_exception_validation(): void
     {
         $this->expectException(ValidationException::class);
-
+        // given
         $controller = new PresenceController();
         $request = Request::create('/save', 'POST', []);
 
+        // when / then
         $controller->save($request);
     }
 }

@@ -16,7 +16,10 @@ class RouteMiddlewareTest extends TestCase
      */
     public function test_facture_and_admin_routes_have_auth_and_role_middlewares()
     {
+        // given
         $routes = Route::getRoutes();
+
+        // when
         foreach ($routes as $route) {
             $uri = $route->uri();
 
@@ -26,6 +29,7 @@ class RouteMiddlewareTest extends TestCase
 
                 $hasAuth = in_array('auth', $middleware, true) || collect($middleware)->contains(fn($m) => Str::contains($m, 'auth'));
 
+                // then
                 // Require at minimum authentication for admin and facture routes.
                 $this->assertTrue($hasAuth, "Route [{$uri}] must have 'auth' middleware. Found: " . json_encode($middleware));
             }

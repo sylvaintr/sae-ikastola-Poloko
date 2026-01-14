@@ -14,6 +14,12 @@ class EtiquetteControllerHelpersTest extends TestCase
 
     public function test_applyRoleWhereHas_ajoute_clause_where()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $controller = new EtiquetteController();
 
         $q = Role::query();
@@ -24,6 +30,12 @@ class EtiquetteControllerHelpersTest extends TestCase
 
     public function test_filterRolesColumn_par_mot_cle_ajoute_like()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $controller = new EtiquetteController();
 
         $query = Etiquette::query();
@@ -32,8 +44,14 @@ class EtiquetteControllerHelpersTest extends TestCase
         $this->assertContains('%term%', $query->getBindings());
     }
 
-    public function test_actions_colonne_html_retourne_vue_avec_etiquette()
+    public function test_actions_colonne_html_retourne_une_vue_avec_etiquette()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $etiquette = Etiquette::factory()->create(['nom' => 'T']);
         $controller = new EtiquetteController();
 

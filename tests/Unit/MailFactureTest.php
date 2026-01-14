@@ -11,8 +11,14 @@ class MailFactureTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_construction_mail_facture(): void
+    public function test_construction_du_mail_facture(): void
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $facture = Facture::factory()->create();
         $famille = $facture->famille()->first();
 

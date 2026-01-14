@@ -15,6 +15,7 @@ class AccountControllerDirectTest extends TestCase
 
     public function test_direct_controller_update_and_sync()
     {
+        // given
         $this->withoutMiddleware();
 
         $role = Role::factory()->create();
@@ -33,9 +34,11 @@ class AccountControllerDirectTest extends TestCase
 
         $request = new Request($putData);
 
+        // when
         // Call controller method directly
         $controller->update($request, $account);
 
+        // then
         // After direct call, pivot should exist
         $this->assertDatabaseHas('avoir', ['idUtilisateur' => $account->idUtilisateur, 'idRole' => $role->idRole]);
     }

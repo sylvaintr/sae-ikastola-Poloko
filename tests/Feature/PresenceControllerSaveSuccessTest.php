@@ -16,6 +16,7 @@ class PresenceControllerSaveSuccessTest extends TestCase
 
     public function test_save_inserts_presence_rows(): void
     {
+        // given
         $classe = Classe::factory()->create();
         $enfants = collect();
         for ($i = 0; $i < 3; $i++) {
@@ -35,6 +36,7 @@ class PresenceControllerSaveSuccessTest extends TestCase
 
         $controller = new PresenceController();
 
+        // when
         $request = Request::create('/presence/save', 'POST', [
             'date' => now()->format('Y-m-d'),
             'activite' => 'cantine',
@@ -43,6 +45,7 @@ class PresenceControllerSaveSuccessTest extends TestCase
 
         $response = $controller->save($request);
 
+        // then
         $this->assertEquals(200, $response->getStatusCode());
 
         // Check DB for present entries

@@ -15,6 +15,7 @@ class HandlesDocumentDownloadsTest extends TestCase
 
     public function test_telechargement_nom_formatte_utilise_extension_depuis_nom_si_chemin_sans_extension()
     {
+        // given
         $this->withoutMiddleware();
         Storage::fake('public');
 
@@ -39,8 +40,10 @@ class HandlesDocumentDownloadsTest extends TestCase
             }
         };
 
+        // when
         $response = $invoker->call($user, $document);
 
+        // then
         $this->assertInstanceOf(\Symfony\Component\HttpFoundation\BinaryFileResponse::class, $response);
 
         $disposition = $response->headers->get('content-disposition');
@@ -52,6 +55,7 @@ class HandlesDocumentDownloadsTest extends TestCase
 
     public function test_telechargement_nom_formatte_defaut_pdf_si_nom_sans_extension()
     {
+        // given
         $this->withoutMiddleware();
         Storage::fake('public');
 
@@ -75,8 +79,10 @@ class HandlesDocumentDownloadsTest extends TestCase
             }
         };
 
+        // when
         $response = $invoker->call($user, $document);
 
+        // then
         $this->assertInstanceOf(\Symfony\Component\HttpFoundation\BinaryFileResponse::class, $response);
 
         $disposition = $response->headers->get('content-disposition');

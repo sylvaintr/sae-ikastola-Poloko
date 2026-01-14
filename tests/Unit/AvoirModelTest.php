@@ -12,8 +12,14 @@ class AvoirModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_boot_sets_model_type_on_create()
+    public function test_boot_definit_type_modele_lors_creation()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $user = Utilisateur::factory()->create();
         $role = Role::factory()->create();
 

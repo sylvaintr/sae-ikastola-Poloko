@@ -18,25 +18,31 @@ class AvoirEtreModelTest extends TestCase
 
     public function test_modele_avoir_de_base(): void
     {
+        // given
         // Create a pivot record via DB to exercise the model behavior
         $user = Utilisateur::factory()->create();
         $role = Role::factory()->create();
 
+        // when
         \Illuminate\Support\Facades\DB::table('avoir')->insert([
             'idUtilisateur' => $user->idUtilisateur,
             'idRole' => $role->idRole,
             'model_type' => Utilisateur::class,
         ]);
 
+        // then
         $avoir = Avoir::where('idUtilisateur', $user->idUtilisateur)->first();
         $this->assertNotNull($avoir);
     }
 
     public function test_modele_etre_de_base(): void
     {
+        // given
         $classe = Classe::factory()->create();
         $famille = Famille::factory()->create();
         $idEnfant = random_int(300000, 999999);
+
+        // when
         Enfant::factory()->create([
             'idEnfant' => $idEnfant,
             'idClasse' => $classe->idClasse,
@@ -49,6 +55,7 @@ class AvoirEtreModelTest extends TestCase
             'dateP' => now()->format('Y-m-d'),
         ]);
 
+        // then
         $etre = Etre::where('idEnfant', $idEnfant)->first();
         $this->assertNotNull($etre);
     }

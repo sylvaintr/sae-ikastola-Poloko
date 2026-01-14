@@ -11,8 +11,14 @@ class FactureControllerUpdateNotFoundTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_update_redirects_with_error_when_facture_not_found()
+    public function test_update_redirige_avec_erreur_si_facture_introuvable()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $request = Request::create('/', 'POST');
 
         $controller = new \App\Http\Controllers\FactureController();

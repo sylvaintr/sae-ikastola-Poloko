@@ -12,8 +12,13 @@ class FamilleModelTest extends TestCase
 
     public function test_famille_factory_created_lier_but_no_children_by_default()
     {
+        // given
+        // none
+
+        // when
         $famille = Famille::factory()->create();
 
+        // then
         // Assert famille exists in DB
         $this->assertDatabaseHas('famille', ['idFamille' => $famille->idFamille]);
 
