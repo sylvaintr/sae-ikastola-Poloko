@@ -8,6 +8,7 @@ use App\Models\Utilisateur;
 use App\Models\Role;
 use App\Models\Evenement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
 class TacheController extends Controller
@@ -27,11 +28,22 @@ class TacheController extends Controller
             // base query
             $query = Tache::query();
 
-            // si un Request ID est fourni, filtrer dessus
-            $requestId = $request->get('request_id');
-            if (!empty($requestId)) {
-                // recherche exacte (typique pour un ID)
-                $query->where('idTache', $requestId);
+            // Recherche globale (hors statut, urgence, date)
+            if ($request->filled('search_global')) {
+                $search = Str::of($request->search_global)
+                    ->lower()
+                    ->ascii(); // supprime les accents
+
+                $query->where(function ($q) use ($search) {
+                    $q->where('idTache', 'like', "%{$search}%")
+                    ->orWhere('titre', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('realisateurs', function ($qr) use ($search) {
+                        $qr->where('prenom', 'like', "%{$search}%")
+                            ->orWhere('nom', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+                });
             }
 
             // filtre statut
@@ -253,33 +265,17 @@ class TacheController extends Controller
         try {
             $tache->delete();
 
-            // si appel AJAX
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => __('taches.messages.deleted')
-                ]);
-            }
-
-            // fallback normal (non AJAX)
             return redirect()
                 ->route('tache.index')
                 ->with('status', __('taches.messages.deleted'));
 
         } catch (\Exception $e) {
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Erreur lors de la suppression.'
-                ], 500);
-            }
-
             return redirect()
                 ->route('tache.index')
                 ->with('error', 'Erreur lors de la suppression.');
         }
     }
+
 
     public function show($id)
     {

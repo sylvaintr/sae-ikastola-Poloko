@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\Utilisateur;
 
 class UtilisateurController extends Controller
@@ -34,16 +35,22 @@ class UtilisateurController extends Controller
     {
         $search = $request->get('q', '');
 
-        if (strlen($search) < 2) {
-            return response()->json([]);
+        $query = Utilisateur::query();
+
+        if (strlen($search) >= 2) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nom', 'LIKE', "%{$search}%")
+                ->orWhere('prenom', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%");
+            });
         }
 
-        $users = Utilisateur::query()
-            ->where('nom', 'LIKE', "%{$search}%")
-            ->orWhere('email', 'LIKE', "%{$search}%")
-            ->limit(10)
+        $users = $query
+            ->orderBy('prenom')
+            ->limit(4)
             ->get(['idUtilisateur', 'nom', 'prenom', 'email']);
 
         return response()->json($users);
     }
+
 }

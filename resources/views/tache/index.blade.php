@@ -35,8 +35,15 @@
         <div class="row g-3 align-items-start">
             {{-- RECHERCHE --}}
             <div class="col-md-4">
-                <input type="text" id="search-id" class="admin-search-input" placeholder="Eskaera ID baten bilaketa...">
-                <p class="text-muted mt-0 admin-button-subtitle">Rechercher un Request ID</p>
+                <input
+                    type="text"
+                    id="search-global"
+                    class="admin-search-input"
+                    placeholder="Bilatu zereginetan..."
+                >
+                <p class="text-muted mt-0 admin-button-subtitle">
+                    Rechercher dans les tâches
+                </p>
             </div>
             {{-- FILTRES --}}
             <div class="col-md-8 d-flex justify-content-md-end">
@@ -177,7 +184,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         Annuler
                     </button>
-                    <button type="button" class="btn btn-primary" id="confirmModalAction">
+                    <button type="button" class="btn demande-btn-primary" id="confirmModalAction">
                         Confirmer
                     </button>
                 </div>
@@ -192,25 +199,31 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title">
-                        Supprimer la tâche
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title">Supprimer la tâche</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-                    <p class="mb-0">
-                        Voulez-vous vraiment supprimer cette tâche ?
-                    </p>
+                    Voulez-vous vraiment supprimer cette tâche ?
+                    <br>
+                    <small class="text-muted">
+                        Cette action est définitive.
+                    </small>
                 </div>
 
                 <div class="modal-footer">
                     <button class="btn btn-secondary" data-bs-dismiss="modal">
                         Annuler
                     </button>
-                    <button class="btn btn-danger" id="confirmDeleteBtn">
-                        Supprimer
-                    </button>
+
+                    <form method="POST" id="deleteForm">
+                        @csrf
+                        @method('DELETE')
+
+                        <button type="submit" class="btn btn-danger">
+                            Supprimer
+                        </button>
+                    </form>
                 </div>
 
             </div>
@@ -269,11 +282,11 @@
                 ajax: {
                     url: "{{ route('tache.get-datatable') }}",
                     data: function (d) {
-                        d.request_id = $('#search-id').val();
-                        d.etat       = $('#filter-etat').val();
-                        d.urgence    = $('#filter-urgence').val();
-                        d.date_min   = $('#filter-date-min').val();
-                        d.date_max   = $('#filter-date-max').val();
+                        d.search_global = $('#search-global').val();
+                        d.etat          = $('#filter-etat').val();
+                        d.urgence       = $('#filter-urgence').val();
+                        d.date_min      = $('#filter-date-min').val();
+                        d.date_max      = $('#filter-date-max').val();
                     }
                 },
                 columns: [
@@ -290,10 +303,21 @@
                 }
             });
 
-            {{-- Recherche Request ID --}}
-            $('#search-id').on('keyup change', function () {
-                table.ajax.reload();
-            });
+            function debounce(fn, delay = 300) {
+                let timeout;
+                return function (...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => fn.apply(this, args), delay);
+                };
+            }
+
+            {{-- Recherche globale --}}
+            $('#search-global').on(
+                'keyup change',
+                debounce(function () {
+                    table.ajax.reload();
+                }, 300)
+            );
 
             // Appliquer filtres
             $('#apply-filters').on('click', function () {
@@ -366,44 +390,23 @@
                     }
                 );
             });
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest('.delete-tache');
+                if (!btn) return;
 
-            {{-- DELETE --}}
-            let deleteUrl = null;
-
-            // clic sur icône supprimer
-            $(document).on('click', '.delete-tache', function (e) {
                 e.preventDefault();
-                deleteUrl = $(this).data('url');
+
+                const deleteUrl = btn.dataset.url;
+                const form = document.getElementById('deleteForm');
+
+                form.action = deleteUrl;
 
                 new bootstrap.Modal(
                     document.getElementById('deleteConfirmModal')
                 ).show();
             });
-
-            // confirmation suppression
-            $('#confirmDeleteBtn').on('click', function () {
-
-                if (!deleteUrl) return;
-
-                $.ajax({
-                    url: deleteUrl,
-                    type: 'DELETE',
-                    success: function () {
-                        $('.datatable-taches').DataTable().ajax.reload(null, false);
-                    },
-                    error: function () {
-                        alert('Erreur lors de la suppression.');
-                    }
-                });
-
-                bootstrap.Modal.getInstance(
-                    document.getElementById('deleteConfirmModal')
-                ).hide();
-
-                deleteUrl = null;
-            });
-
         });
+
     </script>
     @endpush
 </x-app-layout>
