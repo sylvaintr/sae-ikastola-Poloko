@@ -1461,46 +1461,92 @@ table.dataTable thead th.dt-orderable-desc:hover::after {
     max-width: 420px;
 }
 
-/* Dropdown */
-.admin-search-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
+/* Recherche d'utilisateur */
+.user-list {
+    min-height: 16px;
+    margin-top: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
     background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    margin-top: 6px;
-    z-index: 50;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-    display: none;
-    max-height: 320px;
-    overflow-y: auto;
+    overflow: hidden;
 }
 
-/* Résultat */
-.admin-search-item {
-    padding: 0.75rem 1rem;
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 16px;
+    border: 1px solid #eee;
     cursor: pointer;
-    border-bottom: 1px solid #f1f1f1;
-    transition: all 0.15s ease;
+    margin: 8px;
+    border-radius: 6px;
 }
 
-.admin-search-item:last-child {
-    border-bottom: none;
+.user-item small {
+    color: #6c757d;
 }
 
-.admin-search-item:hover {
+.user-item.disabled {
+    opacity: 0.5;
+}
+
+.user-item.disabled .user-action {
+    pointer-events: none;
+}
+
+.user-action {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+/* Liste gauche */
+.user-list .user-action {
+    color: black;
+}
+
+.user-list .user-action:hover {
+    color: #f29201;
+}
+
+/* Liste droite */
+.user-list--assigned .user-item {
     background-color: #f29201;
-    color: #fff;
-    transform: translateX(2px);
 }
 
-.admin-search-item.disabled {
-    color: #999;
-    background: #fafafa;
-    cursor: default;
-    font-style: italic;
+.user-list--assigned .user-item small {
+    color: #fff;
+}
+
+.user-list--assigned .user-action {
+    font-size: 22px;
+    color: #fff;
+}
+
+.user-list--assigned .user-action:hover {
+    color: black;
+}
+
+#assigned-users {
+    display: flex;
+    flex-direction: column;
+}
+
+.assigned-user {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #6c757d;
+    color: #fff;
+    font-weight: 500;
+}
+
+.assigned-user .btn-close {
+    filter: invert(1);
+    opacity: 0.7;
+}
+
+.assigned-user .btn-close:hover {
+    opacity: 1;
 }
 
 

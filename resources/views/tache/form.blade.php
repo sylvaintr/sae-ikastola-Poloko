@@ -44,33 +44,36 @@
                 <p class="text-muted mt-0 admin-button-subtitle">Assignation</p>
 
             <div class="row">
-                <!-- Colonne gauche : recherche utilisateurs -->
+                <!-- Colonne gauche -->
                 <div class="col-md-6">
-                    <div class="admin-search-user-container position-relative">
-                        <label class="admin-table-heading mb-0">Bilatu erabiltzaile bat</label>
-                        <p class="text-muted mt-0 admin-button-subtitle">Rechercher un utilisateur</p>
+                    <label class="admin-table-heading mb-0">Bilatu erabiltzaile bat</label>
+                    <p class="text-muted mt-0 admin-button-subtitle">Rechercher un utilisateur</p>
 
-                        <input type="text"
-                            id="user-search"
-                            class="admin-search-input"
-                            style="width: 300px;"
-                            placeholder="Izena edo posta elektronikoa…">
-                        <p class="text-muted mt-0 admin-button-subtitle">Nom ou email…</p>
+                    <input type="text"
+                        id="user-search"
+                        class="admin-search-input"
+                        placeholder="Izena edo posta elektronikoa…">
 
-                        <div id="user-search-results" class="admin-search-dropdown"></div>
-                    </div>
+                    <p class="text-muted mt-0 admin-button-subtitle">Nom ou email…</p>
+
+                    <div id="user-search-results" class="user-list"></div>
                 </div>
 
-                <!-- Colonne droite : utilisateurs sélectionnés -->
+                <!-- Colonne droite -->
                 <div class="col-md-6">
                     <label class="form-label mb-0">Hautatutako erabiltzaileak :</label>
                     <p class="text-muted mt-0 admin-button-subtitle">Utilisateurs sélectionnés</p>
-                    <div id="assigned-users" class="mb-3" style="min-height:60px">
+
+                    <div id="assigned-users" class="user-list user-list--assigned">
                         @if(isset($tache))
                             @foreach($tache->realisateurs as $r)
-                                <div class="badge bg-secondary me-2 mb-2 assigned-user" data-id="{{ $r->idUtilisateur }}">
-                                    {{ $r->prenom }} {{ $r->nom }}
-                                    <button type="button" class="btn-close btn-close-white ms-2 remove-assigned" aria-label="Remove"></button>
+                                <div class="user-item assigned-user" data-id="{{ $r->idUtilisateur }}">
+                                    <div>
+                                        <strong>{{ $r->nom }} {{ $r->prenom }}</strong><br>
+                                        <small>{{ $r->email }}</small>
+                                    </div>
+                                    <span class="user-action remove-assigned">✕</span>
+
                                     <input type="hidden" name="realisateurs[]" value="{{ $r->idUtilisateur }}">
                                 </div>
                             @endforeach
@@ -96,122 +99,136 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    
-    const search = document.getElementById('user-search');
 
-    function addAssignedUser(id, nom, prenom) {
+    /* =======================
+       ASSIGNATION
+    ======================= */
 
-        // Vérifie si déjà présent
+    function addAssignedUser(id, nom, prenom, email) {
         if (document.querySelector('#assigned-users .assigned-user[data-id="'+id+'"]')) {
             return;
         }
 
         const div = document.createElement('div');
-        div.className = 'badge bg-secondary me-2 mb-2 assigned-user d-inline-flex align-items-center';
+        div.className = 'user-item assigned-user';
         div.setAttribute('data-id', id);
 
-        // Contenu visuel
         div.innerHTML = `
-            ${nom} ${prenom}
-            <button type="button" class="btn-close btn-close-white ms-2 remove-assigned" aria-label="Remove"></button>
+            <div>
+                <strong>${nom} ${prenom}</strong><br>
+                <small>${email}</small>
+            </div>
+            <span class="user-action remove-assigned">✕</span>
         `;
 
-        // Input hidden pour envoyer au backend
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = 'realisateurs[]';
         input.value = id;
 
         div.appendChild(input);
-
         document.getElementById('assigned-users').appendChild(div);
     }
 
     function removeAssignedUser(userId) {
-
-        // remove chip
         const chip = document.querySelector(`#assigned-users .assigned-user[data-id="${userId}"]`);
         if (chip) chip.remove();
-
-        // remove hidden input
-        const input = document.querySelector(`#assigned-users input[name="realisateurs[]"][value="${userId}"]`);
-        if (input) input.remove();
     }
 
-    $(document).ready(function () {
+    /* =======================
+       LISTE UTILISATEURS
+    ======================= */
 
-    let timer = null;
+    function renderUserList(users) {
+        let html = '';
 
-    $('#user-search').on('input', function () {
-        const query = $(this).val().trim();
+        const assignedIds = Array.from(
+            document.querySelectorAll('#assigned-users .assigned-user')
+        ).map(el => el.dataset.id);
 
-        clearTimeout(timer);
+        if (!users.length) {
+            html = `<div class="user-item text-muted">Aucun utilisateur</div>`;
+        } else {
+            users.forEach(user => {
+                const isAssigned = assignedIds.includes(String(user.idUtilisateur));
 
-        if (query.length < 2) {
-            $('#user-search-results').hide().empty();
-            return;
-        }
-
-        timer = setTimeout(() => {
-            $.ajax({
-                url: "{{ route('users.search') }}",
-                method: "GET",
-                data: { q: query },
-                success: function (data) {
-
-                    let html = '';
-
-                    if (data.length === 0) {
-                        html = `<div class="admin-search-item disabled">Aucun utilisateur trouvé</div>`;
-                    } else {
-                        data.forEach(user => {
-                            html += `
-                                <div class="admin-search-item"
-                                    data-id-utilisateur="${user.idUtilisateur}"
-                                    data-nom="${user.nom}"
-                                    data-prenom="${user.prenom}">
-                                    <div>
-                                        <strong>${user.nom} ${user.prenom}</strong><br>
-                                        <small class="text-muted">${user.email}</small>
-                                    </div>
-                                </div>`;
-                        });
-                    }
-
-                    $('#user-search-results').html(html).show();
-                }
+                html += `
+                    <div class="user-item ${isAssigned ? 'disabled' : ''}"
+                        data-id="${user.idUtilisateur}"
+                        data-nom="${user.nom}"
+                        data-prenom="${user.prenom}"
+                        data-email="${user.email}">
+                        <div>
+                            <strong>${user.nom} ${user.prenom}</strong><br>
+                            <small>${user.email}</small>
+                        </div>
+                        <span class="user-action add-user">+</span>
+                    </div>
+                `;
             });
-        }, 250);
-    });
-
-    // Choisir un utilisateur
-    $(document).on('click', '.admin-search-item', function () {
-        if ($(this).hasClass('disabled')) return;
-
-        const idUtilisateur = $(this).data('id-utilisateur');
-        const nom = $(this).data('nom');
-        const prenom = $(this).data('prenom');
-
-        addAssignedUser(idUtilisateur, nom, prenom);
-
-        $('#user-search').val('');
-        $('#user-search-results').hide().empty();
-    });
-
-    // Retirer un utilisateur assigné
-    $(document).on('click', '.remove-assigned', function () {
-        const userId = $(this).closest('.assigned-user').data('id');
-        removeAssignedUser(userId);
-    });
-
-    // Clic hors du dropdown -> fermer
-    $(document).click(function (e) {
-        if (!$(e.target).closest('.admin-search-user-container').length) {
-            $('#user-search-results').hide();
         }
+
+        document.getElementById('user-search-results').innerHTML = html;
+    }
+
+    function loadUsers(query = '') {
+        $.get("{{ route('users.search') }}", { q: query })
+            .done(renderUserList);
+    }
+
+    loadUsers(); // chargement initial (4 users)
+
+    /* =======================
+       RECHERCHE (DEBOUNCE)
+    ======================= */
+
+    let searchTimer = null;
+
+    document.getElementById('user-search').addEventListener('input', function () {
+        const q = this.value.trim();
+
+        clearTimeout(searchTimer);
+
+        searchTimer = setTimeout(() => {
+            loadUsers(q);
+        }, 300);
     });
 
-});
+    /* =======================
+       EVENT DELEGATION
+    ======================= */
+
+    // Ajouter utilisateur
+    document.addEventListener('click', function (e) {
+        if (!e.target.classList.contains('add-user')) return;
+
+        const item = e.target.closest('.user-item');
+
+        const id = item.dataset.id;
+        const nom = item.dataset.nom;
+        const prenom = item.dataset.prenom;
+        const email = item.dataset.email;
+
+        addAssignedUser(id, nom, prenom, email);
+
+        // rafraîchir la liste gauche (désactiver le +)
+        const currentQuery = document.getElementById('user-search').value.trim();
+        loadUsers(currentQuery);
+    });
+
+    // Supprimer utilisateur
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.remove-assigned');
+        if (!btn) return;
+
+        const userId = btn.closest('.assigned-user').dataset.id;
+        removeAssignedUser(userId);
+
+        // rafraîchir la liste de gauche
+        const currentQuery = document.getElementById('user-search').value.trim();
+        loadUsers(currentQuery);
+    });
+
 
 });
 </script>
