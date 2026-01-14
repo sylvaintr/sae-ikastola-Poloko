@@ -1495,7 +1495,7 @@ table.dataTable thead th.dt-orderable-desc:hover::after {
 }
 
 .user-action {
-    font-size: 32px;
+    font-size: 22px;
     font-weight: bold;
 }
 
@@ -1518,7 +1518,6 @@ table.dataTable thead th.dt-orderable-desc:hover::after {
 }
 
 .user-list--assigned .user-action {
-    font-size: 22px;
     color: #fff;
 }
 

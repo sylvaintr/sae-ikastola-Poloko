@@ -70,9 +70,8 @@
                                 <div class="user-item assigned-user" data-id="{{ $r->idUtilisateur }}">
                                     <div>
                                         <strong>{{ $r->nom }} {{ $r->prenom }}</strong><br>
-                                        <small>{{ $r->email }}</small>
                                     </div>
-                                    <span class="user-action remove-assigned">✕</span>
+                                    <i class="bi bi-x user-action remove-assigned"></i>
 
                                     <input type="hidden" name="realisateurs[]" value="{{ $r->idUtilisateur }}">
                                 </div>
@@ -104,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function () {
        ASSIGNATION
     ======================= */
 
-    function addAssignedUser(id, nom, prenom, email) {
+    function addAssignedUser(id, nom, prenom) {
         if (document.querySelector('#assigned-users .assigned-user[data-id="'+id+'"]')) {
             return;
         }
@@ -116,9 +115,8 @@ document.addEventListener('DOMContentLoaded', function () {
         div.innerHTML = `
             <div>
                 <strong>${nom} ${prenom}</strong><br>
-                <small>${email}</small>
             </div>
-            <span class="user-action remove-assigned">✕</span>
+            <i class="bi bi-x user-action remove-assigned"></i>
         `;
 
         const input = document.createElement('input');
@@ -156,13 +154,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="user-item ${isAssigned ? 'disabled' : ''}"
                         data-id="${user.idUtilisateur}"
                         data-nom="${user.nom}"
-                        data-prenom="${user.prenom}"
-                        data-email="${user.email}">
+                        data-prenom="${user.prenom}">
                         <div>
                             <strong>${user.nom} ${user.prenom}</strong><br>
-                            <small>${user.email}</small>
                         </div>
-                        <span class="user-action add-user">+</span>
+                        <i class="bi bi-plus-circle user-action add-user"></i>
                     </div>
                 `;
             });
@@ -207,9 +203,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const id = item.dataset.id;
         const nom = item.dataset.nom;
         const prenom = item.dataset.prenom;
-        const email = item.dataset.email;
 
-        addAssignedUser(id, nom, prenom, email);
+        addAssignedUser(id, nom, prenom);
 
         // rafraîchir la liste gauche (désactiver le +)
         const currentQuery = document.getElementById('user-search').value.trim();
