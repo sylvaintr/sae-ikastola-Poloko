@@ -6,6 +6,12 @@ import './forgot-password';
 import Alpine from 'alpinejs';
 globalThis.Alpine = Alpine;
 Alpine.start();
+import * as yup from 'yup';
+
+
+globalThis.yup = yup;
+import './facture-modal';
+
 export const dataTableLangs = {
     fr: {
         decimal: ',',

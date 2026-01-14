@@ -257,6 +257,8 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	}
 
 
+
+
 	/**
 	 * Relation belongsToMany vers les tâches réalisées par l'utilisateur (pivot `realiser`).
 	 * Inclut les colonnes pivot `dateM` et `description`.

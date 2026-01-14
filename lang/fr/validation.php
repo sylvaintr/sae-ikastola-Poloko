@@ -1,6 +1,8 @@
 <?php
 
-const INVALID_SELECTED_ATTRIBUTE_FR = 'Le champ :attribute sélectionné n\'est pas valide.';
+if (!defined('INVALID_SELECTED_ATTRIBUTE_FR')) {
+    define('INVALID_SELECTED_ATTRIBUTE_FR', 'Le champ :attribute sélectionné n\'est pas valide.');
+}
 
 return [
 

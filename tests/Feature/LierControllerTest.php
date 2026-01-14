@@ -14,6 +14,7 @@ class LierControllerTest extends TestCase
 
     public function test_update_parite_success()
     {
+        // given
         $famille = Famille::factory()->create();
         $user1 = Utilisateur::factory()->create();
         $user2 = Utilisateur::factory()->create();
@@ -30,20 +31,29 @@ class LierControllerTest extends TestCase
             'parite' => 60,
         ];
 
+        // when
         $response = $this->putJson('/api/lier/update-parite', $payload);
 
+        // then
         $response->assertStatus(200);
         $this->assertDatabaseHas('lier', ['idFamille' => $famille->idFamille, 'idUtilisateur' => $user1->idUtilisateur, 'parite' => 60]);
     }
 
     public function test_update_parite_validation_error()
     {
+        // given
+        // invalid payload
+
+        // when
         $response = $this->putJson('/api/lier/update-parite', ['parite' => 'string']);
+
+        // then
         $response->assertStatus(422);
     }
 
     public function test_update_parite_not_found()
     {
+        // given
         // 1. Créer Famille et User pour passer la validation des IDs
         $famille = Famille::factory()->create();
         $user = Utilisateur::factory()->create();
@@ -52,6 +62,7 @@ class LierControllerTest extends TestCase
         // Il est physiquement impossible qu'un lien subsiste après ça.
         DB::table('lier')->delete();
 
+        // when
         // 3. Appel API
         $payload = [
             'idFamille' => $famille->idFamille,
@@ -61,6 +72,7 @@ class LierControllerTest extends TestCase
 
         $response = $this->putJson('/api/lier/update-parite', $payload);
 
+        // then
         // 4. Le contrôleur ne peut QUE retourner 404
         $response->assertStatus(404);
     }

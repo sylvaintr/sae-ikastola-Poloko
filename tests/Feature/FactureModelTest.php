@@ -12,8 +12,13 @@ class FactureModelTest extends TestCase
 
     public function test_facture_factory_creates_relations()
     {
+        // given
+        // no setup needed
+
+        // when
         $facture = Facture::factory()->create();
 
+        // then
         $this->assertDatabaseHas('facture', ['idFacture' => $facture->idFacture]);
 
         $this->assertNotNull($facture->famille);

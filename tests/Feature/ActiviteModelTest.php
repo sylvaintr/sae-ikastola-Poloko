@@ -12,8 +12,13 @@ class ActiviteModelTest extends TestCase
 
     public function test_activite_factory_creates_record()
     {
+        // given
+        // none
+
+        // when
         $activite = Activite::factory()->create();
 
+        // then
         $this->assertDatabaseHas('activite', ['activite' => $activite->activite, 'dateP' => $activite->dateP]);
         $this->assertGreaterThanOrEqual(0,  $activite->etres()->count());
     }

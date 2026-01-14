@@ -135,6 +135,7 @@ Route::middleware('auth')->group(function () {
 
            
         });
+        });
         Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
  Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 
@@ -144,7 +145,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
         Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
         Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
-    });
+    
 
     Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
         Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);

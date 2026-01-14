@@ -59,7 +59,6 @@ return [
     'confirmer' => 'Berretsi',
     'nonconnecte' => 'Saioa hasi behar duzu baliabide honetara sartzeko.',
     'accesrefuse' => 'Ez duzu baimenik orrialde honetara sartzeko.',
-<<<<<<< HEAD
 
     'notification_reset_line1' => "Mezu hau bidali dizugu pasahitza berrezartzeko eskaera jaso dugulako.",
     'notification_reset_line2' => "Ez baduzu eskaera hau egin, ez da ekintzarik behar.",

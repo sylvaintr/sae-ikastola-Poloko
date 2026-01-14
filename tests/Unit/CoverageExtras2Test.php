@@ -16,8 +16,9 @@ class CoverageExtras2Test extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_store_and_update_with_formrequest_like_object()
+    public function test_enregistrement_et_mise_a_jour_avec_objet_similaire_formrequest()
     {
+        // given
         $controller = new ActualiteController();
 
         $user = \App\Models\Utilisateur::factory()->create();
@@ -51,9 +52,10 @@ class CoverageExtras2Test extends TestCase
             }
         };
 
-        $controller->store($mock);
-        $this->assertDatabaseHas('actualite', ['titrefr' => 't']);
+        $act = null;
 
+        // when
+        $controller->store($mock);
         $act = Actualite::first();
 
         // Update via mocked StoreActualiteRequest
@@ -77,11 +79,20 @@ class CoverageExtras2Test extends TestCase
         };
 
         $controller->update($mock2, $act->idActualite);
+
+        // then
+        $this->assertDatabaseMissing('actualite', ['titrefr' => 't']);
         $this->assertEquals('updated', Actualite::find($act->idActualite)->titrefr);
     }
 
-    public function test_storeactualiterequest_prepare_for_validation_and_rules()
+    public function test_storeactualiterequest_prepare_la_validation_et_les_regles()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $req = StoreActualiteRequest::create('/','POST', ['dateP' => '10/12/2025']);
         $ref = new \ReflectionMethod(StoreActualiteRequest::class, 'prepareForValidation');
         $ref->setAccessible(true);
@@ -93,8 +104,14 @@ class CoverageExtras2Test extends TestCase
         $this->assertArrayHasKey('dateP', $rules);
     }
 
-    public function test_accountcontroller_redirect_if_archived()
+    public function test_accountcontroller_redirige_si_archive()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $controller = new AccountController();
 
         $u = Utilisateur::factory()->create();
@@ -108,8 +125,14 @@ class CoverageExtras2Test extends TestCase
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
     }
 
-    public function test_presencecontroller_extract_class_ids_private()
+    public function test_presencecontroller_extrait_les_ids_de_classe_prive()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $controller = new PresenceController();
 
         $req1 = Request::create('/','GET',['classe_ids' => '1,2,3']);

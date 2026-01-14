@@ -26,6 +26,8 @@ class Activite extends Model
 	protected $casts = [
 		'dateP' => 'datetime'
 	];
+	protected $fillable = ['activite', 'dateP'];
+	protected $primaryKey = ['activite', 'dateP'];
 
 	/**
 	 * Relation hasMany vers les enregistrements `Etre` (présences/inscriptions).

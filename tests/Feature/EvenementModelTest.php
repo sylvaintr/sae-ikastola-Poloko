@@ -12,8 +12,13 @@ class EvenementModelTest extends TestCase
 
     public function test_evenement_factory_creates_record()
     {
+        // given
+        // none
+
+        // when
         $evenement = Evenement::factory()->create();
 
+        // then
         $this->assertDatabaseHas('evenement', ['idEvenement' => $evenement->idEvenement]);
         $this->assertGreaterThanOrEqual(0,  $evenement->recettes()->count());
         $this->assertGreaterThanOrEqual(0,  $evenement->taches()->count());

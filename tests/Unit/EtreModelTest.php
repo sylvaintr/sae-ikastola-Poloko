@@ -12,8 +12,14 @@ class EtreModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_activite_relation_resolves_using_activite_key()
+    public function test_relation_activite_resout_avec_la_cle_activite()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $activite = Activite::factory()->create(['activite' => 'garderie-unique']);
         $enfant = Enfant::factory()->create(['idEnfant' => random_int(10000, 99999)]);
 

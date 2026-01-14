@@ -12,8 +12,13 @@ class RecetteModelTest extends TestCase
 
     public function test_recette_factory_creates_record()
     {
+        // given
+        // none
+
+        // when
         $recette = Recette::factory()->create();
 
+        // then
         $this->assertDatabaseHas('recette', ['idRecette' => $recette->idRecette]);
         $this->assertNotNull($recette->evenement());
     }

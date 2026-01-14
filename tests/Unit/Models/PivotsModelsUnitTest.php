@@ -19,8 +19,12 @@ class PivotsModelsUnitTest extends TestCase
 
     public function test_attribuer_model_properties_and_relations()
     {
+        // given
         $m = new Attribuer();
 
+        // when
+
+        // then
         $this->assertEquals('attribuer', $m->getTable());
         $this->assertFalse($m->incrementing);
         $this->assertFalse($m->timestamps);
@@ -33,8 +37,12 @@ class PivotsModelsUnitTest extends TestCase
 
     public function test_contenir_model_properties_and_relations()
     {
+        // given
         $m = new Contenir();
 
+        // when
+
+        // then
         $this->assertEquals('contenir', $m->getTable());
         $this->assertFalse($m->incrementing);
         $this->assertFalse($m->timestamps);
@@ -47,8 +55,12 @@ class PivotsModelsUnitTest extends TestCase
 
     public function test_correspondre_model_properties_and_relations()
     {
+        // given
         $m = new Correspondre();
 
+        // when
+
+        // then
         $this->assertEquals('correspondre', $m->getTable());
         $this->assertFalse($m->incrementing);
         $this->assertFalse($m->timestamps);
@@ -61,8 +73,12 @@ class PivotsModelsUnitTest extends TestCase
 
     public function test_inclure_model_properties_and_relations()
     {
+        // given
         $m = new Inclure();
 
+        // when
+
+        // then
         $this->assertEquals('inclure', $m->getTable());
         $this->assertFalse($m->incrementing);
         $this->assertFalse($m->timestamps);
@@ -75,8 +91,12 @@ class PivotsModelsUnitTest extends TestCase
 
     public function test_joindre_model_properties_and_relations()
     {
+        // given
         $m = new Joindre();
 
+        // when
+
+        // then
         $this->assertEquals('joindre', $m->getTable());
         $this->assertFalse($m->incrementing);
         $this->assertFalse($m->timestamps);
@@ -89,8 +109,12 @@ class PivotsModelsUnitTest extends TestCase
 
     public function test_lier_model_properties_and_relations_and_fillable()
     {
+        // given
         $m = new Lier();
 
+        // when
+
+        // then
         $this->assertEquals('lier', $m->getTable());
         $this->assertFalse($m->incrementing);
         $this->assertFalse($m->timestamps);
@@ -104,8 +128,12 @@ class PivotsModelsUnitTest extends TestCase
 
     public function test_realiser_model_properties_and_relations_and_fillable()
     {
+        // given
         $m = new Realiser();
 
+        // when
+
+        // then
         $this->assertEquals('realiser', $m->getTable());
         $this->assertFalse($m->incrementing);
         $this->assertFalse($m->timestamps);

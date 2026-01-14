@@ -14,6 +14,7 @@ class AccountControllerCoverageTest extends TestCase
 
     public function test_store_creates_account_and_syncs_roles()
     {
+        // given
         // Create an admin with CA role to pass middleware
         Role::factory()->create(['name' => 'CA']);
         $admin = Utilisateur::factory()->create();
@@ -32,8 +33,10 @@ class AccountControllerCoverageTest extends TestCase
             'roles' => [$role->idRole],
         ];
 
+        // when
         $response = $this->actingAs($admin)->post(route('admin.accounts.store'), $post);
 
+        // then
         $response->assertRedirect(route('admin.accounts.index'));
 
         $this->assertDatabaseHas('utilisateur', [
@@ -50,6 +53,7 @@ class AccountControllerCoverageTest extends TestCase
 
     public function test_update_modifies_account_and_syncs_roles()
     {
+        // given
         Role::factory()->create(['name' => 'CA']);
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
@@ -69,8 +73,10 @@ class AccountControllerCoverageTest extends TestCase
             'roles' => [$role2->idRole],
         ];
 
+        // when
         $response = $this->actingAs($admin)->put(route('admin.accounts.update', $existing->idUtilisateur), $put);
 
+        // then
         $response->assertRedirect(route('admin.accounts.index'));
 
         $this->assertDatabaseHas('utilisateur', [
@@ -88,14 +94,17 @@ class AccountControllerCoverageTest extends TestCase
 
     public function test_destroy_removes_account()
     {
+        // given
         Role::factory()->create(['name' => 'CA']);
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
 
         $victim = Utilisateur::factory()->create();
 
+        // when
         $response = $this->actingAs($admin)->delete(route('admin.accounts.destroy', $victim->idUtilisateur));
 
+        // then
         $response->assertRedirect(route('admin.accounts.index'));
         $this->assertDatabaseMissing('utilisateur', ['idUtilisateur' => $victim->idUtilisateur]);
     }

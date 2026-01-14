@@ -35,29 +35,12 @@ class NewPasswordController extends Controller
             'email' => ['required', 'email'],
             'password' => [
                 'required',
-                'string',
-                'min:12',
                 'confirmed',
-                function ($value, $fail) {
-                    if (!preg_match('/[a-z]/', $value)) {
-                        $fail(__('auth.password_rule_lowercase'));
-                    }
-                },
-                function ($value, $fail) {
-                    if (!preg_match('/[A-Z]/', $value)) {
-                        $fail(__('auth.password_rule_uppercase'));
-                    }
-                },
-                function ($value, $fail) {
-                    if (!preg_match('/\d/', $value)) {
-                        $fail(__('auth.password_rule_number'));
-                    }
-                },
-                function ($value, $fail) {
-                    if (!preg_match('/[^A-Za-z0-9]/', $value)) {
-                        $fail(__('auth.password_rule_symbol'));
-                    }
-                },
+                Rules\Password::min(12)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
             ],
         ], [
             'password.min' => __('auth.password_rule_length'),

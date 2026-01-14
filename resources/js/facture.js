@@ -1,17 +1,22 @@
 import DataTable from 'datatables.net-dt';
 import 'datatables.net-responsive-dt';
 import { dataTableLangs } from './app'
+import $ from "jquery";
 
 
 
+document.addEventListener("DOMContentLoaded", function () {
+    // 1. Cloner la ligne d'en-tête pour les filtres
+    // On utilise jQuery ici car DataTables dépend souvent de jQuery pour cette manipulation DOM spécifique
 
-document.addEventListener('DOMContentLoaded', function () {
 
     try {
-        new DataTable('#TableFacture', {
+        const table = new DataTable("#TableFacture", {
             processing: true,
             serverSide: true,
             autoWidth: false,
+            // Important : Permet de garder le tri sur la ligne du haut et les filtres en bas
+            orderCellsTop: true,
             ajax: location.pathname + "s-data",
             columnDefs: [
                 { responsivePriority: 1, targets: 0 }, // ID Facture
@@ -28,32 +33,54 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             },
             columns: [
-                { data: 'idFacture', name: 'idFacture', className: 'all dt-left' },
-                { data: 'titre', name: 'titre' },
-                { data: 'etat', name: 'etat' },
-                { data: 'idFamille', name: 'idFamille', className: 'dt-left' },
                 {
-                    data: 'dateC',
-                    name: 'dateC',
+                    data: "idFacture",
+                    name: "idFacture",
+                    className: "all dt-left",
+                },
+                { data: "titre", name: "titre" },
+                { data: "etat", name: "etat" },
+                { data: "idFamille", name: "idFamille", className: "dt-left" },
+                {
+                    data: "dateC",
+                    name: "dateC",
                     render: function (data) {
                         const date = new Date(data);
-                        return date.toLocaleDateString();
-                    }
+                        const userLocale =  
+                            (typeof navigator !== "undefined" && (navigator.language || navigator.userLanguage)) ||  
+                            undefined;  
+                        return date.toLocaleDateString(userLocale);
+                    },
                 },
                 {
-                    data: 'actions', name: 'actions', orderable: false,
-                    searchable: false, className: 'all',
-                    width: '1%', // Astuce pour "coller" au contenu
+                    data: "actions",
+                    name: "actions",
+                    orderable: false,
+                    searchable: false,
+                    className: "all",
+                    width: "1%",
                     render: function (data, type, row) {
-                        // ... votre HTML de boutons
-                        return '<div style="white-space: nowrap;">' + data + '</div>';
-                    }
-
-                }
+                        return (
+                            '<div style="white-space: nowrap;">' +
+                            data +
+                            "</div>"
+                        );
+                    },
+                },
             ],
-            language: dataTableLangs[currentLang] || dataTableLangs.eus
+            language: dataTableLangs[currentLang] || dataTableLangs.eus,
+
         });
-    } catch (e) { console.error("DataTable initialization error:", e); }
+        $('#filtreEtat').on('change', function () {
+        const valeurSelectionnee = $(this).val();
 
+        // On applique le filtre sur la colonne Index 2 (Etat)
+        // .search( val ) prépare la recherche
+        // .draw() lance l'appel Ajax au serveur
+        table.column(2).search(valeurSelectionnee).draw();
+           
+        });
+    } catch (e) {
+        console.error("DataTable initialization error:", e);
+    }
 });
-
