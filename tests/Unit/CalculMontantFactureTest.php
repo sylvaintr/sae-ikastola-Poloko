@@ -8,7 +8,7 @@ use App\Models\Facture;
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Activite;
-use App\Models\Etre;
+use App\Models\PRATIQUE;
 use Carbon\Carbon;
 
 class CalculMontantFactureTest extends TestCase
@@ -143,7 +143,7 @@ class CalculMontantFactureTest extends TestCase
     {
         $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
         foreach ($enfants as $enfant) {
-            Etre::create([
+            PRATIQUE::create([
                 'idEnfant' => $enfant->idEnfant,
                 'activite' => $activite->activite,
                 'dateP' => $date,

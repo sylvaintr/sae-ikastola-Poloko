@@ -18,7 +18,7 @@ class FactureControllerRegularisationTest extends TestCase
     public function test_calculer_regularisation_ajoute_dix_si_nbFois_garderie_entre_un_et_huit()
     {
         // given
-        // Setup family, child, activity and an Etre record within the facture month
+        // Setup family, child, activity and an PRATIQUE record within the facture month
         $famille = Famille::factory()->create();
 
         // Ensure the enfant has a concrete primary key value
@@ -40,7 +40,7 @@ class FactureControllerRegularisationTest extends TestCase
         $activiteKey = 'garderie-test';
         Activite::create(['activite' => $activiteKey, 'dateP' => $monthDate]);
 
-        DB::table('etre')->insert([
+        DB::table('pratiquer')->insert([
             'idEnfant' => $enfant->idEnfant,
             'activite' => $activiteKey,
             'dateP' => $monthDate->toDateTimeString(),

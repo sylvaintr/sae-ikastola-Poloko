@@ -28,9 +28,9 @@ class ActualiteController extends Controller
         // Étiquettes non liées à un rôle : accessibles à tous
         $unboundIds = Etiquette::whereNotIn('idEtiquette', Posseder::distinct()->pluck('idEtiquette'))->pluck('idEtiquette')->toArray();
 
-        $hasIsPublic = Schema::hasColumn('etiquette', 'is_public');
+        $hasIsPublic = Schema::hasColumn('etiquette', 'public');
         $publicTagIds = $hasIsPublic
-            ? Etiquette::where('is_public', true)->pluck('idEtiquette')->toArray()
+            ? Etiquette::where('public', true)->pluck('idEtiquette')->toArray()
             : [];
         if (!Auth::check()) {
             // Invité : seules les étiquettes publiques sont considérées
@@ -270,13 +270,13 @@ class ActualiteController extends Controller
     }
 
     /**
-     * Ajoute la colonne is_public sur etiquette si absente (pas de nouvelle migration).
+     * Ajoute la colonne public sur etiquette si absente (pas de nouvelle migration).
      */
     private function ensureEtiquetteIsPublicColumn(): void
     {
-        if (!Schema::hasColumn('etiquette', 'is_public')) {
+        if (!Schema::hasColumn('etiquette', 'public')) {
             Schema::table('etiquette', function ($table) {
-                $table->boolean('is_public')->default(false)->after('nom');
+                $table->boolean('public')->default(false)->after('nom');
             });
         }
     }

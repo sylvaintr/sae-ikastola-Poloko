@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Facture as FactureMail;
-use App\Models\Etre;
+use App\Models\PRATIQUE;
 use App\Models\Utilisateur;
 use Pelago\Emogrifier\CssInliner;
 use Dompdf\Dompdf;
@@ -366,7 +366,7 @@ class FactureController extends Controller
                     $monthStart = $cursorDate->copy()->startOfMonth();
                     $monthEnd = $cursorDate->copy()->endOfMonth();
 
-                    $nbfoisgarderie = Etre::where('idEnfant', $enfant->idEnfant)
+                    $nbfoisgarderie = PRATIQUE::where('idEnfant', $enfant->idEnfant)
                         ->whereBetween('dateP', [$monthStart, $monthEnd])
                         ->whereHas('activite', function ($query) {
                             $query->where('activite', 'like', '%garderie%');

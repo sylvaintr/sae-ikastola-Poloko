@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Avoir;
-use App\Models\Etre;
+use App\Models\PRATIQUE;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Utilisateur;
@@ -49,14 +49,14 @@ class AvoirEtreModelTest extends TestCase
             'idFamille' => $famille->idFamille,
         ]);
 
-        \Illuminate\Support\Facades\DB::table('etre')->insert([
+        \Illuminate\Support\Facades\DB::table('pratiquer')->insert([
             'idEnfant' => $idEnfant,
             'activite' => 'cantine',
             'dateP' => now()->format('Y-m-d'),
         ]);
 
         // then
-        $etre = Etre::where('idEnfant', $idEnfant)->first();
-        $this->assertNotNull($etre);
+        $pratiquer = PRATIQUE::where('idEnfant', $idEnfant)->first();
+        $this->assertNotNull($pratiquer);
     }
 }

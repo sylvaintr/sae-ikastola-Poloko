@@ -291,7 +291,7 @@ class DemandeController extends Controller
             'titre' => $demande->titre,
             'responsable' => $user?->name ?? '',
             'depense' => $depense,
-            'date_evenement' => now(),
+            'dateE' => now(),
             'description' => $description,
         ]);
     }

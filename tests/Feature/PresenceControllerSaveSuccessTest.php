@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Http\Controllers\PresenceController;
 use App\Models\Classe;
 use App\Models\Enfant;
-use App\Models\Etre;
+use App\Models\PRATIQUE;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -50,7 +50,7 @@ class PresenceControllerSaveSuccessTest extends TestCase
 
         // Check DB for present entries
         $ids = $enfants->pluck('idEnfant')->all();
-        $presentCount = Etre::whereIn('idEnfant', $ids)
+        $presentCount = PRATIQUE::whereIn('idEnfant', $ids)
             ->where('activite', 'cantine')
             ->whereDate('dateP', now()->format('Y-m-d'))
             ->count();

@@ -4,7 +4,7 @@ namespace Tests\Unit\Models;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\Etre;
+use App\Models\PRATIQUE;
 use App\Models\Enfant;
 use App\Models\Activite;
 
@@ -19,7 +19,7 @@ class EtreTest extends TestCase
         $enfant = Enfant::factory()->create(['idEnfant' => random_int(10000, 99999)]);
 
         // when
-        $etre = Etre::create([
+        $pratiquer = PRATIQUE::create([
             'idEnfant' => $enfant->idEnfant,
             'activite' => $activite->activite,
             'dateP' => now(),

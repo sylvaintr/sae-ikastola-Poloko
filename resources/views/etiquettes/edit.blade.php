@@ -29,9 +29,9 @@
 
                         <div class="col-12">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="is_public" name="is_public" value="1" {{ old('is_public', $etiquette->is_public) ? 'checked' : '' }}>
-                                <label class="form-check-label fw-semibold" for="is_public">{{ __('etiquette.is_public') }}</label>
-                                <div class="form-text">{{ __('etiquette.is_public_help') }}</div>
+                                <input class="form-check-input" type="checkbox" id="public" name="public" value="1" {{ old('public', $etiquette->public) ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold" for="public">{{ __('etiquette.public') }}</label>
+                                <div class="form-text">{{ __('etiquette.public_help') }}</div>
                             </div>
                         </div>
 

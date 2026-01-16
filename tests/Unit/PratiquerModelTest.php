@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\Etre;
+use App\Models\PRATIQUE;
 use App\Models\Activite;
 use App\Models\Enfant;
 
@@ -23,14 +23,14 @@ class EtreModelTest extends TestCase
         $activite = Activite::factory()->create(['activite' => 'garderie-unique']);
         $enfant = Enfant::factory()->create(['idEnfant' => random_int(10000, 99999)]);
 
-        $etre = Etre::create([
+        $pratiquer = PRATIQUE::create([
             'idEnfant' => $enfant->idEnfant,
             'activite' => $activite->activite,
             'dateP' => now(),
         ]);
 
-        $this->assertNotNull($etre);
-        $related = $etre->activite()->first();
+        $this->assertNotNull($pratiquer);
+        $related = $pratiquer->activite()->first();
         $this->assertNotNull($related);
         $this->assertEquals('garderie-unique', $related->activite);
     }

@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
- * Class Etre
+ * Class PRATIQUE
  *
  * Pivot représentant la présence / inscription d'un `Enfant` à une `Activite`.
  *
@@ -16,9 +16,9 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property string $activite Référence à l'activité (clé `Activite.activite`).
  * @property Carbon $dateP Date de la présence / inscription.
  */
-class Etre extends Pivot
+class PRATIQUE extends Pivot
 {
-	protected $table = 'etre';
+	protected $table = 'pratiquer';
 	public $incrementing = false;
 	public $timestamps = false;
 

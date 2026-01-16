@@ -113,7 +113,7 @@
                             <td>{{ $etiquette->nom }}</td>
                             <td>{{ $etiquette->roles->pluck('name')->join(', ') ?: '—' }}</td>
                             <td>
-                                @if($etiquette->is_public)
+                                @if($etiquette->public)
                                     <span class="badge bg-success-subtle text-success">{{ __('etiquette.public') }}</span>
                                 @else
                                     <span class="badge bg-secondary-subtle text-secondary">{{ __('etiquette.private') }}</span>

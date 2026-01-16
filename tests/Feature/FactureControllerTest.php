@@ -9,7 +9,7 @@ use App\Models\Facture;
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Utilisateur;
-use App\Models\Etre;
+use App\Models\PRATIQUE;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Facture as FactureMail;
 use Carbon\Carbon;
@@ -198,7 +198,7 @@ class FactureControllerTest extends TestCase
             $famille = Famille::create(['idFamille' => 999999, 'aineDansAutreSeaska' => false]);
             $enfant = Enfant::factory()->create(['nbFoisGarderie' => 0, 'idFamille' => $famille->idFamille, 'idEnfant' => 999999]);
             for ($i=0; $i < 30; $i++) {
-                Etre::create(['idEnfant' => $enfant->idEnfant, 'activite' => 'garderie soir', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
+                PRATIQUE::create(['idEnfant' => $enfant->idEnfant, 'activite' => 'garderie soir', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
                 Activite::create(['activite' => 'garderie soir', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
             }
 

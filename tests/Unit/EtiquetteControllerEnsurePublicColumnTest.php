@@ -11,11 +11,11 @@ class EtiquetteControllerEnsurePublicColumnTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_ajoute_colonne_is_public_si_absente_sur_etiquette()
+    public function test_ajoute_colonne_public_si_absente_sur_etiquette()
     {
         // given
         // Arrange: Schema::hasColumn returns false so the controller should call Schema::table
-        Schema::shouldReceive('hasColumn')->once()->with('etiquette', 'is_public')->andReturn(false);
+        Schema::shouldReceive('hasColumn')->once()->with('etiquette', 'public')->andReturn(false);
 
         Schema::shouldReceive('table')
             ->once()

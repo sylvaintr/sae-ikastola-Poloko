@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('titre', 100)->nullable();
             $table->string('responsable', 100)->nullable();
             $table->decimal('depense', 10, 2)->nullable();
-            $table->date('date_evenement')->nullable();
+            $table->date('dateE')->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
         });

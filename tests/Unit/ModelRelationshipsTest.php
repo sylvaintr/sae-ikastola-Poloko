@@ -48,7 +48,7 @@ class ModelRelationshipsTest extends TestCase
             'titre' => 't',
             'responsable' => 'r',
             'depense' => 0,
-            'date_evenement' => now(),
+            'dateE' => now(),
             'description' => 'd',
         ]);
 
