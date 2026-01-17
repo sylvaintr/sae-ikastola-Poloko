@@ -9,6 +9,7 @@ use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\LierController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\ClasseController;
+use App\Http\Controllers\EnfantController;
 use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
 
@@ -99,6 +100,18 @@ Route::middleware('auth')->group(function () {
                     Route::put(ROUTE_CLASSE, 'update')->name('update');
                     Route::delete(ROUTE_CLASSE, 'destroy')->name('destroy');
                     Route::get(ROUTE_CLASSE, 'show')->name('show');
+                });
+
+            // ---------------- Enfants ----------------
+            Route::prefix('enfants')->name('enfants.')->controller(\App\Http\Controllers\EnfantController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get(ROUTE_ADD, 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{id}', 'show')->name('show');
+                    Route::get('/{id}' . ROUTE_EDIT, 'edit')->name('edit');
+                    Route::put('/{id}', 'update')->name('update');
+                    Route::delete('/{id}', 'destroy')->name('destroy');
                 });
 
             // ---------------- Documents obligatoires ----------------

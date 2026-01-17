@@ -52,6 +52,27 @@
                         </div>
 
                         <div class="col-md-6">
+                            <label for="dateNaissance-label" class="form-label fw-semibold">{{ __('admin.accounts_page.create.fields.dateNaissance') }}</label>
+                            <div class="position-relative">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div id="display-dateNaissance" class="fw-semibold me-1 presence-date-text flex-grow-1" style="border: 1px solid #ced4da; border-radius: 4px; padding: 0.375rem 0.75rem; min-height: calc(1.5em + 0.75rem + 2px);">
+                                        {{ old('dateNaissance') ? \Carbon\Carbon::parse(old('dateNaissance'))->format('d/m/Y') : '' }}
+                                    </div>
+                                    <button type="button" id="open-dateNaissance" class="btn btn-link p-0 presence-date-btn flex-shrink-0" aria-label="Choisir la date" style="color: #6c757d;">
+                                        <i class="bi bi-chevron-down"></i>
+                                    </button>
+                                </div>
+                                <input type="date" id="dateNaissance" name="dateNaissance"
+                                    value="{{ old('dateNaissance') }}"
+                                    class="presence-date-input-hidden @error('dateNaissance') is-invalid @enderror">
+                                <div id="custom-calendar-dateNaissance" class="presence-calendar-dropdown"></div>
+                                @error('dateNaissance')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
                             <label for="mdp" class="form-label fw-semibold">{{ __('admin.accounts_page.create.fields.password') }}</label>
                             <input id="mdp" name="mdp" type="password" class="form-control @error('mdp') is-invalid @enderror"
                                    required minlength="8" autocomplete="new-password">
@@ -139,6 +160,179 @@
     </div>
 
     @push('scripts')
+    <script>
+        // Script pour le calendrier date de naissance
+        (function() {
+            const input = document.getElementById('dateNaissance');
+            if (!input) return;
+            
+            const out = document.getElementById('display-dateNaissance');
+            const btn = document.getElementById('open-dateNaissance');
+            const calendarDropdown = document.getElementById('custom-calendar-dateNaissance');
+            let currentDate = input.value ? new Date(input.value + 'T00:00:00') : new Date();
+            let calendarVisible = false;
+
+            function formatDateToYYYYMMDD(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            function formatFr(dateStr) {
+                if (!dateStr) return '';
+                try {
+                    const d = new Date(dateStr + 'T00:00:00');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const year = d.getFullYear();
+                    return `${day}/${month}/${year}`;
+                } catch (_) { return ''; }
+            }
+
+            function render() {
+                if (input.value) {
+                    out.textContent = formatFr(input.value);
+                } else {
+                    out.textContent = '';
+                }
+            }
+
+            function renderCalendar() {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const maxDate = today;
+                const minDate = new Date();
+                minDate.setFullYear(today.getFullYear() - 100);
+                minDate.setHours(0, 0, 0, 0);
+                
+                const firstDay = new Date(year, month, 1);
+                const startDate = new Date(firstDay);
+                startDate.setDate(startDate.getDate() - startDate.getDay());
+                
+                const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+                const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+                
+                const currentYear = today.getFullYear();
+                const years = [];
+                for (let y = currentYear; y >= currentYear - 100; y--) {
+                    years.push(y);
+                }
+                
+                let html = `<div class="presence-calendar">
+                    <div class="presence-calendar-header">
+                        <button type="button" class="presence-calendar-nav" id="prev-month-dateNaissance"><i class="bi bi-chevron-left"></i></button>
+                        <div class="presence-calendar-title-group">
+                            <select id="calendar-month-dateNaissance" class="presence-calendar-select">${monthNames.map((m, i) => `<option value="${i}" ${i === month ? 'selected' : ''}>${m}</option>`).join('')}</select>
+                            <select id="calendar-year-dateNaissance" class="presence-calendar-select">${years.map(y => `<option value="${y}" ${y === year ? 'selected' : ''}>${y}</option>`).join('')}</select>
+                        </div>
+                        <button type="button" class="presence-calendar-nav" id="next-month-dateNaissance"><i class="bi bi-chevron-right"></i></button>
+                    </div>
+                    <div class="presence-calendar-weekdays">
+                        ${dayNames.map(d => `<div class="presence-calendar-weekday">${d}</div>`).join('')}
+                    </div>
+                    <div class="presence-calendar-days">`;
+                
+                const current = new Date(startDate);
+                const todayStr = formatDateToYYYYMMDD(today);
+                for (let i = 0; i < 42; i++) {
+                    const dateStr = formatDateToYYYYMMDD(current);
+                    const isCurrentMonth = current.getMonth() === month;
+                    const isToday = dateStr === todayStr;
+                    const isFuture = current > maxDate;
+                    const isBeforeMin = current < minDate;
+                    const isSelected = dateStr === input.value;
+                    
+                    let classes = 'presence-calendar-day';
+                    if (!isCurrentMonth) classes += ' presence-calendar-day-other';
+                    if (isToday) classes += ' presence-calendar-day-today';
+                    if (isSelected) classes += ' presence-calendar-day-selected';
+                    if (isFuture || isBeforeMin) classes += ' presence-calendar-day-disabled';
+                    
+                    html += `<div class="${classes}" ${!isFuture && !isBeforeMin ? `data-date="${dateStr}"` : ''}>${current.getDate()}</div>`;
+                    current.setDate(current.getDate() + 1);
+                }
+                
+                html += `</div></div>`;
+                calendarDropdown.innerHTML = html;
+                
+                document.getElementById('prev-month-dateNaissance').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    currentDate.setMonth(currentDate.getMonth() - 1);
+                    renderCalendar();
+                });
+                
+                document.getElementById('next-month-dateNaissance').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1) <= maxDate) {
+                        currentDate.setMonth(currentDate.getMonth() + 1);
+                        renderCalendar();
+                    }
+                });
+                
+                document.getElementById('calendar-month-dateNaissance').addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    currentDate.setMonth(parseInt(e.target.value));
+                    renderCalendar();
+                });
+                
+                document.getElementById('calendar-year-dateNaissance').addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    const newYear = parseInt(e.target.value);
+                    const newDate = new Date(newYear, currentDate.getMonth(), 1);
+                    if (newDate <= maxDate && newDate >= minDate) {
+                        currentDate.setFullYear(newYear);
+                        renderCalendar();
+                    } else {
+                        e.target.value = currentDate.getFullYear();
+                    }
+                });
+                
+                document.getElementById('calendar-month-dateNaissance').addEventListener('click', (e) => e.stopPropagation());
+                document.getElementById('calendar-year-dateNaissance').addEventListener('click', (e) => e.stopPropagation());
+                
+                document.querySelectorAll('.presence-calendar-day[data-date]').forEach(day => {
+                    day.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        input.value = day.getAttribute('data-date');
+                        render();
+                        calendarDropdown.classList.remove('show');
+                        calendarVisible = false;
+                    });
+                });
+            }
+
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                calendarVisible = !calendarVisible;
+                if (calendarVisible) {
+                    if (input.value) {
+                        currentDate = new Date(input.value + 'T00:00:00');
+                    }
+                    calendarDropdown.classList.add('show');
+                    renderCalendar();
+                } else {
+                    calendarDropdown.classList.remove('show');
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!btn.contains(e.target) && !calendarDropdown.contains(e.target)) {
+                    calendarDropdown.classList.remove('show');
+                    calendarVisible = false;
+                }
+            });
+
+            input.addEventListener('change', () => {
+                render();
+            });
+
+            render();
+        })();
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const roleSearch = document.getElementById('role-search');
