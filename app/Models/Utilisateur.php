@@ -43,6 +43,7 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 		'idUtilisateur' => 'int',
 		'statutValidation' => 'bool',
 		'archived_at' => 'datetime',
+		'dateNaissance' => 'datetime',
 	];
 	/**
 	 * Attributs à cacher lors de la sérialisation (ex: JSON).
@@ -80,6 +81,7 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 		'email',
 		'languePref',
 		'statutValidation',
+		'dateNaissance',
 		'archived_at',
 		'remember_token',
 		'ics_token'

@@ -98,6 +98,7 @@ class AccountController extends Controller
             'languePref' => ['required', 'string', 'max:17'],
             'mdp' => ['required', 'string', 'min:8'],
             'mdp_confirmation' => ['required', 'string', 'same:mdp'],
+            'dateNaissance' => ['nullable', 'date', 'before:today'],
             'statutValidation' => ['nullable', 'boolean'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['exists:role,idRole'],
@@ -126,6 +127,7 @@ class AccountController extends Controller
             $account->email = $validated['email'];
             $account->languePref = $validated['languePref'];
             $account->mdp = Hash::make($validated['mdp']);
+            $account->dateNaissance = $validated['dateNaissance'] ?? null;
             $account->statutValidation = $shouldValidate;
             $account->save();
 
