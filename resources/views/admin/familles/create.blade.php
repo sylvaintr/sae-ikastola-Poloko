@@ -36,16 +36,16 @@
         <form id="mainForm" onsubmit="return false;" class="admin-form">
             @csrf
 
-            {{-- Section Parents --}}
-            <div class="mb-3">
-                <h3 class="fw-bold mb-0">{{ __('famille.parent_label', [], 'eus') }}ak | {{ __('famille.parent_label') }}s</h3>
-                @if (Lang::getLocale() == 'fr')
-                    <small class="text-muted d-block mb-3">{{ __('famille.parent_label') }}s disponibles</small>
-                @endif
-            </div>
-
             <div class="row g-4 mb-4">
                 <div class="col-12 col-md-6">
+                    {{-- Section Parents --}}
+                    <div class="mb-3">
+                        <h3 class="fw-bold mb-0">{{ __('famille.parent_label', [], 'eus') }}ak | {{ __('famille.parent_label') }}s</h3>
+                        @if (Lang::getLocale() == 'fr')
+                            <small class="text-muted d-block mb-3">{{ __('famille.parent_label') }}s disponibles</small>
+                        @endif
+                    </div>
+
                     <label for="parent-search" class="form-label small text-muted fw-bold">
                         {{ __('famille.search_label', [], 'eus') }}
                         @if (Lang::getLocale() == 'fr') | {{ __('famille.search_label') }} @endif
@@ -240,7 +240,7 @@
                 </div>
                 <div id="modalMessage" class="modal-body ps-4 pe-4 pt-2 text-secondary">Action ?</div>
                 <div class="modal-footer border-0 pe-4 pb-4">
-                    <div class="d-flex flex-column align-items-center w-100">
+                    <div class="d-flex flex-column align-items-end w-100">
                         <div class="d-flex gap-2">
                             <button type="button" class="btn px-4 py-2 fw-bold" data-bs-dismiss="modal" style="background: white; border: 1px solid orange; color: orange; border-radius: 6px;">
                                 {{ __('famille.cancel', [], 'eus') }}
@@ -250,7 +250,7 @@
                             </button>
                         </div>
                         @if (Lang::getLocale() == 'fr')
-                            <div class="d-flex justify-content-center mt-1">
+                            <div class="d-flex justify-content-end mt-1">
                                 <small class="text-muted">
                                     {{ __('famille.cancel') }} | {{ __('famille.validate') }}
                                 </small>
@@ -508,7 +508,20 @@
             showConfirm(translations.confirmParityTitle, translations.confirmParityMsg);
         }
 
+        let isSubmitting = false;
         document.getElementById('btnConfirmSave').onclick = function() {
+            const btn = document.getElementById('btnConfirmSave');
+            
+            // Empêcher les clics multiples
+            if (isSubmitting) {
+                return;
+            }
+            
+            isSubmitting = true;
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            btn.style.cursor = 'not-allowed';
+            
             const url = isCreateMode ? "{{ route('admin.familles.store') }}" : "{{ route('admin.lier.updateParite') }}";
             fetch(url, {
                 method: isCreateMode ? 'POST' : 'PUT',
@@ -523,7 +536,17 @@
                     globalThis.bootstrap.Modal.getInstance(document.getElementById('confirmationModal')).hide();
                     new globalThis.bootstrap.Modal(document.getElementById('successModal')).show();
                     document.getElementById('btnSuccessOk').onclick = () => window.location.href = "{{ route('admin.familles.index') }}";
+                    isSubmitting = false;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
                 }
+            }).catch(() => {
+                // En cas d'erreur, réactiver le bouton
+                isSubmitting = false;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
             });
         };
 
