@@ -523,16 +523,24 @@
             btn.style.cursor = 'not-allowed';
             
             const url = isCreateMode ? "{{ route('admin.familles.store') }}" : "{{ route('admin.lier.updateParite') }}";
-            fetch(url, {
-                method: isCreateMode ? 'POST' : 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify(pendingData)
-            }).then(() => {
-                if (isCreateMode) {
-                    // Redirection directe vers la liste des familles après création
-                    window.location.href = "{{ route('admin.familles.index') }}";
-                } else {
-                    // Pour la mise à jour de parité, fermer la modale de confirmation
+            
+            if (isCreateMode) {
+                // Pour la création, rediriger immédiatement après avoir lancé la requête
+                fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify(pendingData),
+                    keepalive: true // Permet à la requête de continuer même après la redirection
+                });
+                // Redirection instantanée
+                window.location.href = "{{ route('admin.familles.index') }}";
+            } else {
+                // Pour la mise à jour de parité, attendre la réponse
+                fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify(pendingData)
+                }).then(() => {
                     globalThis.bootstrap.Modal.getInstance(document.getElementById('confirmationModal')).hide();
                     new globalThis.bootstrap.Modal(document.getElementById('successModal')).show();
                     document.getElementById('btnSuccessOk').onclick = () => window.location.href = "{{ route('admin.familles.index') }}";
@@ -540,14 +548,14 @@
                     btn.disabled = false;
                     btn.style.opacity = '1';
                     btn.style.cursor = 'pointer';
-                }
-            }).catch(() => {
-                // En cas d'erreur, réactiver le bouton
-                isSubmitting = false;
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
-            });
+                }).catch(() => {
+                    // En cas d'erreur, réactiver le bouton
+                    isSubmitting = false;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                });
+            }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
