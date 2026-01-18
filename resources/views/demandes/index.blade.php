@@ -7,13 +7,6 @@
         <div class="demande-toolbar text-end">
             <div class="d-flex flex-column flex-sm-row flex-wrap gap-3 gap-sm-4 justify-content-end">
                 <div class="demande-toolbar-item">
-                    <button type="button" class="btn demande-btn-outline fw-semibold px-4 py-2 w-100 w-sm-auto">
-                        {{ __('demandes.toolbar.export.eu') }}
-                    </button>
-                    <small class="text-muted d-block d-sm-inline">{{ __('demandes.toolbar.export.fr') }}</small>
-                </div>
-                
-                <div class="demande-toolbar-item">
                     <a href="{{ route('demandes.create') }}" class="btn demande-btn-primary fw-semibold text-white px-4 py-2 w-100 w-sm-auto">
                         {{ __('demandes.toolbar.create.eu') }}
                     </a>

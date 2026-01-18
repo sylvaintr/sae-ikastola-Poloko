@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\Tache;
 use App\Models\DemandeHistorique;
+use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Collection;
 
 class DemandeController extends Controller
@@ -88,14 +90,19 @@ class DemandeController extends Controller
     public function create()
     {
         $types = $this->loadOrDefault('type', collect(self::DEFAULT_TYPES));
-
         $urgences = self::DEFAULT_URGENCES;
-        return view('demandes.create', compact('types', 'urgences'));
+        
+        // Charger tous les rôles (commissions) pour l'assignation
+        $roles = Role::select('idRole', 'name')
+            ->orderBy('name')
+            ->get();
+        
+        return view('demandes.create', compact('types', 'urgences', 'roles'));
     }
 
     public function show(Tache $demande)
     {
-        $demande->loadMissing(['realisateurs', 'documents', 'historiques']);
+        $demande->loadMissing(['realisateurs', 'documents', 'historiques', 'roleAssigné']);
 
         $metadata = [
             'reporter' => $demande->user->name ?? $demande->reporter_name ?? 'Inconnu',
@@ -129,6 +136,7 @@ class DemandeController extends Controller
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
             'idEvenement' => ['nullable', 'integer'],
+            'idRole' => ['nullable', 'integer', 'exists:role,idRole'],
             'photos' => ['nullable', 'array', 'max:4'],
             'photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
         ]);
@@ -158,11 +166,17 @@ class DemandeController extends Controller
             $types = collect(['Réparation', 'Ménage', 'Maintenance']);
         }
         $urgences = ['Faible', 'Moyenne', 'Élevée'];
+        
+        // Charger tous les rôles (commissions) pour l'assignation
+        $roles = Role::select('idRole', 'name')
+            ->orderBy('name')
+            ->get();
 
         return view('demandes.create', [
             'types' => $types,
             'urgences' => $urgences,
             'demande' => $demande,
+            'roles' => $roles,
         ]);
     }
 
@@ -182,6 +196,7 @@ class DemandeController extends Controller
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
             'idEvenement' => ['nullable', 'integer'],
+            'idRole' => ['nullable', 'integer', 'exists:role,idRole'],
         ]);
 
         $updates = collect($validated)->except(['dateD', 'dateF'])->toArray();
@@ -203,7 +218,7 @@ class DemandeController extends Controller
             $demande,
             __('demandes.history_statuses.created'),
             $demande->description,
-            $demande->montantP
+            0 // Dépense réelle à 0 lors de la création, elle sera complétée par les avancements
         );
     }
 
@@ -316,6 +331,81 @@ class DemandeController extends Controller
                 'etat' => 'actif',
             ]);
         }
+    }
+
+    /**
+     * Exporte une demande en CSV avec son historique.
+     */
+    public function exportCsv(Tache $demande): StreamedResponse
+    {
+        $demande->loadMissing(['historiques', 'realisateurs', 'documents']);
+
+        // Nettoyer le titre pour le nom de fichier (remplacer caractères spéciaux par underscores)
+        $titreClean = preg_replace('/[^a-zA-Z0-9_-]/', '_', $demande->titre);
+        $titreClean = preg_replace('/_+/', '_', $titreClean); // Remplacer plusieurs underscores consécutifs par un seul
+        $titreClean = trim($titreClean, '_'); // Retirer les underscores en début/fin
+        
+        $filename = $titreClean . '_demande_' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () use ($demande) {
+            $file = fopen('php://output', 'w');
+
+            // BOM UTF-8 pour Excel
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // En-tête de la demande
+            fputcsv($file, [__('demandes.export.demande_title')], ';');
+            fputcsv($file, [], ';');
+            fputcsv($file, [__('demandes.export.id'), $demande->idTache], ';');
+            fputcsv($file, [__('demandes.export.titre'), $demande->titre], ';');
+            fputcsv($file, [__('demandes.export.description'), $demande->description], ';');
+            fputcsv($file, [__('demandes.export.type'), $demande->type ?? '—'], ';');
+            fputcsv($file, [__('demandes.export.etat'), $demande->etat ?? '—'], ';');
+            fputcsv($file, [__('demandes.export.urgence'), $demande->urgence ?? '—'], ';');
+            fputcsv($file, [__('demandes.export.date_creation'), $demande->dateD ? $demande->dateD->format('d/m/Y') : '—'], ';');
+            fputcsv($file, [__('demandes.export.date_fin'), $demande->dateF ? $demande->dateF->format('d/m/Y') : '—'], ';');
+            fputcsv($file, [__('demandes.export.montant_previsionnel'), $demande->montantP ? number_format($demande->montantP, 2, ',', ' ') . ' €' : '—'], ';');
+            fputcsv($file, [__('demandes.export.montant_reel'), $demande->historiques->sum('depense') ? number_format($demande->historiques->sum('depense'), 2, ',', ' ') . ' €' : '0,00 €'], ';');
+            
+            // Réalisateurs
+            $realisateurs = $demande->realisateurs->pluck('name')->join(', ');
+            fputcsv($file, [__('demandes.export.realisateurs'), $realisateurs ?: '—'], ';');
+
+            fputcsv($file, [], ';');
+
+            // En-tête de l'historique
+            fputcsv($file, [__('demandes.export.historique_title')], ';');
+            fputcsv($file, [], ';');
+            fputcsv($file, [
+                __('demandes.history.columns.status.fr'),
+                __('demandes.history.columns.date.fr'),
+                __('demandes.history.columns.title.fr'),
+                __('demandes.history.columns.assignment.fr'),
+                __('demandes.history.columns.expense.fr'),
+                __('demandes.modals.history_view.fields.description')
+            ], ';');
+
+            // Données de l'historique
+            foreach ($demande->historiques as $historique) {
+                fputcsv($file, [
+                    $historique->statut,
+                    $historique->date_evenement ? $historique->date_evenement->format('d/m/Y') : '—',
+                    $historique->titre,
+                    $historique->responsable ?? '—',
+                    $historique->depense ? number_format($historique->depense, 2, ',', ' ') . ' €' : '0,00 €',
+                    $historique->description ?? '—'
+                ], ';');
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }
 
