@@ -25,6 +25,7 @@ if (!defined('ROUTE_ADD')) {
     define('ROUTE_VALIDATE', '/valider');
     define('ROUTE_ARCHIVE', '/archiver');
     define('ROUTE_ID', '/{id}');
+    define('ROUTE_FACTURE', '/facture');
 
     define('ROUTE_CLASSE', '/{classe}');
     define('ROUTE_OBLIGATORY_DOCUMENT', '/{obligatoryDocument}');
@@ -129,11 +130,11 @@ Route::middleware('auth')->group(function () {
                 });
 
             // ---------------- Factures ----------------
-            Route::resource('/facture', FactureController::class);
+            Route::resource(ROUTE_FACTURE, FactureController::class);
             Route::get('/factures-data', [FactureController::class, 'facturesData'])->name('factures.data');
-            Route::get('/facture' . ROUTE_ID . '/export', [FactureController::class, 'exportFacture'])->name('facture.export');
-            Route::get('/facture' . ROUTE_ID . '/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
-            Route::get('/facture' . ROUTE_ID . '/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
+            Route::get(ROUTE_FACTURE . ROUTE_ID . '/export', [FactureController::class, 'exportFacture'])->name('facture.export');
+            Route::get(ROUTE_FACTURE . ROUTE_ID . '/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
+            Route::get(ROUTE_FACTURE . ROUTE_ID . '/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
 
             // ---------------- Ajout des routes Famille + LierController ----------------
             Route::prefix('familles')->name('familles.')->group(function () {

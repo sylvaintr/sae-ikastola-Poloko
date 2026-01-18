@@ -27,7 +27,7 @@ class LierController extends Controller
 
         $nombreParents = $this->getNombreParents($idFamille);
         if ($nombreParents === 1) {
-            return $this->handleSingleParent($idFamille, $idParent1, $nouvelleParite);
+            return $this->handleSingleParent($idFamille, $idParent1);
         }
 
         return $this->handleMultipleParents($idFamille, $idParent1, $nouvelleParite, $nombreParents);
@@ -38,6 +38,24 @@ class LierController extends Controller
      */
     private function validatePariteRequest(int $idFamille, int $idParent1, float $nouvelleParite)
     {
+        $linkError = $this->validateLinkExists($idFamille, $idParent1);
+        if ($linkError) {
+            return $linkError;
+        }
+
+        $parentError = $this->validateParentsCount($idFamille, $nouvelleParite);
+        if ($parentError) {
+            return $parentError;
+        }
+
+        return $this->validatePariteValue($nouvelleParite);
+    }
+
+    /**
+     * Valide que le lien existe.
+     */
+    private function validateLinkExists(int $idFamille, int $idParent1)
+    {
         $exists = DB::table('lier')
             ->where('idFamille', $idFamille)
             ->where('idUtilisateur', $idParent1)
@@ -47,6 +65,14 @@ class LierController extends Controller
             return response()->json(['message' => 'Lien introuvable'], 404);
         }
 
+        return null;
+    }
+
+    /**
+     * Valide le nombre de parents et la parité pour un seul parent.
+     */
+    private function validateParentsCount(int $idFamille, float $nouvelleParite)
+    {
         $nombreParents = $this->getNombreParents($idFamille);
         if ($nombreParents === 0) {
             return response()->json(['message' => 'Aucun parent trouvé pour cette famille'], 404);
@@ -59,6 +85,14 @@ class LierController extends Controller
             ], 422);
         }
 
+        return null;
+    }
+
+    /**
+     * Valide la valeur de la parité.
+     */
+    private function validatePariteValue(float $nouvelleParite)
+    {
         $reste = 100 - $nouvelleParite;
         if ($reste < 0) {
             return response()->json([
@@ -83,7 +117,7 @@ class LierController extends Controller
     /**
      * Gère la mise à jour de parité pour un seul parent.
      */
-    private function handleSingleParent(int $idFamille, int $idParent1, float $nouvelleParite)
+    private function handleSingleParent(int $idFamille, int $idParent1)
     {
         DB::table('lier')
             ->where('idFamille', $idFamille)
