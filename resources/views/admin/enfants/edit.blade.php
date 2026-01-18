@@ -135,7 +135,7 @@
                                 value="{{ old('NNI', $enfant->NNI) }}"
                                 class="form-control @error('NNI') is-invalid @enderror"
                                 required
-                                pattern="[0-9]{10}" 
+                                pattern="[0-9]{10}"
                                 maxlength="10"
                                 inputmode="numeric">
                             @error('NNI')
