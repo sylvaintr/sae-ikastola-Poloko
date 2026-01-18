@@ -13,6 +13,7 @@ $common = [
     'email' => 'Posta elektronikoa',
     'preferred_language' => 'Hobetsitako hizkuntza',
     'fixed_expiration_date' => 'Iraungitze-data finkoa',
+    'birth_date' => 'Jaiotze data',
     'submit' => 'Gorde',
     'cancel' => 'Utzi',
     'edit' => 'Aldatu',
@@ -27,6 +28,7 @@ return [
         'accounts' => 'Kontuak',
         'families' => 'Familiak',
         'classes' => 'Klaseak',
+        'enfants' => 'Haurrak',
         'invoices' => 'Fakturak',
         'notifications' => 'Jakinarazpenak',
         'obligatory_documents' => OBLIGATORY_DOCUMENTS_LABEL,
@@ -35,6 +37,7 @@ return [
             'accounts' => 'Erabiltzaile kontuak, beren rolak eta balioztatzeak kudeatu',
             'families' => 'Familiak eta elkartutako kideak kudeatu',
             'classes' => 'Klaseak eta beren antolakuntza kudeatu',
+            'enfants' => 'Haurrak eta beren informazioa kudeatu',
             'obligatory_documents' => 'Erabiltzaileentzat beharrezkoak diren dokumentuak kudeatu',
             'invoices' => 'Fakturak eta ordainketak kudeatu',
             'notifications' => 'Jakinarazpenak eta sistema alertak kudeatu',
@@ -148,6 +151,7 @@ return [
                 'password' => 'Pasahitza',
                 'password_confirmation' => 'Pasahitza berretsi',
                 'language' => $common['preferred_language'],
+                'dateNaissance' => $common['birth_date'],
                 'status' => 'Balioztatze egoera',
                 'roles' => $common['roles'],
                 'roles_search' => $common['roles_search'],
@@ -165,6 +169,55 @@ return [
         ],
         'delete_confirmation' => 'Ziur zaude :name kontua ezabatu nahi duzula ?',
         'archive_confirmation' => 'Ziur zaude :name kontua artxibatu nahi duzula ?',
+    ],
+    'enfants_page' => [
+        'title' => 'Haurrak',
+        'title_subtitle' => 'Enfants',
+        'search_placeholder' => 'Haur bat bilatu...',
+        'search_label' => 'Bilatu izen, abizen, jaiotze data, sexua, familia',
+        'add_button' => 'Haur bat gehitu',
+        'add_button_subtitle' => 'Haur bat gehitu',
+        'columns' => [
+            'last_name' => [
+                'title' => 'Abizena',
+                'subtitle' => 'Abizena',
+            ],
+            'first_name' => [
+                'title' => 'Izena',
+                'subtitle' => 'Izena',
+            ],
+            'birth_date' => [
+                'title' => $common['birth_date'],
+                'subtitle' => $common['birth_date'],
+            ],
+            'sexe' => [
+                'title' => 'Sexua',
+                'subtitle' => 'Sexua',
+            ],
+            'classe' => [
+                'title' => 'Klasea',
+                'subtitle' => 'Klasea',
+            ],
+            'famille' => [
+                'title' => 'Familia',
+                'subtitle' => 'Familia',
+            ],
+            'actions' => [
+                'title' => 'Ekintzak',
+                'subtitle' => 'Ekintzak',
+            ],
+        ],
+        'actions' => [
+            'view' => 'Ikusi',
+            'edit' => $common['edit'],
+            'delete' => $common['delete'],
+            'confirm_delete' => $common['delete'],
+        ],
+        'create' => [
+            'cancel' => $common['cancel'],
+        ],
+        'delete_confirmation' => 'Ziur zaude :name haurra ezabatu nahi duzula ?',
+        'no_children' => 'Ez da haurrik erregistratu',
     ],
     'obligatory_documents' => [
         'title' => OBLIGATORY_DOCUMENTS_LABEL,
