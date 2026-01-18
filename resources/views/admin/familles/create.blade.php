@@ -239,10 +239,15 @@
                     <h5 id="modalTitle" class="modal-title fw-bold fs-4 text-dark">Confirmation</h5>
                 </div>
                 <div id="modalMessage" class="modal-body ps-4 pe-4 pt-2 text-secondary">Action ?</div>
+                <div id="modalLoading" class="modal-body ps-4 pe-4 pt-2 text-center" style="display: none;">
+                    <div class="spinner-border text-orange" role="status" style="color: orange !important;">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
                 <div class="modal-footer border-0 pe-4 pb-4">
                     <div class="d-flex flex-column align-items-end w-100">
                         <div class="d-flex gap-2">
-                            <button type="button" class="btn px-4 py-2 fw-bold" data-bs-dismiss="modal" style="background: white; border: 1px solid orange; color: orange; border-radius: 6px;">
+                            <button type="button" id="btnCancelModal" class="btn px-4 py-2 fw-bold" data-bs-dismiss="modal" style="background: white; border: 1px solid orange; color: orange; border-radius: 6px;">
                                 {{ __('famille.cancel', [], 'eus') }}
                             </button>
                             <button type="button" id="btnConfirmSave" class="btn px-4 py-2 fw-bold text-white" style="background: orange; border: 1px solid orange; border-radius: 6px;">
@@ -511,36 +516,63 @@
         let isSubmitting = false;
         document.getElementById('btnConfirmSave').onclick = function() {
             const btn = document.getElementById('btnConfirmSave');
+            const btnCancel = document.getElementById('btnCancelModal');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalLoading = document.getElementById('modalLoading');
             
             // Empêcher les clics multiples
             if (isSubmitting) {
                 return;
             }
             
+            // Feedback visuel immédiat
             isSubmitting = true;
             btn.disabled = true;
             btn.style.opacity = '0.6';
             btn.style.cursor = 'not-allowed';
+            btnCancel.disabled = true;
+            modalMessage.style.display = 'none';
+            modalLoading.style.display = 'block';
             
             const url = isCreateMode ? "{{ route('admin.familles.store') }}" : "{{ route('admin.lier.updateParite') }}";
             
+            // Lancer la requête immédiatement
+            const fetchPromise = fetch(url, {
+                method: isCreateMode ? 'POST' : 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                body: JSON.stringify(pendingData)
+            });
+            
             if (isCreateMode) {
-                // Pour la création, rediriger immédiatement après avoir lancé la requête
-                fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: JSON.stringify(pendingData),
-                    keepalive: true // Permet à la requête de continuer même après la redirection
+                // Pour la création, rediriger après confirmation du succès
+                fetchPromise.then(response => {
+                    if (response.ok) {
+                        window.location.href = "{{ route('admin.familles.index') }}";
+                    } else {
+                        // En cas d'erreur, réactiver le bouton
+                        isSubmitting = false;
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                        btn.style.cursor = 'pointer';
+                        btnCancel.disabled = false;
+                        modalMessage.style.display = 'block';
+                        modalLoading.style.display = 'none';
+                        alert('Erreur lors de la création de la famille');
+                    }
+                }).catch(() => {
+                    // En cas d'erreur, réactiver le bouton
+                    isSubmitting = false;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                    btnCancel.disabled = false;
+                    modalMessage.style.display = 'block';
+                    modalLoading.style.display = 'none';
+                    alert('Erreur lors de la création de la famille');
                 });
-                // Redirection instantanée
-                window.location.href = "{{ route('admin.familles.index') }}";
             } else {
-                // Pour la mise à jour de parité, attendre la réponse
-                fetch(url, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                    body: JSON.stringify(pendingData)
-                }).then(() => {
+                // Pour la mise à jour de parité
+                fetchPromise.then(() => {
                     globalThis.bootstrap.Modal.getInstance(document.getElementById('confirmationModal')).hide();
                     new globalThis.bootstrap.Modal(document.getElementById('successModal')).show();
                     document.getElementById('btnSuccessOk').onclick = () => window.location.href = "{{ route('admin.familles.index') }}";
@@ -554,6 +586,9 @@
                     btn.disabled = false;
                     btn.style.opacity = '1';
                     btn.style.cursor = 'pointer';
+                    btnCancel.disabled = false;
+                    modalMessage.style.display = 'block';
+                    modalLoading.style.display = 'none';
                 });
             }
         };
