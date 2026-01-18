@@ -72,6 +72,8 @@ return [
             'confirm' => 'Ezabatu',
         ],
     ],
- 
+    'duplicate' => 'Bikoiztu',
+    'duplicated_success' => 'Berria arrakastaz bikoiztu da.',
+
 
 ];
