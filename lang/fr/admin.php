@@ -61,7 +61,7 @@ return [
         'columns' => [
             'first_name' => [
                 'title' => 'Izena',
-                'subtitle' => 'Prénom',
+                'subtitle' => $common['first_name'],
             ],
             'last_name' => [
                 'title' => 'Izena',
@@ -204,7 +204,7 @@ return [
             ],
             'first_name' => [
                 'title' => 'Izena',
-                'subtitle' => 'Prénom',
+                'subtitle' => $common['first_name'],
             ],
             'birth_date' => [
                 'title' => 'Jaiotze data',

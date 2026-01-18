@@ -240,9 +240,9 @@
                 </div>
                 <div id="modalMessage" class="modal-body ps-4 pe-4 pt-2 text-secondary">Action ?</div>
                 <div id="modalLoading" class="modal-body ps-4 pe-4 pt-2 text-center" style="display: none;">
-                    <div class="spinner-border text-orange" role="status" style="color: orange !important;">
+                    <output class="spinner-border text-orange" style="color: orange !important;" aria-label="Chargement en cours">
                         <span class="visually-hidden">Chargement...</span>
-                    </div>
+                    </output>
                 </div>
                 <div class="modal-footer border-0 pe-4 pb-4">
                     <div class="d-flex flex-column align-items-end w-100">

@@ -20,50 +20,46 @@ class LierController extends Controller
         $idParent1 = $request->idUtilisateur;
         $nouvelleParite = $request->parite;
 
-        // Vérifier si le lien existe AVANT de faire l'update
+        $validationError = $this->validatePariteRequest($idFamille, $idParent1, $nouvelleParite);
+        if ($validationError) {
+            return $validationError;
+        }
+
+        $nombreParents = $this->getNombreParents($idFamille);
+        if ($nombreParents === 1) {
+            return $this->handleSingleParent($idFamille, $idParent1, $nouvelleParite);
+        }
+
+        return $this->handleMultipleParents($idFamille, $idParent1, $nouvelleParite, $nombreParents);
+    }
+
+    /**
+     * Valide la requête de mise à jour de parité.
+     */
+    private function validatePariteRequest(int $idFamille, int $idParent1, float $nouvelleParite)
+    {
         $exists = DB::table('lier')
             ->where('idFamille', $idFamille)
             ->where('idUtilisateur', $idParent1)
             ->exists();
 
-        if (! $exists) {
+        if (!$exists) {
             return response()->json(['message' => 'Lien introuvable'], 404);
         }
 
-        // Récupérer tous les parents de la famille
-        $tousLesParents = DB::table('lier')
-            ->where('idFamille', $idFamille)
-            ->get();
-
-        $nombreParents = $tousLesParents->count();
-
+        $nombreParents = $this->getNombreParents($idFamille);
         if ($nombreParents === 0) {
             return response()->json(['message' => 'Aucun parent trouvé pour cette famille'], 404);
         }
 
-        // Si un seul parent, la parité doit être 100%
-        if ($nombreParents === 1) {
-            if ($nouvelleParite != 100) {
-                return response()->json([
-                    'message' => 'Pour un seul parent, la parité doit être de 100%',
-                    'error' => 'INVALID_PARITE'
-                ], 422);
-            }
-            
-            DB::table('lier')
-                ->where('idFamille', $idFamille)
-                ->where('idUtilisateur', $idParent1)
-                ->update(['parite' => 100]);
-
+        if ($nombreParents === 1 && $nouvelleParite != 100) {
             return response()->json([
-                'message' => 'Parité mise à jour : 100%'
-            ]);
+                'message' => 'Pour un seul parent, la parité doit être de 100%',
+                'error' => 'INVALID_PARITE'
+            ], 422);
         }
 
-        // Si plusieurs parents, répartir le reste (100% - nouvelleParite) entre les autres
         $reste = 100 - $nouvelleParite;
-        $nombreAutresParents = $nombreParents - 1;
-        
         if ($reste < 0) {
             return response()->json([
                 'message' => 'La parité ne peut pas dépasser 100%',
@@ -71,13 +67,44 @@ class LierController extends Controller
             ], 422);
         }
 
-        // Mettre à jour la parité du parent spécifié
+        return null;
+    }
+
+    /**
+     * Récupère le nombre de parents d'une famille.
+     */
+    private function getNombreParents(int $idFamille): int
+    {
+        return DB::table('lier')
+            ->where('idFamille', $idFamille)
+            ->count();
+    }
+
+    /**
+     * Gère la mise à jour de parité pour un seul parent.
+     */
+    private function handleSingleParent(int $idFamille, int $idParent1, float $nouvelleParite)
+    {
+        DB::table('lier')
+            ->where('idFamille', $idFamille)
+            ->where('idUtilisateur', $idParent1)
+            ->update(['parite' => 100]);
+
+        return response()->json(['message' => 'Parité mise à jour : 100%']);
+    }
+
+    /**
+     * Gère la mise à jour de parité pour plusieurs parents.
+     */
+    private function handleMultipleParents(int $idFamille, int $idParent1, float $nouvelleParite, int $nombreParents)
+    {
         DB::table('lier')
             ->where('idFamille', $idFamille)
             ->where('idUtilisateur', $idParent1)
             ->update(['parite' => $nouvelleParite]);
 
-        // Répartir équitablement le reste entre les autres parents
+        $reste = 100 - $nouvelleParite;
+        $nombreAutresParents = $nombreParents - 1;
         $pariteAutres = $nombreAutresParents > 0 ? round($reste / $nombreAutresParents, 2) : 0;
 
         DB::table('lier')
@@ -85,14 +112,22 @@ class LierController extends Controller
             ->where('idUtilisateur', '!=', $idParent1)
             ->update(['parite' => $pariteAutres]);
 
-        // Ajuster pour que la somme fasse exactement 100% (gestion des arrondis)
+        $this->adjustPariteTo100($idFamille, $idParent1);
+
+        return $this->buildSuccessResponse($idFamille);
+    }
+
+    /**
+     * Ajuste la parité pour que la somme fasse exactement 100%.
+     */
+    private function adjustPariteTo100(int $idFamille, int $idParent1): void
+    {
         $totalActuel = DB::table('lier')
             ->where('idFamille', $idFamille)
             ->sum('parite');
 
         if ($totalActuel != 100) {
             $difference = 100 - $totalActuel;
-            // Ajuster le premier parent non modifié
             $premierAutreParent = DB::table('lier')
                 ->where('idFamille', $idFamille)
                 ->where('idUtilisateur', '!=', $idParent1)
@@ -106,8 +141,13 @@ class LierController extends Controller
                     ->update(['parite' => $nouvelleParite]);
             }
         }
+    }
 
-        // Récupérer les parités finales pour le message
+    /**
+     * Construit la réponse de succès avec les parités finales.
+     */
+    private function buildSuccessResponse(int $idFamille)
+    {
         $paritesFinales = DB::table('lier')
             ->where('idFamille', $idFamille)
             ->join('utilisateur', 'lier.idUtilisateur', '=', 'utilisateur.idUtilisateur')

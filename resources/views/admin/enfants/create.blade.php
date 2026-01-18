@@ -132,8 +132,8 @@
                             </label>
                             <input type="text" id="NNI" name="NNI"
                                 value="{{ old('NNI') }}"
-                                class="form-control @error('NNI') is-invalid @enderror" 
-                                required 
+                                class="form-control @error('NNI') is-invalid @enderror"
+                                required
                                 pattern="[0-9]{10}" 
                                 maxlength="10"
                                 inputmode="numeric">

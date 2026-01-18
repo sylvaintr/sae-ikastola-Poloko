@@ -13,6 +13,7 @@ $common = [
     'email' => 'Posta elektronikoa',
     'preferred_language' => 'Hobetsitako hizkuntza',
     'fixed_expiration_date' => 'Iraungitze-data finkoa',
+    'birth_date' => 'Jaiotze data',
     'submit' => 'Gorde',
     'cancel' => 'Utzi',
     'edit' => 'Aldatu',
@@ -150,7 +151,7 @@ return [
                 'password' => 'Pasahitza',
                 'password_confirmation' => 'Pasahitza berretsi',
                 'language' => $common['preferred_language'],
-                'dateNaissance' => 'Jaiotze data',
+                'dateNaissance' => $common['birth_date'],
                 'status' => 'Balioztatze egoera',
                 'roles' => $common['roles'],
                 'roles_search' => $common['roles_search'],
@@ -186,8 +187,8 @@ return [
                 'subtitle' => 'Izena',
             ],
             'birth_date' => [
-                'title' => 'Jaiotze data',
-                'subtitle' => 'Jaiotze data',
+                'title' => $common['birth_date'],
+                'subtitle' => $common['birth_date'],
             ],
             'sexe' => [
                 'title' => 'Sexua',
