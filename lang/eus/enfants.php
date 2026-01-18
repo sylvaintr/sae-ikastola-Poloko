@@ -19,6 +19,8 @@ return [
     'all_families' => 'Familia guztiak',
     'male' => 'Gizonezkoa',
     'female' => 'Emakumezkoa',
+    'garcon' => 'Mutila',
+    'fille' => 'Neska',
     'no_classe' => 'Klase gabe',
     'no_family' => 'Familia gabe',
     'select_sexe' => 'Hautatu sexua',

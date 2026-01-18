@@ -46,8 +46,8 @@
                     <div id="display-dateNaissance" class="fw-semibold me-1 presence-date-text flex-grow-1 auth-input" style="border: 1px solid #ced4da; border-radius: 4px; padding: 0.375rem 0.75rem; min-height: calc(1.5em + 0.75rem + 2px); cursor: pointer;">
                         {{ old('dateNaissance') ? \Carbon\Carbon::parse(old('dateNaissance'))->format('d/m/Y') : '' }}
                     </div>
-                    <button type="button" id="open-dateNaissance" class="btn btn-link p-0 presence-date-btn flex-shrink-0" aria-label="Choisir la date" style="color: #6c757d;">
-                        <i class="bi bi-chevron-down"></i>
+                    <button type="button" id="open-dateNaissance" class="btn btn-outline-secondary flex-shrink-0" aria-label="Choisir la date" style="padding: 0.375rem 0.75rem;">
+                        <i class="bi bi-calendar"></i>
                     </button>
                 </div>
                 <input type="date" id="dateNaissance" name="dateNaissance"

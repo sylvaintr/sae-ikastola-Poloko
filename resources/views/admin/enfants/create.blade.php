@@ -106,8 +106,8 @@
                                     <div id="display-dateN" class="fw-semibold me-1 presence-date-text flex-grow-1" style="border: 1px solid #ced4da; border-radius: 4px; padding: 0.375rem 0.75rem; min-height: calc(1.5em + 0.75rem + 2px);">
                                         {{ old('dateN') ? \Carbon\Carbon::parse(old('dateN'))->format('d/m/Y') : '' }}
                                     </div>
-                                    <button type="button" id="open-dateN" class="btn btn-link p-0 presence-date-btn flex-shrink-0" aria-label="Choisir la date">
-                                        <i class="bi bi-chevron-down"></i>
+                                    <button type="button" id="open-dateN" class="btn btn-outline-secondary flex-shrink-0" aria-label="Choisir la date" style="padding: 0.375rem 0.75rem;">
+                                        <i class="bi bi-calendar"></i>
                                     </button>
                                 </div>
                                 <input type="date" id="dateN" name="dateN"
@@ -138,6 +138,31 @@
                                 maxlength="10"
                                 inputmode="numeric">
                             @error('NNI')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Sexe --}}
+                        <div class="col-md-6 mb-3">
+                            <label for="sexe" class="form-label mb-1">
+                                {{ __('enfants.sexe', [], 'eus') }}
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="d-block text-muted fw-light">
+                                        {{ __('enfants.sexe') }}
+                                    </span>
+                                @endif
+                            </label>
+                            <select id="sexe" name="sexe"
+                                class="form-select @error('sexe') is-invalid @enderror" required>
+                                <option value="">{{ __('enfants.select_sexe', [], 'eus') }}</option>
+                                <option value="M" @selected(old('sexe') === 'M')>
+                                    {{ __('enfants.garcon', [], 'eus') }}@if (Lang::getLocale() == 'fr') ({{ __('enfants.garcon') }})@endif
+                                </option>
+                                <option value="F" @selected(old('sexe') === 'F')>
+                                    {{ __('enfants.fille', [], 'eus') }}@if (Lang::getLocale() == 'fr') ({{ __('enfants.fille') }})@endif
+                                </option>
+                            </select>
+                            @error('sexe')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
