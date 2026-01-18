@@ -164,12 +164,26 @@
                     <div id="deleteErrorMsg" class="text-danger mt-2 d-none"></div>
                 </div>
                 <div class="modal-footer border-0 pe-4 pb-4">
-                    <button type="button" class="btn btn-light border fw-bold px-4" data-bs-dismiss="modal">
-                        {{ __('famille.cancel', [], 'eus') }}
-                    </button>
-                    <button type="button" id="btnConfirmDelete" class="btn btn-danger fw-bold px-4">
-                        {{ __('famille.delete', [], 'eus') }}
-                    </button>
+                    <div class="d-flex flex-column align-items-end w-100">
+                        <div class="d-flex gap-2">
+                            <div class="d-flex flex-column align-items-center">
+                                <button type="button" class="btn btn-light border fw-bold px-4" data-bs-dismiss="modal">
+                                    {{ __('famille.cancel', [], 'eus') }}
+                                </button>
+                                @if (Lang::getLocale() == 'fr')
+                                    <small class="text-muted mt-1">{{ __('famille.cancel') }}</small>
+                                @endif
+                            </div>
+                            <div class="d-flex flex-column align-items-center">
+                                <button type="button" id="btnConfirmDelete" class="btn btn-danger fw-bold px-4">
+                                    {{ __('famille.delete', [], 'eus') }}
+                                </button>
+                                @if (Lang::getLocale() == 'fr')
+                                    <small class="text-muted mt-1">{{ __('famille.delete') }}</small>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
