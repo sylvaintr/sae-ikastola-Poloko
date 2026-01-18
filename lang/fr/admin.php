@@ -190,6 +190,55 @@ return [
         'archive_confirmation' => 'Êtes-vous sûr de vouloir archiver le compte :name ?',
         ];
     })(),
+    'enfants_page' => [
+        'title' => 'Enfants',
+        'title_subtitle' => 'Enfants',
+        'search_placeholder' => 'Rechercher un enfant...',
+        'search_label' => 'Rechercher sur nom, prénom, date de naissance, sexe, famille',
+        'add_button' => 'Haur bat gehitu',
+        'add_button_subtitle' => 'Ajouter un enfant',
+        'columns' => [
+            'last_name' => [
+                'title' => 'Abizena',
+                'subtitle' => 'Nom',
+            ],
+            'first_name' => [
+                'title' => 'Izena',
+                'subtitle' => 'Prénom',
+            ],
+            'birth_date' => [
+                'title' => 'Jaiotze data',
+                'subtitle' => 'Date de naissance',
+            ],
+            'sexe' => [
+                'title' => 'Sexua',
+                'subtitle' => 'Sexe',
+            ],
+            'classe' => [
+                'title' => 'Klasea',
+                'subtitle' => 'Classe',
+            ],
+            'famille' => [
+                'title' => 'Familia',
+                'subtitle' => 'Famille',
+            ],
+            'actions' => [
+                'title' => 'Actions',
+                'subtitle' => 'Actions',
+            ],
+        ],
+        'actions' => [
+            'view' => 'Visualiser',
+            'edit' => $common['edit'],
+            'delete' => $common['delete'],
+            'confirm_delete' => $common['delete'],
+        ],
+        'create' => [
+            'cancel' => $common['cancel'],
+        ],
+        'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer l\'enfant :name ?',
+        'no_children' => 'Aucun enfant enregistré',
+    ],
     'obligatory_documents' => [
         'title' => OBLIGATORY_DOCUMENTS_LABEL,
         'subtitle' => 'Documents requis',

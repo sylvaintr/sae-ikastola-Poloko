@@ -169,6 +169,55 @@ return [
         'delete_confirmation' => 'Ziur zaude :name kontua ezabatu nahi duzula ?',
         'archive_confirmation' => 'Ziur zaude :name kontua artxibatu nahi duzula ?',
     ],
+    'enfants_page' => [
+        'title' => 'Haurrak',
+        'title_subtitle' => 'Enfants',
+        'search_placeholder' => 'Haur bat bilatu...',
+        'search_label' => 'Bilatu izen, abizen, jaiotze data, sexua, familia',
+        'add_button' => 'Haur bat gehitu',
+        'add_button_subtitle' => 'Haur bat gehitu',
+        'columns' => [
+            'last_name' => [
+                'title' => 'Abizena',
+                'subtitle' => 'Abizena',
+            ],
+            'first_name' => [
+                'title' => 'Izena',
+                'subtitle' => 'Izena',
+            ],
+            'birth_date' => [
+                'title' => 'Jaiotze data',
+                'subtitle' => 'Jaiotze data',
+            ],
+            'sexe' => [
+                'title' => 'Sexua',
+                'subtitle' => 'Sexua',
+            ],
+            'classe' => [
+                'title' => 'Klasea',
+                'subtitle' => 'Klasea',
+            ],
+            'famille' => [
+                'title' => 'Familia',
+                'subtitle' => 'Familia',
+            ],
+            'actions' => [
+                'title' => 'Ekintzak',
+                'subtitle' => 'Ekintzak',
+            ],
+        ],
+        'actions' => [
+            'view' => 'Ikusi',
+            'edit' => $common['edit'],
+            'delete' => $common['delete'],
+            'confirm_delete' => $common['delete'],
+        ],
+        'create' => [
+            'cancel' => $common['cancel'],
+        ],
+        'delete_confirmation' => 'Ziur zaude :name haurra ezabatu nahi duzula ?',
+        'no_children' => 'Ez da haurrik erregistratu',
+    ],
     'obligatory_documents' => [
         'title' => OBLIGATORY_DOCUMENTS_LABEL,
         'subtitle' => 'Beharrezko dokumentuaks',

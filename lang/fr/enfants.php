@@ -19,6 +19,8 @@ return [
     'all_families' => 'Toutes les familles',
     'male' => 'Masculin',
     'female' => 'Féminin',
+    'garcon' => 'Garçon',
+    'fille' => 'Fille',
     'no_classe' => 'Aucune classe',
     'no_family' => 'Aucune famille',
     'select_sexe' => 'Sélectionnez un sexe',
