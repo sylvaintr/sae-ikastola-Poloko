@@ -206,8 +206,8 @@
             </div>
 
             {{-- Boutons d'action toujours visibles --}}
-            <div class="mt-4 d-flex justify-content-end">
-                <div class="d-flex gap-2 w-100 w-lg-auto">
+            <div class="mt-4 d-flex flex-column align-items-end">
+                <div class="d-flex gap-2 w-100 w-lg-auto justify-content-end">
                     <a href="{{ route('admin.familles.index')}}"
                        class="btn px-3 py-2 fw-bold flex-fill flex-lg-grow-0 text-center"
                        style="background:white; border:1px solid orange; color:orange;">
@@ -221,6 +221,13 @@
                         {{ __('famille.save', [], 'eus') }}
                     </button>
                 </div>
+                @if (Lang::getLocale() == 'fr')
+                    <div class="d-flex justify-content-center mt-1" style="width: 100%; max-width: fit-content;">
+                        <small class="text-muted">
+                            {{ __('famille.cancel') }} | {{ __('famille.save') }}
+                        </small>
+                    </div>
+                @endif
             </div>
         </form>
     </div>
@@ -233,12 +240,23 @@
                 </div>
                 <div id="modalMessage" class="modal-body ps-4 pe-4 pt-2 text-secondary">Action ?</div>
                 <div class="modal-footer border-0 pe-4 pb-4">
-                    <button type="button" class="btn px-4 py-2 fw-bold" data-bs-dismiss="modal" style="background: white; border: 1px solid orange; color: orange; border-radius: 6px;">
-                        {{ __('famille.cancel', [], 'eus') }}
-                    </button>
-                    <button type="button" id="btnConfirmSave" class="btn px-4 py-2 fw-bold text-white" style="background: orange; border: 1px solid orange; border-radius: 6px;">
-                        {{ __('famille.validate', [], 'eus') }}
-                    </button>
+                    <div class="d-flex flex-column align-items-center w-100">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn px-4 py-2 fw-bold" data-bs-dismiss="modal" style="background: white; border: 1px solid orange; color: orange; border-radius: 6px;">
+                                {{ __('famille.cancel', [], 'eus') }}
+                            </button>
+                            <button type="button" id="btnConfirmSave" class="btn px-4 py-2 fw-bold text-white" style="background: orange; border: 1px solid orange; border-radius: 6px;">
+                                {{ __('famille.validate', [], 'eus') }}
+                            </button>
+                        </div>
+                        @if (Lang::getLocale() == 'fr')
+                            <div class="d-flex justify-content-center mt-1">
+                                <small class="text-muted">
+                                    {{ __('famille.cancel') }} | {{ __('famille.validate') }}
+                                </small>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -497,9 +515,15 @@
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify(pendingData)
             }).then(() => {
-                globalThis.bootstrap.Modal.getInstance(document.getElementById('confirmationModal')).hide();
-                new globalThis.bootstrap.Modal(document.getElementById('successModal')).show();
-                document.getElementById('btnSuccessOk').onclick = () => window.location.href = "{{ route('admin.familles.index') }}";
+                if (isCreateMode) {
+                    // Redirection directe vers la liste des familles après création
+                    window.location.href = "{{ route('admin.familles.index') }}";
+                } else {
+                    // Pour la mise à jour de parité, fermer la modale de confirmation
+                    globalThis.bootstrap.Modal.getInstance(document.getElementById('confirmationModal')).hide();
+                    new globalThis.bootstrap.Modal(document.getElementById('successModal')).show();
+                    document.getElementById('btnSuccessOk').onclick = () => window.location.href = "{{ route('admin.familles.index') }}";
+                }
             });
         };
 
