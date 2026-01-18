@@ -36,26 +36,27 @@
         <form id="mainForm" onsubmit="return false;" class="admin-form">
             @csrf
 
+            {{-- Section Parents --}}
             <div class="mb-3">
-                <h3 class="fw-bold mb-0">{{ __('famille.users_section', [], 'eus') }}</h3>
+                <h3 class="fw-bold mb-0">{{ __('famille.parent_label', [], 'eus') }}ak | {{ __('famille.parent_label') }}s</h3>
                 @if (Lang::getLocale() == 'fr')
-                    <small class="text-muted d-block mb-3">Utilisateurs</small>
+                    <small class="text-muted d-block mb-3">{{ __('famille.parent_label') }}s disponibles</small>
                 @endif
             </div>
 
             <div class="row g-4 mb-4">
                 <div class="col-12 col-md-6">
-                    <label for="role-search" class="form-label small text-muted fw-bold">
+                    <label for="parent-search" class="form-label small text-muted fw-bold">
                         {{ __('famille.search_label', [], 'eus') }}
                         @if (Lang::getLocale() == 'fr') | {{ __('famille.search_label') }} @endif
                     </label>
                     <input type="text"
-                           id="role-search"
+                           id="parent-search"
                            class="form-control mb-2"
                            placeholder="{{ __('famille.search_ajax_placeholder', [], 'eus') }}"
-                           onkeyup="searchUsersAJAX(this.value)">
+                           onkeyup="searchParentsAJAX(this.value)">
 
-                    <div id="available-roles" class="border rounded p-3 bg-white shadow-sm" style="height: auto; max-height: 500px; overflow-y: auto;">
+                    <div id="available-parents" class="border rounded p-3 bg-white shadow-sm" style="height: auto; max-height: 500px; overflow-y: auto;">
                         @if($isEdit)
                             @foreach($famille->utilisateurs as $user)
                                 <button type="button"
@@ -68,6 +69,45 @@
                                     </div>
                                 </button>
                             @endforeach
+                        @else
+                            @if(isset($tousUtilisateurs))
+                                @foreach($tousUtilisateurs as $user)
+                                    <button type="button"
+                                            class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
+                                            onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
+                                        <span class="text-dark item-name text-truncate me-2">{{ $user->nom }} {{ $user->prenom }}</span>
+                                        <div class="ms-auto d-flex align-items-center text-secondary">
+                                            <span class="me-3 small fw-bold">{{ __('famille.parent_label', [], 'eus') }}</span>
+                                            <i class="bi bi-plus-circle text-dark fs-5"></i>
+                                        </div>
+                                    </button>
+                                @endforeach
+                            @endif
+                        @endif
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    {{-- Section Enfants --}}
+                    <div class="mb-3">
+                        <h3 class="fw-bold mb-0">{{ __('famille.child_label', [], 'eus') }}ak | {{ __('famille.child_label') }}s</h3>
+                        @if (Lang::getLocale() == 'fr')
+                            <small class="text-muted d-block mb-3">{{ __('famille.child_label') }}s disponibles</small>
+                        @endif
+                    </div>
+
+                    <label for="enfant-search" class="form-label small text-muted fw-bold">
+                        {{ __('famille.search_label', [], 'eus') }}
+                        @if (Lang::getLocale() == 'fr') | {{ __('famille.search_label') }} @endif
+                    </label>
+                    <input type="text"
+                           id="enfant-search"
+                           class="form-control mb-2"
+                           placeholder="{{ __('famille.search_ajax_placeholder', [], 'eus') }}"
+                           onkeyup="searchEnfantsAJAX(this.value)">
+
+                    <div id="available-enfants" class="border rounded p-3 bg-white shadow-sm" style="height: auto; max-height: 500px; overflow-y: auto;">
+                        @if($isEdit)
                             @foreach($famille->enfants as $enfant)
                                 <button type="button"
                                         class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
@@ -80,54 +120,39 @@
                                 </button>
                             @endforeach
                         @else
-                            <div id="parents-list">
-                                @if(isset($tousUtilisateurs))
-                                    @foreach($tousUtilisateurs as $user)
-                                        <button type="button"
-                                                class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
-                                                onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
-                                            <span class="text-dark item-name text-truncate me-2">{{ $user->nom }} {{ $user->prenom }}</span>
-                                            <div class="ms-auto d-flex align-items-center text-secondary">
-                                                <span class="me-3 small fw-bold">{{ __('famille.parent_label', [], 'eus') }}</span>
-                                                <i class="bi bi-plus-circle text-dark fs-5"></i>
-                                            </div>
-                                        </button>
-                                    @endforeach
-                                @endif
-
-                                @if(isset($tousEnfants))
-                                    @foreach($tousEnfants as $enfant)
-                                        <button type="button"
-                                                class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
-                                                onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
-                                            <span class="text-dark item-name text-truncate me-2">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
-                                            <div class="ms-auto d-flex align-items-center text-secondary">
-                                                <span class="me-3 small fw-bold">{{ __('famille.child_label', [], 'eus') }}</span>
-                                                <i class="bi bi-plus-circle text-dark fs-5"></i>
-                                            </div>
-                                        </button>
-                                    @endforeach
-                                @endif
-                            </div>
+                            @if(isset($tousEnfants))
+                                @foreach($tousEnfants as $enfant)
+                                    <button type="button"
+                                            class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
+                                            onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
+                                        <span class="text-dark item-name text-truncate me-2">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
+                                        <div class="ms-auto d-flex align-items-center text-secondary">
+                                            <span class="me-3 small fw-bold">{{ __('famille.child_label', [], 'eus') }}</span>
+                                            <i class="bi bi-plus-circle text-dark fs-5"></i>
+                                        </div>
+                                    </button>
+                                @endforeach
+                            @endif
                         @endif
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <h6 class="form-label small text-muted mb-2 fw-bold">
-                        {{ __('famille.selected_users', [], 'eus') }}
-                        @if (Lang::getLocale() == 'fr') | {{ __('famille.selected_users') }} @endif
-                    </h6>
-                    <div id="selected-roles" class="border rounded p-3 bg-light" style="height: 245px; overflow-y: auto;">
-                        <div class="role-list-empty-message text-muted text-center mt-5">
-                            {{ __('famille.click_to_select', [], 'eus') }}
-                            @if (Lang::getLocale() == 'fr') <br><small>{{ __('famille.click_to_select') }}</small> @endif
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="financial-section" style="display: none;" class="mt-4">
+            {{-- Section unique pour les éléments sélectionnés --}}
+            <div class="mb-4 mt-5">
+                <h6 class="form-label small text-muted mb-2 fw-bold">
+                    {{ __('famille.selected_users', [], 'eus') }}*
+                    @if (Lang::getLocale() == 'fr') | {{ __('famille.selected_users') }}* @endif
+                </h6>
+                <div id="selected-roles" class="border rounded p-3 bg-light" style="min-height: 200px; max-height: 400px; overflow-y: auto;">
+                    <div class="role-list-empty-message text-muted text-center mt-5">
+                        {{ __('famille.click_to_select', [], 'eus') }}
+                        @if (Lang::getLocale() == 'fr') <br><small>{{ __('famille.click_to_select') }}</small> @endif
+                    </div>
+                </div>
+            </div>
+
+            <div id="financial-section" style="display: none;" class="mt-4 mb-4">
                 <div x-data="{ ratio: {{ $defaultRatio }} }">
                     <div class="d-flex flex-column flex-lg-row align-items-lg-center w-100">
                         <div class="mb-3 mb-lg-0 text-center text-lg-start">
@@ -177,6 +202,24 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {{-- Boutons d'action toujours visibles --}}
+            <div class="mt-4 d-flex justify-content-end">
+                <div class="d-flex gap-2 w-100 w-lg-auto">
+                    <a href="{{ route('admin.familles.index')}}"
+                       class="btn px-3 py-2 fw-bold flex-fill flex-lg-grow-0 text-center"
+                       style="background:white; border:1px solid orange; color:orange;">
+                        {{ __('famille.cancel', [], 'eus') }}
+                    </a>
+                    <button type="button"
+                            id="btnSaveFamily"
+                            class="btn px-3 py-2 fw-bold flex-fill flex-lg-grow-0"
+                            style="background:orange; color:white; border:1px solid orange;"
+                            @if($isEdit) onclick="saveParityOnly({{ $idFamille }})" @else onclick="createFamily()" @endif>
+                        {{ __('famille.save', [], 'eus') }}
+                    </button>
                 </div>
             </div>
         </form>
@@ -241,7 +284,8 @@
 
         let pendingData = null;
         let isCreateMode = false;
-        let initialRolesHTML = '';
+        let initialParentsHTML = '';
+        let initialEnfantsHTML = '';
 
         const dbRatio = {{ $defaultRatio }};
         const nbEnfantsInitial = {{ $countEnfants }};
@@ -261,11 +305,11 @@
             new globalThis.bootstrap.Modal(document.getElementById('confirmationModal')).show();
         }
 
-        function searchUsersAJAX(query) {
-            const container = document.getElementById('available-roles');
+        function searchParentsAJAX(query) {
+            const container = document.getElementById('available-parents');
 
             if (query.trim().length === 0) {
-                container.innerHTML = initialRolesHTML;
+                container.innerHTML = initialParentsHTML;
                 return;
             }
 
@@ -301,6 +345,40 @@
                     });
                 })
                 .catch(err => console.error("Erreur de recherche:", err));
+        }
+
+        function searchEnfantsAJAX(query) {
+            const container = document.getElementById('available-enfants');
+            const lowerQuery = query.toLowerCase().trim();
+
+            if (lowerQuery.length === 0) {
+                container.innerHTML = initialEnfantsHTML;
+                return;
+            }
+
+            // Recherche locale dans la liste des enfants
+            const allChildren = container.querySelectorAll('.role-item');
+            const noResultsEl = container.querySelector('.no-results-message');
+            if (noResultsEl) noResultsEl.remove();
+            
+            let found = false;
+
+            allChildren.forEach(item => {
+                const nameText = item.querySelector('.item-name')?.textContent?.toLowerCase() || '';
+                if (nameText.includes(lowerQuery)) {
+                    item.style.display = '';
+                    found = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            if (!found && allChildren.length > 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'text-muted small fst-italic p-2 no-results-message';
+                noResults.textContent = translations.noUserFound;
+                container.appendChild(noResults);
+            }
         }
 
         function checkParityVisibility() {
@@ -427,9 +505,13 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             checkParityVisibility();
-            const container = document.getElementById('available-roles');
-            if (container) {
-                initialRolesHTML = container.innerHTML;
+            const parentsContainer = document.getElementById('available-parents');
+            const enfantsContainer = document.getElementById('available-enfants');
+            if (parentsContainer) {
+                initialParentsHTML = parentsContainer.innerHTML;
+            }
+            if (enfantsContainer) {
+                initialEnfantsHTML = enfantsContainer.innerHTML;
             }
         });
     </script>
