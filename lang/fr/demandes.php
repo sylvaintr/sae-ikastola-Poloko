@@ -151,6 +151,11 @@ return [
                 'eu' => 'Argazkia',
                 'fr' => 'Photo',
             ],
+            'assigne' => [
+                'eu' => 'Batzordea esleitu',
+                'fr' => 'Assigner à une commission',
+                'none' => 'Aucune commission assignée',
+            ],
         ],
         'buttons' => [
             'back' => [
@@ -262,6 +267,7 @@ return [
     'show' => [
         'type_default' => 'Gertakaria',
         'reported_by' => ':name jakinarazia • :date',
+        'assigned_to' => 'Commission assignée',
         'back' => [
             'eu' => 'Itzuli eskaeretara',
             'fr' => 'Retour aux demandes',
@@ -275,7 +281,22 @@ return [
         'history_added' => 'Nouvel avancement ajouté.',
         'validated' => 'Demande clôturée.',
         'locked' => 'La demande est déjà terminée.',
-        'history_locked' => 'Cette demande est terminée, impossible d’ajouter un avancement.',
+        'history_locked' => "Cette demande est terminée, impossible d'ajouter un avancement.",
+    ],
+    'export' => [
+        'demande_title' => 'Demande',
+        'historique_title' => 'Historique',
+        'id' => 'ID',
+        'titre' => 'Titre',
+        'description' => 'Description',
+        'type' => 'Type',
+        'etat' => 'État',
+        'urgence' => 'Urgence',
+        'date_creation' => 'Date de création',
+        'date_fin' => 'Date de fin',
+        'montant_previsionnel' => 'Montant prévisionnel',
+        'montant_reel' => 'Montant réel',
+        'realisateurs' => 'Réalisateurs',
     ],
 ];
 

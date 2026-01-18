@@ -70,6 +70,20 @@
                 </div>
             </div>
 
+            <div class="demande-field-row">
+                <div class="demande-field-col w-100">
+                    <label for="demande-assigne" class="form-label">{{ __('demandes.form.labels.assigne.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.assigne.fr') }}</small></label>
+                    <select id="demande-assigne" name="idRole" class="form-select" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : '' }}>
+                        <option value="">{{ __('demandes.form.labels.assigne.none') }}</option>
+                        @foreach ($roles ?? [] as $role)
+                            <option value="{{ $role->idRole }}" @selected(old('idRole', $demande->idRole ?? '') == $role->idRole)>
+                                {{ $role->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
             @if(!$isEdit)
                 <div class="demande-field-row photo-row align-items-center">
                     <div class="demande-field-col flex-grow-1 d-flex align-items-center gap-4">
