@@ -8,6 +8,7 @@ use Illuminate\Contracts\View\View;
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Utilisateur;
+use App\Models\Role;
 
 class FamilleController extends Controller
 {
@@ -52,7 +53,15 @@ class FamilleController extends Controller
 
     public function create(): View
     {
-        $tousUtilisateurs = Utilisateur::doesntHave('familles')->get();
+        // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
+        $roleParent = Role::where('name', 'parent')->first();
+        $tousUtilisateurs = Utilisateur::doesntHave('familles')
+            ->whereHas('rolesCustom', function ($query) use ($roleParent) {
+                if ($roleParent) {
+                    $query->where('role.idRole', $roleParent->idRole);
+                }
+            })
+            ->get();
 
         $tousEnfants = Enfant::where(function ($query) {
             $query->whereNull('idFamille')
@@ -164,22 +173,35 @@ class FamilleController extends Controller
     public function searchUsers(Request $request): JsonResponse
     {
         $request->validate([
-            'q' => 'nullable|string|min:2|max:50',
+            'q' => 'nullable|string|min:0|max:50',
         ]);
 
-        $query = $request->input('q');
+        $query = $request->input('q', '');
 
-        if (!$query || strlen($query) < 2) {
-            return response()->json([]);
-        }
-
+        // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
+        $roleParent = Role::where('name', 'parent')->first();
+        
         $users = Utilisateur::doesntHave('familles')
-            ->where(function ($q) use ($query) {
-                $q->where('nom', 'like', "%{$query}%")
-                  ->orWhere('prenom', 'like', "%{$query}%");
+            ->whereHas('rolesCustom', function ($q) use ($roleParent) {
+                if ($roleParent) {
+                    $q->where('role.idRole', $roleParent->idRole);
+                }
             })
-            ->limit(20)
-            ->get();
+            ->when($query, function ($q) use ($query) {
+                $q->where(function ($subQ) use ($query) {
+                    $subQ->where('nom', 'like', "%{$query}%")
+                         ->orWhere('prenom', 'like', "%{$query}%");
+                });
+            })
+            ->limit(50)
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'idUtilisateur' => $user->idUtilisateur,
+                    'nom' => $user->nom,
+                    'prenom' => $user->prenom,
+                ];
+            });
 
         return response()->json($users);
     }
