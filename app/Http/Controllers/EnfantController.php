@@ -198,21 +198,36 @@ class EnfantController extends Controller
         $enfant = Enfant::find($id);
 
         if (!$enfant) {
-            if (request()->wantsJson()) {
-                return response()->json(['message' => self::ENFANT_NOT_FOUND], 404);
-            }
-            return redirect()->route('admin.enfants.index');
+            return $this->handleNotFoundResponse();
         }
 
         $enfant->delete();
 
-        if (request()->wantsJson()) {
-            return response()->json(['message' => 'Enfant supprimé avec succès']);
-        }
+        return $this->handleSuccessResponse('Enfant supprimé avec succès', __('enfants.deleted_success'));
+    }
 
+    /**
+     * Gère la réponse lorsque l'enfant n'est pas trouvé.
+     */
+    private function handleNotFoundResponse()
+    {
+        if (request()->wantsJson()) {
+            return response()->json(['message' => self::ENFANT_NOT_FOUND], 404);
+        }
+        return redirect()->route('admin.enfants.index');
+    }
+
+    /**
+     * Gère la réponse de succès après suppression.
+     */
+    private function handleSuccessResponse(string $jsonMessage, string $flashMessage)
+    {
+        if (request()->wantsJson()) {
+            return response()->json(['message' => $jsonMessage]);
+        }
         return redirect()
             ->route('admin.enfants.index')
-            ->with('success', __('enfants.deleted_success'));
+            ->with('success', $flashMessage);
     }
 }
 

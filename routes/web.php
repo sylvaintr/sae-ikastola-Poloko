@@ -4,9 +4,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\DemandeController;
 use App\Http\Controllers\Admin\AccountController;
-use App\Http\Controllers\EvenementController;
-use App\Http\Controllers\RecetteController;
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\LierController;
@@ -15,9 +12,6 @@ use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\EnfantController;
 use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
-use App\Http\Controllers\CalendrierController;
-use App\Http\Controllers\IcsController;
-use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +24,7 @@ if (!defined('ROUTE_ADD')) {
     define('ROUTE_EDIT', '/modifier');
     define('ROUTE_VALIDATE', '/valider');
     define('ROUTE_ARCHIVE', '/archiver');
+    define('ROUTE_ID', '/{id}');
 
     define('ROUTE_CLASSE', '/{classe}');
     define('ROUTE_OBLIGATORY_DOCUMENT', '/{obligatoryDocument}');
@@ -39,30 +34,15 @@ if (!defined('ROUTE_ADD')) {
 Route::get('/', [ActualiteController::class, 'index'])->name('home');
 Route::post('/actualites/filter', [ActualiteController::class, 'filter'])->name('actualites.filter');
 
-// Route publique (sans authentification) pour le flux ICS
-Route::get('/ics/{token}', [IcsController::class, 'feed'])->name('ics.feed');
-
 Route::middleware('auth')->group(function () {
 
     // ---------------- Profil utilisateur ----------------
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::post('/profile/regenerate-ics-token', [ProfileController::class, 'regenerateIcsToken'])
-        ->name('profile.regenerate-ics-token');
     Route::post('/profile/document', [ProfileController::class, 'uploadDocument'])->name('profile.document.upload');
     Route::get('/profile/document/{document}/download', [ProfileController::class, 'downloadDocument'])->name('profile.document.download');
     Route::delete('/profile/document/{document}', [ProfileController::class, 'deleteDocument'])->name('profile.document.delete');
-    Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-
-    //     <<<<<<< HEAD
-    //     Route::post('/profile/regenerate-ics-token', [ProfileController::class, 'regenerateIcsToken'])
-    //         ->name('profile.regenerate-ics-token');
-    // =======
-    //     Route::post('/profile/document', [ProfileController::class, 'uploadDocument'])->name('profile.document.upload');
-    //     Route::get('/profile/document/{document}/download', [ProfileController::class, 'downloadDocument'])->name('profile.document.download');
-    //     Route::delete('/profile/document/{document}', [ProfileController::class, 'deleteDocument'])->name('profile.document.delete');
-    // >>>>>>> origin/master
 
     // ---------------- Gestion Demandes ----------------
     Route::middleware('can:access-demande')
@@ -70,7 +50,6 @@ Route::middleware('auth')->group(function () {
         ->name('demandes.')
         ->group(function () {
             Route::get('/', [DemandeController::class, 'index'])->name('index');
-            Route::get('/export', [DemandeController::class, 'export'])->name('export');
             Route::get('/create', [DemandeController::class, 'create'])->name('create');
             Route::post('/', [DemandeController::class, 'store'])->name('store');
 
@@ -84,19 +63,7 @@ Route::middleware('auth')->group(function () {
             Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
         });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Calendrier
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/calendrier', [CalendrierController::class, 'index'])->name('calendrier.index');
-    Route::get('/calendrier/events', [CalendrierController::class, 'events'])->name('calendrier.events');
-
-    /*
-    |--------------------------------------------------------------------------
-    | Routes administrateur (role CA)
-    |--------------------------------------------------------------------------
-    */
+    // ---------------- Routes administrateur (role CA) ----------------
     Route::middleware(['role:CA'])->group(function () {
         Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -142,10 +109,10 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::get(ROUTE_ADD, 'create')->name('create');
                     Route::post('/', 'store')->name('store');
-                    Route::get('/{id}', 'show')->name('show');
-                    Route::get('/{id}' . ROUTE_EDIT, 'edit')->name('edit');
-                    Route::put('/{id}', 'update')->name('update');
-                    Route::delete('/{id}', 'destroy')->name('destroy');
+                    Route::get(ROUTE_ID, 'show')->name('show');
+                    Route::get(ROUTE_ID . ROUTE_EDIT, 'edit')->name('edit');
+                    Route::put(ROUTE_ID, 'update')->name('update');
+                    Route::delete(ROUTE_ID, 'destroy')->name('destroy');
                 });
 
             // ---------------- Documents obligatoires ----------------
@@ -164,87 +131,52 @@ Route::middleware('auth')->group(function () {
             // ---------------- Factures ----------------
             Route::resource('/facture', FactureController::class);
             Route::get('/factures-data', [FactureController::class, 'facturesData'])->name('factures.data');
-            Route::get('/facture/{id}/export', [FactureController::class, 'exportFacture'])->name('facture.export');
-            Route::get('/facture/{id}/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
-            Route::get('/facture/{id}/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
+            Route::get('/facture' . ROUTE_ID . '/export', [FactureController::class, 'exportFacture'])->name('facture.export');
+            Route::get('/facture' . ROUTE_ID . '/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
+            Route::get('/facture' . ROUTE_ID . '/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
 
             // ---------------- Ajout des routes Famille + LierController ----------------
             Route::prefix('familles')->name('familles.')->group(function () {
-                Route::get('/', [FamilleController::class, 'index'])->name('index');
-                Route::get('/create', [FamilleController::class, 'create'])->name('create');
-                Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
-                Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
-                Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
-                Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
-            });
-        });
-    });
-    Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
-    Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
-
-    // ---------------- Présence ----------------
-    Route::get('/presence', function () {
-        return view('presence.index');
-    })->name('presence.index');
-    Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
-    Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
-    Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
-    Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
-
-    /*--------------------------------------------------------------------------
-            | Routes événements et recettes
-            |--------------------------------------------------------------------------*/
-    Route::middleware('can:access-evenement')->group(function () {
-        Route::resource('evenements', EvenementController::class);
-        Route::prefix('evenements/{evenement}/recettes')->name('recettes.')->group(function () {
-            Route::post('/', [RecetteController::class, 'store'])->name('store');
-        });
-        Route::resource('recettes', RecetteController::class)->except(['index', 'create', 'store', 'show']);
-    });
-});
-
-Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
-    Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);
-    Route::get('/pannel/etiquettes/data', [EtiquetteController::class, 'data'])->name('etiquettes.data');
-});
-
-Route::middleware(['permission:gerer-actualites'])->name('admin.')->group(function () {
-    Route::resource('actualites', ActualiteController::class)->except(['index', 'show']);
-    Route::get('/pannel/actualites/data', [ActualiteController::class, 'data'])->name('actualites.data');
-    Route::get('/pannel/actualites', [ActualiteController::class, 'adminIndex'])->name('actualites.index');
-    Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
-        ->name('actualites.detachDocument');
-});
-Route::middleware(['auth'])->group(function () {
+    Route::get('/', [FamilleController::class, 'index'])->name('index');
+    Route::get('/create', [FamilleController::class, 'create'])->name('create');
+    Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
+    Route::get(ROUTE_ID, [FamilleController::class, 'show'])->name('show');
+    Route::get(ROUTE_ID . '/edit', [FamilleController::class, 'edit'])->name('edit');
+    Route::delete(ROUTE_ID, [FamilleController::class, 'delete'])->name('delete');
+   
     
-   
-    Route::get('/admin/notifications', [NotificationController::class, 'index'])
-         ->name('admin.notifications.index');
+    });
 
-   
-    Route::get('/admin/notifications/create', [NotificationController::class, 'create'])
-         ->name('admin.notifications.create');
+           
+        });
+        });
+        Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
+ Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 
-   
-    Route::post('/admin/notifications', [NotificationController::class, 'store'])
-         ->name('admin.notifications.store');
+        // ---------------- Présence ----------------
+        Route::get('/presence', function () { return view('presence.index'); })->name('presence.index');
+        Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
+        Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
+        Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
+        Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
+    
 
-   // --- CORRECTION ICI ---
+    Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
+        Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);
+        Route::get('/pannel/etiquettes/data', [EtiquetteController::class, 'data'])->name('etiquettes.data');
+    });
 
-    // 3. Modification : Afficher le formulaire (GET)
-    // IMPORTANT : Ajoute '/edit' à la fin de l'URL
-    Route::get('/admin/notifications/{id}/edit', [NotificationController::class, 'edit'])
-         ->name('admin.notifications.edit');
-
-    // 4. Modification : Enregistrer les changements (PUT)
-    // C'est cette route que ton formulaire vise avec @method('PUT')
-    Route::put('/admin/notifications/{id}', [NotificationController::class, 'update'])
-         ->name('admin.notifications.update');
+    Route::middleware(['permission:gerer-actualites'])->name('admin.')->group(function () {
+        Route::resource('actualites', ActualiteController::class)->except(['index', 'show']);
+        Route::get('/pannel/actualites/data', [ActualiteController::class, 'data'])->name('actualites.data');
+        Route::get('/pannel/actualites', [ActualiteController::class, 'adminIndex'])->name('actualites.index');
+        Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
+            ->name('actualites.detachDocument');
+    });
 
 });
 
-
-Route::get('/actualites/{id}', [ActualiteController::class, 'show'])->name('actualites.show');
+Route::get('/actualites' . ROUTE_ID, [ActualiteController::class, 'show'])->name('actualites.show');
 
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['fr', 'eus'])) {
