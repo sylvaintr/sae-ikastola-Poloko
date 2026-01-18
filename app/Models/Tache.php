@@ -39,7 +39,8 @@ class Tache extends Model
 		'dateF' => 'datetime',
 		'montantP' => 'float',
 		'montantR' => 'float',
-		'idEvenement' => 'int'
+		'idEvenement' => 'int',
+		'idRole' => 'int'
 	];
 
 	/**
@@ -66,7 +67,8 @@ class Tache extends Model
 		'dateF',
 		'montantP',
 		'montantR',
-		'idEvenement'
+		'idEvenement',
+		'idRole'
 	];
 
 	/**
@@ -98,17 +100,18 @@ class Tache extends Model
 	public function historiques()
 	{
 		return $this->hasMany(\App\Models\DemandeHistorique::class, 'idDemande', 'idTache')
-			->orderByDesc('dateE')
+			->orderByDesc('date_evenement')
 			->orderByDesc('id');
 	}
 
 	/**
-	 * Rôles associés à la demande (pivot `tache_role`).
+	 * Relation belongsTo vers le rôle (commission) assigné à la tâche.
 	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
 	 */
-	public function roles()
+	public function roleAssigné()
 	{
-		return $this->belongsToMany(Role::class, 'tache_role', 'idTache', 'idRole');
+		return $this->belongsTo(Role::class, 'idRole');
 	}
+
 }

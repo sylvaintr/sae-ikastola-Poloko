@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
 
             Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
             Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
+            Route::get(ROUTE_DEMANDE . '/export-csv', [DemandeController::class, 'exportCsv'])->name('export.csv');
         });
 
     // ---------------- Routes administrateur (role CA) ----------------

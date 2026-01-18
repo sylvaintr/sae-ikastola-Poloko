@@ -12,9 +12,15 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 gap-md-4 mb-4 mb-md-5">
             <div>
                 <h1 class="fw-bold mb-1">{{ $demande->titre }}</h1>
+                <p class="text-uppercase text-muted small mb-2">{{ $demande->type ?? __('demandes.show.type_default') }}</p>
                 <p class="text-muted mb-0">
                     {{ __('demandes.show.reported_by', ['name' => $metadata['reporter'], 'date' => $metadata['report_date']]) }}
                 </p>
+                @if($demande->roleAssigné)
+                    <p class="text-muted mb-0 mt-2">
+                        <strong>{{ __('demandes.show.assigned_to') }}:</strong> {{ $demande->roleAssigné->name }}
+                    </p>
+                @endif
             </div>
             <div class="d-flex flex-column align-items-md-end align-items-center">
                 <div class="text-uppercase text-muted small fw-semibold text-center">
@@ -100,7 +106,7 @@
                             @foreach ($historiques as $item)
                                 <tr>
                                     <td>{{ $item->statut }}</td>
-                                    <td>{{ optional($item->dateE)->format('d-m-Y') ?? '—' }}</td>
+                                    <td>{{ optional($item->date_evenement)->format('d-m-Y') ?? '—' }}</td>
                                     <td>{{ $item->titre }}</td>
                                     <td>{{ $item->responsable ?? '—' }}</td>
                                     <td>{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}</td>
@@ -108,7 +114,7 @@
                                         <button type="button" class="btn demande-action-btn history-view-btn"
                                             data-description="{{ $item->description ?? '—' }}"
                                             data-titre="{{ $item->titre }}"
-                                            data-date="{{ optional($item->dateE)->format('d/m/Y') ?? '—' }}"
+                                            data-date="{{ optional($item->date_evenement)->format('d/m/Y') ?? '—' }}"
                                             data-depense="{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}"
                                             title="{{ __('demandes.actions.view') }}">
                                             <i class="bi bi-eye"></i>
@@ -125,16 +131,25 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4">
             <div class="d-flex flex-column flex-md-row gap-4 text-muted fw-semibold">
                 <div>{{ __('demandes.history.planned') }} : <span class="text-dark">{{ $demande->montantP ? number_format($demande->montantP, 0, ',', ' ') . ' €' : '—' }}</span></div>
-                <div>{{ __('demandes.history.real') }} : <span class="text-dark">{{ $totalDepense ? number_format($totalDepense, 0, ',', ' ') . ' €' : '—' }}</span></div>
+                <div>{{ __('demandes.history.real') }} : <span class="text-dark">{{ $totalDepense ? number_format($totalDepense, 0, ',', ' ') . ' €' : '0 €' }}</span></div>
             </div>
-        @if ($demande->etat !== 'Terminé' && $canManage)
-            <div class="text-center">
-                <a href="{{ route('demandes.historique.create', $demande) }}" class="btn demande-btn-primary px-4">
-                    {{ __('demandes.history.button.eu') }}
-                </a>
-                <div class="text-muted small">{{ __('demandes.history.button.fr') }}</div>
+            <div class="d-flex flex-column flex-md-row gap-3 align-items-center">
+                <div class="text-center">
+                    <a href="{{ route('demandes.export.csv', $demande) }}" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-download me-2"></i>
+                        {{ __('demandes.toolbar.export.eu') }}
+                    </a>
+                    <div class="text-muted small mt-1">{{ __('demandes.toolbar.export.fr') }}</div>
+                </div>
+                @if ($demande->etat !== 'Terminé')
+                    <div class="text-center">
+                        <a href="{{ route('demandes.historique.create', $demande) }}" class="btn demande-btn-primary px-4">
+                            {{ __('demandes.history.button.eu') }}
+                        </a>
+                        <div class="text-muted small">{{ __('demandes.history.button.fr') }}</div>
+                    </div>
+                @endif
             </div>
-        @endif
         </div>
     </div>
 </x-app-layout>

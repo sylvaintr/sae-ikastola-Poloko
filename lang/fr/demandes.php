@@ -1,12 +1,6 @@
 <?php
 
 return [
-    // Clés simples pour le calendrier
-    'title' => 'Demande',
-    'urgence' => 'Urgence',
-    'etat' => 'État',
-    'type' => 'Type',
-
     'toolbar' => [
         'export' => [
             'eu' => 'Esportatu (CSV)',
@@ -157,18 +151,12 @@ return [
                 'eu' => 'Argazkia',
                 'fr' => 'Photo',
             ],
-            'evenement' => [
-                'eu' => 'Gertaera lotua',
-                'fr' => 'Événement associé',
-            ],
-            'cibles' => [
-                'eu' => 'Helburu rolak',
-                'fr' => 'Rôles cibles',
+            'assigne' => [
+                'eu' => 'Batzordea esleitu',
+                'fr' => 'Assigner à une commission',
+                'none' => 'Aucune commission assignée',
             ],
         ],
-        'evenement_none' => '-- Aucun événement --',
-        'evenement_hint' => 'Optionnel : associez cette demande à un événement pour pré-remplir les rôles cibles.',
-        'cibles_hint' => 'Optionnel : définissez les rôles qui verront cette demande dans le calendrier.',
         'buttons' => [
             'back' => [
                 'eu' => 'Itzuli',
@@ -279,6 +267,7 @@ return [
     'show' => [
         'type_default' => 'Gertakaria',
         'reported_by' => ':name jakinarazia • :date',
+        'assigned_to' => 'Commission assignée',
         'back' => [
             'eu' => 'Itzuli eskaeretara',
             'fr' => 'Retour aux demandes',
@@ -292,8 +281,22 @@ return [
         'history_added' => 'Nouvel avancement ajouté.',
         'validated' => 'Demande clôturée.',
         'locked' => 'La demande est déjà terminée.',
-        'history_locked' => 'Cette demande est terminée, impossible d\'ajouter un avancement.',
-        'unauthorized' => 'Vous n\'êtes pas autorisé à effectuer cette action sur cette demande.',
+        'history_locked' => "Cette demande est terminée, impossible d'ajouter un avancement.",
+    ],
+    'export' => [
+        'demande_title' => 'Demande',
+        'historique_title' => 'Historique',
+        'id' => 'ID',
+        'titre' => 'Titre',
+        'description' => 'Description',
+        'type' => 'Type',
+        'etat' => 'État',
+        'urgence' => 'Urgence',
+        'date_creation' => 'Date de création',
+        'date_fin' => 'Date de fin',
+        'montant_previsionnel' => 'Montant prévisionnel',
+        'montant_reel' => 'Montant réel',
+        'realisateurs' => 'Réalisateurs',
     ],
 ];
 
