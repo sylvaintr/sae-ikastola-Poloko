@@ -1,7 +1,9 @@
-@import "bootstrap/dist/css/bootstrap.min.css";
-@import "datatables.net-dt/css/dataTables.dataTables.min.css";
-@import "datatables.net-responsive-dt/css/responsive.dataTables.min.css";
-@import "bootstrap-icons/font/bootstrap-icons.css";
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'datatables.net-dt/css/dataTables.dataTables.min.css';
+@import 'datatables.net-responsive-dt/css/responsive.dataTables.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+@import './calendar.css';
 
 .auth-body {
     min-height: 100vh;
@@ -67,7 +69,9 @@
     border-radius: 8px;
     border: 1px solid #d1d5db;
     font-size: 1rem;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .auth-input::placeholder {
@@ -510,7 +514,9 @@
 
 .admin-section-link {
     text-decoration: none;
-    transition: transform 0.15s ease, color 0.15s ease;
+    transition:
+        transform 0.15s ease,
+        color 0.15s ease;
     transform-origin: left center;
 }
 
@@ -551,8 +557,8 @@
 }
 
 .demande-btn-primary {
-    background-color: #F29201;
-    border-color: #F29201;
+    background-color: #f29201;
+    border-color: #f29201;
     color: #fff;
 }
 
@@ -564,8 +570,8 @@
 }
 
 .demande-btn-outline {
-    border-color: #F29201;
-    color: #F29201;
+    border-color: #f29201;
+    color: #f29201;
     background: #fff;
     border-width: 2px;
     box-shadow: inset 0 0 0 1px rgba(242, 146, 1, 0.4);
@@ -573,12 +579,12 @@
 
 .demande-btn-outline:hover,
 .demande-btn-outline:focus {
-    background-color: #F29201;
+    background-color: #f29201;
     color: #fff;
 }
 
 .demande-link-primary {
-    color: #F29201;
+    color: #f29201;
     text-decoration: none;
     transition: color 0.15s ease;
 }
@@ -632,7 +638,7 @@
 }
 
 .demande-action-btn:hover {
-    color: #F29201;
+    color: #f29201;
 }
 
 .demande-header-cell {
@@ -663,7 +669,7 @@
 }
 
 .demande-sort-link:hover {
-    color: #F29201;
+    color: #f29201;
 }
 
 .demande-toast {
@@ -682,7 +688,9 @@
 .demande-toast.hide {
     opacity: 0;
     transform: translateX(20px);
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
 }
 
 .demande-create-page {
@@ -703,7 +711,7 @@
     border-radius: 8px;
 }
 
-.demande-create-form input[type="date"] {
+.demande-create-form input[type='date'] {
     padding-right: 2.4rem;
 }
 
@@ -730,7 +738,7 @@
 .demande-upload-btn {
     display: inline-block;
     border-radius: 8px;
-    background: #F29201;
+    background: #f29201;
     color: #fff;
     padding: 0.65rem 1.5rem;
     cursor: pointer;
@@ -774,7 +782,7 @@
     padding: 0.4rem 1rem;
     border-radius: 999px;
     background: rgba(242, 146, 1, 0.15);
-    color: #F29201;
+    color: #f29201;
     font-weight: 700;
     font-size: 1.05rem;
 }
@@ -905,7 +913,9 @@
 .admin-action-link {
     color: #161616;
     font-size: 1.2rem;
-    transition: transform 0.15s ease, color 0.15s ease;
+    transition:
+        transform 0.15s ease,
+        color 0.15s ease;
 }
 
 .admin-action-link:hover {
@@ -1090,7 +1100,7 @@
 }
 
 #available-roles:empty::after {
-    content: "Aucun rôle disponible";
+    content: 'Aucun rôle disponible';
     display: block;
     padding: 1rem;
     text-align: center;
@@ -1122,7 +1132,9 @@
 .password-strength-fill {
     height: 100%;
     width: 0%;
-    transition: width 0.3s ease, background-color 0.3s ease;
+    transition:
+        width 0.3s ease,
+        background-color 0.3s ease;
     border-radius: 3px;
 }
 
@@ -1193,8 +1205,7 @@
     justify-content: flex-end;
 }
 
-.admin-pagination-container
-    .d-flex.justify-items-center.justify-content-between {
+.admin-pagination-container .d-flex.justify-items-center.justify-content-between {
     display: flex !important;
     width: 100%;
     justify-content: flex-end;
@@ -1333,8 +1344,7 @@
     }
 
     .admin-pagination-container nav,
-    .admin-pagination-container
-        .d-flex.justify-items-center.justify-content-between,
+    .admin-pagination-container .d-flex.justify-items-center.justify-content-between,
     .admin-pagination-container .d-none.flex-sm-fill.d-sm-flex {
         align-items: center;
     }
@@ -1347,14 +1357,11 @@
         text-align: center;
     }
 
-    .admin-pagination-container
-        .d-flex.justify-content-between.flex-fill.d-sm-none {
+    .admin-pagination-container .d-flex.justify-content-between.flex-fill.d-sm-none {
         width: 100%;
     }
 
-    .admin-pagination-container
-        .d-flex.justify-content-between.flex-fill.d-sm-none
-        .pagination {
+    .admin-pagination-container .d-flex.justify-content-between.flex-fill.d-sm-none .pagination {
         justify-content: center;
         width: 100%;
     }

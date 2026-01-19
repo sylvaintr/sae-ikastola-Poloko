@@ -13,6 +13,7 @@ use App\Http\Controllers\FactureController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
+use App\Http\Controllers\CalendrierController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +65,15 @@ Route::middleware('auth')->group(function () {
             Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
             Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
         });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Calendrier
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/calendrier', [CalendrierController::class, 'index'])->name('calendrier.index');
+    Route::get('/calendrier/events', [CalendrierController::class, 'events'])->name('calendrier.events');
 
     /*
     |--------------------------------------------------------------------------
@@ -194,7 +204,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
             ->name('actualites.detachDocument');
     });
-
 });
 
 Route::get('/actualites/{id}', [ActualiteController::class, 'show'])->name('actualites.show');
