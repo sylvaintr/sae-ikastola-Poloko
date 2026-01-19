@@ -24,9 +24,6 @@
             </div>
 
             <div class="modal-footer border-0">
-                <a href="#" class="btn demande-btn-primary" id="eventDetailLink">
-                    Voir le détail
-                </a>
                 <button type="button" class="btn demande-btn-outline" data-bs-dismiss="modal">
                     Fermer
                 </button>
@@ -75,7 +72,6 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-3 p-md-4">
                     <div id="calendar-root" data-events-url="{{ route('calendrier.events') }}"
-                        data-show-url-template="{{ route('evenements.show', ['evenement' => '__ID__']) }}"
                         style="min-height: 650px;"></div>
                 </div>
             </div>

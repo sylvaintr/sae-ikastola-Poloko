@@ -48,11 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const { title } = info.event;
             const props = info.event.extendedProps || {};
-            const showUrlTemplate = el.dataset.showUrlTemplate;
-            const linkEl = modalEl.querySelector('#eventDetailLink');
-            if (linkEl && showUrlTemplate) {
-                linkEl.href = showUrlTemplate.replace('__ID__', info.event.id);
-            }
 
             // Remplissage
             modalEl.querySelector('#eventDetailTitle').textContent = title;

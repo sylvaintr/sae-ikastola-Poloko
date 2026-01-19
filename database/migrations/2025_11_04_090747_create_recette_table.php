@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
+    /** 
      * Run the migrations.
      */
     public function up(): void
@@ -16,11 +16,12 @@ return new class extends Migration
             $table->string('description', 100);
             $table->string('prix', 50);
             $table->string('quantite', 50);
-            $table->integer('idEvenement')->index('idevenement');
+            $table->string('type', 50)->default('recette');
+            $table->id('idRecette');
         });
     }
 
-    /**
+    /** 
      * Reverse the migrations.
      */
     public function down(): void

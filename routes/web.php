@@ -190,6 +190,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
         Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
         Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
+
+        /*--------------------------------------------------------------------------
+            | Routes événements et recettes
+            |--------------------------------------------------------------------------*/
+        Route::resource('evenements', EvenementController::class);
+        Route::prefix('evenements/{evenement}/recettes')->name('recettes.')->group(function () {
+            Route::post('/', [RecetteController::class, 'store'])->name('store');
+        });
+        Route::resource('recettes', RecetteController::class)->except(['index', 'create', 'store', 'show']);
     });
 
     Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
@@ -214,16 +223,5 @@ Route::get('/lang/{locale}', function ($locale) {
     }
     return redirect()->back();
 })->name('lang.switch');
-
-Route::resource('evenements', EvenementController::class);
-
-// Recettes liées aux événements
-Route::prefix('evenements/{evenement}/recettes')->name('recettes.')->group(function () {
-    Route::post('/', [RecetteController::class, 'store'])->name('store');
-});
-// Édition / suppression des recettes
-Route::resource('recettes', RecetteController::class)->except(['index', 'create', 'store', 'show']);
-
-Route::resource('evenements', EvenementController::class);
 
 require __DIR__ . '/auth.php';
