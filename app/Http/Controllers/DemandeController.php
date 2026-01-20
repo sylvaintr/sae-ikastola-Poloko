@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\Tache;
 use App\Models\DemandeHistorique;
+use App\Models\Role;
+use App\Http\Controllers\Traits\HandlesCsvExport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -12,6 +14,8 @@ use Illuminate\Support\Collection;
 
 class DemandeController extends Controller
 {
+    use HandlesCsvExport;
+
     private const DEFAULT_TYPES = ['Réparation', 'Ménage', 'Maintenance'];
     private const STATUS_TERMINE = 'Terminé';
     private const DEFAULT_ETATS = ['En attente', 'En cours', self::STATUS_TERMINE];
@@ -88,14 +92,19 @@ class DemandeController extends Controller
     public function create()
     {
         $types = $this->loadOrDefault('type', collect(self::DEFAULT_TYPES));
-
         $urgences = self::DEFAULT_URGENCES;
-        return view('demandes.create', compact('types', 'urgences'));
+        
+        // Charger tous les rôles (commissions) pour l'assignation
+        $roles = Role::select('idRole', 'name')
+            ->orderBy('name')
+            ->get();
+        
+        return view('demandes.create', compact('types', 'urgences', 'roles'));
     }
 
     public function show(Tache $demande)
     {
-        $demande->loadMissing(['realisateurs', 'documents', 'historiques']);
+        $demande->loadMissing(['realisateurs', 'documents', 'historiques', 'roleAssigné']);
 
         $metadata = [
             'reporter' => $demande->user->name ?? $demande->reporter_name ?? 'Inconnu',
@@ -129,6 +138,7 @@ class DemandeController extends Controller
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
             'idEvenement' => ['nullable', 'integer'],
+            'idRole' => ['nullable', 'integer', 'exists:role,idRole'],
             'photos' => ['nullable', 'array', 'max:4'],
             'photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
         ]);
@@ -158,11 +168,17 @@ class DemandeController extends Controller
             $types = collect(['Réparation', 'Ménage', 'Maintenance']);
         }
         $urgences = ['Faible', 'Moyenne', 'Élevée'];
+        
+        // Charger tous les rôles (commissions) pour l'assignation
+        $roles = Role::select('idRole', 'name')
+            ->orderBy('name')
+            ->get();
 
         return view('demandes.create', [
             'types' => $types,
             'urgences' => $urgences,
             'demande' => $demande,
+            'roles' => $roles,
         ]);
     }
 
@@ -182,6 +198,7 @@ class DemandeController extends Controller
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
             'idEvenement' => ['nullable', 'integer'],
+            'idRole' => ['nullable', 'integer', 'exists:role,idRole'],
         ]);
 
         $updates = collect($validated)->except(['dateD', 'dateF'])->toArray();
@@ -203,7 +220,7 @@ class DemandeController extends Controller
             $demande,
             __('demandes.history_statuses.created'),
             $demande->description,
-            $demande->montantP
+            0 // Dépense réelle à 0 lors de la création, elle sera complétée par les avancements
         );
     }
 
@@ -317,5 +334,6 @@ class DemandeController extends Controller
             ]);
         }
     }
+
 }
 
