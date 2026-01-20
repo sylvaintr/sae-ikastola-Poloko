@@ -30,6 +30,7 @@ return [
         'accounts' => 'Comptes',
         'families' => 'Familles',
         'classes' => 'Classes',
+        'enfants' => 'Enfants',
         'invoices' => 'Factures',
         'notifications' => 'Notifications',
         'obligatory_documents' => OBLIGATORY_DOCUMENTS_LABEL,
@@ -38,6 +39,7 @@ return [
             'accounts' => 'Gérez les comptes utilisateurs, leurs rôles et leurs validations',
             'families' => 'Gérez les familles et leurs membres associés',
             'classes' => 'Gérez les classes et leur organisation',
+            'enfants' => 'Gérez les enfants et leurs informations',
             'obligatory_documents' => 'Gérez les documents obligatoires requis pour les utilisateurs',
             'invoices' => 'Gérez les factures et les paiements',
             'notifications' => 'Gérez les notifications et alertes système',
@@ -59,7 +61,7 @@ return [
         'columns' => [
             'first_name' => [
                 'title' => 'Izena',
-                'subtitle' => 'Prénom',
+                'subtitle' => $common['first_name'],
             ],
             'last_name' => [
                 'title' => 'Izena',
@@ -168,6 +170,7 @@ return [
                 'password' => 'Mot de passe',
                 'password_confirmation' => 'Confirmer le mot de passe',
                 'language' => $common['preferred_language'],
+                'dateNaissance' => 'Date de naissance',
                 'status' => 'Statut de validation',
                 'roles' => $common['roles'],
                 'roles_search' => $common['roles_search'],
@@ -187,6 +190,55 @@ return [
         'archive_confirmation' => 'Êtes-vous sûr de vouloir archiver le compte :name ?',
         ];
     })(),
+    'enfants_page' => [
+        'title' => 'Enfants',
+        'title_subtitle' => 'Enfants',
+        'search_placeholder' => 'Rechercher un enfant...',
+        'search_label' => 'Rechercher sur nom, prénom, date de naissance, sexe, famille',
+        'add_button' => 'Haur bat gehitu',
+        'add_button_subtitle' => 'Ajouter un enfant',
+        'columns' => [
+            'last_name' => [
+                'title' => 'Abizena',
+                'subtitle' => 'Nom',
+            ],
+            'first_name' => [
+                'title' => 'Izena',
+                'subtitle' => $common['first_name'],
+            ],
+            'birth_date' => [
+                'title' => 'Jaiotze data',
+                'subtitle' => 'Date de naissance',
+            ],
+            'sexe' => [
+                'title' => 'Sexua',
+                'subtitle' => 'Sexe',
+            ],
+            'classe' => [
+                'title' => 'Klasea',
+                'subtitle' => 'Classe',
+            ],
+            'famille' => [
+                'title' => 'Familia',
+                'subtitle' => 'Famille',
+            ],
+            'actions' => [
+                'title' => 'Actions',
+                'subtitle' => 'Actions',
+            ],
+        ],
+        'actions' => [
+            'view' => 'Visualiser',
+            'edit' => $common['edit'],
+            'delete' => $common['delete'],
+            'confirm_delete' => $common['delete'],
+        ],
+        'create' => [
+            'cancel' => $common['cancel'],
+        ],
+        'delete_confirmation' => 'Êtes-vous sûr de vouloir supprimer l\'enfant :name ?',
+        'no_children' => 'Aucun enfant enregistré',
+    ],
     'obligatory_documents' => [
         'title' => OBLIGATORY_DOCUMENTS_LABEL,
         'subtitle' => 'Documents requis',
