@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FactureExporter;
 use App\Services\FactureCalculator;
+use PhpOffice\PhpWord\IOFactory;
 
 
 /**
@@ -75,13 +76,14 @@ class FactureController extends Controller
      */
     public function show(string $id): View|RedirectResponse
     {
-        $montants = $this->factureCalculator->calculerMontantFacture($id);
-        if ($montants instanceof RedirectResponse) {
-            return $montants;
+        $facture = Facture::find($id ?? null);
+        if ($facture === null) {
+            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
-        $facture = $montants['facture'];
 
-        if (in_array($facture->etat, ['manuel', self::ETAT_MANUEL_VERIFIER], true)) {
+       
+
+        if ($facture->etat =='verifier') {
             // return le fichier de la facture
             $nomfichier = 'facture-' . $facture->idFacture;
 
@@ -89,7 +91,6 @@ class FactureController extends Controller
             if (Storage::disk('public')->exists($chemin)) {
                 $urlPublique = Storage::url($chemin);
                 $return = view('facture.show', [
-                    'facture' => $facture,
                     'fichierpdf' => $urlPublique,
                 ]);
             } else {
@@ -98,30 +99,27 @@ class FactureController extends Controller
                     ->with('error', 'facture.fichierpdfintrouvable');
             }
 
+            }else {
+                $docxPath = storage_path('app/public/factures/facture-' . $id . '.docx');
+                $phpWord = IOFactory::load($docxPath);
+
+                // Conversion en HTML
+                $xmlWriter = IOFactory::createWriter($phpWord, 'HTML');
+
+                // Capture du HTML
+                ob_start();
+                $xmlWriter->save("php://output");
+                $htmlContent = ob_get_clean();
+                $inlinedHtml = CssInliner::fromHtml($htmlContent)->inlineCss()->render();
+                $return = view('facture.show', [
+                    'inlinedHtml' => $inlinedHtml,
+                ]);
+
+            }
+            
             return $return;
-        }
 
-
-        if (!$facture->previsionnel) {
-            $montantRegulation = $this->calculerRegularisation($montants['famille']->idFamille);
-
-        }
-
-        return view('facture.show', [
-            'facture' => $facture,
-            'famille' => $montants['famille'],
-            'nbEnfants' => $montants['nbEnfants'],
-            'enfants' => $montants['enfants'] ?? [],
-            'montangarderie' => $montants['montangarderie'] ?? 0,
-            'montantcotisation' => $montants['montantcotisation'] ?? 0,
-            'montantparticipation' => $montants['montantparticipation'] ?? 0,
-            'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
-            'montanttotal' => $montants['montanttotal'] ?? 0,
-            'totalPrevisionnel' => $montants['totalPrevisionnel'] ?? 0,
-            'montantRegulation' => $montantRegulation ?? 0,
-            'fichierpdf' => null,
-
-        ]);
+        
     }
 
     /**
@@ -205,32 +203,116 @@ class FactureController extends Controller
         }
     }
 
-    public function validerFacture(string $id): RedirectResponse
+    public function validerFacture(string $id): ?RedirectResponse
+{
+    $facture = Facture::find($id ?? null);
+    if ($facture === null) {
+        return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
+    }
+
+    // On ne traite que si l'état n'est pas déjà validé
+    if ($facture->etat != 'verifier') {
+
+        $nomfichier = 'facture-' . $facture->idFacture;
+        $extensionsPossibles = ['doc', 'docx', 'odt'];
+        $outputDir = storage_path('app/public/factures/');
+
+        // Variable pour savoir si on a réussi la conversion
+        $conversionReussie = false;
+
+        foreach ($extensionsPossibles as $ext) {
+            $ancienCheminRelatif = self::DIR_FACTURES . $nomfichier . '.' . $ext;
+
+            // Si le fichier Word existe
+            if (Storage::disk('public')->exists($ancienCheminRelatif)) {
+                
+                $inputPath = Storage::disk('public')->path($ancienCheminRelatif);
+                $pdfCible = $outputDir . $nomfichier . '.pdf';
+
+                // 1. NETTOYAGE PRÉVENTIF : Supprimer l'ancien PDF s'il existe déjà
+                // (Cela évite les erreurs de permission si root a créé le fichier précédent)
+                if (file_exists($pdfCible)) {
+                    unlink($pdfCible);
+                }
+
+                // 2. COMMANDE DE CONVERSION
+                // "export HOME=/tmp" est OBLIGATOIRE pour que www-data puisse lancer LibreOffice
+                $command = 'export HOME=/tmp && libreoffice --headless --convert-to pdf ' . escapeshellarg($inputPath) . ' --outdir ' . escapeshellarg($outputDir) . ' 2>&1';
+
+                $output = [];
+                $returnVar = 0;
+                exec($command, $output, $returnVar);
+
+                // 3. VÉRIFICATION DU RÉSULTAT
+                if (file_exists($pdfCible)) {
+                    // Succès : Le PDF est là, on peut supprimer le Word
+                    Storage::disk('public')->delete($ancienCheminRelatif);
+                    $conversionReussie = true;
+                    
+                    // On arrête la boucle, on a trouvé et converti le fichier
+                    break; 
+                } else {
+                    // Échec : On loggue l'erreur pour le développeur
+                    \Illuminate\Support\Facades\Log::error("Échec conversion LibreOffice Facture $id", ['cmd_output' => $output]);
+                }
+            }
+        }
+
+        if ($conversionReussie) {
+            // Mise à jour de l'état seulement si le PDF a été créé
+            $facture->etat = 'verifier';
+            $facture->save();
+            return redirect()->route('admin.facture.index')->with('success', 'Facture validée et convertie en PDF avec succès.');
+        } else {
+            // Si on sort de la boucle sans avoir réussi
+            return redirect()->route('admin.facture.index')->with('error', 'Impossible de convertir le fichier Word. Vérifiez qu\'il existe ou consultez les logs.');
+        }
+
+    } else {
+        return redirect()->route('admin.facture.index', $facture->idFacture)->with('error', 'facture.dejasvalidee');
+    }
+}
+
+    /* public function validerFacture(string $id): ?RedirectResponse
     {
         $facture = Facture::find($id ?? null);
         if ($facture === null) {
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
-        if ($facture->etat == 'brouillon') {
+        
+        if ($facture->etat != 'verifier') {
 
-            $facture->etat = 'verifier';
-        } elseif ($facture->etat == 'manuel') {
-            $facture->etat = self::ETAT_MANUEL_VERIFIER;
+            
             // suprimer le document word ou odt
             $nomfichier = 'facture-' . $facture->idFacture;
             $extensionsPossibles = ['doc', 'docx', 'odt'];
             foreach ($extensionsPossibles as $ext) {
                 $ancienChemin = self::DIR_FACTURES . $nomfichier . '.' . $ext;
                 if (Storage::disk('public')->exists($ancienChemin)) {
-                    Storage::disk('public')->delete($ancienChemin);
+                    $inputPath = Storage::disk('public')->path($ancienChemin);
+                    $outputDir = storage_path('app/public/factures/');
+        
+                    
+                    $command = 'libreoffice --headless --convert-to pdf ' . escapeshellarg($inputPath) . ' --outdir ' . escapeshellarg($outputDir). ' 2>&1';
+                    $output = [];
+
+                    $returnVar = 0;
+                    exec($command, $output, $returnVar);
+                    var_dump($output);
+                    /* Storage::disk('public')->delete($ancienChemin); 
+                       /*  $facture->etat = 'verifier'; 
+                    
+
                 }
             }
+
         } else {
             return redirect()->route('admin.facture.index', $facture->idFacture)->with('error', 'facture.dejasvalidee');
         }
         $facture->save();
-        return redirect()->route('admin.facture.index', $facture->idFacture)->with('success', 'facture.validersuccess');
-    }
+        //return redirect()->route('admin.facture.index', $facture->idFacture)->with('success', 'facture.validersuccess');
+        return null;
+        } */
 
     public function update(Request $request, string $id): RedirectResponse
     {
@@ -271,19 +353,7 @@ class FactureController extends Controller
             }
 
 
-            $extention = $file->getClientOriginalExtension();
-            $filename = 'facture-' . $facture->idFacture . '.' . $extention;
-            $path =  $file->storeAs('factures', $filename, 'public');
 
-            $inputPath = Storage::disk('public')->path($path);
-            $outputDir = storage_path('app/public/factures/');
-
-            if (file_exists($inputPath)) {
-                $command = 'libreoffice --headless --convert-to pdf ' . escapeshellarg($inputPath) . ' --outdir ' . escapeshellarg($outputDir);
-                exec($command);
-
-
-            }
         }
         $facture->etat = 'manuel';
         $facture->save();
@@ -315,15 +385,6 @@ class FactureController extends Controller
                     $facture->etat = 'brouillon';
                     $facture->save();
                     $this->factureExporter->generateFactureToWord($facture);
-
-                    // Ensure a docx file exists for the created facture (tests rely on its presence).
-                    $expectedPath = storage_path('app/public/factures/facture-' . $facture->idFacture . '.docx');
-                    if (!file_exists($expectedPath)) {
-                        if (!file_exists(dirname($expectedPath))) {
-                            @mkdir(dirname($expectedPath), 0755, true);
-                        }
-                        @file_put_contents($expectedPath, '');
-                    }
                 }
             }
         }

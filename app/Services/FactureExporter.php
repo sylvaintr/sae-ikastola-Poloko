@@ -189,6 +189,7 @@ public function generateAndServeFacture(array $montants, $facture, bool $returnB
             $templateProcessor->setValue('totalPrevisionnel', $valeurPrevisionnelle);
 
             $templateProcessor->saveAs($docxPath);
+            chmod($docxPath, 0666);
         } catch (\Throwable $e) {
             // If TemplateProcessor fails for any reason, copy the raw template as a fallback
             @copy($templatePath, $docxPath);
