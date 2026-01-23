@@ -32,12 +32,13 @@ class ActualiteController extends Controller
         $publicTagIds = $hasIsPublic
             ? Etiquette::where('public', true)->pluck('idEtiquette')->toArray()
             : [];
-        if (!Auth::check()) {
+        $authUser = $request->user() ?? Auth::user();
+        if (!$authUser) {
             // Invité : seules les étiquettes publiques sont considérées
             $etiquettes = Etiquette::whereIn('idEtiquette', $publicTagIds)->get();
             $allowedIdsArray = $publicTagIds;
         } else {
-            $roleIds = Auth::user()->rolesCustom()->pluck('avoir.idRole'); // Ajuste selon ta structure user
+            $roleIds = $authUser->rolesCustom->pluck('idRole')->toArray();
             $allowedIds = Posseder::whereIn('idRole', $roleIds)->pluck('idEtiquette')->toArray();
             $allowedIdsArray = array_values(array_unique(array_merge($allowedIds, $publicTagIds)));
             $etiquettes = Etiquette::whereIn('idEtiquette', $allowedIdsArray)->get();

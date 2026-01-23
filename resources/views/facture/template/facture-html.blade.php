@@ -87,7 +87,7 @@
 
     <p style="font-weight: bold; margin: 10pt 0;">
         Haur kopurua – <span style="color: #7E7E7E;">Nombre d'enfant(s)</span> :
-        <span style="color: #4BA22C;">{{ $enfants->count() }}</span>
+        <span style="color: #4BA22C;">{{ $nbEnfants }}</span>
     </p>
 
     <!-- Tableau des détails -->

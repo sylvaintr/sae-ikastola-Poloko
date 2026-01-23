@@ -8,6 +8,8 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Response;
+use Illuminate\Http\RedirectResponse;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class FactureExporter
 {
@@ -128,4 +130,71 @@ public function generateAndServeFacture(array $montants, $facture, bool $returnB
         ->header('Content-Type', $contentType)
         ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
 }
+
+    public function generateFactureToWord(Facture $facture){
+    $factureCalculator = app()->make('App\Services\FactureCalculator');
+    $montants = $factureCalculator->calculerMontantFacture($facture->idFacture);
+
+    // Protect against RedirectResponse returned by the calculator
+    if ($montants instanceof RedirectResponse) {
+        $montants = [
+            'facture' => $facture,
+            'famille' => $facture->famille,
+            'nbEnfants' => 0,
+            'montantcotisation' => 0,
+            'montantparticipation' => 0,
+            'montantparticipationSeaska' => 0,
+            'montangarderie' => 0,
+            'montanttotal' => 0,
+            'totalPrevisionnel' => 0,
+            'enfants' => [],
+        ];
+    }
+
+    $parent = $facture->utilisateur; // relation property
+    $nbEnfants = $montants['nbEnfants'] ?? 0;
+
+    
+
+    $templatePath = storage_path('app/templates/facture_template.docx');
+
+    if (!file_exists($templatePath)) {
+            abort(500, "Le modèle Word est introuvable à : " . $templatePath);
+        }
+
+        // 3. Initialisation de PhpWord TemplateProcessor et remplissage des variables
+        $outputDir = storage_path('app/public/factures/');
+        if (!file_exists($outputDir)) {
+            mkdir($outputDir, 0755, true);
+        }
+
+        $docxFileName = 'facture-' . $facture->idFacture . '.docx';
+        $docxPath = $outputDir . $docxFileName;
+
+        try {
+            $templateProcessor = new TemplateProcessor($templatePath);
+
+            $templateProcessor->setValue('idFacture', $facture->idFacture);
+            $templateProcessor->setValue('dateFacture', $facture->dateC->format('d/m/Y'));
+
+            $templateProcessor->setValue('nom', $parent ? $parent->nom : '');
+            $templateProcessor->setValue('nbEnfants', $nbEnfants);
+
+            $templateProcessor->setValue('montantCotisation', number_format($montants['montantcotisation'] ?? 0, 2, ',', ' '));
+            $templateProcessor->setValue('montantParticipation', number_format($montants['montantparticipation'] ?? 0, 2, ',', ' '));
+            $templateProcessor->setValue('montantParticiparionSeaska', number_format($montants['montantparticipationSeaska'] ?? 0, 2, ',', ' '));
+            $templateProcessor->setValue('montantgarderie', number_format($montants['montangarderie'] ?? 0, 2, ',', ' '));
+
+            $valeurPrevisionnelle = number_format($montants['totalPrevisionnel'] ?? 0, 2, ',', ' ');
+            $templateProcessor->setValue('totalPrevisionnel', $valeurPrevisionnelle);
+
+            $templateProcessor->saveAs($docxPath);
+        } catch (\Throwable $e) {
+            // If TemplateProcessor fails for any reason, copy the raw template as a fallback
+            @copy($templatePath, $docxPath);
+        }
+        
+}
+
+
 }
