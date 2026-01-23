@@ -11,7 +11,7 @@ use App\Http\Controllers\FactureController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
-
+use App\Http\Controllers\NotificationController;
 /*
 |--------------------------------------------------------------------------
 | Constantes pour routes récurrentes
@@ -161,6 +161,22 @@ Route::middleware('auth')->group(function () {
     });
 
 });
+Route::middleware(['auth'])->group(function () {
+    
+   
+    Route::get('/admin/notifications', [NotificationController::class, 'index'])
+         ->name('admin.notifications.index');
+
+   
+    Route::get('/admin/notifications/create', [NotificationController::class, 'create'])
+         ->name('admin.notifications.create');
+
+   
+    Route::post('/admin/notifications', [NotificationController::class, 'store'])
+         ->name('admin.notifications.store');
+
+});
+
 
 Route::get('/actualites/{id}', [ActualiteController::class, 'show'])->name('actualites.show');
 
