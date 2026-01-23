@@ -18,7 +18,7 @@ class FactureControllerRegularisationTest extends TestCase
     public function test_calculer_regularisation_ajoute_dix_si_nbFois_garderie_entre_un_et_huit()
     {
         // given
-        // Setup family, child, activity and an PRATIQUE record within the facture month
+        // Setup family, child, activity and an Pratiquer record within the facture month
         $famille = Famille::factory()->create();
 
         // Ensure the enfant has a concrete primary key value
@@ -30,7 +30,7 @@ class FactureControllerRegularisationTest extends TestCase
         $monthDate = Carbon::now()->subMonth()->startOfMonth();
 
         // create a facture for that month (non-previsionnel)
-        $facture = Facture::factory()->create([
+        Facture::factory()->create([
             'idFamille' => $famille->idFamille,
             'previsionnel' => false,
             'dateC' => $monthDate,
@@ -60,7 +60,7 @@ class FactureControllerRegularisationTest extends TestCase
         $this->app->instance(\App\Services\FactureCalculator::class, $mockCalculator);
 
         // when
-        $ctrl = new \App\Http\Controllers\FactureController();
+        $ctrl = new \App\Services\FactureCalculator();
         $res = $ctrl->calculerRegularisation($famille->idFamille);
 
         // then

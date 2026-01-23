@@ -3,18 +3,20 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\FactureController;
+use App\Services\FactureCalculator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use App\Models\Facture;
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Utilisateur;
-use App\Models\PRATIQUE;
+use App\Models\Pratiquer;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Facture as FactureMail;
 use Carbon\Carbon;
 use App\Models\Activite;
 use Illuminate\Support\Facades\Artisan;
+use function PHPUnit\Framework\assertTrue;
 
 class FactureControllerTest extends TestCase
 {
@@ -123,6 +125,7 @@ class FactureControllerTest extends TestCase
         $famille->utilisateurs()->attach($utilisateur->id);
         $facture = Facture::factory()->create([
             'etat' => 'verifier',
+            'idUtilisateur' => $utilisateur->id,
             'idFamille' => $famille->idFamille
         ]);
 
@@ -198,7 +201,7 @@ class FactureControllerTest extends TestCase
             $famille = Famille::create(['idFamille' => 999999, 'aineDansAutreSeaska' => false]);
             $enfant = Enfant::factory()->create(['nbFoisGarderie' => 0, 'idFamille' => $famille->idFamille, 'idEnfant' => 999999]);
             for ($i=0; $i < 30; $i++) {
-                PRATIQUE::create(['idEnfant' => $enfant->idEnfant, 'activite' => 'garderie soir', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
+                Pratiquer::create(['idEnfant' => $enfant->idEnfant, 'activite' => 'garderie soir', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
                 Activite::create(['activite' => 'garderie soir', 'dateP' => Carbon::now()->subMonths(2)->subDays($i)]);
             }
 
@@ -308,6 +311,50 @@ class FactureControllerTest extends TestCase
         ]);
 
         Carbon::setTestNow();
+    }
+
+    public function test_verifier_que_le_docx_est_cree_a_la_creation_de_la_facture() {
+
+        // given
+        $famille = Famille::factory()->create();
+        $parent = Utilisateur::factory()->create();
+        $famille->utilisateurs()->attach($parent->idUtilisateur, ['parite' => 100]);
+        Enfant::factory()->count(2)->create(['idFamille' => $famille->idFamille]);
+        $controleur = new FactureController();
+
+        // when
+        $controleur->createFacture();
+
+        // then
+        $facture = Facture::where('idFamille', $famille->idFamille)->first();
+        assertTrue(file_exists(storage_path('app/public/factures/facture-' . $facture->idFacture . '.docx')));
+        
+    }
+
+    public function test_renvoie_vers_home_si_on_calcule_une_facture_sans_famille()  {
+        // given
+        $facture = Facture::factory()->create(['idFamille' => 999999]);
+        $controleur = new FactureCalculator();
+
+        // when
+        $response = $controleur->calculerMontantFacture((string)$facture->id);
+        // then
+
+        $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
+        $this->assertEquals(route('admin.facture.index'), $response->getTargetUrl());
+        
+    }
+
+    public function test_renvoie_0_si_on_calcule_une_regularisation_sans_famille()  {
+        // given
+        $controleur = new FactureCalculator();
+
+        // when
+        $response = $controleur->calculerRegularisation(999999);
+        // then
+
+        $this->assertEquals(0, $response);
+        
     }
 
 }

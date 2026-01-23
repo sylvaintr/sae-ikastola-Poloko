@@ -166,7 +166,7 @@ class FactureControllerTest extends TestCase
         $mockCalculator->method('calculerMontantFacture')->willReturn([
             'facture' => $facture,
             'famille' => $famille,
-            'enfants' => [],
+            'nbEnfants' => 0,
             'montangarderie' => 0,
             'montantcotisation' => 0,
             'montantparticipation' => 0,
