@@ -22,35 +22,50 @@ class ObligatoryDocumentControllerTest extends TestCase
     }
     public function test_class_has_expected_methods(): void
     {
-        $this->assertTrue(method_exists(ObligatoryDocumentController::class, 'index'));
-        $this->assertTrue(method_exists(ObligatoryDocumentController::class, 'create'));
-        $this->assertTrue(method_exists(ObligatoryDocumentController::class, 'store'));
-        $this->assertTrue(method_exists(ObligatoryDocumentController::class, 'edit'));
-        $this->assertTrue(method_exists(ObligatoryDocumentController::class, 'update'));
-        $this->assertTrue(method_exists(ObligatoryDocumentController::class, 'destroy'));
+        // given
+        // none
+
+        // when
+        $hasIndex = method_exists(ObligatoryDocumentController::class, 'index');
+        $hasCreate = method_exists(ObligatoryDocumentController::class, 'create');
+        $hasStore = method_exists(ObligatoryDocumentController::class, 'store');
+        $hasEdit = method_exists(ObligatoryDocumentController::class, 'edit');
+        $hasUpdate = method_exists(ObligatoryDocumentController::class, 'update');
+        $hasDestroy = method_exists(ObligatoryDocumentController::class, 'destroy');
+
+        // then
+        $this->assertTrue($hasIndex);
+        $this->assertTrue($hasCreate);
+        $this->assertTrue($hasStore);
+        $this->assertTrue($hasEdit);
+        $this->assertTrue($hasUpdate);
+        $this->assertTrue($hasDestroy);
     }
 
     public function test_store_missing_fields_throws_validation_exception(): void
     {
         $this->expectException(ValidationException::class);
-
+        // given
         $controller = new ObligatoryDocumentController();
         $request = Request::create('/admin/obligatory-documents/store', 'POST', []);
 
+        // when / then
         $controller->store($request);
     }
 
 
     public function test_getNomMaxLength_returns_default_on_db_exception(): void
     {
+        // given
         // Force DB to throw so getNomMaxLength catches and returns default
         DB::shouldReceive('table')->andThrow(new \Exception('boom'));
 
         $controller = new ObligatoryDocumentController();
 
-        // create() calls getNomMaxLength(), which should catch the exception and return the default (100)
+        // when
         $view = $controller->create();
 
+        // then
         $data = $view->getData();
         $this->assertArrayHasKey('nomMaxLength', $data);
         $this->assertEquals(100, $data['nomMaxLength']);

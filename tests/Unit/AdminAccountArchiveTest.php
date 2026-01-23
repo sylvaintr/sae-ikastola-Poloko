@@ -11,24 +11,30 @@ class AdminAccountArchiveTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_archive_sets_archived_at_when_not_archived()
+    public function test_archive_definit_archive_si_non_archive()
     {
+        // given
         $user = Utilisateur::factory()->create();
         $controller = new AccountController();
 
+        // when
         $resp = $controller->archive($user);
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
         $this->assertTrue($user->fresh()->isArchived());
     }
 
-    public function test_archive_redirects_when_already_archived()
+    public function test_archive_redirige_si_deja_archive()
     {
+        // given
         $user = Utilisateur::factory()->create(['archived_at' => now()]);
         $controller = new AccountController();
 
+        // when
         $resp = $controller->archive($user);
 
+        // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
         $this->assertTrue($user->fresh()->isArchived());
     }

@@ -12,6 +12,10 @@ abstract class TestCase extends BaseTestCase
 	{
 		parent::setUp();
 
+        if (method_exists($this, 'withoutVite')) {
+            $this->withoutVite();
+        }
+
 		// Disable CSRF verification in tests to avoid 419 responses
 		$this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 

@@ -1,21 +1,80 @@
 <x-app-layout>
-    @php
-        $sections = [
-            'add_message' => 'admin.actualites.index',
-            'accounts' => 'admin.accounts.index',
-            'families' => 'admin.families',
-            'classes' => 'admin.classes.index',
-            'obligatory_documents' => 'admin.obligatory_documents.index',
-            'invoices' => 'admin.facture.index',
-            'notifications' => 'admin.notifications',
-        ];
-    @endphp
+    <div class="container py-5">
+        <div class="mb-5">
+            <h1 class="fw-bold display-4 mb-0" style="font-size: 2.5rem;">{{ Lang::get('admin.title', [], 'eus') }}</h1>
+            @if (Lang::getLocale() == 'fr')
+                <p class="fw-light text-muted mb-0" style="font-size: 1.25rem;">{{ __('admin.title') }}</p>
+            @endif
+        </div>
 
-    <div class="container py-4">
-        @foreach ($sections as $key => $route)
-            <a href="{{ route($route) }}" class="fw-bold fs-3 text-dark mb-4 d-block admin-section-link">
-                {{ __('admin.sections.' . $key) }}
-            </a>
-        @endforeach
+        <div class="row g-4">
+            @php
+                $sections = [
+                    'add_message' => [
+                        'route' => 'admin.actualites.index',
+                        'icon' => 'bi-newspaper',
+                        'color' => 'primary',
+                    ],
+                    'accounts' => [
+                        'route' => 'admin.accounts.index',
+                        'icon' => 'bi-people',
+                        'color' => 'info',
+                    ],
+                    'families' => [
+                        'route' => 'admin.familles.index',
+                        'icon' => 'bi-house-heart',
+                        'color' => 'success',
+                    ],
+                    'classes' => [
+                        'route' => 'admin.classes.index',
+                        'icon' => 'bi-book',
+                        'color' => 'warning',
+                    ],
+                    'obligatory_documents' => [
+                        'route' => 'admin.obligatory_documents.index',
+                        'icon' => 'bi-file-earmark-text',
+                        'color' => 'danger',
+                    ],
+                    'invoices' => [
+                        'route' => 'admin.facture.index',
+                        'icon' => 'bi-receipt',
+                        'color' => 'secondary',
+                    ],
+                    'notifications' => [
+                        'route' => 'admin.notifications',
+                        'icon' => 'bi-bell',
+                        'color' => 'primary',
+                    ],
+                ];
+            @endphp
+
+            @foreach ($sections as $key => $section)
+                <div class="col-md-6 col-lg-4">
+                    <a href="{{ route($section['route']) }}" class="text-decoration-none admin-card-link">
+                        <div class="card admin-dashboard-card h-100">
+                            <div class="card-body p-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="admin-card-icon admin-card-icon-{{ $section['color'] }}">
+                                        <i class="bi {{ $section['icon'] }}"></i>
+                                    </div>
+                                    <div class="ms-3 flex-grow-1">
+                                        <h3 class="card-title mb-0 fw-bold">{{ Lang::get('admin.sections.' . $key, [], 'eus') }}</h3>
+                                        @if (Lang::getLocale() == 'fr')
+                                            <p class="mb-0 fw-light text-muted" style="font-size: 0.85rem;">{{ __('admin.sections.' . $key) }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="card-text text-muted mb-0">
+                                    <span>{{ Lang::get('admin.sections.descriptions.' . $key, [], 'eus') }}</span>
+                                    @if (Lang::getLocale() == 'fr')
+                                        <br><span class="fw-light" style="font-size: 0.85rem;">{{ __('admin.sections.descriptions.' . $key) }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            @endforeach
+        </div>
     </div>
 </x-app-layout>

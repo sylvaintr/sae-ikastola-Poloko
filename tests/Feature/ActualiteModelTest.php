@@ -12,8 +12,13 @@ class ActualiteModelTest extends TestCase
 
     public function test_actualite_factory_creates_record()
     {
+        // given
+        // no special setup required
+
+        // when
         $actualite = Actualite::factory()->create();
 
+        // then
         $this->assertDatabaseHas('actualite', ['idActualite' => $actualite->idActualite]);
         $this->assertGreaterThanOrEqual(0,  $actualite->documents()->count());
         $this->assertGreaterThanOrEqual(0,  $actualite->etiquettes()->count());

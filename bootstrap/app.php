@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web([
             SetLocale::class,
+            App\Http\Middleware\DevCspAllowRecaptcha::class,
+            App\Http\Middleware\ProdCspAllowRecaptcha::class,
         ]);
 
         $middleware->alias([

@@ -12,8 +12,13 @@ class EtiquetteModelTest extends TestCase
 
     public function test_etiquette_factory_creates_record()
     {
+        // given
+        // none
+
+        // when
         $etiquette = Etiquette::factory()->create();
 
+        // then
         $this->assertDatabaseHas('etiquette', ['idEtiquette' => $etiquette->idEtiquette]);
         $this->assertGreaterThanOrEqual(0,  $etiquette->actualites()->count());
     }

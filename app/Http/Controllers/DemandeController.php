@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\Tache;
-use App\Models\TacheHistorique;
+use App\Models\DemandeHistorique;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 
 class DemandeController extends Controller
 {
@@ -94,7 +95,7 @@ class DemandeController extends Controller
 
     public function show(Tache $demande)
     {
-        $demande->loadMissing(['documents', 'historiques']);
+        $demande->loadMissing(['realisateurs', 'documents', 'historiques']);
 
         $metadata = [
             'reporter' => $demande->user->name ?? $demande->reporter_name ?? 'Inconnu',
@@ -105,7 +106,7 @@ class DemandeController extends Controller
             ? $demande->documents
                 ->filter(fn($doc) => Storage::disk('public')->exists($doc->chemin))
                 ->map(fn($doc) => [
-                    'url' => url('storage/' . ltrim($doc->chemin, '/')),
+                    'url' => Storage::url($doc->chemin),
                     'nom' => $doc->nom,
                 ])->values()->all()
             : [];
@@ -141,7 +142,7 @@ class DemandeController extends Controller
         $demande = Tache::create($data);
 
         $this->storePhotos($demande, $request->file('photos', []));
-        $this->createInitialHistory($demande);
+        $this->storeInitialHistory($demande);
 
         return to_route('demandes.index')->with('status', __('demandes.messages.created'));
     }
@@ -196,50 +197,37 @@ class DemandeController extends Controller
         return $values->isEmpty() ? $fallback : $values;
     }
 
-    protected function storePhotos(Tache $demande, array $files): void
+    protected function storeInitialHistory(Tache $demande): void
     {
-        if (empty($files)) {
-            return;
-        }
-
-        $nextId = (Document::max('idDocument') ?? 0) + 1;
-
-        foreach ($files as $file) {
-            $path = $file->store('demandes', 'public');
-
-            Document::create([
-                'idDocument' => $nextId++,
-                'idTache' => $demande->idTache,
-                'nom' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
-                'chemin' => $path,
-                'type' => substr($file->extension(), 0, 5),
-                'etat' => 'actif',
-            ]);
-        }
-    }
-
-    protected function createInitialHistory(Tache $demande): void
-    {
-        TacheHistorique::create([
-            'idTache' => $demande->idTache,
-            'statut' => __('demandes.history_statuses.created'),
-            'titre' => $demande->titre,
-            'responsable' => auth()->user()->name ?? '',
-            'depense' => $demande->montantP,
-            'date_evenement' => $demande->dateD ?? now(),
-            'description' => $demande->description,
-        ]);
+        $this->addHistoryEntry(
+            $demande,
+            __('demandes.history_statuses.created'),
+            $demande->description,
+            $demande->montantP
+        );
     }
 
     public function destroy(Tache $demande)
     {
-        $documents = $demande->documents;
-
-        foreach ($documents as $doc) {
+        // Supprimer les documents liés (fichiers + enregistrements)
+        foreach ($demande->documents as $doc) {
+            // Supprimer le fichier physique
             Storage::disk('public')->delete($doc->chemin);
+            // Supprimer les relations dans la table pivot 'contenir' (utilisateurs-documents)
+            $doc->utilisateurs()->detach();
+            // Supprimer les relations dans la table pivot 'joindre' (actualités-documents)
+            $doc->actualites()->detach();
+            // Supprimer l'enregistrement du document
             $doc->delete();
         }
 
+        // Supprimer l'historique lié
+        DemandeHistorique::where('idDemande', $demande->idTache)->delete();
+
+        // Supprimer les relations dans la table pivot 'realiser' (utilisateurs-tâches)
+        $demande->realisateurs()->detach();
+
+        // Supprimer la demande elle-même
         $demande->delete();
 
         return to_route('demandes.index')->with('status', __('demandes.messages.deleted'));
@@ -266,15 +254,12 @@ class DemandeController extends Controller
             'depense' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        TacheHistorique::create([
-            'idTache' => $demande->idTache,
-            'statut' => __('demandes.history_statuses.progress'),
-            'date_evenement' => now(),
-            'titre' => $validated['titre'],
-            'responsable' => auth()->user()->name ?? '',
-            'depense' => $validated['depense'] ?? null,
-            'description' => $validated['description'] ?? null,
-        ]);
+        $this->addHistoryEntry(
+            $demande,
+            __('demandes.history_statuses.progress'),
+            $validated['description'] ?? null,
+            $validated['depense'] ?? null
+        );
 
         return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_added'));
     }
@@ -283,17 +268,54 @@ class DemandeController extends Controller
     {
         $demande->update(['etat' => self::STATUS_TERMINE]);
 
-        TacheHistorique::create([
-            'idTache' => $demande->idTache,
-            'statut' => __('demandes.history_statuses.done'),
-            'date_evenement' => now(),
-            'titre' => $demande->titre,
-            'responsable' => auth()->user()->name ?? '',
-            'depense' => $demande->montantR ?? null,
-            'description' => __('demandes.history_statuses.done_description'),
-        ]);
+        $this->addHistoryEntry(
+            $demande,
+            __('demandes.history_statuses.done'),
+            __('demandes.history_statuses.done_description'),
+            $demande->montantR ?? null
+        );
 
         return to_route('demandes.show', $demande)->with('status', __('demandes.messages.validated'));
+    }
+
+    /**
+     * Ajoute une entrée dans demande_historique.
+     */
+    private function addHistoryEntry(Tache $demande, string $statut, ?string $description = null, ?float $depense = null): void
+    {
+        $user = Auth::user();
+
+        DemandeHistorique::create([
+            'idDemande' => $demande->idTache,
+            'statut' => $statut,
+            'titre' => $demande->titre,
+            'responsable' => $user?->name ?? '',
+            'depense' => $depense,
+            'dateE' => now(),
+            'description' => $description,
+        ]);
+    }
+
+    /**
+     * Sauvegarde les photos liées à la demande (si présentes).
+     */
+    protected function storePhotos(Tache $demande, array $files): void
+    {
+        if (empty($files)) {
+            return;
+        }
+
+        foreach ($files as $file) {
+            $path = $file->store('demandes', 'public');
+
+            Document::create([
+                'idTache' => $demande->idTache,
+                'nom' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                'chemin' => $path,
+                'type' => substr($file->extension(), 0, 5),
+                'etat' => 'actif',
+            ]);
+        }
     }
 }
 

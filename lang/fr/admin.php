@@ -1,5 +1,10 @@
 <?php
 
+if (!defined('OBLIGATORY_DOCUMENTS_LABEL')) {
+    define('OBLIGATORY_DOCUMENTS_LABEL', 'Documents obligatoires');
+}
+
+
 $common = [
     'roles' => 'Rôles',
     'roles_search' => 'Rechercher un rôle',
@@ -27,7 +32,16 @@ return [
         'classes' => 'Classes',
         'invoices' => 'Factures',
         'notifications' => 'Notifications',
-        'obligatory_documents' => 'Documents obligatoires',
+        'obligatory_documents' => OBLIGATORY_DOCUMENTS_LABEL,
+        'descriptions' => [
+            'add_message' => 'Gérez les publications et actualités visibles par les utilisateurs',
+            'accounts' => 'Gérez les comptes utilisateurs, leurs rôles et leurs validations',
+            'families' => 'Gérez les familles et leurs membres associés',
+            'classes' => 'Gérez les classes et leur organisation',
+            'obligatory_documents' => 'Gérez les documents obligatoires requis pour les utilisateurs',
+            'invoices' => 'Gérez les factures et les paiements',
+            'notifications' => 'Gérez les notifications et alertes système',
+        ],
     ],
     'accounts_page' => (function() use ($common) {
         $addAccountText = 'Ajouter un compte';
@@ -99,6 +113,19 @@ return [
             'no_roles_selected' => 'Aucun rôle n\'a été sélectionné',
             'archived_notice' => 'Ce compte est archivé. Seule la consultation est autorisée.',
             'details_title' => 'Informations du compte',
+            'documents_title' => OBLIGATORY_DOCUMENTS_LABEL,
+            'documents' => [
+                'name' => 'Nom',
+                'state' => 'État',
+                'date_remise' => 'Date de remise',
+                'actions' => 'Actions',
+                'not_uploaded' => 'Non remis',
+                'validate' => 'Valider',
+                'invalidate' => 'Invalider',
+                'confirm_validate' => 'Êtes-vous sûr de vouloir valider ce document ?',
+                'confirm_invalidate' => 'Êtes-vous sûr de vouloir invalider ce document ?',
+                'confirm_delete' => 'Êtes-vous sûr de vouloir supprimer ce document ?',
+            ],
         ],
         'messages' => [
             'deleted' => 'Le compte a été supprimé avec succès.',
@@ -108,6 +135,8 @@ return [
             'archived' => 'Le compte a été archivé. Seule la consultation reste possible.',
             'already_archived' => 'Ce compte est déjà archivé.',
             'archived_readonly' => 'Ce compte est archivé : seule la consultation est possible.',
+            'document_validated' => 'Le statut du document a été modifié avec succès.',
+            'document_deleted' => 'Le document a été supprimé avec succès.',
         ],
         'edit' => [
             'title' => 'Modifier le compte',
@@ -159,7 +188,7 @@ return [
         ];
     })(),
     'obligatory_documents' => [
-        'title' => 'Documents obligatoires',
+        'title' => OBLIGATORY_DOCUMENTS_LABEL,
         'subtitle' => 'Documents requis',
         'description' => 'Cette page permettra de gérer les documents obligatoires.',
         'add_button' => 'Ajouter un document',

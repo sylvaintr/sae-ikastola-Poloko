@@ -13,14 +13,18 @@ class UtilisateurModelTest extends TestCase
 
     public function test_utilisateur_factory_and_family_pivot()
     {
-        $user = Utilisateur::factory()->create();
+        // given
+        // no prior data required
 
-        $this->assertDatabaseHas('utilisateur', ['email' => $user->email]);
+        // when
+        $user = Utilisateur::factory()->create();
 
         // Create a family and attach the user to it via pivot
         $famille = Famille::factory()->create();
         $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 'parent']);
 
+        // then
+        $this->assertDatabaseHas('utilisateur', ['email' => $user->email]);
         $this->assertDatabaseHas('lier', [
             'idFamille' => $famille->idFamille,
             'idUtilisateur' => $user->idUtilisateur,

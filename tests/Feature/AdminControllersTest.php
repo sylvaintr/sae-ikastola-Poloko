@@ -14,6 +14,7 @@ class AdminControllersTest extends TestCase
 
     public function test_account_store_creates_account_and_redirects()
     {
+        // given
         // Authenticate as CA role so middleware passes
         $adminRole = Role::factory()->create(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
@@ -33,8 +34,10 @@ class AdminControllersTest extends TestCase
             'roles' => [$role->idRole],
         ];
 
+        // when
         $response = $this->post(route('admin.accounts.store'), $postData);
 
+        // then
         $response->assertRedirect(route('admin.accounts.index'));
 
         $this->assertDatabaseHas('utilisateur', ['email' => 'j.dupont@example.com']);
@@ -42,6 +45,7 @@ class AdminControllersTest extends TestCase
 
     public function test_account_update_modifies_account()
     {
+        // given
         // Authenticate as CA role so middleware passes
         $adminRole = Role::factory()->create(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
@@ -65,8 +69,10 @@ class AdminControllersTest extends TestCase
             'roles' => [$role->idRole],
         ];
 
+        // when
         $response = $this->put(route('admin.accounts.update', $account->idUtilisateur), $putData);
 
+        // then
         $response->assertRedirect(route('admin.accounts.index'));
 
         $this->assertDatabaseHas('utilisateur', ['email' => $newEmail, 'prenom' => 'NewPrenom']);
@@ -74,6 +80,7 @@ class AdminControllersTest extends TestCase
 
     public function test_account_validate_sets_statutValidation()
     {
+        // given
         // Authenticate as CA role so middleware passes
         $adminRole = Role::factory()->create(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
@@ -84,8 +91,10 @@ class AdminControllersTest extends TestCase
         $account = Utilisateur::factory()->create(['idUtilisateur' => random_int(1000, 999999), 'statutValidation' => false]);
         $account = Utilisateur::find($account->idUtilisateur);
 
+        // when
         $response = $this->patch(route('admin.accounts.validate', $account->idUtilisateur));
 
+        // then
         $response->assertRedirect(route('admin.accounts.index'));
 
         $this->assertDatabaseHas('utilisateur', ['idUtilisateur' => $account->idUtilisateur, 'statutValidation' => 1]);
@@ -93,6 +102,7 @@ class AdminControllersTest extends TestCase
 
     public function test_account_destroy_deletes()
     {
+        // given
         // Authenticate as CA role so middleware passes
         $adminRole = Role::factory()->create(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
@@ -102,8 +112,10 @@ class AdminControllersTest extends TestCase
         $account = Utilisateur::factory()->create(['idUtilisateur' => random_int(1000, 999999)]);
         $account = Utilisateur::find($account->idUtilisateur);
 
+        // when
         $response = $this->delete(route('admin.accounts.destroy', $account->idUtilisateur));
 
+        // then
         $response->assertRedirect(route('admin.accounts.index'));
 
         $this->assertDatabaseMissing('utilisateur', ['idUtilisateur' => $account->idUtilisateur]);
@@ -112,6 +124,7 @@ class AdminControllersTest extends TestCase
     // ObligatoryDocumentController tests
     public function test_obligatory_document_store_and_destroy()
     {
+        // given
         // Authenticate as CA role so middleware passes
         $adminRole = Role::factory()->create(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
@@ -127,8 +140,10 @@ class AdminControllersTest extends TestCase
             'roles' => [$role->idRole],
         ];
 
+        // when
         $response = $this->post(route('admin.obligatory_documents.store'), $postData);
 
+        // then
         $response->assertRedirect(route('admin.obligatory_documents.index'));
 
         $this->assertDatabaseHas('documentObligatoire', ['nom' => 'Piece justificative']);
@@ -146,6 +161,7 @@ class AdminControllersTest extends TestCase
 
     public function test_obligatory_document_update_modifies()
     {
+        // given
         // Authenticate as CA role so middleware passes
         $adminRole = Role::factory()->create(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
@@ -162,8 +178,10 @@ class AdminControllersTest extends TestCase
             'roles' => [$role->idRole],
         ];
 
+        // when
         $response = $this->put(route('admin.obligatory_documents.update', $doc->idDocumentObligatoire), $putData);
 
+        // then
         $response->assertRedirect(route('admin.obligatory_documents.index'));
 
         $this->assertDatabaseHas('documentObligatoire', ['idDocumentObligatoire' => $doc->idDocumentObligatoire, 'nom' => 'UpdatedName']);

@@ -9,6 +9,7 @@ use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\Admin\AccountController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
+use App\Http\Controllers\LierController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\EtiquetteController;
@@ -30,22 +31,20 @@ if (!defined('ROUTE_ADD')) {
     define('ROUTE_DEMANDE', '/{demande}');
 }
 
-
-
 Route::get('/', [ActualiteController::class, 'index'])->name('home');
 Route::post('/actualites/filter', [ActualiteController::class, 'filter'])->name('actualites.filter');
 
 Route::middleware('auth')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Profil utilisateur
-    |--------------------------------------------------------------------------
-    */
+    // ---------------- Profil utilisateur ----------------
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/document', [ProfileController::class, 'uploadDocument'])->name('profile.document.upload');
+    Route::get('/profile/document/{document}/download', [ProfileController::class, 'downloadDocument'])->name('profile.document.download');
+    Route::delete('/profile/document/{document}', [ProfileController::class, 'deleteDocument'])->name('profile.document.delete');
 
+    // ---------------- Gestion Demandes ----------------
     Route::middleware('can:access-demande')
         ->prefix('demande')
         ->name('demandes.')
@@ -64,11 +63,7 @@ Route::middleware('auth')->group(function () {
             Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
         });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Routes administrateur (role CA)
-    |--------------------------------------------------------------------------
-    */
+    // ---------------- Routes administrateur (role CA) ----------------
     Route::middleware(['role:CA'])->group(function () {
         Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -77,109 +72,82 @@ Route::middleware('auth')->group(function () {
             Route::view('/familles', 'admin.families')->name('families');
             Route::view('/notifications', 'admin.notifications')->name('notifications');
 
-            /*
-            |--------------------------------------------------------------------------
-            | Comptes administratifs (AccountController)
-            |--------------------------------------------------------------------------
-            */
+            // ---------------- Comptes ----------------
             Route::prefix('comptes')->name('accounts.')->controller(AccountController::class)
                 ->group(function () {
-
                     $accountRoute = '/{account}';
-
                     Route::get('/', 'index')->name('index');
                     Route::get(ROUTE_ADD, 'create')->name('create');
                     Route::post('/', 'store')->name('store');
-
                     Route::get($accountRoute, 'show')->name('show');
                     Route::get("{$accountRoute}" . ROUTE_EDIT, 'edit')->name('edit');
-
                     Route::put($accountRoute, 'update')->name('update');
                     Route::patch("{$accountRoute}" . ROUTE_VALIDATE, 'validateAccount')->name('validate');
                     Route::patch("{$accountRoute}" . ROUTE_ARCHIVE, 'archive')->name('archive');
-
                     Route::delete($accountRoute, 'destroy')->name('destroy');
+                    Route::patch("{$accountRoute}/documents/{document}/validate", 'validateDocument')->name('documents.validate');
+                    Route::get("{$accountRoute}/documents/{document}/download", 'downloadDocument')->name('documents.download');
+                    Route::delete("{$accountRoute}/documents/{document}", 'deleteDocument')->name('documents.delete');
                 });
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Classes (ClasseController)
-            |--------------------------------------------------------------------------
-            */
+            // ---------------- Classes ----------------
             Route::prefix('classes')->name('classes.')->controller(ClasseController::class)
                 ->group(function () {
-
                     Route::get('/', 'index')->name('index');
                     Route::get('/data', 'data')->name('data');
-
                     Route::get(ROUTE_ADD, 'create')->name('create');
                     Route::post('/', 'store')->name('store');
-
                     Route::get(ROUTE_CLASSE . ROUTE_EDIT, 'edit')->name('edit');
                     Route::put(ROUTE_CLASSE, 'update')->name('update');
                     Route::delete(ROUTE_CLASSE, 'destroy')->name('destroy');
-
                     Route::get(ROUTE_CLASSE, 'show')->name('show');
                 });
 
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Documents obligatoires
-            |--------------------------------------------------------------------------
-            */
+            // ---------------- Documents obligatoires ----------------
             Route::prefix('documents-obligatoires')
                 ->name('obligatory_documents.')
                 ->controller(\App\Http\Controllers\Admin\ObligatoryDocumentController::class)
                 ->group(function () {
-
                     Route::get('/', 'index')->name('index');
                     Route::get(ROUTE_ADD, 'create')->name('create');
                     Route::post('/', 'store')->name('store');
-
                     Route::get(ROUTE_OBLIGATORY_DOCUMENT . ROUTE_EDIT, 'edit')->name('edit');
                     Route::put(ROUTE_OBLIGATORY_DOCUMENT, 'update')->name('update');
                     Route::delete(ROUTE_OBLIGATORY_DOCUMENT, 'destroy')->name('destroy');
                 });
 
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Factures
-            |--------------------------------------------------------------------------
-            */
+            // ---------------- Factures ----------------
             Route::resource('/facture', FactureController::class);
+            Route::get('/factures-data', [FactureController::class, 'facturesData'])->name('factures.data');
+            Route::get('/facture/{id}/export', [FactureController::class, 'exportFacture'])->name('facture.export');
+            Route::get('/facture/{id}/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
+            Route::get('/facture/{id}/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
 
-            Route::get('/factures-data', [FactureController::class, 'facturesData'])
-                ->name('factures.data');
+            // ---------------- Ajout des routes Famille + LierController ----------------
+            Route::prefix('familles')->name('familles.')->group(function () {
+    Route::get('/', [FamilleController::class, 'index'])->name('index');
+    Route::get('/create', [FamilleController::class, 'create'])->name('create');
+    Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
+    Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
+    Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
+    Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
+   
+    
+    });
 
-            Route::get('/facture/{id}/export', [FactureController::class, 'exportFacture'])
-                ->name('facture.export');
-
-            Route::get('/facture/{id}/envoyer', [FactureController::class, 'envoyerFacture'])
-                ->name('facture.envoyer');
-
-            Route::get('/facture/{id}/verifier', [FactureController::class, 'validerFacture'])
-                ->name('facture.valider');
+           
         });
+        });
+        Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
+ Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Présence
-        |--------------------------------------------------------------------------
-        */
-        Route::get('/presence', function () {
-            return view('presence.index');
-        })->name('presence.index');
-
+        // ---------------- Présence ----------------
+        Route::get('/presence', function () { return view('presence.index'); })->name('presence.index');
         Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
         Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
         Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
         Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
-    });
+    
 
     // Taches
     Route::middleware('can:access-tache')->group(function () {
@@ -224,6 +192,5 @@ Route::get('/lang/{locale}', function ($locale) {
     }
     return redirect()->back();
 })->name('lang.switch');
-
 
 require __DIR__ . '/auth.php';

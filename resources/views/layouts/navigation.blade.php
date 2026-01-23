@@ -1,8 +1,8 @@
 <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom">
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center me-4" href="{{ route('home') }}" style="flex-shrink: 0;">
-            <x-application-logo />
-            <span class="ms-2 fw-bold text-dark navbar-brand-text">Ikastola</span>
+            <x-application-logo style="height: 40px; width: auto;" />
+            <span class="ms-2 fw-bold text-dark navbar-brand-text">Baionako Hiriondo Ikastola</span>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"

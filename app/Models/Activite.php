@@ -26,15 +26,17 @@ class Activite extends Model
 	protected $casts = [
 		'dateP' => 'datetime'
 	];
+	protected $fillable = ['activite', 'dateP'];
+	protected $primaryKey = ['activite', 'dateP'];
 
 	/**
-	 * Relation hasMany vers les enregistrements `Etre` (présences/inscriptions).
-	 * La colonne locale `activite` (string) correspond à `Etre.activite`.
+	 * Relation hasMany vers les enregistrements `PRATIQUE` (présences/inscriptions).
+	 * La colonne locale `activite` (string) correspond à `PRATIQUE.activite`.
 	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
 	public function etres()
 	{
-		return $this->hasMany(Etre::class, 'activite', 'activite');
+		return $this->hasMany(PRATIQUE::class, 'activite', 'activite');
 	}
 }

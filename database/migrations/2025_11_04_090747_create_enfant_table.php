@@ -18,9 +18,9 @@ return new class extends Migration
             $table->date('dateN');
             $table->string('sexe', 5);
             $table->integer('NNI');
-            $table->integer('nbFoisGarderie');
+            $table->integer('nbFoisGarderie')->default(0);
             $table->integer('idClasse')->nullable()->index('idclasse');
-            $table->integer('idFamille')->index('idfamille');
+            $table->integer('idFamille')->nullable()->index('idfamille');
         });
     }
 

@@ -16,10 +16,10 @@
             </div>
 
             <div class="text-end">
-                <a href="{{ route('admin.classes.index') }}" class="btn btn-outline-secondary btn-sm">
+                <a href="{{ route('admin.classes.index') }}" class="text-decoration-none fw-semibold text-warning">
                     ← {{ __('classes.back_to_list', [], 'eus') }}
                     @if (Lang::getLocale() == 'fr')
-                        <span class="d-block small fw-light">
+                        <span class="d-block small fw-semibold text-warning">
                             {{ __('classes.back_to_list') }}
                         </span>
                     @endif

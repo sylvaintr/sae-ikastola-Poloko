@@ -30,7 +30,7 @@ class Facture extends Model
 
 	protected $casts = [
 		'idFacture' => 'int',
-		'etat' => 'bool',
+		'etat' => 'string',
 		'dateC' => 'datetime',
 		'previsionnel' => 'bool',
 		'idUtilisateur' => 'int',
@@ -86,4 +86,25 @@ class Facture extends Model
 	{
 		return $this->getKey();
 	}
+
+	/**
+	 * Mutator to accept boolean or string values for `etat`.
+	 * - boolean true => 'verifier'
+	 * - boolean false => 'brouillon'
+	 */
+	public function setEtatAttribute($value)
+	{
+		if (is_bool($value)) {
+			$this->attributes['etat'] = $value ? 'verifier' : 'brouillon';
+			return;
+		}
+
+		if (is_string($value) && in_array($value, ['manuel', 'brouillon', 'verifier', 'manuel verifier'], true)) {
+			$this->attributes['etat'] = $value;
+			return;
+		}
+
+		$this->attributes['etat'] = 'brouillon';
+	}
+
 }

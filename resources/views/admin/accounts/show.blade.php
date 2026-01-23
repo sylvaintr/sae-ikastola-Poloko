@@ -76,6 +76,136 @@
                 @endif
             </div>
         </div>
+
+        @if(isset($documentsObligatoiresAvecEtat) && $documentsObligatoiresAvecEtat->count() > 0)
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="h5 fw-bold mb-4">{{ __('admin.accounts_page.show.documents_title') }}</h2>
+
+                @if(session('status') === 'document_validated')
+                    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                        {{ __('admin.accounts_page.messages.document_validated') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if(session('status') === 'document_deleted')
+                    <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                        {{ __('admin.accounts_page.messages.document_deleted') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                <div class="table-responsive">
+                    <table class="table align-middle admin-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    <div class="text-center">
+                                        <span class="admin-table-heading">{{ __('admin.accounts_page.show.documents.name') }}</span>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    <div class="text-center">
+                                        <span class="admin-table-heading">{{ __('admin.accounts_page.show.documents.state') }}</span>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    <div class="text-center">
+                                        <span class="admin-table-heading">{{ __('admin.accounts_page.show.documents.date_remise') }}</span>
+                                    </div>
+                                </th>
+                                <th scope="col">
+                                    <div class="text-center">
+                                        <span class="admin-table-heading">{{ __('admin.accounts_page.show.documents.actions') }}</span>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($documentsObligatoiresAvecEtat as $docOblig)
+                                @php
+                                    $etats = [
+                                        'non_remis' => ['label' => __('auth.non_remis'), 'badge' => 'bg-secondary'],
+                                        'remis' => ['label' => __('auth.remis'), 'badge' => 'bg-info'],
+                                        'en_cours_validation' => ['label' => __('auth.en_cours_validation'), 'badge' => 'bg-warning'],
+                                        'valide' => ['label' => __('auth.valide_document'), 'badge' => 'bg-success']
+                                    ];
+                                    $etat = $etats[$docOblig->etat] ?? $etats['non_remis'];
+                                @endphp
+                                <tr>
+                                    <td class="fw-semibold text-center">{{ $docOblig->nom }}</td>
+                                    <td class="text-center">
+                                        <span class="badge {{ $etat['badge'] }}">{{ $etat['label'] }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if($docOblig->dateRemise)
+                                            {{ $docOblig->dateRemise->format('d/m/Y H:i') }}
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-flex gap-2 justify-content-center flex-wrap">
+                                            @if($docOblig->documentUploaded)
+                                                <a href="{{ route('admin.accounts.documents.download', [$account, $docOblig->documentUploaded->idDocument]) }}"
+                                                   class="btn admin-btn-download">
+                                                    <i class="bi bi-download"></i> {{ __('auth.telecharger') }}
+                                                </a>
+
+                                                @if($docOblig->documentUploaded->etat === 'valide')
+                                                    <form action="{{ route('admin.accounts.documents.validate', [$account, $docOblig->documentUploaded]) }}"
+                                                          method="POST"
+                                                          class="d-inline">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="etat" value="en_attente">
+                                                        <button type="submit"
+                                                                class="btn admin-btn-invalidate"
+                                                                onclick="return confirm('{{ __('admin.accounts_page.show.documents.confirm_invalidate') }}');">
+                                                            <i class="bi bi-x-circle"></i> {{ __('admin.accounts_page.show.documents.invalidate') }}
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <form action="{{ route('admin.accounts.documents.validate', [$account, $docOblig->documentUploaded]) }}"
+                                                          method="POST"
+                                                          class="d-inline">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="etat" value="valide">
+                                                        <button type="submit"
+                                                                class="btn admin-btn-validate"
+                                                                onclick="return confirm('{{ __('admin.accounts_page.show.documents.confirm_validate') }}');">
+                                                            <i class="bi bi-check-circle"></i> {{ __('admin.accounts_page.show.documents.validate') }}
+                                                        </button>
+                                                    </form>
+                                                @endif
+
+                                                @if($docOblig->documentUploaded->etat !== 'valide')
+                                                    <form action="{{ route('admin.accounts.documents.delete', [$account, $docOblig->documentUploaded]) }}"
+                                                          method="POST"
+                                                          class="d-inline"
+                                                          onsubmit="return confirm('{{ __('admin.accounts_page.show.documents.confirm_delete') }}');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn admin-btn-delete">
+                                                            <i class="bi bi-trash"></i> {{ __('auth.supprimer') }}
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            @else
+                                                <span class="text-muted">{{ __('admin.accounts_page.show.documents.not_uploaded') }}</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </x-app-layout>
 

@@ -16,7 +16,11 @@
             </div>
         </a>
 
-        @include('facture.template.facture-html')
+        @if ($facture->etat === 'manuel')
+            <iframe src="{{ $fichierpdf }}" title="facture" width="100%" height="600px"></iframe>
+        @else
+            @include('facture.template.facture-html')
+        @endif
     </div>
 
 </x-app-layout>

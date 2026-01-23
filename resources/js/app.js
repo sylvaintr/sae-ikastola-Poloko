@@ -6,6 +6,15 @@ globalThis.bootstrap = bootstrap;
 
 import './bootstrap';
 import './children-selector';
+import './forgot-password';
+import Alpine from 'alpinejs';
+globalThis.Alpine = Alpine;
+Alpine.start();
+import * as yup from 'yup';
+
+
+globalThis.yup = yup;
+import './facture-modal';
 
 // Register jQuery DataTables plugin globally so legacy inline scripts using
 // `$('.datatable-taches').DataTable()` work correctly.
