@@ -26,11 +26,21 @@ document.addEventListener('DOMContentLoaded', () => {
         locale: 'fr',
         firstDay: 1,
         nowIndicator: true,
-        selectable: true, // sélection plage
+
+        // Sélection (si tu veux créer plus tard via un modal)
+        selectable: true,
+
+        // ✅ Si tu veux ACTIVER le drag/drop + resize :
+        // editable: true,
+        // eventStartEditable: true,
+        // eventDurationEditable: true,
+
+        // ✅ Si tu veux le calendrier non modifiable (actuel) :
+        editable: false,
         eventStartEditable: false,
         eventDurationEditable: false,
 
-        events: eventsUrl, // JSON feed URL :contentReference[oaicite:2]{index=2}
+        events: eventsUrl,
 
         eventDrop: async (info) => {
             await persistMoveResize(info, updateUrlTemplate);
@@ -38,20 +48,24 @@ document.addEventListener('DOMContentLoaded', () => {
         eventResize: async (info) => {
             await persistMoveResize(info, updateUrlTemplate);
         },
+
         eventClick: function (info) {
             info.jsEvent.preventDefault();
 
             const modalEl = document.getElementById('eventDetailModal');
             if (!modalEl) return;
 
+            // Bootstrap doit être dispo globalement
             const modal = new bootstrap.Modal(modalEl);
 
             const { title } = info.event;
             const props = info.event.extendedProps || {};
 
-            // Remplissage
-            modalEl.querySelector('#eventDetailTitle').textContent = title;
-            modalEl.querySelector('#eventDetailDate').textContent = props.date || '';
+            // ✅ Affichage date/heure depuis l'API (startLabel/endLabel)
+            const dateText = props.endLabel ? `${props.startLabel} → ${props.endLabel}` : props.startLabel || '';
+
+            modalEl.querySelector('#eventDetailTitle').textContent = title || 'Événement';
+            modalEl.querySelector('#eventDetailDate').textContent = dateText;
 
             const descEl = modalEl.querySelector('#eventDetailDescription');
             descEl.textContent = props.description || 'Aucune description';
@@ -71,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function persistMoveResize(info, template) {
         if (!template) return;
+
         const url = template.replace('__ID__', info.event.id);
 
         const payload = {
@@ -78,19 +93,24 @@ document.addEventListener('DOMContentLoaded', () => {
             end: info.event.end?.toISOString() ?? null,
         };
 
-        const res = await fetch(url, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': getCsrfToken(),
-                Accept: 'application/json',
-            },
-            body: JSON.stringify(payload),
-        });
+        try {
+            const res = await fetch(url, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
 
-        if (!res.ok) {
+            if (!res.ok) {
+                info.revert();
+                console.error('Update failed', await res.text());
+            }
+        } catch (e) {
             info.revert();
-            console.error('Update failed', await res.text());
+            console.error('Update error', e);
         }
     }
 

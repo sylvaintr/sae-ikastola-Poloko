@@ -19,8 +19,8 @@ class EvenementController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('titre', 'like', "%{$search}%")
-                  ->orWhere('request_id', 'like', "%{$search}%")
-                  ->orWhere('cible', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('idEvenement', $search);
             });
         }
 
@@ -29,8 +29,8 @@ class EvenementController extends Controller
         $allowedSorts = [
             'id_desc' => ['idEvenement', 'desc'],
             'id_asc' => ['idEvenement', 'asc'],
-            'date_desc' => ['dateE', 'desc'],
-            'date_asc' => ['dateE', 'asc'],
+            'date_desc' => ['start_at', 'desc'],
+            'date_asc'  => ['start_at', 'asc'],
         ];
 
         if (! array_key_exists($sort, $allowedSorts)) {
@@ -40,8 +40,8 @@ class EvenementController extends Controller
         [$column, $direction] = $allowedSorts[$sort];
 
         $evenements = $query->orderBy($column, $direction)
-                            ->paginate(10)
-                            ->withQueryString();
+            ->paginate(10)
+            ->withQueryString();
 
         return view('evenements.index', compact('evenements', 'sort'));
     }
@@ -52,7 +52,7 @@ class EvenementController extends Controller
      */
     public function create()
     {
-        $roles = Role::all();
+        $roles = Role::query()->orderBy('name')->get();
         return view('evenements.create', compact('roles'));
     }
 
@@ -61,29 +61,31 @@ class EvenementController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'titre' => 'required|string|max:255',
-            'description' => 'required|string',
-            'obligatoire' => 'nullable|boolean',
-            'dateE' => 'required|date',
-            'roles' => 'nullable|array',
-            'roles.*' => 'integer|exists:role,idRole',
+        $validated = $request->validate([
+            'titre' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'obligatoire' => ['nullable', 'boolean'],
+
+            'start_at' => ['required', 'date'],
+            'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
+
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['integer', 'exists:role,idRole'],
         ]);
 
         $evenement = Evenement::create([
-            'titre' => $request->titre,
-            'description' => $request->description,
-            'obligatoire' => $request->boolean('obligatoire'),
-            'dateE' => $request->dateE,
+            'titre' => $validated['titre'],
+            'description' => $validated['description'],
+            'obligatoire' => (bool)($validated['obligatoire'] ?? false),
+
+            'start_at' => $validated['start_at'],
+            'end_at' => $validated['end_at'] ?? null,
         ]);
 
-        // Attacher les rôles si fournis
-        if ($request->filled('roles')) {
-            $evenement->roles()->sync($request->input('roles', []));
-        }
+        $evenement->roles()->sync($validated['roles'] ?? []);
 
         return redirect()->route('evenements.index')
-                         ->with('success', 'Événement créé avec succès');
+            ->with('success', 'Événement créé avec succès');
     }
 
     /**
@@ -91,7 +93,7 @@ class EvenementController extends Controller
      */
     public function show($id)
     {
-        $evenement = Evenement::findOrFail($id);
+        $evenement = Evenement::with('roles')->findOrFail($id);
         return view('evenements.show', compact('evenement'));
     }
 
@@ -100,8 +102,9 @@ class EvenementController extends Controller
      */
     public function edit($id)
     {
-        $evenement = Evenement::findOrFail($id);
-        $roles = Role::all();
+        $evenement = Evenement::with('roles')->findOrFail($id);
+        $roles = Role::orderBy('name')->get();
+
         return view('evenements.edit', compact('evenement', 'roles'));
     }
 
@@ -110,29 +113,33 @@ class EvenementController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'titre' => 'required|string|max:255',
-            'description' => 'required|string',
-            'obligatoire' => 'nullable|boolean',
-            'dateE' => 'required|date',
-            'roles' => 'nullable|array',
-            'roles.*' => 'integer|exists:role,idRole',
+        $validated = $request->validate([
+            'titre' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'obligatoire' => ['nullable', 'boolean'],
+
+            'start_at' => ['required', 'date'],
+            'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
+
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['integer', 'exists:role,idRole'],
         ]);
 
         $evenement = Evenement::findOrFail($id);
 
         $evenement->update([
-            'titre' => $request->titre,
-            'description' => $request->description,
-            'obligatoire' => $request->boolean('obligatoire'),
-            'dateE' => $request->dateE,
+            'titre' => $validated['titre'],
+            'description' => $validated['description'],
+            'obligatoire' => (bool)($validated['obligatoire'] ?? false),
+
+            'start_at' => $validated['start_at'],
+            'end_at' => $validated['end_at'] ?? null,
         ]);
 
-        // Synchroniser les rôles
-        $evenement->roles()->sync($request->input('roles', []));
+        $evenement->roles()->sync($validated['roles'] ?? []);
 
         return redirect()->route('evenements.index')
-                         ->with('success', 'Événement mis à jour avec succès');
+            ->with('success', 'Événement mis à jour avec succès');
     }
 
     /**
@@ -144,6 +151,6 @@ class EvenementController extends Controller
         $evenement->delete();
 
         return redirect()->route('evenements.index')
-                         ->with('success', 'Événement supprimé avec succès');
+            ->with('success', 'Événement supprimé avec succès');
     }
 }

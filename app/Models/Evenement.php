@@ -13,7 +13,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $titre Titre de l'événement.
  * @property string $description Description détaillée.
  * @property bool $obligatoire Indique si l'événement est obligatoire.
- * @property Carbon $dateE Date de l'événement.
+ * @property Carbon $start_at Date et heure de début de l'événement.
+ * @property Carbon|null $end_at Date et heure de fin de l'événement.e
  */
 class Evenement extends Model
 {
@@ -26,7 +27,8 @@ class Evenement extends Model
 	protected $casts = [
 		'idEvenement' => 'int',
 		'obligatoire' => 'bool',
-		'dateE' => 'datetime'
+		'start_at' => 'datetime',
+		'end_at' => 'datetime',
 	];
 
 	/**
@@ -35,15 +37,16 @@ class Evenement extends Model
 	 * - `titre` (string) : titre de l'événement.
 	 * - `description` (string) : description détaillée.
 	 * - `obligatoire` (bool) : indique si l'événement est obligatoire.
-	 * - `dateE` (datetime) : date de l'événement.
+	 * - `start_at` (datetime) : date et heure de début de l'événement.
+	 * - `end_at` (datetime) : date et heure de fin de l'événement.
 	 */
 	protected $fillable = [
 		'titre',
 		'description',
 		'obligatoire',
-		'dateE'
+		'start_at',
+		'end_at',
 	];
-
 	/**
 	 * Relation hasMany vers les recettes associées à cet événement.
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
