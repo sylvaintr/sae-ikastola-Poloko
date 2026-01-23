@@ -14,6 +14,7 @@ use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
 use App\Http\Controllers\CalendrierController;
+use App\Http\Controllers\IcsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,9 @@ if (!defined('ROUTE_ADD')) {
 Route::get('/', [ActualiteController::class, 'index'])->name('home');
 Route::post('/actualites/filter', [ActualiteController::class, 'filter'])->name('actualites.filter');
 
+// Route publique (sans authentification) pour le flux ICS
+Route::get('/ics/{token}', [IcsController::class, 'feed'])->name('ics.feed');
+
 Route::middleware('auth')->group(function () {
 
     /*
@@ -47,6 +51,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/regenerate-ics-token', [ProfileController::class, 'regenerateIcsToken'])
+        ->name('profile.regenerate-ics-token');
 
     Route::middleware('can:access-demande')
         ->prefix('demande')

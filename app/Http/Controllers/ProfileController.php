@@ -64,4 +64,16 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    /**
+     * Régénère le token ICS de l'utilisateur.
+     * @param Request $request la requête HTTP
+     * @return RedirectResponse la réponse de redirection après régénération
+     */
+    public function regenerateIcsToken(Request $request): RedirectResponse
+    {
+        $request->user()->generateIcsToken();
+
+        return Redirect::route('profile.edit')->with('status', 'ics-token-regenerated');
+    }
 }

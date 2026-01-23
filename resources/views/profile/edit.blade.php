@@ -84,6 +84,15 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Section 4: Abonnement calendrier ICS -->
+            <div class="col-md-12 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        @include('profile.partials.ics-feed-section')
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </x-app-layout>

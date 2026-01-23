@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Str;
 
 /**
  * Class Utilisateur
@@ -49,7 +50,8 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	 */
 	protected $hidden = [
 		'mdp',
-		'remember_token'
+		'remember_token',
+		'ics_token'
 	];
 
 	/**
@@ -78,7 +80,8 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 		'languePref',
 		'statutValidation',
 		'archived_at',
-		'remember_token'
+		'remember_token',
+		'ics_token'
 	];
 
 	/**
@@ -263,5 +266,29 @@ class Utilisateur extends Authenticatable implements CanResetPasswordContract
 	public function tachesRealisees()
 	{
 		return $this->belongsToMany(Tache::class, 'realiser', 'idUtilisateur', 'idTache')->withPivot('dateM', 'description');
+	}
+
+	/**
+	 * Génère ou régénère le token ICS de l'utilisateur.
+	 * @return string Le nouveau token généré.
+	 */
+	public function generateIcsToken(): string
+	{
+		$this->ics_token = Str::random(64);
+		$this->save();
+		return $this->ics_token;
+	}
+
+	/**
+	 * Retourne l'URL complète du flux ICS de l'utilisateur.
+	 * Génère un token si l'utilisateur n'en a pas encore.
+	 * @return string L'URL du flux ICS.
+	 */
+	public function getIcsUrl(): string
+	{
+		if (!$this->ics_token) {
+			$this->generateIcsToken();
+		}
+		return route('ics.feed', ['token' => $this->ics_token]);
 	}
 }
