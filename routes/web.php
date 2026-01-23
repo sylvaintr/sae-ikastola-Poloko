@@ -16,7 +16,7 @@ use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
 use App\Http\Controllers\CalendrierController;
 use App\Http\Controllers\IcsController;
-
+use App\Http\Controllers\NotificationController;
 /*
 |--------------------------------------------------------------------------
 | Constantes pour routes récurrentes
@@ -200,6 +200,22 @@ Route::middleware(['permission:gerer-actualites'])->name('admin.')->group(functi
     Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
         ->name('actualites.detachDocument');
 });
+Route::middleware(['auth'])->group(function () {
+    
+   
+    Route::get('/admin/notifications', [NotificationController::class, 'index'])
+         ->name('admin.notifications.index');
+
+   
+    Route::get('/admin/notifications/create', [NotificationController::class, 'create'])
+         ->name('admin.notifications.create');
+
+   
+    Route::post('/admin/notifications', [NotificationController::class, 'store'])
+         ->name('admin.notifications.store');
+
+});
+
 
 Route::get('/actualites/{id}', [ActualiteController::class, 'show'])->name('actualites.show');
 
