@@ -206,9 +206,9 @@ class TacheController extends Controller
             'idTache' => $tache->idTache,
             'statut' => __('taches.history_statuses.created'),
             'titre' => $tache->titre,
-            'responsable' => auth()->user()->name ?? '',
-            'date_evenement' => $tache->dateD ?? now(),
+            'urgence' => $tache->type,
             'description' => $tache->description,
+            'modifie_par' => auth()->user()->idUtilisateur ?? null,
         ]);
 
         return to_route('tache.index')->with('status', __('taches.messages.created'));
@@ -281,8 +281,9 @@ class TacheController extends Controller
     {
         $tache = Tache::with(['realisateurs'])->findOrFail($id);
 
-        $historique = TacheHistorique::where('idTache', $tache->idTache)
-            ->orderBy('date_evenement', 'asc')
+        $historique = TacheHistorique::with('utilisateur')
+            ->where('idTache', $tache->idTache)
+            ->orderBy('created_at', 'asc')
             ->get();
 
         return view('tache.show', compact('tache', 'historique'));
@@ -299,9 +300,9 @@ class TacheController extends Controller
             'idTache' => $tache->idTache,
             'statut' => __('taches.history_statuses.done'),
             'titre' => $tache->titre,
-            'responsable' => auth()->user()->name ?? '',
-            'date_evenement' => $tache->dateD ?? now(),
+            'urgence' => $tache->type,
             'description' => __('taches.history_statuses.done_description'),
+            'modifie_par' => auth()->user()->idUtilisateur ?? null,
         ]);
 
         return response()->json(['success' => true]);
@@ -350,10 +351,10 @@ class TacheController extends Controller
         TacheHistorique::create([
             'idTache' => $tache->idTache,
             'statut' => __('taches.history_statuses.progress'),
-            'date_evenement' => now(),
             'titre' => $validated['titre'],
-            'responsable' => auth()->user()->name ?? '',
+            'urgence' => $tache->type,
             'description' => $validated['description'] ?? null,
+            'modifie_par' => auth()->user()->idUtilisateur ?? null,
         ]);
 
         if ($tache->etat !== "doing") {

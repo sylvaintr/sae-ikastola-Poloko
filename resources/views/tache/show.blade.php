@@ -63,9 +63,9 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-4 mb-5">
             <div>
                 <h1 class="fw-bold mb-1">{{ $tache->titre }}</h1>
-                <div class="text-muted small mb-2">
-                    <p class="text-uppercase mb-0">Lehentasuna : {{ $typeBadgeEU }}</p>
-                    <small class="text-muted d-block">Priorité : {{ $typeBadgeFR }}</small>
+                <div class="mb-2">
+                    <p class="text-uppercase mb-1 fs-5 fw-bold">Lehentasuna : {{ $typeBadgeEU }}</p>
+                    <p class="text-muted fs-6">Priorité : {{ $typeBadgeFR }}</p>
                 </div>
             </div>
             <div class="d-flex align-items-center">
@@ -148,7 +148,7 @@
                                         @endswitch
                                     </td>
 
-                                    <td>{{ $item->date_evenement?->format('d-m-Y') }}</td>
+                                    <td>{{ $item->created_at?->format('d/m/Y H:i') }}</td>
 
                                     <td class="text-muted">
                                         {{ $item->titre ?? '—' }}
@@ -166,7 +166,7 @@
                                             data-bs-toggle="modal"
                                             data-bs-target="#historiqueModal"
                                             data-statut="{{ $item->statut }}"
-                                            data-date="{{ $item->date_evenement?->format('d/m/Y') }}"
+                                            data-date="{{ $item->created_at?->format('d/m/Y H:i') }}"
                                             data-titre="{{ $item->titre }}"
                                             data-responsable="{{ $item->responsable }}"
                                             data-description="{{ $item->description }}"
