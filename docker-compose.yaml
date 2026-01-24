@@ -19,7 +19,7 @@ services:
     image: nginx:alpine
     container_name: laravel-nginx
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./:/var/www/html
       - /var/www/html/vendor
@@ -41,7 +41,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       TZ: Europe/Paris
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -54,6 +54,22 @@ services:
     ports:
       - "8025:8025"  
       - "1025:1025"  
+    networks:
+      - laravel
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: laravel-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: ikastola_user
+      PMA_PASSWORD: secret123
+    depends_on:
+      - mysql
     networks:
       - laravel
 
