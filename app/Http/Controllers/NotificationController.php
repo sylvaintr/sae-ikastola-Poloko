@@ -72,4 +72,48 @@ class NotificationController extends Controller
         return redirect()->route('admin.notifications.index')
                          ->with('success', 'Notification ajoutée avec succès !');
     }
+
+    public function edit($id)
+{
+    // 1. On trouve la règle
+    $setting = \App\Models\NotificationSetting::findOrFail($id);
+
+    // 2. On l'envoie à la vue 'edit'
+    return view('admin.notifications.edit', compact('setting'));
+}
+
+public function update(Request $request, $id)
+{
+    // Validation...
+    $setting = \App\Models\NotificationSetting::findOrFail($id);
+    
+    // Mise à jour (Simplifiée)
+    $setting->update([
+        'title' => $request->title,
+        'description' => $request->description,
+        'recurrence_days' => $request->recurrence_days,
+        'reminder_days' => $request->reminder_days,
+        'is_active' => $request->has('is_active'), // Checkbox handling
+        // On ne met à jour le module que si l'utilisateur en a choisi un nouveau
+        'target_type' => $request->module_type == 'Document' ? 'App\Models\DocumentObligatoire' : 'App\Models\Evenement',
+        'target_id' => $request->module_id,
+    ]);
+
+    return redirect()->route('admin.notifications.index')->with('success', 'Règle modifiée avec succès');
+}
+
+// Marquer une notification comme lue et rediriger
+    public function markAsRead($id)
+    {
+        $notification = auth()->user()->notifications()->where('id', $id)->first();
+
+        if ($notification) {
+            $notification->markAsRead(); // C'est ici que la magie opère !
+            
+            // On redirige vers l'URL stockée dans la notif (action_url)
+            return redirect($notification->data['action_url'] ?? '/');
+        }
+
+        return back();
+    }
 }

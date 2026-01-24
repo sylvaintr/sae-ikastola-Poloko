@@ -50,13 +50,59 @@
             <ul class="navbar-nav ms-auto mb-2 mb-sm-0 align-items-center">
                 @auth
                     <li class="nav-item dropdown me-3">
-                        <button class="nav-link d-flex align-items-center btn btn-link p-0" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0.5rem;" onkeydown="if(event.key==='Enter' || event.key===' ') { this.click(); }">
-                            <i class="bi bi-bell bell-icon"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" style="min-width: 300px;">
-                            <li class="dropdown-item text-muted">{{ __('No new notifications') }}</li>
-                        </ul>
-                    </li>
+    <button class="nav-link position-relative d-flex align-items-center btn btn-link p-0" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 0.5rem;">
+        {{-- L'ICONE CLOCHE EST ICI --}}
+        <i class="bi bi-bell bell-icon fs-5"></i>
+        
+        {{-- PASTILLE ROUGE (Si notifications > 0) --}}
+        @if(Auth::user()->unreadNotifications->count() > 0)
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                {{ Auth::user()->unreadNotifications->count() }}
+            </span>
+        @endif
+    </button>
+
+    {{-- LISTE DÉROULANTE --}}
+    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="notificationsDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
+        
+        <li class="dropdown-header fw-bold bg-light py-2">
+            Jakinarazpenak <small class="fw-normal text-muted">(Notifications)</small>
+        </li>
+
+        @forelse(Auth::user()->unreadNotifications as $notification)
+            <li>
+                <a class="dropdown-item py-3 border-bottom" href="{{ route('notifications.read', $notification->id) }}" style="white-space: normal;">
+                    <div class="d-flex align-items-start gap-2">
+                        {{-- Icône dynamique --}}
+                        @if(Str::contains($notification->data['title'] ?? '', 'Rappel'))
+                            <i class="bi bi-calendar-event text-success mt-1"></i>
+                        @else
+                            <i class="bi bi-file-earmark-text text-primary mt-1"></i>
+                        @endif
+                        
+                        <div class="w-100">
+                            <div class="fw-bold small text-dark">
+                                {{ $notification->data['title'] ?? 'Notification' }}
+                            </div>
+                            <div class="text-muted small mt-1">
+                                {{ $notification->data['message'] ?? '' }}
+                            </div>
+                            <div class="text-end text-muted mt-2" style="font-size: 0.7em;">
+                                {{ $notification->created_at->diffForHumans() }}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </li>
+        @empty
+            <li class="dropdown-item text-center text-muted py-4">
+                <i class="bi bi-bell-slash fs-3 d-block mb-2"></i>
+                Ez dago jakinarazpen berririk<br>
+                <small>(Aucune nouvelle notification)</small>
+            </li>
+        @endforelse
+    </ul>
+</li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-inline-flex align-items-center" href="#" id="userDropdown"
                             role="button" data-bs-toggle="dropdown" aria-expanded="false">
