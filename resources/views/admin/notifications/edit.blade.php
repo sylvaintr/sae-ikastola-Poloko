@@ -3,24 +3,23 @@
         <div class="mb-5">
             {{-- HEADER BILINGUE --}}
             <h2 class="fw-bold mb-0">
-                {{ __('notifications.create_header', [], 'eus') }}
+                {{ __('notifications.edit_header', [], 'eus') }}
             </h2>
-            @if(app()->getLocale() == 'fr')
-                <small class="text-muted">
-                    {{ __('notifications.create_subtitle', [], 'fr') }}
-                </small>
-            @else
-                <small class="text-muted">
-                    {{ __('notifications.create_subtitle', [], 'eus') }}
-                </small>
-            @endif
+            <small class="text-muted">
+                {{ __('notifications.edit_subtitle', [], 'eus') }} {{ $setting->title }}
+                @if(app()->getLocale() == 'fr')
+                    <span class="ms-1 fst-italic">({{ __('notifications.edit_subtitle', [], 'fr') }} {{ $setting->title }})</span>
+                @endif
+            </small>
         </div>
 
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
                 
-                <form method="POST" action="{{ route('admin.notifications.store') }}" class="admin-form" id="notification-form">
+                {{-- FORMULAIRE D'ÉDITION --}}
+                <form method="POST" action="{{ route('admin.notifications.update', $setting->id) }}" class="admin-form" id="notification-form">
                     @csrf
+                    @method('PUT') {{-- Indispensable pour la modification --}}
 
                     {{-- Section 1 : Paramètres Généraux --}}
                     <div class="row g-4 mb-4 align-items-end">
@@ -34,7 +33,7 @@
                                 @endif
                             </label>
                             <input type="text" id="title" name="title" class="form-control" 
-                                   placeholder="{{ __('notifications.form_title_placeholder') }}" required>
+                                   value="{{ old('title', $setting->title) }}" required>
                         </div>
 
                         {{-- RÉCURRENCE --}}
@@ -46,7 +45,7 @@
                                 @endif
                             </label>
                             <input type="number" id="recurrence" name="recurrence_days" class="form-control" 
-                                   placeholder="{{ __('notifications.form_recurrence_placeholder') }}">
+                                   value="{{ old('recurrence_days', $setting->recurrence_days) }}">
                         </div>
 
                         {{-- RAPPEL --}}
@@ -58,7 +57,7 @@
                                 @endif
                             </label>
                             <input type="number" id="reminder" name="reminder_days" class="form-control" 
-                                   placeholder="{{ __('notifications.form_reminder_placeholder') }}" required>
+                                   value="{{ old('reminder_days', $setting->reminder_days) }}" required>
                         </div>
 
                         {{-- ACTIVÉ --}}
@@ -70,7 +69,8 @@
                                 @endif
                             </label>
                             <div class="form-check form-switch d-flex justify-content-center">
-                                <input class="form-check-input" type="checkbox" id="isActive" name="is_active" checked 
+                                <input class="form-check-input" type="checkbox" id="isActive" name="is_active" 
+                                       {{ $setting->is_active ? 'checked' : '' }}
                                        style="width: 3rem; height: 1.5rem; cursor: pointer;">
                             </div>
                         </div>
@@ -84,8 +84,7 @@
                                 <span class="text-muted small fw-normal ms-1">({{ __('notifications.form_description', [], 'fr') }})</span>
                             @endif
                         </label>
-                        <textarea id="description" name="description" class="form-control" rows="3" style="resize: none;" 
-                                  placeholder="{{ __('notifications.form_description_placeholder') }}"></textarea>
+                        <textarea id="description" name="description" class="form-control" rows="3" style="resize: none;">{{ old('description', $setting->description) }}</textarea>
                     </div>
 
                     <hr class="text-muted my-4">
@@ -103,26 +102,21 @@
                     </div>
 
                     <div class="row g-4">
-                        {{-- Colonne Gauche : Les Boutons de Choix --}}
+                        {{-- Colonne Gauche : Les Boutons --}}
                         <div class="col-md-6">
-                            <input type="text" id="module-search" class="form-control mb-3" 
-                                   placeholder="{{ __('notifications.search_placeholder') }}" style="display:none;">
-                            
                             <div id="available-modules" class="border rounded p-2 bg-white" style="height: auto; min-height: 200px;">
                                 
                                 {{-- BOUTON 1 : DOCUMENTS --}}
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-3 border rounded bg-white shadow-sm" 
                                      data-id="0" 
                                      data-type="Document" 
+                                     data-db-type="App\Models\DocumentObligatoire"
                                      data-name="{{ __('notifications.module_doc_title', [], 'eus') }}" 
                                      style="cursor: pointer; transition: 0.2s;">
                                     <div>
-                                        {{-- Titre Basque --}}
                                         <span class="fw-bold d-block text-primary">
                                             {{ __('notifications.module_doc_title', [], 'eus') }}
                                         </span>
-                                        
-                                        {{-- Description bilingue --}}
                                         <small class="text-muted">
                                             {{ __('notifications.module_doc_desc', [], 'eus') }}
                                             @if(app()->getLocale() == 'fr')
@@ -137,15 +131,13 @@
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm" 
                                      data-id="0" 
                                      data-type="Evènement" 
+                                     data-db-type="App\Models\Evenement"
                                      data-name="{{ __('notifications.module_event_title', [], 'eus') }}" 
                                      style="cursor: pointer; transition: 0.2s;">
                                     <div>
-                                        {{-- Titre Basque --}}
                                         <span class="fw-bold d-block text-success">
                                             {{ __('notifications.module_event_title', [], 'eus') }}
                                         </span>
-                                        
-                                        {{-- Description bilingue --}}
                                         <small class="text-muted">
                                             {{ __('notifications.module_event_desc', [], 'eus') }}
                                             @if(app()->getLocale() == 'fr')
@@ -159,7 +151,7 @@
                             </div>
                         </div>
 
-                        {{-- Colonne Droite : Le Résultat Sélectionné --}}
+                        {{-- Colonne Droite : Sélection --}}
                         <div class="col-md-6">
                             <div class="d-flex justify-content-between mb-3">
                                 <span class="text-muted small">
@@ -192,9 +184,9 @@
                             @endif
                         </a>
                         <button type="submit" class="btn text-white px-4 fw-bold" style="background-color: #F59E0B;">
-                            {{ __('notifications.btn_save', [], 'eus') }}
+                            {{ __('notifications.btn_update', [], 'eus') }}
                             @if(app()->getLocale() == 'fr')
-                                <span class="fw-normal ms-1" style="font-size: 0.8em; opacity: 0.9;">({{ __('notifications.btn_save', [], 'fr') }})</span>
+                                <span class="fw-normal ms-1" style="font-size: 0.8em; opacity: 0.9;">({{ __('notifications.btn_update', [], 'fr') }})</span>
                             @endif
                         </button>
                     </div>
@@ -207,104 +199,69 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // -- STYLE CSS INTERNE --
+            // -- DONNÉES ACTUELLES --
+            const currentTargetId = "{{ $setting->target_id }}";
+            const currentTargetType = "{{ $setting->target_type }}";
+
+            // -- STYLE CSS --
             const style = document.createElement('style');
             style.innerHTML = `
-                .form-check-input:checked {
-                    background-color: #F59E0B;
-                    border-color: #F59E0B;
-                }
-                .module-item:hover {
-                    background-color: #f8f9fa !important;
-                    transform: translateX(5px);
-                }
-                .module-selected-item {
-                    background-color: #F59E0B;
-                    color: white;
-                    width: 100%;
-                }
+                .form-check-input:checked { background-color: #F59E0B; border-color: #F59E0B; }
+                .module-item:hover { background-color: #f8f9fa !important; transform: translateX(5px); }
+                .module-selected-item { background-color: #F59E0B; color: white; width: 100%; }
             `;
             document.head.appendChild(style);
 
-            // -- LOGIQUE JAVASCRIPT --
+            // -- LOGIQUE JS --
             const availableContainer = document.getElementById('available-modules');
             const selectedContainer = document.getElementById('selected-modules-container');
             const hiddenInputsContainer = document.getElementById('hidden-inputs-container');
             
-            // 1. GESTION DU CLIC (AJOUT)
+            // 1. GESTION DU CLIC
             availableContainer.addEventListener('click', function(e) {
                 const item = e.target.closest('.module-item');
                 if (!item) return;
-
-                const id = item.dataset.id;
-                const type = item.dataset.type;
-                const name = item.dataset.name; // Prend le nom Basque défini dans le HTML
-
-                addModule(id, type, name, item);
+                addModule(item.dataset.id, item.dataset.type, item.dataset.name, item);
             });
 
-            // 2. FONCTION POUR AJOUTER
+            // 2. AJOUT MODULE
             function addModule(id, type, name, originalItem) {
                 clearSelection();
-
-                // Masquer à gauche
                 originalItem.style.display = 'none';
                 originalItem.classList.remove('d-flex');
-
-                // Vider le message "Vide"
                 selectedContainer.innerHTML = '';
                 selectedContainer.style.display = 'block';
 
-                // Créer l'élément visuel à droite
                 const selectedItem = document.createElement('div');
                 selectedItem.className = 'module-selected-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded shadow-sm';
-                selectedItem.dataset.originId = id;
-                selectedItem.dataset.originType = type;
-                
                 selectedItem.innerHTML = `
-                    <div>
-                        <span class="fw-bold d-block">${name}</span>
-                        <small style="opacity: 0.8;">Type: ${type}</small>
-                    </div>
+                    <div><span class="fw-bold d-block">${name}</span><small style="opacity: 0.8;">Type: ${type}</small></div>
                     <i class="bi bi-x-circle-fill fs-4 text-white" style="cursor: pointer;"></i>
                 `;
 
-                // Suppression au clic sur la croix
                 selectedItem.querySelector('.bi-x-circle-fill').addEventListener('click', function() {
                     removeModule(selectedItem, originalItem);
                 });
 
                 selectedContainer.appendChild(selectedItem);
 
-                // --- CRÉATION DES INPUTS POUR LE CONTROLLER ---
                 const inputId = document.createElement('input');
-                inputId.type = 'hidden';
-                inputId.name = 'module_id'; 
-                inputId.value = id;
+                inputId.type = 'hidden'; inputId.name = 'module_id'; inputId.value = id;
                 hiddenInputsContainer.appendChild(inputId);
 
                 const inputType = document.createElement('input');
-                inputType.type = 'hidden';
-                inputType.name = 'module_type';
-                inputType.value = type;
+                inputType.type = 'hidden'; inputType.name = 'module_type'; inputType.value = type;
                 hiddenInputsContainer.appendChild(inputType);
             }
 
-            // 3. FONCTION POUR RETIRER
+            // 3. RETIRER MODULE
             function removeModule(selectedItem, originalItem) {
                 selectedItem.remove();
-
-                // Réafficher le bouton à gauche
                 originalItem.style.display = null;
                 originalItem.classList.add('d-flex');
-
-                // Vider les inputs cachés
                 hiddenInputsContainer.innerHTML = '';
-
-                // Remettre le message vide (Bilingue via JS est compliqué, on remet le défaut ou on clone)
-                // Solution simple : Recharger le contenu HTML initial du container vide s'il était stocké
-                // Ou remettre le texte basque par défaut :
                 selectedContainer.style.display = 'flex';
+                // On remet le message vide par défaut (en Basque)
                 selectedContainer.innerHTML = `
                     <div class="module-list-empty-message text-muted text-center">
                         <i class="bi bi-arrow-left me-2"></i> 
@@ -312,13 +269,18 @@
                     </div>`;
             }
 
-            // 4. FONCTION POUR VIDER
             function clearSelection() {
                 const existingItems = selectedContainer.querySelectorAll('.module-selected-item');
-                existingItems.forEach(item => {
-                    item.querySelector('.bi-x-circle-fill').click();
-                });
+                existingItems.forEach(item => item.querySelector('.bi-x-circle-fill').click());
             }
+
+            // --- AUTO-INITIALISATION (Edit) ---
+            const items = document.querySelectorAll('.module-item');
+            items.forEach(item => {
+                if (item.dataset.id == currentTargetId && item.dataset.dbType == currentTargetType) {
+                    addModule(item.dataset.id, item.dataset.type, item.dataset.name, item);
+                }
+            });
         });
     </script>
     @endpush

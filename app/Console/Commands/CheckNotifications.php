@@ -4,17 +4,23 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\NotificationSetting;
-use App\Models\Utilisateur; // Ton modèle Utilisateur
-use App\Notifications\SendNotification;
+use App\Models\Utilisateur;
 use App\Models\Evenement;
 use App\Models\DocumentObligatoire;
-use App\Models\Fichier; 
+use App\Notifications\SendNotification;
 use Carbon\Carbon;
 
 class CheckNotifications extends Command
 {
+    /**
+     * Le nom de la commande à taper dans le terminal.
+     */
     protected $signature = 'notifications:check';
-    protected $description = 'Vérifie les règles globales et envoie les notifications (avec Récurrence et Rappel)';
+
+    /**
+     * Description de la commande.
+     */
+    protected $description = 'Vérifie les événements (rappels) et les documents obligatoires (manquants + récurrence)';
 
     public function handle()
     {
@@ -35,13 +41,13 @@ class CheckNotifications extends Command
             // ====================================================
             if ($rule->target_type === 'App\Models\Evenement' && $rule->target_id == 0) {
                 
-                $this->info("Règle Événements : {$rule->title} (Rappel à J-{$rule->reminder_days})");
+                $this->info("Traitement Règle Événements : {$rule->title} (Rappel à J-{$rule->reminder_days})");
 
                 // On cherche les événements futurs
                 $events = Evenement::where('dateE', '>=', now())->get();
 
                 foreach ($events as $event) {
-                    // CALCUL DU RAPPEL : Date Event - Jours de rappel
+                    // Calcul : Date de l'event MOINS le délai de rappel
                     $dateRappel = Carbon::parse($event->dateE)->subDays($rule->reminder_days);
 
                     // On compare strictement à la date d'aujourd'hui
@@ -49,6 +55,7 @@ class CheckNotifications extends Command
                         
                         $this->info(" -> BINGO ! C'est le jour du rappel pour : {$event->titre}");
 
+                        // On envoie à tous les utilisateurs (ou filtre si nécessaire)
                         $users = Utilisateur::all(); 
 
                         foreach ($users as $user) {
@@ -64,58 +71,67 @@ class CheckNotifications extends Command
             }
 
             // ====================================================
-            // CAS 2 : DOCUMENTS (Logique de "Récurrence" / Anti-Spam)
+            // CAS 2 : DOCUMENTS OBLIGATOIRES (Logique de "Récurrence" / Manquants)
             // ====================================================
             elseif ($rule->target_type === 'App\Models\DocumentObligatoire' && $rule->target_id == 0) {
                 
-                $this->info("Règle Documents : {$rule->title} (Récurrence : {$rule->recurrence_days} jours)");
+                $this->info("Traitement Règle Documents : {$rule->title} (Récurrence : {$rule->recurrence_days} jours)");
 
+                // On récupère les documents obligatoires avec leurs rôles cibles
                 $allDocs = DocumentObligatoire::with('roles')->get();
 
                 foreach ($allDocs as $doc) {
-                    // Récupération des rôles concernés
-                    $rolesIds = $doc->roles->pluck('id_role');
+                    
+                    // 1. Récupérer les IDs des rôles concernés (table Role -> idRole)
+                    $rolesIds = $doc->roles->pluck('idRole');
+                    
                     if ($rolesIds->isEmpty()) continue;
 
-                    // Récupération des utilisateurs concernés
-                    $usersCibles = Utilisateur::whereIn('id_role', $rolesIds)->get();
+                    // 2. RÉCUPÉRATION DES UTILISATEURS (CORRIGÉ)
+                    // On utilise 'rolesCustom' (défini dans ton Utilisateur.php) pour passer par la table 'avoir'
+                    // On filtre sur 'role.idRole'
+                    $usersCibles = Utilisateur::whereHas('rolesCustom', function($query) use ($rolesIds) {
+                        $query->whereIn('role.idRole', $rolesIds); 
+                    })->get();
 
                     foreach ($usersCibles as $user) {
                         
-                        // A. VÉRIFICATION : Le fichier existe-t-il ?
-                        $aDepose = Fichier::where('idUser', $user->id)
-                                    ->where('idDocumentObligatoire', $doc->idDocumentObligatoire)
-                                    ->exists();
+                        // 3. VÉRIFICATION : L'utilisateur a-t-il rendu le document ?
+                        // PROBLÈME ACTUEL : Pas de liaison ID entre Document et DocumentObligatoire.
+                        // SOLUTION TEMPORAIRE : On compare les NOMS.
+                        
+                        $aDepose = $user->documents()
+                                        // ⚠️ VÉRIFIE ICI : Est-ce que la colonne s'appelle 'nom' ou 'titre' dans ta table 'document' ?
+                                        ->where('nom', $doc->nom) 
+                                        ->exists();
 
                         if (!$aDepose) {
-                            // IL MANQUE LE DOCUMENT !
+                            // --- IL MANQUE LE DOCUMENT ! ---
 
-                            // B. ANTI-SPAM (Gestion de la Récurrence)
-                            // Si une récurrence est définie (ex: 5 jours), on vérifie la dernière alerte.
+                            // 4. ANTI-SPAM (Gestion de la Récurrence)
                             if ($rule->recurrence_days > 0) {
-                                
-                                // On cherche la dernière notif envoyée à CE user pour CE document
+                                // On cherche la dernière notification envoyée pour ce document précis
                                 $lastNotif = $user->notifications()
                                                   ->where('data->title', "Document manquant : {$doc->nom}")
-                                                  ->latest()
+                                                  ->latest() // La plus récente
                                                   ->first();
 
                                 if ($lastNotif) {
-                                    // Date Prochaine Alerte = Date Dernière Notif + Jours Récurrence
+                                    // On calcule la date de la prochaine alerte autorisée
                                     $nextAlertDate = $lastNotif->created_at->addDays($rule->recurrence_days);
-
-                                    // Si on est encore AVANT la date prévue, on ne fait rien
+                                    
+                                    // Si on est aujourd'hui (now) et que c'est encore trop tôt (< nextAlertDate)
                                     if (now()->lessThan($nextAlertDate)) {
-                                        // On passe au user suivant, c'est trop tôt pour le relancer
+                                        // On saute cet utilisateur, on ne le spamme pas
                                         continue; 
                                     }
                                 }
                             }
 
-                            // C. ENVOI DE LA NOTIFICATION
+                            // 5. ENVOI DE LA NOTIFICATION
                             $user->notify(new SendNotification([
                                 'title' => "Document manquant : {$doc->nom}",
-                                'message' => "Merci de déposer le document requis.",
+                                'message' => "Merci de déposer le document requis : {$doc->nom}.",
                                 'action_url' => url('/documents'),
                             ]));
                             

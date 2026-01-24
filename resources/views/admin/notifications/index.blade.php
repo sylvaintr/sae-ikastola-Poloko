@@ -2,15 +2,35 @@
     <div class="container py-5">
         
         <div class="d-flex justify-content-between align-items-center mb-5">
+            {{-- TITRE --}}
             <div>
-                <h2 class="fw-bold mb-0">Jakinarazpenak</h2>
-                <small class="text-muted">Notifications</small>
+                {{-- 1. Le titre en Basque (Toujours visible) --}}
+                <h2 class="fw-bold mb-0">
+                    {{ __('notifications.title', [], 'eus') }}
+                </h2>
+                
+                {{-- 2. Le sous-titre en Français (Visible SEULEMENT si le site est en mode 'fr') --}}
+                @if(app()->getLocale() == 'fr')
+                    <small class="text-muted">
+                        {{ __('notifications.title', [], 'fr') }}
+                    </small>
+                @endif
             </div>
+
+            {{-- BOUTON AJOUTER --}}
             <div class="d-flex justify-content-end gap-3 mt-5">
-                        <a href="{{ route('admin.notifications.create') }}" class="btn text-white px-4 fw-bold" style="background-color: #F59E0B;">Ajouter</a>
-                     
-                    </div>
-            
+                <a href="{{ route('admin.notifications.create') }}" class="btn text-white px-4 fw-bold" style="background-color: #F59E0B;">
+                    {{-- Toujours Basque --}}
+                    {{ __('notifications.add', [], 'eus') }}
+                    
+                    {{-- Français si activé --}}
+                    @if(app()->getLocale() == 'fr')
+                        <span class="fw-normal" style="font-size: 0.8em; opacity: 0.9;">
+                            ({{ __('notifications.add', [], 'fr') }})
+                        </span>
+                    @endif
+                </a>
+            </div>
         </div>
 
         <div class="card border-0 shadow-sm">
@@ -19,26 +39,60 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
+                                {{-- COLONNE TITRE --}}
                                 <th class="ps-4 py-3" style="width: 25%;">
-                                    Izenburua <div class="text-muted small fw-normal">Titre</div>
+                                    {{ __('notifications.table_title', [], 'eus') }}
+                                    @if(app()->getLocale() == 'fr')
+                                        <div class="text-muted small fw-normal">{{ __('notifications.table_title', [], 'fr') }}</div>
+                                    @endif
                                 </th>
+
+                                {{-- COLONNE MODULE --}}
                                 <th style="width: 15%;">
-                                    Modulua <div class="text-muted small fw-normal">Module</div>
+                                    {{ __('notifications.table_module', [], 'eus') }}
+                                    @if(app()->getLocale() == 'fr')
+                                        <div class="text-muted small fw-normal">{{ __('notifications.table_module', [], 'fr') }}</div>
+                                    @endif
                                 </th>
+
+                                {{-- COLONNE DESCRIPTION --}}
                                 <th style="width: 25%;">
-                                    Deskribapena <div class="text-muted small fw-normal">Description</div>
+                                    {{ __('notifications.table_description', [], 'eus') }}
+                                    @if(app()->getLocale() == 'fr')
+                                        <div class="text-muted small fw-normal">{{ __('notifications.table_description', [], 'fr') }}</div>
+                                    @endif
                                 </th>
+
+                                {{-- COLONNE RÉCURRENCE --}}
                                 <th class="text-center" style="width: 10%;">
-                                    Errepikatzea <div class="text-muted small fw-normal">Récurrence</div>
+                                    {{ __('notifications.table_recurrence', [], 'eus') }}
+                                    @if(app()->getLocale() == 'fr')
+                                        <div class="text-muted small fw-normal">{{ __('notifications.table_recurrence', [], 'fr') }}</div>
+                                    @endif
                                 </th>
+
+                                {{-- COLONNE RAPPEL --}}
                                 <th class="text-center" style="width: 10%;">
-                                    Oroigarria <div class="text-muted small fw-normal">Rappel</div>
+                                    {{ __('notifications.table_reminder', [], 'eus') }}
+                                    @if(app()->getLocale() == 'fr')
+                                        <div class="text-muted small fw-normal">{{ __('notifications.table_reminder', [], 'fr') }}</div>
+                                    @endif
                                 </th>
+
+                                {{-- COLONNE ACTIVÉ --}}
                                 <th class="text-center" style="width: 5%;">
-                                    Gaituta <div class="text-muted small fw-normal">Activé</div>
+                                    {{ __('notifications.table_active', [], 'eus') }}
+                                    @if(app()->getLocale() == 'fr')
+                                        <div class="text-muted small fw-normal">{{ __('notifications.table_active', [], 'fr') }}</div>
+                                    @endif
                                 </th>
+
+                                {{-- COLONNE ACTIONS --}}
                                 <th class="text-end pe-4" style="width: 10%;">
-                                    Ekintzak <div class="text-muted small fw-normal">Actions</div>
+                                    {{ __('notifications.table_actions', [], 'eus') }}
+                                    @if(app()->getLocale() == 'fr')
+                                        <div class="text-muted small fw-normal">{{ __('notifications.table_actions', [], 'fr') }}</div>
+                                    @endif
                                 </th>
                             </tr>
                         </thead>
@@ -61,14 +115,15 @@
 
                                 <td class="text-center">
                                     @if($setting->recurrence_days)
-                                        {{ $setting->recurrence_days }} jours
+                                        {{-- Ici on affiche le mot "jours" dans la langue active --}}
+                                        {{ $setting->recurrence_days }} {{ __('notifications.days') }}
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
                                 </td>
 
                                 <td class="text-center fw-bold">
-                                    {{ $setting->reminder_days }} jours
+                                    {{ $setting->reminder_days }} {{ __('notifications.days') }}
                                 </td>
 
                                 <td class="text-center">
@@ -81,10 +136,7 @@
 
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-3">
-                                        <a href="#" class="text-dark">
-                                            <i class="bi bi-eye fs-5"></i>
-                                        </a>
-                                        <a href="#" class="text-dark">
+                                        <a href="{{ route('admin.notifications.edit', $setting->id) }}" class="text-dark">
                                             <i class="bi bi-pencil-fill fs-6"></i>
                                         </a>
                                     </div>
@@ -94,7 +146,10 @@
                             <tr>
                                 <td colspan="7" class="text-center py-5 text-muted">
                                     <i class="bi bi-bell-slash fs-1 d-block mb-3"></i>
-                                    Aucune règle de notification configurée.
+                                    {{ __('notifications.empty', [], 'eus') }}
+                                    @if(app()->getLocale() == 'fr')
+                                        <br><small>{{ __('notifications.empty', [], 'fr') }}</small>
+                                    @endif
                                 </td>
                             </tr>
                             @endforelse

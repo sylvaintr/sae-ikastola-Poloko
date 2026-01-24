@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/document', [ProfileController::class, 'uploadDocument'])->name('profile.document.upload');
     Route::get('/profile/document/{document}/download', [ProfileController::class, 'downloadDocument'])->name('profile.document.download');
     Route::delete('/profile/document/{document}', [ProfileController::class, 'deleteDocument'])->name('profile.document.delete');
+    Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
     // ---------------- Gestion Demandes ----------------
     Route::middleware('can:access-demande')
@@ -174,6 +175,18 @@ Route::middleware(['auth'])->group(function () {
    
     Route::post('/admin/notifications', [NotificationController::class, 'store'])
          ->name('admin.notifications.store');
+
+   // --- CORRECTION ICI ---
+
+    // 3. Modification : Afficher le formulaire (GET)
+    // IMPORTANT : Ajoute '/edit' à la fin de l'URL
+    Route::get('/admin/notifications/{id}/edit', [NotificationController::class, 'edit'])
+         ->name('admin.notifications.edit');
+
+    // 4. Modification : Enregistrer les changements (PUT)
+    // C'est cette route que ton formulaire vise avec @method('PUT')
+    Route::put('/admin/notifications/{id}', [NotificationController::class, 'update'])
+         ->name('admin.notifications.update');
 
 });
 
