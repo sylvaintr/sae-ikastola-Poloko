@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Evenement;
 
 
 /**
@@ -57,5 +58,13 @@ class Role extends \Spatie\Permission\Models\Role
 	public function etiquettes()
 	{
 		return $this->belongsToMany(Etiquette::class, 'posseder', 'idRole', 'idEtiquette')->using(Posseder::class);
+	}
+
+	/**
+	 * Relation belongsToMany vers les événements associés à ce rôle via la table pivot `evenement_role`.
+	 */
+	public function evenements()
+	{
+		return $this->belongsToMany(Evenement::class, 'evenement_role', 'idRole', 'idEvenement');
 	}
 }

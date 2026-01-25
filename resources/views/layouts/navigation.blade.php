@@ -32,7 +32,7 @@
                 @endcan
                 @can('access-evenement')
                     <li class="nav-item">
-                        <x-nav-link href="/evenement" :active="request()->is('evenement*')" class="nav-link">{{ __('nav.evenement') }}</x-nav-link>
+                        <x-nav-link href="/evenements" :active="request()->is('evenement*')" class="nav-link">{{ __('nav.evenement') }}</x-nav-link>
                     </li>
                 @endcan
                 @can('access-calendrier')

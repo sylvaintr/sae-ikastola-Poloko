@@ -1,0 +1,110 @@
+/* =========================
+   FullCalendar – thème du site (scopé)
+   Couleurs: primaire #f29201 / hover #d67c00
+   ========================= */
+
+.calendrier-page .fc {
+    font-family:
+        system-ui,
+        -apple-system,
+        'Segoe UI',
+        Arial,
+        sans-serif;
+
+    /* Variables FullCalendar (v6) */
+    --fc-border-color: rgba(0, 0, 0, 0.08);
+    --fc-page-bg-color: transparent;
+
+    /* Toolbar buttons (aligné sur .demande-btn-primary) */
+    --fc-button-bg-color: #f29201;
+    --fc-button-border-color: #f29201;
+    --fc-button-text-color: #ffffff;
+
+    --fc-button-hover-bg-color: #d67c00;
+    --fc-button-hover-border-color: #d67c00;
+
+    --fc-button-active-bg-color: #d67c00;
+    --fc-button-active-border-color: #d67c00;
+
+    /* Aujourd’hui */
+    --fc-today-bg-color: rgba(242, 146, 1, 0.1);
+
+    /* Events (pill orange comme le thème) */
+    --fc-event-bg-color: #f29201;
+    --fc-event-border-color: #f29201;
+    --fc-event-text-color: #ffffff;
+
+    --fc-link-color: #f29201;
+}
+
+/* Conteneur du calendrier : arrondis + overflow */
+.calendrier-page .fc .fc-scrollgrid,
+.calendrier-page .fc .fc-scrollgrid table {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Titre toolbar cohérent */
+.calendrier-page .fc .fc-toolbar-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111;
+}
+
+/* Boutons FullCalendar*/
+.calendrier-page .fc .fc-button {
+    border-radius: 8px;
+    font-weight: 700;
+    border-width: 2px;
+    padding: 0.55rem 0.9rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* Boutons désactivés (évite l’effet “fade moche”) */
+.calendrier-page .fc .fc-button:disabled {
+    opacity: 0.5;
+    box-shadow: none;
+}
+
+/* Liens / numéros de jours */
+.calendrier-page .fc .fc-col-header-cell-cushion,
+.calendrier-page .fc .fc-daygrid-day-number {
+    color: #000;
+    text-decoration: none;
+}
+
+.calendrier-page .fc .fc-daygrid-day-number {
+    opacity: 0.75;
+}
+
+/* Events “pill”*/
+.calendrier-page .fc .fc-daygrid-event,
+.calendrier-page .fc .fc-timegrid-event {
+    border-radius: 10px;
+    padding: 2px 8px;
+    border-width: 0;
+}
+
+/* Améliore la lisibilité du texte dans l’événement */
+.calendrier-page .fc .fc-event-title,
+.calendrier-page .fc .fc-event-time {
+    font-weight: 700;
+}
+
+/* Hover doux */
+.calendrier-page .fc .fc-event:hover {
+    filter: brightness(0.96);
+}
+
+/* Highlight sélection (drag select) s*/
+.calendrier-page .fc .fc-highlight {
+    background: rgba(242, 146, 1, 0.15);
+}
+
+/* Week view : ligne "now" plus cohérente */
+.calendrier-page .fc .fc-timegrid-now-indicator-line {
+    border-color: #f29201;
+}
+.calendrier-page .fc .fc-timegrid-now-indicator-arrow {
+    border-color: #f29201;
+}
