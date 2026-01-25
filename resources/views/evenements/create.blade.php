@@ -22,24 +22,64 @@
                             @enderror
                         </div>
 
+                        <div class="col-12">
+                            <div class="form-check mb-3">
+                                <input type="checkbox" class="form-check-input" id="all_day" name="all_day"
+                                    {{ old('all_day') ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold" for="all_day">Journée entière</label>
+                            </div>
+                        </div>
+
                         <div class="col-md-6">
-                            <label for="start_at" class="form-label fw-semibold">Début</label>
-                            <input id="start_at" name="start_at" type="datetime-local"
-                                class="form-control @error('start_at') is-invalid @enderror"
-                                value="{{ old('start_at') }}" required>
+                            <label for="start_date" class="form-label fw-semibold">Date de début</label>
+                            <input id="start_date" name="start_date" type="date"
+                                class="form-control @error('start_date') is-invalid @enderror @error('start_at') is-invalid @enderror"
+                                value="{{ old('start_date') }}" required>
+                            @error('start_date')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                             @error('start_at')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
+                        <div class="col-md-6" id="start_time_container">
+                            <label for="start_time" class="form-label fw-semibold">Heure de début</label>
+                            <input id="start_time" name="start_time" type="time"
+                                class="form-control @error('start_time') is-invalid @enderror"
+                                value="{{ old('start_time', '09:00') }}">
+                            @error('start_time')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <div class="col-md-6">
-                            <label for="end_at" class="form-label fw-semibold">Fin</label>
-                            <input id="end_at" name="end_at" type="datetime-local"
-                                class="form-control @error('end_at') is-invalid @enderror" value="{{ old('end_at') }}">
+                            <label for="end_date" class="form-label fw-semibold">Date de fin</label>
+                            <input id="end_date" name="end_date" type="date"
+                                class="form-control @error('end_date') is-invalid @enderror @error('end_at') is-invalid @enderror"
+                                value="{{ old('end_date') }}">
+                            <small class="text-muted">Laissez vide si l'événement se termine le même jour</small>
+                            @error('end_date')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                             @error('end_at')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <div class="col-md-6" id="end_time_container">
+                            <label for="end_time" class="form-label fw-semibold">Heure de fin</label>
+                            <input id="end_time" name="end_time" type="time"
+                                class="form-control @error('end_time') is-invalid @enderror"
+                                value="{{ old('end_time', '18:00') }}">
+                            @error('end_time')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Champs cachés pour soumettre start_at et end_at --}}
+                        <input type="hidden" id="start_at" name="start_at" value="{{ old('start_at') }}">
+                        <input type="hidden" id="end_at" name="end_at" value="{{ old('end_at') }}">
 
                         <div class="col-12">
                             <label for="description" class="form-label fw-semibold">Description</label>
@@ -125,6 +165,52 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+                // Gestion des champs date/heure
+                const allDayCheckbox = document.getElementById('all_day');
+                const startTimeContainer = document.getElementById('start_time_container');
+                const endTimeContainer = document.getElementById('end_time_container');
+                const startDateInput = document.getElementById('start_date');
+                const startTimeInput = document.getElementById('start_time');
+                const endDateInput = document.getElementById('end_date');
+                const endTimeInput = document.getElementById('end_time');
+                const startAtHidden = document.getElementById('start_at');
+                const endAtHidden = document.getElementById('end_at');
+                const form = document.querySelector('form');
+
+                function toggleTimeFields() {
+                    if (allDayCheckbox.checked) {
+                        startTimeContainer.classList.add('d-none');
+                        endTimeContainer.classList.add('d-none');
+                    } else {
+                        startTimeContainer.classList.remove('d-none');
+                        endTimeContainer.classList.remove('d-none');
+                    }
+                }
+
+                function updateHiddenFields() {
+                    const startDate = startDateInput.value;
+                    const endDate = endDateInput.value || startDate;
+
+                    if (allDayCheckbox.checked) {
+                        startAtHidden.value = startDate ? `${startDate}T00:00` : '';
+                        endAtHidden.value = endDate ? `${endDate}T23:59` : '';
+                    } else {
+                        const startTime = startTimeInput.value || '00:00';
+                        const endTime = endTimeInput.value || '23:59';
+                        startAtHidden.value = startDate ? `${startDate}T${startTime}` : '';
+                        endAtHidden.value = endDate ? `${endDate}T${endTime}` : '';
+                    }
+                }
+
+                allDayCheckbox.addEventListener('change', toggleTimeFields);
+                startDateInput.addEventListener('change', updateHiddenFields);
+                startTimeInput.addEventListener('change', updateHiddenFields);
+                endDateInput.addEventListener('change', updateHiddenFields);
+                endTimeInput.addEventListener('change', updateHiddenFields);
+
+                // Initialisation
+                toggleTimeFields();
+
                 const roleSearch = document.getElementById('role-search');
                 const availableRoles = document.getElementById('available-roles');
                 const selectedRoles = document.getElementById('selected-roles');
@@ -135,7 +221,6 @@
                     $roles->map(function ($r) {
                             return ['idRole' => $r->idRole, 'name' => $r->name];
                         })->values());
-                const form = document.querySelector('form');
 
                 // Normaliser une chaîne en supprimant les accents
                 function normalizeString(str) {
@@ -320,6 +405,9 @@
 
                 // Validation du formulaire
                 form.addEventListener('submit', function(e) {
+                    // Mettre à jour les champs cachés avant soumission
+                    updateHiddenFields();
+
                     if (selectedRoleIds.size === 0) {
                         e.preventDefault();
                         rolesError.classList.remove('d-none');

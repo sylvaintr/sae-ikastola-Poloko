@@ -27,6 +27,19 @@ document.addEventListener('DOMContentLoaded', () => {
         firstDay: 1,
         nowIndicator: true,
 
+        // Affichage des événements - ne pas afficher l'heure dans le titre
+        displayEventTime: false,
+        eventDisplay: 'block',
+
+        // Couleurs et styles des événements
+        eventBackgroundColor: '#3788d8',
+        eventBorderColor: '#2c6cb0',
+        eventTextColor: '#ffffff',
+
+        // Limiter l'affichage et ajouter "+X autres" si trop d'événements
+        dayMaxEvents: 3,
+        moreLinkText: 'autres',
+
         // Sélection (si tu veux créer plus tard via un modal)
         selectable: true,
 
@@ -41,6 +54,19 @@ document.addEventListener('DOMContentLoaded', () => {
         eventDurationEditable: false,
 
         events: eventsUrl,
+
+        // Personnaliser l'affichage des événements
+        eventDidMount: function(info) {
+            // Ajouter un tooltip avec le titre complet
+            info.el.setAttribute('title', info.event.title);
+
+            // Ajouter une classe pour les événements obligatoires
+            if (info.event.extendedProps?.obligatoire) {
+                info.el.classList.add('fc-event-obligatoire');
+                info.el.style.backgroundColor = '#dc3545';
+                info.el.style.borderColor = '#b02a37';
+            }
+        },
 
         eventDrop: async (info) => {
             await persistMoveResize(info, updateUrlTemplate);

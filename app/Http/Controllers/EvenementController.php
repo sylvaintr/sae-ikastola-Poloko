@@ -63,19 +63,23 @@ class EvenementController extends Controller
     {
         $validated = $request->validate([
             'titre' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
+            'description' => ['required', 'string', 'max:5000'],
             'obligatoire' => ['nullable', 'boolean'],
 
             'start_at' => ['required', 'date'],
             'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
 
-            'roles' => ['nullable', 'array'],
+            'roles' => ['nullable', 'array', 'max:50'],
             'roles.*' => ['integer', 'exists:role,idRole'],
         ]);
 
+        // Sanitization contre XSS
+        $titre = strip_tags($validated['titre']);
+        $description = strip_tags($validated['description']);
+
         $evenement = Evenement::create([
-            'titre' => $validated['titre'],
-            'description' => $validated['description'],
+            'titre' => $titre,
+            'description' => $description,
             'obligatoire' => (bool)($validated['obligatoire'] ?? false),
 
             'start_at' => $validated['start_at'],
@@ -115,21 +119,25 @@ class EvenementController extends Controller
     {
         $validated = $request->validate([
             'titre' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string'],
+            'description' => ['required', 'string', 'max:5000'],
             'obligatoire' => ['nullable', 'boolean'],
 
             'start_at' => ['required', 'date'],
             'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
 
-            'roles' => ['nullable', 'array'],
+            'roles' => ['nullable', 'array', 'max:50'],
             'roles.*' => ['integer', 'exists:role,idRole'],
         ]);
 
         $evenement = Evenement::findOrFail($id);
 
+        // Sanitization contre XSS
+        $titre = strip_tags($validated['titre']);
+        $description = strip_tags($validated['description']);
+
         $evenement->update([
-            'titre' => $validated['titre'],
-            'description' => $validated['description'],
+            'titre' => $titre,
+            'description' => $description,
             'obligatoire' => (bool)($validated['obligatoire'] ?? false),
 
             'start_at' => $validated['start_at'],
