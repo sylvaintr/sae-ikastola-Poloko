@@ -16,9 +16,27 @@ class ClasseController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('admin.classes.index');
+        $filters = [
+            'search' => $request->get('search', ''),
+            'niveau' => $request->get('niveau', ''),
+        ];
+
+        $query = Classe::query();
+
+        if ($filters['search']) {
+            $query->where('nom', 'like', '%' . $filters['search'] . '%');
+        }
+
+        if ($filters['niveau']) {
+            $query->where('niveau', $filters['niveau']);
+        }
+
+        $classes = $query->orderBy('nom')->paginate(10)->appends($request->query());
+        $levels = Classe::select('niveau')->distinct()->orderBy('niveau')->pluck('niveau');
+
+        return view('admin.classes.index', compact('classes', 'filters', 'levels'));
     }
 
     /**

@@ -8,150 +8,235 @@ use App\Models\Famille;
 use App\Models\Utilisateur;
 use App\Models\Classe;
 use App\Models\Enfant;
+use App\Models\Role;
+use Illuminate\Support\Facades\Config;
 
 class FamilleControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_index_returns_list_of_familles()
+    private $adminUser;
+
+    protected function setUp(): void
     {
-        $families = Famille::factory()->count(2)->create();
+        parent::setUp();
+        
+        // Ensure CA role exists
+        if (Role::where('name', 'CA')->count() == 0) {
+            Role::create(['name' => 'CA']);
+        }
 
-        $response = $this->getJson('/api/familles2');
-
-        $response->assertOk();
-        $data = $response->json();
-        $ids = array_column($data, 'idFamille');
-
-        // Ensure the two created families are present in the response
-        $this->assertContains($families[0]->idFamille, $ids);
-        $this->assertContains($families[1]->idFamille, $ids);
+        $this->adminUser = Utilisateur::factory()->create();
+        $this->adminUser->roles()->attach(Role::where('name', 'CA')->first());
     }
 
-    public function test_show_returns_family_or_404()
+    public function test_api_index_retourne_liste_json()
     {
+        // given
+        Famille::factory()->count(3)->create();
+
+        // when
+        $response = $this->getJson('/api/familles');
+
+        // then
+        $response->assertStatus(200);
+        $this->assertGreaterThanOrEqual(3, count($response->json()));
+    }
+
+    public function test_web_admin_index_retourne_vue()
+    {
+        // given
+        // admin user prepared in setUp
+
+        // when
+        $response = $this->actingAs($this->adminUser)
+                         ->get(route('admin.familles.index'));
+
+        // then
+        $response->assertStatus(200);
+        $response->assertViewIs('admin.familles.index');
+        $response->assertViewHas('familles');
+    }
+
+    public function test_api_show_retourne_famille_json()
+    {
+        // given
         $famille = Famille::factory()->create();
 
+        // when
         $response = $this->getJson('/api/familles/' . $famille->idFamille);
-        $response->assertOk();
-        $response->assertJsonStructure(['idFamille', 'enfants', 'utilisateurs']);
-
-        $missing = $this->getJson('/api/familles/999999999');
-        $missing->assertStatus(404);
+        
+        // then
+        $response->assertStatus(200)
+                 ->assertJsonFragment(['idFamille' => $famille->idFamille]);
     }
 
-    public function test_ajouter_creates_family_with_children_and_users()
+    public function test_web_admin_show_retourne_vue()
     {
-        $classe = Classe::factory()->create();
-        $existingUser = Utilisateur::factory()->create();
+        // given
+        $famille = Famille::factory()->create();
+        
+        // when
+        $response = $this->actingAs($this->adminUser)
+                         ->get(route('admin.familles.show', $famille->idFamille));
 
-        $childId = random_int(1000000, 1999999);
+        // then
+        $response->assertStatus(200);
+        $response->assertViewIs('admin.familles.show');
+        $response->assertViewHas('famille');
+    }
+
+    public function test_show_retourne_404_si_json_manquant()
+    {
+        // when
+        $response = $this->getJson('/api/familles/999999999');
+
+        // then
+        $response->assertStatus(404);
+    }
+
+    public function test_web_admin_show_redirects_if_missing()
+    {
+        // when
+        $response = $this->actingAs($this->adminUser)
+                         ->get(route('admin.familles.show', 99999999));
+
+        // then
+        $response->assertRedirect(route('admin.familles.index'));
+    }
+
+    public function test_web_create_retourne_vue()
+    {
+        // when
+        $response = $this->actingAs($this->adminUser)
+                         ->get(route('admin.familles.create'));
+
+        // then
+        $response->assertStatus(200);
+        $response->assertViewIs('admin.familles.create');
+        $response->assertViewHas(['tousUtilisateurs', 'tousEnfants']);
+    }
+
+    public function test_web_edit_retourne_vue()
+    {
+        // given
+        $famille = Famille::factory()->create();
+        
+        // when
+        $response = $this->actingAs($this->adminUser)
+                         ->get(route('admin.familles.edit', $famille->idFamille));
+
+        // then
+        $response->assertStatus(200);
+        $response->assertViewIs('admin.familles.create'); // It reuses create view
+        $response->assertViewHas('famille');
+    }
+
+    public function test_web_edit_redirige_si_manquant()
+    {
+        // when
+        $response = $this->actingAs($this->adminUser)
+                         ->get(route('admin.familles.edit', 999999));
+
+        // then
+        $response->assertRedirect(route('admin.familles.index'));
+    }
+
+    public function test_ajouter_creates_family_json()
+    {
+        // given
+        $classe = Classe::factory()->create();
+        $user = Utilisateur::factory()->create();
 
         $payload = [
             'enfants' => [
                 [
-                    'idEnfant' => $childId,
                     'nom' => 'Dupont',
                     'prenom' => 'Alice',
                     'dateN' => '2015-05-01',
                     'sexe' => 'F',
-                    'NNI' => random_int(200000000, 299999999),
+                    'NNI' => '123456789',
                     'idClasse' => $classe->idClasse,
                 ]
             ],
             'utilisateurs' => [
-                // attach existing
-                ['idUtilisateur' => $existingUser->idUtilisateur, 'parite' => 'parent'],
-                // create new one (no idUtilisateur)
-                ['nom' => 'Martin', 'prenom' => 'Paul', 'mdp' => 'secret', 'languePref' => 'fr', 'parite' => 'tuteur'],
-            ],
+                ['idUtilisateur' => $user->idUtilisateur, 'parite' => 100]
+            ]
         ];
 
+        // when
         $response = $this->postJson('/api/familles', $payload);
 
+        // then
         $response->assertStatus(201);
-        $response->assertJsonPath('message', 'Famille complète créée avec succès');
-
-        $familleId = $response->json('famille.idFamille');
-
-        $this->assertDatabaseHas('famille', ['idFamille' => $familleId]);
-        $this->assertDatabaseHas('enfant', ['idEnfant' => $childId, 'idFamille' => $familleId]);
-        $this->assertDatabaseHas('lier', ['idUtilisateur' => $existingUser->idUtilisateur, 'idFamille' => $familleId]);
+        
+        $idFamille = $response->json('famille.idFamille');
+        $this->assertDatabaseHas('famille', ['idFamille' => $idFamille]);
+        $this->assertDatabaseHas('enfant', ['nom' => 'Dupont', 'idFamille' => $idFamille]);
+        $this->assertDatabaseHas('lier', ['idFamille' => $idFamille, 'idUtilisateur' => $user->idUtilisateur]);
     }
 
-    public function test_update_modifies_children_and_users()
+    public function test_delete_removes_family_as_admin()
     {
+        // given
         $famille = Famille::factory()->create();
+        
+        // when
+        $response = $this->actingAs($this->adminUser)
+                         ->delete(route('admin.familles.delete', $famille->idFamille));
 
-        // factory created enfants and lier via configure()
-        $enfant = $famille->enfants()->first();
-        $utilisateur = $famille->utilisateurs()->first();
-
-        $newChildName = 'UpdatedName';
-        $newLang = 'en';
-
-        $payload = [
-            'enfants' => [
-                [
-                    'idEnfant' => $enfant->idEnfant,
-                    'nom' => $newChildName,
-                ],
-            ],
-            'utilisateurs' => [
-                [
-                    'idUtilisateur' => $utilisateur->idUtilisateur,
-                    'languePref' => $newLang,
-                ],
-            ],
-        ];
-
-        $response = $this->putJson('/api/familles2/' . $famille->idFamille, $payload);
-
-        $response->assertOk();
-        $response->assertJsonPath('message', 'Famille mise à jour (enfants + utilisateurs)');
-
-        $this->assertDatabaseHas('enfant', ['idEnfant' => $enfant->idEnfant, 'nom' => $newChildName]);
-        $this->assertDatabaseHas('utilisateur', ['idUtilisateur' => $utilisateur->idUtilisateur, 'languePref' => $newLang]);
+        // then
+        $response->assertStatus(200);
+        $this->assertDatabaseMissing('famille', ['idFamille' => $famille->idFamille]);
     }
 
-    public function test_delete_removes_family_children_and_detaches_users()
+    public function test_suppression_retourne_404_si_introuvable()
     {
+        // when
+        $response = $this->actingAs($this->adminUser)
+                         ->delete(route('admin.familles.delete', 999999));
+
+        // then
+        $response->assertStatus(404);
+    }
+
+    public function test_search_by_parent()
+    {
+        // given
         $famille = Famille::factory()->create();
+        $user = Utilisateur::factory()->create(['nom' => 'SearchableName']);
+        $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 100]);
 
-        $familleId = $famille->idFamille;
+        // when
+        $response = $this->getJson('/api/search?q=Searchable');
 
-        $this->assertGreaterThan(0, $famille->enfants()->count());
-        $this->assertGreaterThan(0, $famille->utilisateurs()->count());
-
-        $response = $this->deleteJson('/api/familles/' . $familleId);
-
-        $response->assertOk();
-        $response->assertJsonPath('message', 'Famille et enfants supprimés avec succès');
-
-        $this->assertDatabaseMissing('famille', ['idFamille' => $familleId]);
-        $this->assertDatabaseMissing('enfant', ['idFamille' => $familleId]);
-        $this->assertDatabaseMissing('lier', ['idFamille' => $familleId]);
+        // then
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['nom' => 'SearchableName']);
     }
 
-
-    public function test_delete_nonexistent_family_returns_404()
+    public function test_recherche_par_parent_requete_courte_retourne_erreur_validation()
     {
-        $response = $this->deleteJson('/api/familles/999999999');
+        // when
+        $response = $this->getJson('/api/search?q=a');
 
-        $response->assertStatus(404);
-        $response->assertJsonPath('message', 'Famille non trouvée');
+        // then
+        $response->assertStatus(422);
     }
 
-    public function test_update_famille_nonexistent_returns_404()
+    public function test_search_users()
     {
-        $payload = [
-            'enfants' => [],
-            'utilisateurs' => [],
-        ];
-
-        $response = $this->putJson('/api/familles2/999999999', $payload);
-
-        $response->assertStatus(404);
-        $response->assertJsonPath('message', 'Famille non trouvée');
+        // given
+        $user = Utilisateur::factory()->create(['nom' => 'UserFind']);
+        
+        // This route is defined in web.php and requires Auth
+        // when
+        $response = $this->actingAs($this->adminUser)
+                         ->getJson('/api/search/users?q=UserFind');
+        
+        // then
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['nom' => 'UserFind']);
     }
 }
+

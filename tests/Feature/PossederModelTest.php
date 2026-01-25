@@ -14,8 +14,13 @@ class PossederModelTest extends TestCase
      */
     public function test_poseder_factory_creates_record()
     {
+        // given
+        // none
+
+        // when
         $poseder = Posseder::factory()->create();
 
+        // then
         $this->assertDatabaseHas('posseder', [
             'idEtiquette' => $poseder->idEtiquette,
             'idRole' => $poseder->idRole,

@@ -12,7 +12,7 @@ return [
 
     'email_principal' => 'Email',
     'mot_de_passe_principal' => 'Mot de passe',
-    
+
     'placeholder_email' => 'adresse@email.com',
     'placeholder_password' => 'Votre mot de passe',
     'mot_de_passe_oublie_principal' => 'Mot de passe oublié ?',
@@ -22,6 +22,12 @@ return [
     'nom' => 'Nom',
     'confirmer_mot_de_passe' => 'Confirmer le mot de passe',
     'mot_de_passe_confirme_a' => 'Mot de passe confirmé à :time',
+    'password_requirements' => 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.',
+    'password_req_length' => 'Au moins 8 caractères',
+    'password_req_uppercase' => 'Une majuscule',
+    'password_req_lowercase' => 'Une minuscule',
+    'password_req_number' => 'Un chiffre',
+    'password_req_special' => 'Un caractère spécial',
 
 
     // Actions / Links
@@ -95,4 +101,80 @@ return [
     'regenerer_token' => 'Régénérer le token',
     'confirmer_regenerer_token' => "Êtes-vous sûr ? L'ancienne URL ne fonctionnera plus.",
     'token_regenere' => 'Nouveau token généré avec succès.',
+
+    'notification_reset_line1' => "Vous recevez cet e-mail car nous avons reçu une demande de réinitialisation de mot de passe.",
+    'notification_reset_line2' => "Si vous n’avez pas demandé cette réinitialisation, aucune action n’est requise.",
+
+
+    'password_strength_hint' => 'Force du mot de passe :',
+    'password_requirements' => 'Conseil : 12+ caractères, majuscule, minuscule, chiffre et symbole.',
+    'password_strength_empty' => 'Saisissez un mot de passe.',
+    'password_strength_weak' => 'Faible',
+    'password_strength_medium' => 'Moyen',
+    'password_strength_strong' => 'Fort',
+    'password_strength_very_strong' => 'Très fort',
+    'password_match_empty' => 'Confirmez votre mot de passe.',
+    'password_match_ok' => 'Les mots de passe correspondent.',
+    'password_match_no' => 'Les mots de passe ne correspondent pas.',
+    'password_rule_length' => 'Au moins 12 caractères',
+    'password_rule_lower' => 'Une lettre minuscule',
+    'password_rule_upper' => 'Une lettre majuscule',
+    'password_rule_number' => 'Un chiffre',
+    'password_rule_symbol' => 'Un symbole',
+
+    // Family information
+    'informations_famille' => 'Informations de la famille',
+    'famille_id' => 'Famille ID',
+    'parite' => 'Parité',
+    'enfants' => 'Enfants',
+    'aucun_enfant' => 'Aucun enfant enregistré',
+    'aucune_famille' => 'Aucune famille associée à ce profil',
+
+    // Documents
+    'upload_document' => 'Télécharger un document',
+    'upload_document_hint' => 'Formats acceptés : PDF, DOC, DOCX, JPG, JPEG, PNG (max 8MB)',
+    'upload' => 'Télécharger',
+    'nom_document' => 'Nom',
+    'type' => 'Type',
+    'actions' => 'Actions',
+    'voir' => 'Voir',
+    'telecharger' => 'Télécharger',
+    'supprimer' => 'Supprimer',
+    'aucun_document' => 'Aucun document téléchargé pour le moment',
+    'document_uploaded' => 'Document téléchargé avec succès',
+    'document_deleted' => 'Document supprimé avec succès',
+    'confirm_delete_document' => 'Êtes-vous sûr de vouloir supprimer ce document ?',
+
+    // Obligatory documents
+    'documents_obligatoires' => 'Documents obligatoires',
+    'etat_document' => 'État',
+    'non_remis' => 'Non remis',
+    'remis' => 'Remis',
+    'en_cours_validation' => 'En cours de validation',
+    'valide_document' => 'Validé',
+    'uploader_document' => 'Uploader',
+    'document_non_uploadable' => 'Ce document est déjà en cours de validation ou validé. Vous ne pouvez pas télécharger une nouvelle version.',
+    'document_non_deletable' => 'Ce document est en cours de validation ou validé. Vous ne pouvez pas le supprimer.',
+    'aucun_document_obligatoire' => 'Aucun document obligatoire requis pour votre rôle',
+    'upload_error' => 'Erreur lors du téléchargement du document',
+    'invalid_file_format' => 'Le format du fichier est invalide ou ne correspond pas à l\'extension du fichier',
+    'cannot_read_file' => 'Impossible de lire le fichier',
+    'unsupported_file_type' => 'Type de fichier non supporté',
+    'file_type_mismatch' => 'Le type de fichier ne correspond pas à l\'extension. Format attendu : :expected',
+    'file_validation_error' => 'Erreur lors de la validation du fichier',
+    'document_required' => 'Le fichier est obligatoire',
+    'document_must_be_file' => 'Le fichier doit être un fichier valide',
+    'document_size_exceeded' => 'Le fichier est trop volumineux. La taille maximale autorisée est de :max Mo',
+    'document_invalid_format' => 'Le format du fichier n\'est pas autorisé. Formats acceptés : PDF, DOC, DOCX, JPG, JPEG, PNG',
+    'document_validated_cannot_delete' => 'Ce document est validé et ne peut pas être supprimé.',
+
+    // Messages d'erreur d'authentification
+    'failed' => 'Ces identifiants ne correspondent à aucun compte.',
+    'password' => 'Le mot de passe fourni est incorrect.',
+    'throttle' => 'Trop de tentatives de connexion. Veuillez réessayer dans :seconds secondes.',
+    // Messages d'inscription
+    'registration_pending_validation' => 'Votre compte a été créé avec succès. Il est en attente de validation par un administrateur. Vous pourrez vous connecter une fois votre compte validé.',
+    'account_not_validated' => 'Votre compte n\'a pas encore été validé par un administrateur. Veuillez patienter jusqu\'à ce que votre compte soit validé.',
+    'recaptcha_failed' => 'La vérification reCAPTCHA a échoué. Veuillez réessayer.',
+    'recaptcha_required' => 'Veuillez compléter la vérification reCAPTCHA avant de vous inscrire.',
 ];

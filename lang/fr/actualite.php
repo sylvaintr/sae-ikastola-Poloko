@@ -59,8 +59,19 @@ return [
     'visibilite' => 'Visibilité',
     'all_types' => 'Tous les types',
     'reset' => 'Réinitialiser les filtres',
+    'apply' => 'Appliquer',
+    'filtres' => 'Filtres',
+    'search_placeholder' => 'Rechercher une actualité',
     'active' => 'Actives',
     'archived' => 'Archivées',
+    'modals' => [
+        'delete' => [
+            'title' => 'Supprimer l’actualité',
+            'message' => 'Voulez-vous vraiment supprimer cette actualité ?',
+            'cancel' => 'Annuler',
+            'confirm' => 'Supprimer',
+        ],
+    ],
 
 
 ];

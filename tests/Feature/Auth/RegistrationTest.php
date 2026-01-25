@@ -23,11 +23,15 @@ class RegistrationTest extends TestCase
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => $email,
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            'password' => 'P@ssw0rd123!',
+            'password_confirmation' => 'P@ssw0rd123!',
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('home'));
+        // L'application n'authentifie pas automatiquement les nouveaux comptes
+        // (statutValidation = false). Vérifier la redirection vers la page de
+        // connexion avec le message d'information en session.
+        $this->assertGuest();
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('status');
     }
 }

@@ -1,0 +1,62 @@
+<?php
+
+namespace Tests\Unit;
+
+use App\Models\Avoir;
+use App\Models\PRATIQUE;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use App\Models\Utilisateur;
+use App\Models\Role;
+use App\Models\Classe;
+use App\Models\Famille;
+use App\Models\Enfant;
+
+class AvoirEtreModelTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_modele_avoir_de_base(): void
+    {
+        // given
+        // Create a pivot record via DB to exercise the model behavior
+        $user = Utilisateur::factory()->create();
+        $role = Role::factory()->create();
+
+        // when
+        \Illuminate\Support\Facades\DB::table('avoir')->insert([
+            'idUtilisateur' => $user->idUtilisateur,
+            'idRole' => $role->idRole,
+            'model_type' => Utilisateur::class,
+        ]);
+
+        // then
+        $avoir = Avoir::where('idUtilisateur', $user->idUtilisateur)->first();
+        $this->assertNotNull($avoir);
+    }
+
+    public function test_modele_etre_de_base(): void
+    {
+        // given
+        $classe = Classe::factory()->create();
+        $famille = Famille::factory()->create();
+        $idEnfant = random_int(300000, 999999);
+
+        // when
+        Enfant::factory()->create([
+            'idEnfant' => $idEnfant,
+            'idClasse' => $classe->idClasse,
+            'idFamille' => $famille->idFamille,
+        ]);
+
+        \Illuminate\Support\Facades\DB::table('pratiquer')->insert([
+            'idEnfant' => $idEnfant,
+            'activite' => 'cantine',
+            'dateP' => now()->format('Y-m-d'),
+        ]);
+
+        // then
+        $pratiquer = PRATIQUE::where('idEnfant', $idEnfant)->first();
+        $this->assertNotNull($pratiquer);
+    }
+}

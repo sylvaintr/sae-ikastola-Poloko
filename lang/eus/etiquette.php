@@ -30,5 +30,13 @@ return [
     'etiquette_associee' => 'Etiketa hau rol hauekin lotuta dago:',
     'all_roles' => 'Denak rolak',
     'gerer_les_etiquettes' => 'Kudeatu etiketak',
+    'apply' => 'Aplikatu',
+    'reset' => 'Berrezarri iragazkiak',
+    'filtres' => 'Iragazkiak',
+    'public' => 'Etiketa publikoa',
+    'public_help' => 'Markatuz gero, etiketa honekin dauden berriak ikusgai egongo dira baita deskonektatuta dauden bisitarientzat ere.',
+    'type' => 'Mota',
+    'public' => 'Publikoa',
+    'private' => 'Pribatua',
 
 ];

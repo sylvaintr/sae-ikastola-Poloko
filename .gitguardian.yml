@@ -1,0 +1,15 @@
+# Configuration GitGuardian pour ignorer les clés de test Google reCAPTCHA
+# Les clés de test sont publiques et documentées par Google
+# Elles sont utilisées uniquement en développement local (APP_ENV=local)
+# Référence: https://developers.google.com/recaptcha/docs/faq#id-like-to-run-automated-tests-with-recaptcha.-what-should-i-do
+
+# Ignorer les clés de test reCAPTCHA dans config/services.php
+# Ces clés sont publiques et documentées, pas des secrets réels
+paths-ignore:
+  - config/services.php
+
+# Patterns spécifiques pour les clés de test reCAPTCHA (optionnel, si GitGuardian le supporte)
+# Les clés de test Google sont: 
+# Site: 6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
+# Secret: 6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
+

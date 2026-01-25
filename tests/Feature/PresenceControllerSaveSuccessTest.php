@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Http\Controllers\PresenceController;
 use App\Models\Classe;
 use App\Models\Enfant;
-use App\Models\Etre;
+use App\Models\PRATIQUE;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -16,6 +16,7 @@ class PresenceControllerSaveSuccessTest extends TestCase
 
     public function test_save_inserts_presence_rows(): void
     {
+        // given
         $classe = Classe::factory()->create();
         $enfants = collect();
         for ($i = 0; $i < 3; $i++) {
@@ -35,6 +36,7 @@ class PresenceControllerSaveSuccessTest extends TestCase
 
         $controller = new PresenceController();
 
+        // when
         $request = Request::create('/presence/save', 'POST', [
             'date' => now()->format('Y-m-d'),
             'activite' => 'cantine',
@@ -43,11 +45,12 @@ class PresenceControllerSaveSuccessTest extends TestCase
 
         $response = $controller->save($request);
 
+        // then
         $this->assertEquals(200, $response->getStatusCode());
 
         // Check DB for present entries
         $ids = $enfants->pluck('idEnfant')->all();
-        $presentCount = Etre::whereIn('idEnfant', $ids)
+        $presentCount = PRATIQUE::whereIn('idEnfant', $ids)
             ->where('activite', 'cantine')
             ->whereDate('dateP', now()->format('Y-m-d'))
             ->count();
