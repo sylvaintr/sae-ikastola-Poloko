@@ -101,7 +101,7 @@ class CheckNotifications extends Command
                         // SOLUTION TEMPORAIRE : On compare les NOMS.
                         
                         $aDepose = $user->documents()
-                                        // ⚠️ VÉRIFIE ICI : Est-ce que la colonne s'appelle 'nom' ou 'titre' dans ta table 'document' ?
+                                        //  VÉRIFIE ICI : Est-ce que la colonne s'appelle 'nom' ou 'titre' dans ta table 'document' ?
                                         ->where('nom', $doc->nom) 
                                         ->exists();
 

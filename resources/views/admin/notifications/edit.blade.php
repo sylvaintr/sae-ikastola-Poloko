@@ -5,12 +5,17 @@
             <h2 class="fw-bold mb-0">
                 {{ __('notifications.edit_header', [], 'eus') }}
             </h2>
-            <small class="text-muted">
-                {{ __('notifications.edit_subtitle', [], 'eus') }} {{ $setting->title }}
-                @if(app()->getLocale() == 'fr')
-                    <span class="ms-1 fst-italic">({{ __('notifications.edit_subtitle', [], 'fr') }} {{ $setting->title }})</span>
-                @endif
-            </small>
+            
+            {{-- Sous-titre Français en dessous --}}
+            @if(app()->getLocale() == 'fr')
+                <div class="text-muted small mt-1">
+                    {{ __('notifications.edit_subtitle', [], 'fr') }} : {{ $setting->title }}
+                </div>
+            @else
+                <div class="text-muted small mt-1">
+                    {{ __('notifications.edit_subtitle', [], 'eus') }} : {{ $setting->title }}
+                </div>
+            @endif
         </div>
 
         <div class="card border-0 shadow-sm">
@@ -19,17 +24,19 @@
                 {{-- FORMULAIRE D'ÉDITION --}}
                 <form method="POST" action="{{ route('admin.notifications.update', $setting->id) }}" class="admin-form" id="notification-form">
                     @csrf
-                    @method('PUT') {{-- Indispensable pour la modification --}}
+                    @method('PUT')
 
                     {{-- Section 1 : Paramètres Généraux --}}
-                    <div class="row g-4 mb-4 align-items-end">
+                    <div class="row g-4 mb-4 align-items-start">
                         
                         {{-- TITRE --}}
                         <div class="col-md-6">
                             <label for="title" class="form-label fw-bold">
                                 {{ __('notifications.form_title', [], 'eus') }}
                                 @if(app()->getLocale() == 'fr')
-                                    <span class="text-muted small fw-normal ms-1">({{ __('notifications.form_title', [], 'fr') }})</span>
+                                    <div class="text-muted small fw-normal" style="font-size: 0.85em;">
+                                        {{ __('notifications.form_title', [], 'fr') }}
+                                    </div>
                                 @endif
                             </label>
                             <input type="text" id="title" name="title" class="form-control" 
@@ -41,7 +48,9 @@
                             <label for="recurrence" class="form-label fw-bold">
                                 {{ __('notifications.form_recurrence', [], 'eus') }}
                                 @if(app()->getLocale() == 'fr')
-                                    <div class="text-muted small fw-normal" style="font-size: 0.8rem; margin-top:-2px;">{{ __('notifications.form_recurrence', [], 'fr') }}</div>
+                                    <div class="text-muted small fw-normal" style="font-size: 0.8em; line-height: 1.2;">
+                                        {{ __('notifications.form_recurrence', [], 'fr') }}
+                                    </div>
                                 @endif
                             </label>
                             <input type="number" id="recurrence" name="recurrence_days" class="form-control" 
@@ -53,7 +62,9 @@
                             <label for="reminder" class="form-label fw-bold">
                                 {{ __('notifications.form_reminder', [], 'eus') }}
                                 @if(app()->getLocale() == 'fr')
-                                    <div class="text-muted small fw-normal" style="font-size: 0.8rem; margin-top:-2px;">{{ __('notifications.form_reminder', [], 'fr') }}</div>
+                                    <div class="text-muted small fw-normal" style="font-size: 0.8em; line-height: 1.2;">
+                                        {{ __('notifications.form_reminder', [], 'fr') }}
+                                    </div>
                                 @endif
                             </label>
                             <input type="number" id="reminder" name="reminder_days" class="form-control" 
@@ -65,7 +76,9 @@
                             <label class="form-label fw-bold d-block mb-2">
                                 {{ __('notifications.form_active', [], 'eus') }}
                                 @if(app()->getLocale() == 'fr')
-                                    <span class="text-muted small fw-normal">({{ __('notifications.form_active', [], 'fr') }})</span>
+                                    <div class="text-muted small fw-normal" style="font-size: 0.85em;">
+                                        {{ __('notifications.form_active', [], 'fr') }}
+                                    </div>
                                 @endif
                             </label>
                             <div class="form-check form-switch d-flex justify-content-center">
@@ -81,7 +94,9 @@
                         <label for="description" class="form-label fw-bold">
                             {{ __('notifications.form_description', [], 'eus') }}
                             @if(app()->getLocale() == 'fr')
-                                <span class="text-muted small fw-normal ms-1">({{ __('notifications.form_description', [], 'fr') }})</span>
+                                <div class="text-muted small fw-normal" style="font-size: 0.85em;">
+                                    {{ __('notifications.form_description', [], 'fr') }}
+                                </div>
                             @endif
                         </label>
                         <textarea id="description" name="description" class="form-control" rows="3" style="resize: none;">{{ old('description', $setting->description) }}</textarea>
@@ -95,9 +110,9 @@
                             {{ __('notifications.target_title', [], 'eus') }}
                         </h4>
                         @if(app()->getLocale() == 'fr')
-                            <small class="text-muted">{{ __('notifications.target_subtitle', [], 'fr') }}</small>
+                            <div class="text-muted small mt-1">{{ __('notifications.target_subtitle', [], 'fr') }}</div>
                         @else
-                            <small class="text-muted">{{ __('notifications.target_subtitle', [], 'eus') }}</small>
+                            <div class="text-muted small mt-1">{{ __('notifications.target_subtitle', [], 'eus') }}</div>
                         @endif
                     </div>
 
@@ -110,7 +125,7 @@
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-3 border rounded bg-white shadow-sm" 
                                      data-id="0" 
                                      data-type="Document" 
-                                     data-db-type="App\Models\DocumentObligatoire"
+                                     data-model-class="App\Models\DocumentObligatoire" {{-- IMPORTANT POUR LA PRÉ-SÉLECTION --}}
                                      data-name="{{ __('notifications.module_doc_title', [], 'eus') }}" 
                                      style="cursor: pointer; transition: 0.2s;">
                                     <div>
@@ -120,7 +135,9 @@
                                         <small class="text-muted">
                                             {{ __('notifications.module_doc_desc', [], 'eus') }}
                                             @if(app()->getLocale() == 'fr')
-                                                <br><span style="font-size: 0.85em; opacity: 0.8;">{{ __('notifications.module_doc_desc', [], 'fr') }}</span>
+                                                <div style="font-size: 0.85em; opacity: 0.8; margin-top: 2px;">
+                                                    {{ __('notifications.module_doc_desc', [], 'fr') }}
+                                                </div>
                                             @endif
                                         </small>
                                     </div>
@@ -131,7 +148,7 @@
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm" 
                                      data-id="0" 
                                      data-type="Evènement" 
-                                     data-db-type="App\Models\Evenement"
+                                     data-model-class="App\Models\Evenement" {{-- IMPORTANT POUR LA PRÉ-SÉLECTION --}}
                                      data-name="{{ __('notifications.module_event_title', [], 'eus') }}" 
                                      style="cursor: pointer; transition: 0.2s;">
                                     <div>
@@ -141,7 +158,9 @@
                                         <small class="text-muted">
                                             {{ __('notifications.module_event_desc', [], 'eus') }}
                                             @if(app()->getLocale() == 'fr')
-                                                <br><span style="font-size: 0.85em; opacity: 0.8;">{{ __('notifications.module_event_desc', [], 'fr') }}</span>
+                                                <div style="font-size: 0.85em; opacity: 0.8; margin-top: 2px;">
+                                                    {{ __('notifications.module_event_desc', [], 'fr') }}
+                                                </div>
                                             @endif
                                         </small>
                                     </div>
@@ -153,13 +172,15 @@
 
                         {{-- Colonne Droite : Sélection --}}
                         <div class="col-md-6">
-                            <div class="d-flex justify-content-between mb-3">
-                                <span class="text-muted small">
+                            <div class="mb-3">
+                                <span class="text-muted small d-block">
                                     {{ __('notifications.selection_active', [], 'eus') }}
-                                    @if(app()->getLocale() == 'fr')
-                                        / {{ __('notifications.selection_active', [], 'fr') }}
-                                    @endif
                                 </span>
+                                @if(app()->getLocale() == 'fr')
+                                    <span class="text-muted small d-block">
+                                        {{ __('notifications.selection_active', [], 'fr') }}
+                                    </span>
+                                @endif
                             </div>
 
                             <div id="selected-modules-container" class="border rounded p-3 bg-light" style="height: 200px; display: flex; align-items: center; justify-content: center;">
@@ -176,17 +197,20 @@
                         </div>
                     </div>
 
+                    {{-- BOUTONS D'ACTION --}}
                     <div class="d-flex justify-content-end gap-3 mt-5">
                         <a href="{{ route('admin.notifications.index') }}" class="btn btn-outline-secondary px-4 fw-bold">
-                            {{ __('notifications.btn_cancel', [], 'eus') }}
                             @if(app()->getLocale() == 'fr')
-                                <span class="fw-normal ms-1" style="font-size: 0.8em;">({{ __('notifications.btn_cancel', [], 'fr') }})</span>
+                                {{ __('notifications.btn_cancel', [], 'fr') }}
+                            @else
+                                {{ __('notifications.btn_cancel', [], 'eus') }}
                             @endif
                         </a>
                         <button type="submit" class="btn text-white px-4 fw-bold" style="background-color: #F59E0B;">
-                            {{ __('notifications.btn_update', [], 'eus') }}
                             @if(app()->getLocale() == 'fr')
-                                <span class="fw-normal ms-1" style="font-size: 0.8em; opacity: 0.9;">({{ __('notifications.btn_update', [], 'fr') }})</span>
+                                {{ __('notifications.btn_update', [], 'fr') }}
+                            @else
+                                {{ __('notifications.btn_update', [], 'eus') }}
                             @endif
                         </button>
                     </div>
@@ -199,9 +223,10 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // -- DONNÉES ACTUELLES --
+            // -- DONNÉES ACTUELLES (PHP -> JS) --
+            // On échappe les backslashes pour que App\Models\Toto ne casse pas le JS
+            const currentTargetType = "{{ str_replace('\\', '\\\\', $setting->target_type) }}";
             const currentTargetId = "{{ $setting->target_id }}";
-            const currentTargetType = "{{ $setting->target_type }}";
 
             // -- STYLE CSS --
             const style = document.createElement('style');
@@ -245,6 +270,7 @@
 
                 selectedContainer.appendChild(selectedItem);
 
+                // Inputs cachés pour le formulaire
                 const inputId = document.createElement('input');
                 inputId.type = 'hidden'; inputId.name = 'module_id'; inputId.value = id;
                 hiddenInputsContainer.appendChild(inputId);
@@ -261,11 +287,13 @@
                 originalItem.classList.add('d-flex');
                 hiddenInputsContainer.innerHTML = '';
                 selectedContainer.style.display = 'flex';
-                // On remet le message vide par défaut (en Basque)
                 selectedContainer.innerHTML = `
                     <div class="module-list-empty-message text-muted text-center">
                         <i class="bi bi-arrow-left me-2"></i> 
                         {{ __('notifications.selection_empty', [], 'eus') }}
+                        @if(app()->getLocale() == 'fr')
+                            <div class="small mt-1">{{ __('notifications.selection_empty', [], 'fr') }}</div>
+                        @endif
                     </div>`;
             }
 
@@ -274,10 +302,12 @@
                 existingItems.forEach(item => item.querySelector('.bi-x-circle-fill').click());
             }
 
-            // --- AUTO-INITIALISATION (Edit) ---
+            // --- AUTO-INITIALISATION (Correction de la sélection par défaut) ---
             const items = document.querySelectorAll('.module-item');
             items.forEach(item => {
-                if (item.dataset.id == currentTargetId && item.dataset.dbType == currentTargetType) {
+                // On vérifie si l'attribut data-model-class correspond à ce qui est en base de données
+                // ex: App\Models\DocumentObligatoire == App\Models\DocumentObligatoire
+                if (item.dataset.modelClass === currentTargetType) {
                     addModule(item.dataset.id, item.dataset.type, item.dataset.name, item);
                 }
             });
