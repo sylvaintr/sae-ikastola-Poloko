@@ -2172,3 +2172,56 @@ input[readonly] {
         margin-bottom: 0;
     }
 }
+
+/* Stylisation du champ date avec la couleur orange */
+input[type="date"] {
+    position: relative;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input[type="date"]:focus {
+    border-color: #f29201;
+    box-shadow: 0 0 0 0.25rem rgba(242, 146, 1, 0.25);
+    outline: 0;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(60%) sepia(89%) saturate(2020%) hue-rotate(360deg) brightness(98%) contrast(98%);
+    transition: all 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    filter: invert(48%) sepia(97%) saturate(1742%) hue-rotate(360deg) brightness(101%) contrast(101%);
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit {
+    padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+    color: #6c757d;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+    color: #212529;
+    font-weight: 500;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus {
+    color: #f29201;
+    background-color: rgba(242, 146, 1, 0.1);
+    border-radius: 2px;
+    outline: none;
+}
