@@ -16,13 +16,13 @@
 
             <div class="row mb-3">
                 <div class="col-md-8">
-                    <label class="form-label fw-bold mb-0">Izenburua</label>
+                    <label class="form-label fw-bold mb-0">Izenburua <span class="text-danger">*</span></label>
                     <p class="text-muted mt-0 admin-button-subtitle">Titre</p>
                     <input type="text" name="titre" class="form-control"
                            value="{{ old('titre', $tache->titre ?? '') }}" maxlength="255" required>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-bold mb-0">Larrialdia</label>
+                    <label class="form-label fw-bold mb-0">Larrialdia <span class="text-danger">*</span></label>
                     <p class="text-muted mt-0 admin-button-subtitle">Urgence</p>
                     <select name="type" class="form-select">
                         <option value="low" {{ old('type', $tache->type ?? '') == 'low' ? 'selected' : '' }}>Faible</option>
@@ -32,8 +32,18 @@
                 </div>
             </div>
 
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold mb-0">Hasiera data <span class="text-danger">*</span></label>
+                    <p class="text-muted mt-0 admin-button-subtitle">Date de début de la tâche</p>
+                    <input type="date" name="dateD" class="form-control"
+                           placeholder="Date de début de la tâche"
+                           value="{{ old('dateD', isset($tache) && $tache->dateD ? $tache->dateD->format('Y-m-d') : '') }}" required>
+                </div>
+            </div>
+
             <div class="mb-4">
-                <label class="form-label fw-bold mb-0">Deskribapena</label>
+                <label class="form-label fw-bold mb-0">Deskribapena <span class="text-danger">*</span></label>
                 <p class="text-muted mt-0 admin-button-subtitle">Description</p>
                 <textarea name="description" class="form-control" rows="6" required>{{ old('description', $tache->description ?? '') }}</textarea>
             </div>

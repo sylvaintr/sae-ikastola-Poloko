@@ -183,6 +183,7 @@ class TacheController extends Controller
             'titre' => 'required|string|max:255',
             'description' => 'required|string',
             'type' => 'required|in:low,medium,high',
+            'dateD' => 'required|date',
             'realisateurs' => 'nullable|array',
             'realisateurs.*' => 'integer|exists:utilisateur,idUtilisateur'
         ]);
@@ -192,7 +193,7 @@ class TacheController extends Controller
             'description' => $validated['description'],
             'type' => $validated['type'],
             'etat' => 'todo',
-            'dateD' => now(),
+            'dateD' => $validated['dateD'],
         ]);
 
         // attacher realisateurs (pivot)
@@ -238,6 +239,7 @@ class TacheController extends Controller
             'titre' => 'required|string|max:255',
             'description' => 'required|string',
             'type' => 'required|in:low,medium,high',
+            'dateD' => 'required|date',
             'realisateurs' => 'nullable|array',
             'realisateurs.*' => 'integer|exists:utilisateur,idUtilisateur',
         ]);
@@ -246,6 +248,7 @@ class TacheController extends Controller
             'titre' => $validated['titre'],
             'description' => $validated['description'],
             'type' => $validated['type'],
+            'dateD' => $validated['dateD'],
         ]);
 
         // Synchroniser realisateurs (on wipe & reattach)
