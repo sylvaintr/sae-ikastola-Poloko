@@ -292,7 +292,13 @@ document.addEventListener('DOMContentLoaded', function () {
             availableUsers.appendChild(userItem);
         });
         
-        // Charger les utilisateurs déjà sélectionnés si on édite une tâche
+        // Filtrer les utilisateurs déjà sélectionnés
+        filterUsers('');
+        updateEmptyMessage();
+    }
+    
+    // Charger les utilisateurs déjà assignés (mode édition)
+    function loadAssignedUsers() {
         @if(isset($tache))
             @foreach($tache->realisateurs as $r)
                 selectedUserIds.add('{{ $r->idUtilisateur }}');
@@ -318,8 +324,6 @@ document.addEventListener('DOMContentLoaded', function () {
             @endforeach
         @endif
         
-        // Filtrer les utilisateurs déjà sélectionnés
-        filterUsers('');
         updateEmptyMessage();
     }
     
@@ -332,7 +336,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 150);
     });
     
-    // Charger les utilisateurs au démarrage
+    // Charger les utilisateurs déjà assignés d'abord
+    loadAssignedUsers();
+    
+    // Puis charger la liste des utilisateurs disponibles
     loadUsers();
 });
 </script>
