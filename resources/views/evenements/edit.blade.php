@@ -1,13 +1,19 @@
 <x-app-layout>
-    <div class="container py-4">
+    <div class="container py-4 demande-page">
         <a href="{{ route('evenements.index') }}" class="admin-back-link mb-4 d-inline-flex align-items-center gap-2">
             <i class="bi bi-arrow-left"></i>
-            <span>Retour aux événements</span>
+            <span>{{ __('evenements.back_to_list') }}</span>
         </a>
 
         <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <h1 class="h4 fw-bold mb-4">Modifier l'événement</h1>
+                {{-- Titre bilingue --}}
+                <h1 class="h4 fw-bold mb-1">{{ Lang::get('evenements.edit_title', [], 'eus') }}</h1>
+                @if (Lang::getLocale() == 'fr')
+                    <p class="text-muted mb-4">{{ Lang::get('evenements.edit_title') }}</p>
+                @else
+                    <div class="mb-4"></div>
+                @endif
 
                 <form method="POST" action="{{ route('evenements.update', $evenement) }}" class="admin-form">
                     @csrf
@@ -15,7 +21,12 @@
 
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <label for="titre" class="form-label fw-semibold">Titre *</label>
+                            <label for="titre" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.titre', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.titre') }}</span>
+                                @endif
+                            </label>
                             <input id="titre" name="titre" type="text"
                                 class="form-control @error('titre') is-invalid @enderror"
                                 value="{{ old('titre', $evenement->titre) }}" required maxlength="255">
@@ -32,12 +43,22 @@
                             <div class="form-check mb-3">
                                 <input type="checkbox" class="form-check-input" id="all_day" name="all_day"
                                     {{ $isAllDay ? 'checked' : '' }}>
-                                <label class="form-check-label fw-semibold" for="all_day">Journée entière</label>
+                                <label class="form-check-label fw-semibold" for="all_day">
+                                    <span class="basque">{{ Lang::get('evenements.all_day', [], 'eus') }}</span>
+                                    @if (Lang::getLocale() == 'fr')
+                                        <span class="fr text-muted"> / {{ Lang::get('evenements.all_day') }}</span>
+                                    @endif
+                                </label>
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <label for="start_date" class="form-label fw-semibold">Date de début *</label>
+                            <label for="start_date" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.start_date', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.start_date') }}</span>
+                                @endif
+                            </label>
                             <input id="start_date" name="start_date" type="date"
                                 class="form-control @error('start_date') is-invalid @enderror @error('start_at') is-invalid @enderror"
                                 value="{{ old('start_date', optional($evenement->start_at)->format('Y-m-d')) }}" required>
@@ -50,7 +71,12 @@
                         </div>
 
                         <div class="col-md-6" id="start_time_container">
-                            <label for="start_time" class="form-label fw-semibold">Heure de début</label>
+                            <label for="start_time" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.start_time', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.start_time') }}</span>
+                                @endif
+                            </label>
                             <input id="start_time" name="start_time" type="time"
                                 class="form-control @error('start_time') is-invalid @enderror"
                                 value="{{ old('start_time', optional($evenement->start_at)->format('H:i')) }}">
@@ -60,11 +86,16 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label for="end_date" class="form-label fw-semibold">Date de fin</label>
+                            <label for="end_date" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.end_date', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.end_date') }}</span>
+                                @endif
+                            </label>
                             <input id="end_date" name="end_date" type="date"
                                 class="form-control @error('end_date') is-invalid @enderror @error('end_at') is-invalid @enderror"
                                 value="{{ old('end_date', optional($evenement->end_at)->format('Y-m-d')) }}">
-                            <small class="text-muted">Laissez vide si l'événement se termine le même jour</small>
+                            <small class="text-muted">{{ __('evenements.end_date_hint') }}</small>
                             @error('end_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -74,7 +105,12 @@
                         </div>
 
                         <div class="col-md-6" id="end_time_container">
-                            <label for="end_time" class="form-label fw-semibold">Heure de fin</label>
+                            <label for="end_time" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.end_time', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.end_time') }}</span>
+                                @endif
+                            </label>
                             <input id="end_time" name="end_time" type="time"
                                 class="form-control @error('end_time') is-invalid @enderror"
                                 value="{{ old('end_time', optional($evenement->end_at)->format('H:i')) }}">
@@ -88,7 +124,12 @@
                         <input type="hidden" id="end_at" name="end_at" value="{{ old('end_at', optional($evenement->end_at)->format('Y-m-d\TH:i')) }}">
 
                         <div class="col-12">
-                            <label for="description" class="form-label fw-semibold">Description *</label>
+                            <label for="description" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.description', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.description') }}</span>
+                                @endif
+                            </label>
                             <textarea id="description" name="description" class="form-control @error('description') is-invalid @enderror"
                                 rows="5" required>{{ old('description', $evenement->description) }}</textarea>
                             @error('description')
@@ -97,12 +138,16 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label for="obligatoire" class="form-label fw-semibold">Obligatoire</label>
+                            <label for="obligatoire" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.obligatoire', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.obligatoire') }}</span>
+                                @endif
+                            </label>
                             <div class="form-check form-switch mt-2">
                                 <input id="obligatoire" name="obligatoire" type="checkbox" class="form-check-input"
                                     value="1" {{ old('obligatoire', $evenement->obligatoire) ? 'checked' : '' }}>
-                                <label for="obligatoire" class="form-check-label">Oui, cet événement est
-                                    obligatoire</label>
+                                <label for="obligatoire" class="form-check-label">{{ __('evenements.obligatoire_label') }}</label>
                             </div>
                             @error('obligatoire')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -110,14 +155,19 @@
                         </div>
 
                         <div class="col-12">
-                            <div class="form-label fw-semibold mb-2">Rôles associés</div>
+                            <div class="form-label fw-semibold mb-2">
+                                <span class="basque">{{ Lang::get('evenements.cibles', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.cibles') }}</span>
+                                @endif
+                            </div>
 
                             <div class="role-selector-container">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="role-search" class="form-label small">Rechercher un rôle</label>
+                                        <label for="role-search" class="form-label small">{{ __('evenements.search_cible') }}</label>
                                         <input type="text" id="role-search" class="form-control"
-                                            placeholder="Tapez pour rechercher...">
+                                            placeholder="{{ __('evenements.search_cible_placeholder') }}">
                                         <div id="available-roles" class="role-list mt-2">
                                             @foreach ($roles as $role)
                                                 <div class="role-item" data-role-id="{{ $role->idRole }}"
@@ -129,12 +179,11 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-label small mb-2">Rôles sélectionnés</div>
+                                        <div class="form-label small mb-2">{{ __('evenements.cibles_selected') }}</div>
                                         <div id="selected-roles" class="role-list mt-2">
-                                            <div class="role-list-empty-message">Aucun rôle n'a été sélectionné</div>
+                                            <div class="role-list-empty-message">{{ __('evenements.no_cible_selected') }}</div>
                                         </div>
-                                        <div id="roles-error" class="invalid-feedback d-none mt-2">Au moins un rôle doit
-                                            être sélectionné.</div>
+                                        <div id="roles-error" class="invalid-feedback d-none mt-2">{{ __('evenements.cible_error') }}</div>
                                     </div>
                                 </div>
 
@@ -154,10 +203,10 @@
 
                     <div class="d-flex gap-3 mt-5 justify-content-end">
                         <a href="{{ route('evenements.index') }}" class="btn btn-secondary">
-                            Annuler
+                            {{ __('evenements.cancel') }}
                         </a>
                         <button type="submit" class="btn admin-add-button">
-                            <i class="bi bi-check-circle"></i> Enregistrer les modifications
+                            <i class="bi bi-check-circle"></i> {{ __('evenements.save') }}
                         </button>
                     </div>
                 </form>

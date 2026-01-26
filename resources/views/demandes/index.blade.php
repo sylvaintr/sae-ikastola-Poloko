@@ -14,15 +14,13 @@
                 </div>
 
                 <div class="demande-toolbar-item">
-                    <<<<<<< HEAD <a href="{{ route('demandes.create') }}"
-                        class="btn demande-btn-primary fw-semibold text-white px-4 py-2">
-                        =======
-                        <a href="{{ route('demandes.create') }}"
-                            class="btn demande-btn-primary fw-semibold text-white px-4 py-2 w-100 w-sm-auto">
-                            >>>>>>> origin/master
-                            {{ __('demandes.toolbar.create.eu') }}
-                        </a>
-                        <small class="text-muted d-block d-sm-inline">{{ __('demandes.toolbar.create.fr') }}</small>
+
+                    <a href="{{ route('demandes.create') }}"
+                        class="btn demande-btn-primary fw-semibold text-white px-4 py-2 w-100 w-sm-auto">
+
+                        {{ __('demandes.toolbar.create.eu') }}
+                    </a>
+                    <small class="text-muted d-block d-sm-inline">{{ __('demandes.toolbar.create.fr') }}</small>
                 </div>
             </div>
         </div>

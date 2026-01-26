@@ -1,6 +1,12 @@
 <?php
 
 return [
+    // Clés simples pour le calendrier
+    'title' => 'Eskaera',
+    'urgence' => 'Larrialdia',
+    'etat' => 'Egoera',
+    'type' => 'Mota',
+
     'toolbar' => [
         'export' => [
             'eu' => 'Esportatu (CSV)',

@@ -1,19 +1,30 @@
-﻿<x-app-layout>
-    <div class="container py-4">
+<x-app-layout>
+    <div class="container py-4 demande-page">
         <a href="{{ route('evenements.index') }}" class="admin-back-link mb-4 d-inline-flex align-items-center gap-2">
             <i class="bi bi-arrow-left"></i>
-            <span>Retour aux événements</span>
+            <span>{{ __('evenements.back_to_list') }}</span>
         </a>
 
         <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <h1 class="h4 fw-bold mb-4">Créer un nouvel événement</h1>
+                {{-- Titre bilingue --}}
+                <h1 class="h4 fw-bold mb-1">{{ Lang::get('evenements.create_title', [], 'eus') }}</h1>
+                @if (Lang::getLocale() == 'fr')
+                    <p class="text-muted mb-4">{{ Lang::get('evenements.create_title') }}</p>
+                @else
+                    <div class="mb-4"></div>
+                @endif
 
                 <form method="POST" action="{{ route('evenements.store') }}" class="admin-form">
                     @csrf
                     <div class="row g-4">
                         <div class="col-md-6">
-                            <label for="titre" class="form-label fw-semibold">Titre</label>
+                            <label for="titre" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.titre', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.titre') }}</span>
+                                @endif
+                            </label>
                             <input id="titre" name="titre" type="text"
                                 class="form-control @error('titre') is-invalid @enderror" value="{{ old('titre') }}"
                                 required maxlength="255">
@@ -26,12 +37,22 @@
                             <div class="form-check mb-3">
                                 <input type="checkbox" class="form-check-input" id="all_day" name="all_day"
                                     {{ old('all_day') ? 'checked' : '' }}>
-                                <label class="form-check-label fw-semibold" for="all_day">Journée entière</label>
+                                <label class="form-check-label fw-semibold" for="all_day">
+                                    <span class="basque">{{ Lang::get('evenements.all_day', [], 'eus') }}</span>
+                                    @if (Lang::getLocale() == 'fr')
+                                        <span class="fr text-muted"> / {{ Lang::get('evenements.all_day') }}</span>
+                                    @endif
+                                </label>
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <label for="start_date" class="form-label fw-semibold">Date de début</label>
+                            <label for="start_date" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.start_date', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.start_date') }}</span>
+                                @endif
+                            </label>
                             <input id="start_date" name="start_date" type="date"
                                 class="form-control @error('start_date') is-invalid @enderror @error('start_at') is-invalid @enderror"
                                 value="{{ old('start_date') }}" required>
@@ -44,7 +65,12 @@
                         </div>
 
                         <div class="col-md-6" id="start_time_container">
-                            <label for="start_time" class="form-label fw-semibold">Heure de début</label>
+                            <label for="start_time" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.start_time', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.start_time') }}</span>
+                                @endif
+                            </label>
                             <input id="start_time" name="start_time" type="time"
                                 class="form-control @error('start_time') is-invalid @enderror"
                                 value="{{ old('start_time', '09:00') }}">
@@ -54,11 +80,16 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label for="end_date" class="form-label fw-semibold">Date de fin</label>
+                            <label for="end_date" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.end_date', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.end_date') }}</span>
+                                @endif
+                            </label>
                             <input id="end_date" name="end_date" type="date"
                                 class="form-control @error('end_date') is-invalid @enderror @error('end_at') is-invalid @enderror"
                                 value="{{ old('end_date') }}">
-                            <small class="text-muted">Laissez vide si l'événement se termine le même jour</small>
+                            <small class="text-muted">{{ __('evenements.end_date_hint') }}</small>
                             @error('end_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -68,7 +99,12 @@
                         </div>
 
                         <div class="col-md-6" id="end_time_container">
-                            <label for="end_time" class="form-label fw-semibold">Heure de fin</label>
+                            <label for="end_time" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.end_time', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.end_time') }}</span>
+                                @endif
+                            </label>
                             <input id="end_time" name="end_time" type="time"
                                 class="form-control @error('end_time') is-invalid @enderror"
                                 value="{{ old('end_time', '18:00') }}">
@@ -82,7 +118,12 @@
                         <input type="hidden" id="end_at" name="end_at" value="{{ old('end_at') }}">
 
                         <div class="col-12">
-                            <label for="description" class="form-label fw-semibold">Description</label>
+                            <label for="description" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.description', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.description') }}</span>
+                                @endif
+                            </label>
                             <textarea id="description" name="description" class="form-control @error('description') is-invalid @enderror"
                                 rows="4" required>{{ old('description') }}</textarea>
                             @error('description')
@@ -90,31 +131,38 @@
                             @enderror
                         </div>
 
-                        {{-- Obligatoire (optionnel) --}}
+                        {{-- Obligatoire --}}
                         <div class="col-md-6">
-                            <label for="obligatoire" class="form-label fw-semibold">Obligatoire</label>
+                            <label for="obligatoire" class="form-label fw-semibold">
+                                <span class="basque">{{ Lang::get('evenements.obligatoire', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.obligatoire') }}</span>
+                                @endif
+                            </label>
                             <div class="form-check form-switch mt-2">
                                 <input id="obligatoire" name="obligatoire" type="checkbox" class="form-check-input"
                                     value="1" {{ old('obligatoire') ? 'checked' : '' }}>
-                                <label for="obligatoire" class="form-check-label">Oui, cet événement est
-                                    obligatoire</label>
+                                <label for="obligatoire" class="form-check-label">{{ __('evenements.obligatoire_label') }}</label>
                             </div>
                             @error('obligatoire')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
 
-
-
                         <div class="col-12">
-                            <div class="form-label fw-semibold mb-2">Cibles</div>
+                            <div class="form-label fw-semibold mb-2">
+                                <span class="basque">{{ Lang::get('evenements.cibles', [], 'eus') }}</span>
+                                @if (Lang::getLocale() == 'fr')
+                                    <span class="fr text-muted"> / {{ Lang::get('evenements.cibles') }}</span>
+                                @endif
+                            </div>
 
                             <div class="role-selector-container">
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label for="role-search" class="form-label small">Rechercher une cible</label>
+                                        <label for="role-search" class="form-label small">{{ __('evenements.search_cible') }}</label>
                                         <input type="text" id="role-search" class="form-control"
-                                            placeholder="Tapez pour rechercher...">
+                                            placeholder="{{ __('evenements.search_cible_placeholder') }}">
                                         <div id="available-roles" class="role-list mt-2">
                                             @foreach ($roles as $role)
                                                 <div class="role-item" data-role-id="{{ $role->idRole }}"
@@ -126,12 +174,11 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-label small mb-2">Cibles sélectionnés</div>
+                                        <div class="form-label small mb-2">{{ __('evenements.cibles_selected') }}</div>
                                         <div id="selected-roles" class="role-list mt-2">
-                                            <div class="role-list-empty-message">Aucune cible n'a été sélectionnée</div>
+                                            <div class="role-list-empty-message">{{ __('evenements.no_cible_selected') }}</div>
                                         </div>
-                                        <div id="roles-error" class="invalid-feedback d-none mt-2">Au moins une cible
-                                            doit être sélectionnée.</div>
+                                        <div id="roles-error" class="invalid-feedback d-none mt-2">{{ __('evenements.cible_error') }}</div>
                                     </div>
                                 </div>
 
@@ -151,10 +198,10 @@
 
                     <div class="d-flex gap-3 mt-4 justify-content-end">
                         <a href="{{ route('evenements.index') }}" class="btn admin-cancel-btn px-4">
-                            Annuler
+                            {{ __('evenements.cancel') }}
                         </a>
                         <button type="submit" class="btn fw-semibold px-4 admin-submit-btn">
-                            Créer
+                            {{ __('evenements.create') }}
                         </button>
                     </div>
                 </form>
@@ -221,6 +268,7 @@
                     $roles->map(function ($r) {
                             return ['idRole' => $r->idRole, 'name' => $r->name];
                         })->values());
+                const emptyMessage = @json(__('evenements.no_cible_selected'));
 
                 // Normaliser une chaîne en supprimant les accents
                 function normalizeString(str) {
@@ -234,53 +282,29 @@
                     roleNamesCache.set(role, normalizeString(role.dataset.roleName));
                 });
 
-                // Filtrer les rôles disponibles (optimisé avec batch DOM updates)
+                // Filtrer les rôles disponibles
                 function filterRoles(searchTerm) {
                     const normalizedTerm = normalizeString(searchTerm.trim());
                     const hasTerm = normalizedTerm.length > 0;
 
-                    // Utiliser requestAnimationFrame pour de meilleures performances
                     requestAnimationFrame(() => {
-                        // Batch les modifications DOM
-                        let hasChanges = false;
-
                         roleElements.forEach(role => {
                             const roleId = role.dataset.roleId;
                             const isSelected = selectedRoleIds.has(roleId);
 
                             if (isSelected) {
-                                if (role.style.display !== 'none') {
-                                    role.style.display = 'none';
-                                    hasChanges = true;
-                                }
+                                role.style.display = 'none';
                                 return;
                             }
 
                             if (!hasTerm) {
-                                if (role.style.display !== 'flex') {
-                                    role.style.display = 'flex';
-                                    hasChanges = true;
-                                }
+                                role.style.display = 'flex';
                                 return;
                             }
 
                             const normalizedRoleName = roleNamesCache.get(role);
-                            const shouldShow = normalizedRoleName.includes(normalizedTerm);
-                            const currentDisplay = role.style.display;
-
-                            if (shouldShow && currentDisplay !== 'flex') {
-                                role.style.display = 'flex';
-                                hasChanges = true;
-                            } else if (!shouldShow && currentDisplay !== 'none') {
-                                role.style.display = 'none';
-                                hasChanges = true;
-                            }
+                            role.style.display = normalizedRoleName.includes(normalizedTerm) ? 'flex' : 'none';
                         });
-
-                        // Forcer un reflow si nécessaire
-                        if (hasChanges) {
-                            availableRoles.offsetHeight;
-                        }
                     });
                 }
 
@@ -290,15 +314,10 @@
                     roleElement.className = 'role-item selected';
                     roleElement.dataset.roleId = roleId;
                     roleElement.dataset.roleName = roleName;
-                    roleElement.innerHTML = `
-                    <span>${roleName}</span>
-                    <i class="bi bi-dash-circle"></i>
-                `;
-
+                    roleElement.innerHTML = `<span>${roleName}</span><i class="bi bi-dash-circle"></i>`;
                     roleElement.addEventListener('click', function() {
                         removeRole(roleId);
                     });
-
                     return roleElement;
                 }
 
@@ -310,30 +329,19 @@
                     const roleData = allRolesData.find(r => r.idRole == roleId);
                     if (!roleData) return;
 
-                    // Masquer le message vide
-                    const emptyMessage = selectedRoles.querySelector('.role-list-empty-message');
-                    if (emptyMessage) {
-                        emptyMessage.style.display = 'none';
-                    }
+                    const emptyEl = selectedRoles.querySelector('.role-list-empty-message');
+                    if (emptyEl) emptyEl.style.display = 'none';
 
-                    // Ajouter l'élément sélectionné
-                    const selectedRoleElement = createSelectedRoleElement(roleId, roleData.name);
-                    selectedRoles.appendChild(selectedRoleElement);
+                    selectedRoles.appendChild(createSelectedRoleElement(roleId, roleData.name));
 
-                    // Ajouter l'input caché
                     const input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = 'roles[]';
                     input.value = roleId;
                     roleInputs.appendChild(input);
 
-                    // Mettre à jour l'affichage des rôles disponibles
                     updateAvailableRolesDisplay();
-
-                    // Cacher l'erreur si elle était affichée
-                    if (rolesError) {
-                        rolesError.classList.add('d-none');
-                    }
+                    rolesError?.classList.add('d-none');
                 }
 
                 // Retirer un rôle de la sélection
@@ -341,93 +349,64 @@
                     if (!selectedRoleIds.has(roleId)) return;
 
                     selectedRoleIds.delete(roleId);
+                    selectedRoles.querySelector(`[data-role-id="${roleId}"]`)?.remove();
+                    roleInputs.querySelector(`input[value="${roleId}"]`)?.remove();
 
-                    // Supprimer l'élément sélectionné
-                    const selectedRoleElement = selectedRoles.querySelector(`[data-role-id="${roleId}"]`);
-                    if (selectedRoleElement) {
-                        selectedRoleElement.remove();
-                    }
-
-                    // Supprimer l'input caché
-                    const input = roleInputs.querySelector(`input[value="${roleId}"]`);
-                    if (input) {
-                        input.remove();
-                    }
-
-                    // Afficher le message vide si aucun rôle n'est sélectionné
                     if (selectedRoleIds.size === 0) {
-                        const emptyMessage = document.createElement('div');
-                        emptyMessage.className = 'role-list-empty-message';
-                        emptyMessage.textContent = 'Aucun rôle n\'a été sélectionné';
-                        selectedRoles.appendChild(emptyMessage);
+                        const emptyEl = document.createElement('div');
+                        emptyEl.className = 'role-list-empty-message';
+                        emptyEl.textContent = emptyMessage;
+                        selectedRoles.appendChild(emptyEl);
                     }
 
-                    // Mettre à jour l'affichage des rôles disponibles
                     updateAvailableRolesDisplay();
                 }
 
                 // Mettre à jour l'affichage des rôles disponibles
                 function updateAvailableRolesDisplay() {
+                    const searchTerm = roleSearch.value.trim();
+                    const normalizedTerm = searchTerm ? normalizeString(searchTerm) : '';
+
                     roleElements.forEach(role => {
                         const roleId = role.dataset.roleId;
-                        const isSelected = selectedRoleIds.has(roleId);
-
-                        if (isSelected) {
+                        if (selectedRoleIds.has(roleId)) {
                             role.style.display = 'none';
+                        } else if (normalizedTerm) {
+                            const normalizedRoleName = roleNamesCache.get(role);
+                            role.style.display = normalizedRoleName.includes(normalizedTerm) ? 'flex' : 'none';
                         } else {
-                            // Respecter le filtre de recherche actuel
-                            const searchTerm = roleSearch.value.trim();
-                            if (searchTerm) {
-                                const normalizedTerm = normalizeString(searchTerm);
-                                const normalizedRoleName = roleNamesCache.get(role);
-                                role.style.display = normalizedRoleName.includes(normalizedTerm) ? 'flex' :
-                                    'none';
-                            } else {
-                                role.style.display = 'flex';
-                            }
+                            role.style.display = 'flex';
                         }
                     });
                 }
 
-                // Gestionnaire d'événement pour la recherche
                 roleSearch.addEventListener('input', function() {
                     filterRoles(this.value);
                 });
 
-                // Gestionnaire d'événement pour les rôles disponibles
                 availableRoles.addEventListener('click', function(e) {
                     const roleItem = e.target.closest('.role-item');
                     if (roleItem && !roleItem.classList.contains('selected')) {
-                        const roleId = roleItem.dataset.roleId;
-                        addRole(roleId);
+                        addRole(roleItem.dataset.roleId);
                     }
                 });
 
                 // Validation du formulaire
                 form.addEventListener('submit', function(e) {
-                    // Mettre à jour les champs cachés avant soumission
                     updateHiddenFields();
 
                     if (selectedRoleIds.size === 0) {
                         e.preventDefault();
                         rolesError.classList.remove('d-none');
-                        rolesError.textContent = 'Au moins un rôle doit être sélectionné.';
-
-                        // Scroll vers l'erreur
-                        rolesError.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center'
-                        });
+                        rolesError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         return false;
                     }
                 });
 
-                // Initialisation : restaurer les valeurs old() si elles existent
+                // Restaurer les valeurs old()
                 const oldRoles = @json(old('roles', []));
                 if (Array.isArray(oldRoles) && oldRoles.length > 0) {
-                    oldRoles.forEach(roleId => {
-                        addRole(roleId);
-                    });
+                    oldRoles.forEach(roleId => addRole(roleId));
                 }
             });
         </script>

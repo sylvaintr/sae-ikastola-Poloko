@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container py-4">
+    <div class="container py-4 demande-page">
         @if (session('status'))
             <div id="status-alert" class="alert alert-success status-alert mb-3 d-flex align-items-center justify-content-between">
                 <span>{{ session('status') }}</span>
@@ -7,62 +7,112 @@
             </div>
         @endif
 
-        <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-4 mb-5">
+        {{-- Titre / sous-titre --}}
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
             <div>
-                <h1 class="fw-bold display-4 mb-1" style="font-size: 2.5rem;">Évènements</h1>
-                <p class="text-muted mb-0" style="font-size: 0.9rem;">Liste des évènements enregistrés</p>
+                <h1 class="text-capitalize mb-0">
+                    {{ Lang::get('evenements.title', [], 'eus') }}
+                </h1>
+                @if (Lang::getLocale() == 'fr')
+                    <p class="text-capitalize mb-0 text-muted">
+                        {{ Lang::get('evenements.title') }}
+                    </p>
+                @endif
             </div>
-
-            <div class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
-                <div class="admin-search-container">
-                    <input type="text" id="search-event" name="search"
-                           class="form-control admin-search-input"
-                           placeholder="Rechercher un évènement..."
-                           value="{{ request('search') }}">
-                    <p class="text-muted mb-0" style="font-size: 0.75rem; margin-top: 0.25rem;">Recherche par titre ou ID</p>
-                </div>
-
-                <form method="GET" action="{{ route('evenements.index') }}" class="d-flex flex-column align-items-start" id="sort-form">
-                    @if(request('search'))
-                        <input type="hidden" name="search" value="{{ request('search') }}">
-                    @endif
-                    <label for="sort" class="form-label fw-semibold mb-1">Trier</label>
-                    <select id="sort" name="sort" class="form-select" style="min-width: 220px;" onchange="this.form.submit()">
-                        @php $currentSort = $sort ?? 'id_desc'; @endphp
-                        <option value="id_desc" @selected($currentSort === 'id_desc')>ID - plus récents en premier</option>
-                        <option value="id_asc" @selected($currentSort === 'id_asc')>ID - plus anciens en premier</option>
-                        <option value="date_desc" @selected($currentSort === 'date_desc')>Date - plus récentes en premier</option>
-                        <option value="date_asc" @selected($currentSort === 'date_asc')>Date - plus anciennes en premier</option>
-                    </select>
-                </form>
-
-                <div class="d-flex flex-column align-items-start">
-                    <a href="{{ route('evenements.create') }}" class="btn admin-add-button">
-                        Ajouter un évènement
+            <div class="d-flex flex-nowrap gap-3 align-items-start">
+                <div class="d-flex flex-column align-items-center">
+                    <a href="{{ route('evenements.create') }}" class="btn demande-btn-primary text-white">
+                        {{ Lang::get('evenements.add', [], 'eus') }}
                     </a>
-                    <p class="text-muted mb-0 admin-button-subtitle">Créer un nouvel évènement</p>
+                    @if (Lang::getLocale() == 'fr')
+                        <small class="text-muted mt-1">{{ Lang::get('evenements.add') }}</small>
+                    @endif
                 </div>
             </div>
         </div>
 
+        {{-- Filtres --}}
+        <form method="GET" action="{{ route('evenements.index') }}" class="row g-3 align-items-end admin-actualites-filters mb-3">
+            <div class="col-sm-4">
+                <label for="search-event" class="form-label fw-semibold">
+                    <span class="basque">{{ Lang::get('evenements.search', [], 'eus') }}</span>
+                    @if (Lang::getLocale() == 'fr')
+                        <span class="fr text-muted"> / {{ Lang::get('evenements.search') }}</span>
+                    @endif
+                </label>
+                <input type="text" id="search-event" name="search" class="form-control"
+                       value="{{ request('search') }}"
+                       placeholder="{{ __('evenements.search_placeholder') }}">
+            </div>
+            <div class="col-sm-4">
+                <label for="sort" class="form-label fw-semibold">
+                    <span class="basque">{{ Lang::get('evenements.sort', [], 'eus') }}</span>
+                    @if (Lang::getLocale() == 'fr')
+                        <span class="fr text-muted"> / {{ Lang::get('evenements.sort') }}</span>
+                    @endif
+                </label>
+                @php $currentSort = $sort ?? 'id_desc'; @endphp
+                <select id="sort" name="sort" class="form-select" onchange="this.form.submit()">
+                    <option value="id_desc" @selected($currentSort === 'id_desc')>{{ __('evenements.sort_id_desc') }}</option>
+                    <option value="id_asc" @selected($currentSort === 'id_asc')>{{ __('evenements.sort_id_asc') }}</option>
+                    <option value="date_desc" @selected($currentSort === 'date_desc')>{{ __('evenements.sort_date_desc') }}</option>
+                    <option value="date_asc" @selected($currentSort === 'date_asc')>{{ __('evenements.sort_date_asc') }}</option>
+                </select>
+            </div>
+            <div class="col-sm-4 d-flex gap-2 justify-content-end">
+                <button type="submit" class="btn demande-btn-primary text-white">{{ __('evenements.search') }}</button>
+                <a href="{{ route('evenements.index') }}" class="btn demande-btn-outline">{{ __('evenements.cancel') }}</a>
+            </div>
+        </form>
+
+        {{-- Tableau --}}
         <div class="table-responsive">
-            <table class="table align-middle admin-table">
+            <table class="table align-middle demande-table mb-0">
                 <thead>
                     <tr>
-                        <th><span class="admin-table-heading">ID</span></th>
-                        <th><span class="admin-table-heading">Titre</span></th>
-                        <th><span class="admin-table-heading">Date</span></th>
-                        <th><span class="admin-table-heading">Description</span></th>
-                        <th><span class="admin-table-heading">Statut</span></th>
-                        <th><span class="admin-table-heading">Actions</span></th>
+                        <th>
+                            <div class="demande-header-label">
+                                <span class="basque">ID</span>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="demande-header-label">
+                                <span class="basque">{{ Lang::get('evenements.titre', [], 'eus') }}</span>
+                                <span class="fr">{{ Lang::get('evenements.titre') }}</span>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="demande-header-label">
+                                <span class="basque">{{ Lang::get('evenements.date', [], 'eus') }}</span>
+                                <span class="fr">{{ Lang::get('evenements.date') }}</span>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="demande-header-label">
+                                <span class="basque">{{ Lang::get('evenements.description', [], 'eus') }}</span>
+                                <span class="fr">{{ Lang::get('evenements.description') }}</span>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="demande-header-label">
+                                <span class="basque">{{ Lang::get('evenements.statut', [], 'eus') }}</span>
+                                <span class="fr">{{ Lang::get('evenements.statut') }}</span>
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="demande-header-label">
+                                <span class="basque">{{ Lang::get('evenements.actions', [], 'eus') }}</span>
+                                <span class="fr">{{ Lang::get('evenements.actions') }}</span>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($evenements as $evenement)
                         <tr>
                             <td>{{ $evenement->idEvenement }}</td>
-                            <td><strong>{{ $evenement->titre }}</strong></td>
-                            <td>{{ \Carbon\Carbon::parse($evenement->dateE)->format('d/m/Y') }}</td>
+                            <td class="fw-semibold">{{ $evenement->titre }}</td>
+                            <td>{{ optional($evenement->start_at)->format('d/m/Y') }}</td>
                             <td>
                                 <span title="{{ $evenement->description }}">
                                     {{ \Illuminate\Support\Str::limit($evenement->description, 50) }}
@@ -70,23 +120,23 @@
                             </td>
                             <td>
                                 @if($evenement->obligatoire)
-                                    <span class="badge bg-danger">Obligatoire</span>
+                                    <span class="badge bg-danger">{{ __('evenements.status_obligatoire') }}</span>
                                 @else
-                                    <span class="badge bg-success">Optionnel</span>
+                                    <span class="badge bg-success">{{ __('evenements.status_optionnel') }}</span>
                                 @endif
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <div class="d-flex align-items-center justify-content-center gap-3">
-                                    <a href="{{ route('evenements.show', $evenement->idEvenement) }}" class="admin-action-link" title="Voir les détails">
+                                    <a href="{{ route('evenements.show', $evenement->idEvenement) }}" class="admin-action-link" title="{{ __('evenements.action_view') }}">
                                         <i class="bi bi-eye-fill"></i>
                                     </a>
-                                    <a href="{{ route('evenements.edit', $evenement->idEvenement) }}" class="admin-action-link" title="Modifier">
+                                    <a href="{{ route('evenements.edit', $evenement->idEvenement) }}" class="admin-action-link" title="{{ __('evenements.action_edit') }}">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <form action="{{ route('evenements.destroy', $evenement->idEvenement) }}" method="POST" class="d-inline delete-event-form">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" class="admin-action-link btn btn-link p-0 m-0 delete-event-btn" data-event-title="{{ $evenement->titre }}" title="Supprimer">
+                                        <button type="button" class="admin-action-link btn btn-link p-0 m-0 delete-event-btn" data-event-title="{{ $evenement->titre }}" title="{{ __('evenements.action_delete') }}">
                                             <i class="bi bi-trash3-fill"></i>
                                         </button>
                                     </form>
@@ -95,9 +145,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-5">
-                                Aucun événement disponible pour le moment.
-                            </td>
+                            <td colspan="6" class="text-center text-muted py-4">{{ __('evenements.no_events') }}</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -105,7 +153,7 @@
         </div>
 
         @if($evenements->hasPages())
-            <div class="admin-pagination-container">
+            <div class="mt-3 admin-pagination-container">
                 {{ $evenements->links() }}
             </div>
         @endif
@@ -115,15 +163,15 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="deleteEventLabel">Supprimer l'événement</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                        <h5 class="modal-title" id="deleteEventLabel">{{ __('evenements.delete_title') }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        Voulez-vous vraiment supprimer l'événement « <span data-event-title></span> » ?
+                        {{ __('evenements.delete_confirm') }} « <span data-event-title></span> » ?
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary cancel-delete" data-bs-dismiss="modal">Annuler</button>
-                        <button type="button" class="btn btn-danger confirm-delete">Supprimer</button>
+                        <button type="button" class="btn btn-secondary cancel-delete" data-bs-dismiss="modal">{{ __('evenements.cancel') }}</button>
+                        <button type="button" class="btn btn-danger confirm-delete">{{ __('evenements.delete') }}</button>
                     </div>
                 </div>
             </div>
@@ -141,28 +189,6 @@
             alert.classList.add('fade-out');
             setTimeout(() => alert.remove(), 500);
         }, 4000);
-    })();
-
-    // Recherche auto
-    (function () {
-        const searchInput = document.getElementById('search-event');
-        if (!searchInput) { return; }
-
-        let searchTimeout;
-        searchInput.addEventListener('input', function () {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                const searchValue = this.value.trim();
-                const url = new URL(window.location.href);
-                url.searchParams.delete('page');
-                if (searchValue) {
-                    url.searchParams.set('search', searchValue);
-                } else {
-                    url.searchParams.delete('search');
-                }
-                window.location.href = url.toString();
-            }, 500);
-        });
     })();
 
     // Suppression avec modal

@@ -1,6 +1,12 @@
 <?php
 
 return [
+    // Clés simples pour le calendrier
+    'title' => 'Demande',
+    'urgence' => 'Urgence',
+    'etat' => 'État',
+    'type' => 'Type',
+
     'toolbar' => [
         'export' => [
             'eu' => 'Esportatu (CSV)',
