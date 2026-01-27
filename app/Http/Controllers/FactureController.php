@@ -47,18 +47,6 @@ class FactureController extends Controller
     }
 
     /**
-     * Expose la régularisation pour les tests et usages internes.
-     * @param int $idfamille
-     * @return int
-     */
-    public function calculerRegularisation(int $idfamille): int
-    {
-        return $this->factureCalculator->calculerRegularisation($idfamille);
-    }
-
-
-
-    /**
      * Methode pour afficher la liste des factures
      * @return View
      */
@@ -81,12 +69,12 @@ class FactureController extends Controller
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
 
+        $nomfichier = 'facture-' . $facture->idFacture;
+
        
 
         if ($facture->etat =='verifier') {
             // return le fichier de la facture
-            $nomfichier = 'facture-' . $facture->idFacture;
-
             $chemin = self::DIR_FACTURES . $nomfichier . '.pdf';
             if (Storage::disk('public')->exists($chemin)) {
                 $urlPublique = Storage::url($chemin);
@@ -100,7 +88,50 @@ class FactureController extends Controller
             }
 
             }else {
-                $docxPath = storage_path('app/public/factures/facture-' . $id . '.docx');
+                $extensionsPossibles = ['doc', 'docx', 'odt'];
+                $extensionTrouvee = null;
+                $fichierWordPath = null;
+                foreach ($extensionsPossibles as $ext) {
+                    $chemin = self::DIR_FACTURES . $nomfichier . '.' . $ext;
+                    if (Storage::disk('public')->exists($chemin)) {
+                        $fichierWordPath = Storage::disk('public')->path($chemin);
+                        $extensionTrouvee = $ext;
+                        break;
+                    }
+                }
+
+                if ($fichierWordPath === null) {
+                    return redirect()->route('admin.facture.index')->with('error', 'facture.fichierintrouvable');
+                }
+
+                // Si c'est déjà un DOCX on l'utilise directement, sinon on essaye de convertir (odt/doc -> docx)
+                if ($extensionTrouvee === 'docx') {
+                    $originalDocxPath = $fichierWordPath;
+                } else {
+                    $tmpDir = sys_get_temp_dir();
+                    $basename = pathinfo($fichierWordPath, PATHINFO_FILENAME);
+                    $convertedPath = $tmpDir . DIRECTORY_SEPARATOR . $basename . '.docx';
+
+                    // Nettoyage préventif
+                    if (file_exists($convertedPath)) {
+                        @unlink($convertedPath);
+                    }
+
+                    $cmd = 'export HOME=/tmp && libreoffice --headless --convert-to docx ' . escapeshellarg($fichierWordPath) . ' --outdir ' . escapeshellarg($tmpDir) . ' 2>&1';
+                    $output = [];
+                    $returnVar = 0;
+                    exec($cmd, $output, $returnVar);
+
+                    if (!file_exists($convertedPath)) {
+                        // Conversion échouée -> erreur visible à l'utilisateur
+                        \Illuminate\Support\Facades\Log::error("Échec conversion LibreOffice pour facture $id", ['cmd_output' => $output]);
+                        return redirect()->route('admin.facture.index')->with('error', 'facture.conversionerreur');
+                    }
+
+                    $originalDocxPath = $convertedPath;
+                }
+                $originalDocxPath = storage_path('app/public/factures/facture-' . $id . '.docx');
+                $docxPath = $this->sanitizeDocxLanguageCodes($originalDocxPath);
                 $phpWord = IOFactory::load($docxPath);
 
                 // Conversion en HTML
@@ -112,6 +143,7 @@ class FactureController extends Controller
                 $htmlContent = ob_get_clean();
                 $inlinedHtml = CssInliner::fromHtml($htmlContent)->inlineCss()->render();
                 $return = view('facture.show', [
+                    
                     'inlinedHtml' => $inlinedHtml,
                 ]);
 
@@ -250,7 +282,7 @@ class FactureController extends Controller
                     $conversionReussie = true;
                     
                     // On arrête la boucle, on a trouvé et converti le fichier
-                    break; 
+                    break;
                 } else {
                     // Échec : On loggue l'erreur pour le développeur
                     \Illuminate\Support\Facades\Log::error("Échec conversion LibreOffice Facture $id", ['cmd_output' => $output]);
@@ -273,46 +305,7 @@ class FactureController extends Controller
     }
 }
 
-    /* public function validerFacture(string $id): ?RedirectResponse
-    {
-        $facture = Facture::find($id ?? null);
-        if ($facture === null) {
-            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
-        }
-        
-        if ($facture->etat != 'verifier') {
-
-            
-            // suprimer le document word ou odt
-            $nomfichier = 'facture-' . $facture->idFacture;
-            $extensionsPossibles = ['doc', 'docx', 'odt'];
-            foreach ($extensionsPossibles as $ext) {
-                $ancienChemin = self::DIR_FACTURES . $nomfichier . '.' . $ext;
-                if (Storage::disk('public')->exists($ancienChemin)) {
-                    $inputPath = Storage::disk('public')->path($ancienChemin);
-                    $outputDir = storage_path('app/public/factures/');
-        
-                    
-                    $command = 'libreoffice --headless --convert-to pdf ' . escapeshellarg($inputPath) . ' --outdir ' . escapeshellarg($outputDir). ' 2>&1';
-                    $output = [];
-
-                    $returnVar = 0;
-                    exec($command, $output, $returnVar);
-                    var_dump($output);
-                    /* Storage::disk('public')->delete($ancienChemin); 
-                       /*  $facture->etat = 'verifier'; 
-                    
-
-                }
-            }
-
-        } else {
-            return redirect()->route('admin.facture.index', $facture->idFacture)->with('error', 'facture.dejasvalidee');
-        }
-        $facture->save();
-        //return redirect()->route('admin.facture.index', $facture->idFacture)->with('success', 'facture.validersuccess');
-        return null;
-        } */
+   
 
     public function update(Request $request, string $id): RedirectResponse
     {
@@ -350,6 +343,24 @@ class FactureController extends Controller
                 if (Storage::disk('public')->exists($ancienChemin)) {
                     Storage::disk('public')->delete($ancienChemin);
                 }
+            }
+
+            // Enregistrer le fichier uploadé dans storage/app/public/factures
+            try {
+                $extension = strtolower($file->getClientOriginalExtension() ?? $file->extension());
+                if (!in_array($extension, $extensionsPossibles, true)) {
+                    $extension = 'docx';
+                }
+                $filename = 'facture-' . $facture->idFacture . '.' . $extension;
+                $stored = $file->storeAs('public/factures', $filename);
+                if ($stored === false) {
+                    return redirect()->route('admin.facture.index')->with('error', 'facture.uploadfail');
+                }
+                // assurer visibilité publique
+                Storage::disk('public')->setVisibility('factures/' . $filename, 'public');
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Erreur lors de l\'upload facture', ['err' => $e->getMessage()]);
+                return redirect()->route('admin.facture.index')->with('error', 'facture.uploadfail');
             }
 
 
