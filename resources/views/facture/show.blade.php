@@ -16,7 +16,7 @@
             </div>
         </a>
 
-        @if ($fichierpdf)
+        @if (isset($fichierpdf))
             <iframe src="{{ $fichierpdf }}" title="facture" width="100%" height="600px"></iframe>
         @else
             {!! $inlinedHtml !!}

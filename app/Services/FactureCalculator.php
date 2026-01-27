@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Services;
 
 use App\Models\Facture;
-use App\Models\Pratiquer;
 use App\Models\Famille;
+use App\Models\Pratiquer;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 
@@ -17,15 +16,14 @@ class FactureCalculator
      * @return array<int, float> tableau associatif contenant les montants calculés :
      *      montantcotisation, montantparticipation, montantparticipationSeaska, montangarderie, montanttotal,facture, famille, nbEnfants
      */
-    public function calculerMontantFacture(string $id): array|RedirectResponse
+    public function calculerMontantFacture(string $id): array | RedirectResponse
     {
-        
+
         $facture = Facture::find($id ?? null);
         if ($facture === null) {
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
 
-       
         $famille = $facture->famille; // relation property returns model
         if ($famille === null) {
             return redirect()->route('admin.facture.index')->with('error', 'famille.inexistante');
@@ -34,9 +32,9 @@ class FactureCalculator
         $enfants = $famille->enfants()->get();
 
         $montantCotisation = match ($enfants->count()) {
-            0 => 0,
-            1 => 45,
-            2 => 65,
+            0       => 0,
+            1       => 45,
+            2       => 65,
             default => 75,
         };
 
@@ -64,33 +62,32 @@ class FactureCalculator
         $montantTotalPrev = $montantGarderiePrev + $montantCotisation + $montantParticipation + $montantParticipationSeaska;
 
         return [
-            'facture' => $facture,
-            'famille' => $famille,
-            'enfants' => $enfants,
-            'nbEnfants' => $enfants->count(),
-            'montantcotisation' => $montantCotisation,
-            'montantparticipation' => $montantParticipation,
+            'facture'                    => $facture,
+            'famille'                    => $famille,
+            'enfants'                    => $enfants,
+            'nbEnfants'                  => $enfants->count(),
+            'montantcotisation'          => $montantCotisation,
+            'montantparticipation'       => $montantParticipation,
             'montantparticipationSeaska' => $montantParticipationSeaska,
-            'montangarderie' => $montantGarderiePrev,
-            'montanttotal' => $montantTotalPrev,
-            'totalPrevisionnel' => $montantTotalPrev,
+            'montangarderie'             => $montantGarderiePrev,
+            'montanttotal'               => $montantTotalPrev,
+            'totalPrevisionnel'          => $montantTotalPrev,
         ];
     }
 
-
-        /**
-     *  calcule le montant de la regulation  pour une famille
+    /**
+     * calcule le montant de la regulation  pour une facture donnée
      * @param int $idfamille identifiant de la famille
      * @return int montant de la regulation
      */
-    public function calculerRegularisation(int $idfamille): int
+    public function calculerRegularisation(int $idfacture): int
     {
         $lastRegDate = Facture::where('idFamille', $idfamille)
             ->where('previsionnel', false)
             ->whereDate('dateC', '<>', Carbon::today())
             ->max('dateC');
 
-        $startDate = $lastRegDate ? Carbon::parse($lastRegDate) : Carbon::create(2000, 1, 1);
+        $startDate    = $lastRegDate ? Carbon::parse($lastRegDate) : Carbon::create(2000, 1, 1);
         $facturesPrev = Facture::where('idFamille', $idfamille)
             ->where('previsionnel', true)
             ->where('dateC', '>=', $startDate)
@@ -98,12 +95,11 @@ class FactureCalculator
 
         $totalPrev = 0;
         foreach ($facturesPrev as $facture) {
-            $montantDetails = $this->calculerMontantFacture($facture->idFacture);
-            $totalPrev += $montantDetails['totalPrevisionnel']; // Null coalesce safety
+            $montantDetails  = $this->calculerMontantFacture($facture->idFacture);
+            $totalPrev      += $montantDetails['totalPrevisionnel']; // Null coalesce safety
         }
 
         $totalRegularisation = 0;
-
 
         $familleObj = Famille::find($idfamille);
         if ($familleObj === null) {
@@ -112,10 +108,9 @@ class FactureCalculator
         $enfants = $familleObj->enfants()->get();
 
         $cursorDate = $startDate->copy()->startOfMonth();
-        $endDate = Carbon::now()->endOfMonth();
+        $endDate    = Carbon::now()->endOfMonth();
 
         while ($cursorDate->lte($endDate)) {
-
 
             $facture = Facture::where('idFamille', $idfamille)
                 ->whereYear('dateC', $cursorDate->year)
@@ -123,22 +118,20 @@ class FactureCalculator
                 ->first();
 
             if ($facture) {
-                $montant = app(FactureCalculator::class)->calculerMontantFacture($facture->idFacture);
+                $montant             = app(FactureCalculator::class)->calculerMontantFacture($facture->idFacture);
                 $totalRegularisation += ($montant['montantcotisation'] ?? 0)
-                    + ($montant['montantparticipation'] ?? 0)
-                    + ($montant['montantparticipationSeaska'] ?? 0);
-
+                     + ($montant['montantparticipation'] ?? 0)
+                     + ($montant['montantparticipationSeaska'] ?? 0);
 
                 foreach ($enfants as $enfant) {
 
                     $monthStart = $cursorDate->copy()->startOfMonth();
-                    $monthEnd = $cursorDate->copy()->endOfMonth();
+                    $monthEnd   = $cursorDate->copy()->endOfMonth();
 
                     $nbfoisgarderie = Pratiquer::where('idEnfant', $enfant->idEnfant)
                         ->whereBetween('dateP', [$monthStart, $monthEnd])
                         ->where('activite', 'like', '%garderie%')
                         ->count();
-
 
                     if ($nbfoisgarderie > 8) {
                         $totalRegularisation += 20;
@@ -150,7 +143,6 @@ class FactureCalculator
 
             $cursorDate->addMonth();
         }
-
 
         // si c'est positif la famille doit de l'argent
         // si c'est negatif l'ikastola doit de l'argent a la famille
