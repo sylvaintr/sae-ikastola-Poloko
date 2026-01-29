@@ -157,7 +157,18 @@ return [
                 'eu' => 'Argazkia',
                 'fr' => 'Photo',
             ],
+            'evenement' => [
+                'eu' => 'Gertaera lotua',
+                'fr' => 'Événement associé',
+            ],
+            'cibles' => [
+                'eu' => 'Helburu rolak',
+                'fr' => 'Rôles cibles',
+            ],
         ],
+        'evenement_none' => '-- Gertaerarik gabe --',
+        'evenement_hint' => 'Aukerakoa: lotu eskaera hau gertaera batekin helburu rolak aurrez betetzeko.',
+        'cibles_hint' => 'Aukerakoa: definitu egutegian eskaera hau ikusiko duten rolak.',
         'buttons' => [
             'back' => [
                 'eu' => 'Itzuli',

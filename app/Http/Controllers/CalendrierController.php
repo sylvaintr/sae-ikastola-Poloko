@@ -6,10 +6,12 @@ use App\Models\Evenement;
 use App\Models\Tache;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class CalendrierController extends Controller
 {
     private const STATUS_TERMINE = 'Terminé';
+    private const ADMIN_ROLE = 'CA';
 
     public function index()
     {
@@ -22,8 +24,32 @@ class CalendrierController extends Controller
         $start = $request->query('start'); // ISO
         $end   = $request->query('end');   // ISO
 
+        // Récupérer les rôles de l'utilisateur connecté
+        $user = Auth::user();
+        $userRoleIds = $user ? $user->rolesCustom()->pluck('role.idRole')->toArray() : [];
+
+        // Vérifier si l'utilisateur est administrateur (CA)
+        $isAdmin = $user && $user->hasRole(self::ADMIN_ROLE);
+
         // --- Événements ---
         $eventQuery = Evenement::query();
+
+        // Si l'utilisateur est admin (CA), il voit tous les événements
+        // Sinon, filtrer par rôles : afficher uniquement les événements
+        // dont les rôles correspondent à ceux de l'utilisateur,
+        // OU les événements sans rôles assignés (visibles par tous)
+        if (!$isAdmin) {
+            if (!empty($userRoleIds)) {
+                $eventQuery->where(function ($q) use ($userRoleIds) {
+                    $q->whereHas('roles', function ($roleQuery) use ($userRoleIds) {
+                        $roleQuery->whereIn('role.idRole', $userRoleIds);
+                    })->orWhereDoesntHave('roles');
+                });
+            } else {
+                // Utilisateur sans rôles : afficher uniquement les événements sans rôles
+                $eventQuery->whereDoesntHave('roles');
+            }
+        }
 
         if ($start && $end) {
             // events qui chevauchent la fenêtre
@@ -64,6 +90,56 @@ class CalendrierController extends Controller
         // --- Demandes non terminées ---
         $demandeQuery = Tache::where('etat', '!=', self::STATUS_TERMINE);
 
+        // Si l'utilisateur est admin (CA), il voit toutes les demandes
+        // Sinon, filtrer par rôles avec priorité :
+        // 1. Si la demande a ses propres rôles → filtrer par ces rôles
+        // 2. Sinon, fallback sur les rôles de l'événement associé
+        // 3. Si ni la demande ni l'événement n'ont de rôles → visible par tous
+        if (!$isAdmin) {
+            if (!empty($userRoleIds)) {
+                $demandeQuery->where(function ($q) use ($userRoleIds) {
+                    // Demandes ayant leurs propres rôles correspondant à l'utilisateur
+                    $q->whereHas('roles', function ($roleQuery) use ($userRoleIds) {
+                        $roleQuery->whereIn('role.idRole', $userRoleIds);
+                    })
+                    // OU demandes sans rôles propres mais avec événement ayant des rôles correspondants
+                    ->orWhere(function ($q2) use ($userRoleIds) {
+                        $q2->whereDoesntHave('roles')
+                            ->whereHas('evenement.roles', function ($roleQuery) use ($userRoleIds) {
+                                $roleQuery->whereIn('role.idRole', $userRoleIds);
+                            });
+                    })
+                    // OU demandes sans rôles propres et sans événement lié (orphelines)
+                    ->orWhere(function ($q2) {
+                        $q2->whereDoesntHave('roles')
+                            ->whereNull('idEvenement');
+                    })
+                    // OU demandes sans rôles propres avec événement sans rôles (visible par tous)
+                    ->orWhere(function ($q2) {
+                        $q2->whereDoesntHave('roles')
+                            ->whereHas('evenement', function ($eventQuery) {
+                                $eventQuery->whereDoesntHave('roles');
+                            });
+                    });
+                });
+            } else {
+                // Utilisateur sans rôles : afficher uniquement les demandes
+                // sans rôles propres et (orphelines ou dont l'événement n'a pas de rôles)
+                $demandeQuery->where(function ($q) {
+                    $q->where(function ($q2) {
+                        $q2->whereDoesntHave('roles')
+                            ->whereNull('idEvenement');
+                    })
+                    ->orWhere(function ($q2) {
+                        $q2->whereDoesntHave('roles')
+                            ->whereHas('evenement', function ($eventQuery) {
+                                $eventQuery->whereDoesntHave('roles');
+                            });
+                    });
+                });
+            }
+        }
+
         if ($start && $end) {
             $demandeQuery->where(function ($q) use ($start, $end) {
                 $q->whereBetween('dateD', [$start, $end])
@@ -99,7 +175,6 @@ class CalendrierController extends Controller
                     'description' => $d->description,
                     'urgence'     => $d->urgence,
                     'etat'        => $d->etat,
-                    'demandeType' => $d->type,
                     'startLabel'  => optional($startAt)->translatedFormat('l d F Y'),
                     'endLabel'    => $endAt ? $endAt->translatedFormat('l d F Y') : null,
                 ],

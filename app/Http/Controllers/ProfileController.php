@@ -110,6 +110,18 @@ class ProfileController extends Controller
     }
 
     /**
+     * Régénère le token ICS de l'utilisateur pour la synchronisation du calendrier.
+     * @param Request $request la requête HTTP
+     * @return RedirectResponse la réponse de redirection après la régénération
+     */
+    public function regenerateIcsToken(Request $request): RedirectResponse
+    {
+        $request->user()->generateIcsToken();
+
+        return Redirect::back()->with('status', 'ics-token-regenerated');
+    }
+
+    /**
      * Methode pour supprimer le compte de l'utilisateur
      * @param Request $request la requête HTTP contenant les informations de suppression
      * @return RedirectResponse la réponse de redirection après la suppression

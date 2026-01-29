@@ -72,19 +72,6 @@
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="filter-type"
-                                    class="form-label small text-muted">{{ __('demandes.filters.type.eu') }} <small
-                                        class="d-block text-muted">{{ __('demandes.filters.type.fr') }}</small></label>
-                                <select id="filter-type" class="form-select" name="type">
-                                    <option value="all" @selected($filters['type'] === 'all')>
-                                        {{ __('demandes.filters.options.all_types') }}</option>
-                                    @foreach ($types as $type)
-                                        <option value="{{ $type }}" @selected($filters['type'] === $type)>
-                                            {{ $type }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="mb-3">
                                 <label for="filter-urgence"
                                     class="form-label small text-muted">{{ __('demandes.filters.urgency.eu') }} <small
                                         class="d-block text-muted">{{ __('demandes.filters.urgency.fr') }}</small></label>
@@ -181,19 +168,6 @@
                                 <span class="fr">{{ __('demandes.table.columns.title.fr') }}</span>
                             </div>
                         </th>
-                        @php [$urlType, $iconType] = $sortHelper('type'); @endphp
-                        <th scope="col">
-                            <div class="demande-header-cell">
-                                <div class="demande-header-label">
-                                    <span class="basque">{{ __('demandes.table.columns.type.eu') }}</span>
-                                    <span class="fr">{{ __('demandes.table.columns.type.fr') }}</span>
-                                </div>
-                                <a href="{{ $urlType }}" class="demande-sort-link"
-                                    aria-label="{{ __('demandes.table.sort.type') }}">
-                                    <i class="bi {{ $iconType }}"></i>
-                                </a>
-                            </div>
-                        </th>
                         @php [$urlUrg, $iconUrg] = $sortHelper('urgence'); @endphp
                         <th scope="col">
                             <div class="demande-header-cell">
@@ -232,7 +206,6 @@
                             <td class="fw-semibold">#{{ $demande->idTache }}</td>
                             <td>{{ optional($demande->dateD)->format('Y-m-d') ?? '—' }}</td>
                             <td>{{ $demande->titre }}</td>
-                            <td>{{ $demande->type }}</td>
                             @php
                                 $urgNormalized = Str::of($demande->urgence ?? '')
                                     ->ascii()
@@ -310,7 +283,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">{{ __('demandes.table.empty') }}
+                            <td colspan="6" class="text-center py-4 text-muted">{{ __('demandes.table.empty') }}
                             </td>
                         </tr>
                     @endforelse

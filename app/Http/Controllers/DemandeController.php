@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\Tache;
+use App\Models\Role;
+use App\Models\Evenement;
 use App\Models\DemandeHistorique;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +14,6 @@ use Illuminate\Support\Collection;
 
 class DemandeController extends Controller
 {
-    private const DEFAULT_TYPES = ['Réparation', 'Ménage', 'Maintenance'];
     private const STATUS_TERMINE = 'Terminé';
     private const DEFAULT_ETATS = ['En attente', 'En cours', self::STATUS_TERMINE];
     private const DEFAULT_URGENCES = ['Faible', 'Moyenne', 'Élevée'];
@@ -22,7 +23,6 @@ class DemandeController extends Controller
         $filters = [
             'search' => $request->input('search'),
             'etat' => $request->input('etat', 'all'),
-            'type' => $request->input('type', 'all'),
             'urgence' => $request->input('urgence', 'all'),
             'date_from' => $request->input('date_from'),
             'date_to' => $request->input('date_to'),
@@ -44,10 +44,6 @@ class DemandeController extends Controller
             $query->where('etat', $filters['etat']);
         }
 
-        if ($filters['type'] && $filters['type'] !== 'all') {
-            $query->where('type', $filters['type']);
-        }
-
         if ($filters['urgence'] && $filters['urgence'] !== 'all') {
             $query->where('urgence', $filters['urgence']);
         }
@@ -64,7 +60,6 @@ class DemandeController extends Controller
             'id' => 'idTache',
             'date' => 'dateD',
             'title' => 'titre',
-            'type' => 'type',
             'urgence' => 'urgence',
             'etat' => 'etat',
         ];
@@ -78,19 +73,19 @@ class DemandeController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $types = $this->loadOrDefault('type', collect(self::DEFAULT_TYPES));
         $etats = $this->loadOrDefault('etat', collect(self::DEFAULT_ETATS));
         $urgences = $this->loadOrDefault('urgence', collect(self::DEFAULT_URGENCES));
 
-        return view('demandes.index', compact('demandes', 'filters', 'types', 'etats', 'urgences'));
+        return view('demandes.index', compact('demandes', 'filters', 'etats', 'urgences'));
     }
 
     public function create()
     {
-        $types = $this->loadOrDefault('type', collect(self::DEFAULT_TYPES));
-
         $urgences = self::DEFAULT_URGENCES;
-        return view('demandes.create', compact('types', 'urgences'));
+        $roles = Role::orderBy('name')->get();
+        $evenements = Evenement::with('roles')->orderBy('titre')->get();
+
+        return view('demandes.create', compact('urgences', 'roles', 'evenements'));
     }
 
     public function show(Tache $demande)
@@ -122,24 +117,30 @@ class DemandeController extends Controller
         $validated = $request->validate([
             'titre' => ['required', 'string', 'max:30'],
             'description' => ['required', 'string', 'max:100'],
-            'type' => ['required', 'string', 'max:15'],
             'urgence' => ['required', 'string', 'max:15'],
             'dateD' => ['nullable', 'date'],
             'dateF' => ['nullable', 'date', 'after_or_equal:dateD'],
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
-            'idEvenement' => ['nullable', 'integer'],
+            'idEvenement' => ['nullable', 'integer', 'exists:evenement,idEvenement'],
             'photos' => ['nullable', 'array', 'max:4'],
             'photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['integer', 'exists:role,idRole'],
         ]);
 
-        $data = collect($validated)->except(['photos'])->toArray();
+        $data = collect($validated)->except(['photos', 'roles'])->toArray();
         $data['idTache'] = (Tache::max('idTache') ?? 0) + 1;
         $data['etat'] = 'En attente';
         $data['dateD'] = $validated['dateD'] ?? now();
         $data['dateF'] = $validated['dateF'] ?? null;
 
         $demande = Tache::create($data);
+
+        // Synchroniser les rôles
+        if (!empty($validated['roles'])) {
+            $demande->roles()->sync($validated['roles']);
+        }
 
         $this->storePhotos($demande, $request->file('photos', []));
         $this->storeInitialHistory($demande);
@@ -153,16 +154,18 @@ class DemandeController extends Controller
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
         }
 
-        $types = Tache::select('type')->distinct()->orderBy('type')->pluck('type')->filter();
-        if ($types->isEmpty()) {
-            $types = collect(['Réparation', 'Ménage', 'Maintenance']);
-        }
         $urgences = ['Faible', 'Moyenne', 'Élevée'];
+        $roles = Role::orderBy('name')->get();
+        $evenements = Evenement::with('roles')->orderBy('titre')->get();
+
+        // Charger les rôles de la demande
+        $demande->load('roles');
 
         return view('demandes.create', [
-            'types' => $types,
             'urgences' => $urgences,
             'demande' => $demande,
+            'roles' => $roles,
+            'evenements' => $evenements,
         ]);
     }
 
@@ -175,17 +178,21 @@ class DemandeController extends Controller
         $validated = $request->validate([
             'titre' => ['required', 'string', 'max:30'],
             'description' => ['required', 'string', 'max:100'],
-            'type' => ['required', 'string', 'max:15'],
             'urgence' => ['required', 'string', 'max:15'],
             'dateD' => ['nullable', 'date'],
             'dateF' => ['nullable', 'date', 'after_or_equal:dateD'],
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
-            'idEvenement' => ['nullable', 'integer'],
+            'idEvenement' => ['nullable', 'integer', 'exists:evenement,idEvenement'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['integer', 'exists:role,idRole'],
         ]);
 
-        $updates = collect($validated)->except(['dateD', 'dateF'])->toArray();
+        $updates = collect($validated)->except(['dateD', 'dateF', 'roles'])->toArray();
         $demande->update($updates);
+
+        // Synchroniser les rôles (vide si aucun rôle sélectionné)
+        $demande->roles()->sync($validated['roles'] ?? []);
 
         return to_route('demandes.show', $demande)->with('status', __('demandes.messages.updated'));
     }
@@ -226,6 +233,9 @@ class DemandeController extends Controller
 
         // Supprimer les relations dans la table pivot 'realiser' (utilisateurs-tâches)
         $demande->realisateurs()->detach();
+
+        // Détacher les rôles de la demande
+        $demande->roles()->detach();
 
         // Supprimer la demande elle-même
         $demande->delete();

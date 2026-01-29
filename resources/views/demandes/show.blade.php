@@ -12,7 +12,6 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 gap-md-4 mb-4 mb-md-5">
             <div>
                 <h1 class="fw-bold mb-1">{{ $demande->titre }}</h1>
-                <p class="text-uppercase text-muted small mb-2">{{ $demande->type ?? __('demandes.show.type_default') }}</p>
                 <p class="text-muted mb-0">
                     {{ __('demandes.show.reported_by', ['name' => $metadata['reporter'], 'date' => $metadata['report_date']]) }}
                 </p>

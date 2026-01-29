@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Evenement;
+use App\Models\Tache;
 
 
 /**
@@ -66,5 +67,13 @@ class Role extends \Spatie\Permission\Models\Role
 	public function evenements()
 	{
 		return $this->belongsToMany(Evenement::class, 'evenement_role', 'idRole', 'idEvenement');
+	}
+
+	/**
+	 * Relation belongsToMany vers les tâches/demandes associées à ce rôle via la table pivot `tache_role`.
+	 */
+	public function taches()
+	{
+		return $this->belongsToMany(Tache::class, 'tache_role', 'idRole', 'idTache');
 	}
 }

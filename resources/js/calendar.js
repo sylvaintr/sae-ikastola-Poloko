@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const demandeLabel = el.dataset.demandeLabel || 'Demande';
     const demandeUrgenceLabel = el.dataset.demandeUrgence || 'Urgence';
     const demandeEtatLabel = el.dataset.demandeEtat || 'État';
-    const demandeTypeLabel = el.dataset.demandeType || 'Type';
     const demandeShowUrl = el.dataset.demandeShowUrl || '/demandes/__ID__';
 
     // Locale du calendrier (fr ou eu pour basque)

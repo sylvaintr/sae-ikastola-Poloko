@@ -156,6 +156,7 @@ class EvenementController extends Controller
     public function destroy($id)
     {
         $evenement = Evenement::findOrFail($id);
+        $evenement->roles()->detach();
         $evenement->delete();
 
         return redirect()->route('evenements.index')

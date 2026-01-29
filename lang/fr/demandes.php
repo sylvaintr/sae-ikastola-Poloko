@@ -157,7 +157,18 @@ return [
                 'eu' => 'Argazkia',
                 'fr' => 'Photo',
             ],
+            'evenement' => [
+                'eu' => 'Gertaera lotua',
+                'fr' => 'Événement associé',
+            ],
+            'cibles' => [
+                'eu' => 'Helburu rolak',
+                'fr' => 'Rôles cibles',
+            ],
         ],
+        'evenement_none' => '-- Aucun événement --',
+        'evenement_hint' => 'Optionnel : associez cette demande à un événement pour pré-remplir les rôles cibles.',
+        'cibles_hint' => 'Optionnel : définissez les rôles qui verront cette demande dans le calendrier.',
         'buttons' => [
             'back' => [
                 'eu' => 'Itzuli',

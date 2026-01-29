@@ -17,7 +17,7 @@
         "@fullcalendar/daygrid": "^6.1.20",
         "@fullcalendar/interaction": "^6.1.20",
         "@fullcalendar/timegrid": "^6.1.20",
-        "alpinejs": "^3.15.3",
+        "alpinejs": "^3.15.4",
         "bootstrap": "^5.3.8",
         "bootstrap-icons": "^1.13.1",
         "datatables.net": "^2.3.6",
