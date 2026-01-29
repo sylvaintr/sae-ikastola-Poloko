@@ -186,6 +186,7 @@
                     @endif
                 </div>
 
+                @can('access-evenement')
                 <div class="d-flex flex-column align-items-center">
                     <a href="{{ route('evenements.create') }}"
                         class="btn demande-btn-primary fw-semibold text-white px-4 py-2">
@@ -195,6 +196,7 @@
                         <small class="text-muted mt-1">{{ Lang::get('evenements.add') }}</small>
                     @endif
                 </div>
+                @endcan
             </div>
         </div>
 

@@ -178,11 +178,13 @@ Route::middleware('auth')->group(function () {
     /*--------------------------------------------------------------------------
             | Routes événements et recettes
             |--------------------------------------------------------------------------*/
-    Route::resource('evenements', EvenementController::class);
-    Route::prefix('evenements/{evenement}/recettes')->name('recettes.')->group(function () {
-        Route::post('/', [RecetteController::class, 'store'])->name('store');
+    Route::middleware('can:access-evenement')->group(function () {
+        Route::resource('evenements', EvenementController::class);
+        Route::prefix('evenements/{evenement}/recettes')->name('recettes.')->group(function () {
+            Route::post('/', [RecetteController::class, 'store'])->name('store');
+        });
+        Route::resource('recettes', RecetteController::class)->except(['index', 'create', 'store', 'show']);
     });
-    Route::resource('recettes', RecetteController::class)->except(['index', 'create', 'store', 'show']);
 });
 
 Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
