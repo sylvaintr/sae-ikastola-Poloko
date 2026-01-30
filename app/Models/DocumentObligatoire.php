@@ -51,6 +51,12 @@ class DocumentObligatoire extends Model
 	 * 
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
+
+	public function documents()
+    {
+        return $this->hasMany(Document::class, 'idDocumentObligatoire', 'idDocumentObligatoire');
+    }
+	
 	public function roles()
 	{
 		return $this->belongsToMany(Role::class, 'attribuer', 'idDocumentObligatoire', 'idRole');

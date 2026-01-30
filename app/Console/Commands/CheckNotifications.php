@@ -25,7 +25,8 @@ class CheckNotifications extends Command
     public function handle()
     {
         $this->info('--- Démarrage de la vérification ---');
-        
+        $this->info('Date serveur : ' . now()->format('Y-m-d H:i:s'));
+
         // 1. On récupère toutes les règles actives
         $rules = NotificationSetting::where('is_active', true)->get();
 
@@ -55,10 +56,17 @@ class CheckNotifications extends Command
                         
                         $this->info(" -> BINGO ! C'est le jour du rappel pour : {$event->titre}");
 
-                        // On envoie à tous les utilisateurs (ou filtre si nécessaire)
                         $users = Utilisateur::all(); 
 
                         foreach ($users as $user) {
+                            // Anti-doublon journalier (pour ne pas envoyer 2 fois si on lance la commande 2 fois)
+                            $dejaFait = $user->notifications()
+                                             ->where('data->title', "Rappel : {$event->titre}")
+                                             ->whereDate('created_at', Carbon::today())
+                                             ->exists();
+
+                            if ($dejaFait) continue;
+
                             $user->notify(new SendNotification([
                                 'title' => "Rappel : {$event->titre}",
                                 'message' => "L'événement aura lieu le " . Carbon::parse($event->dateE)->format('d/m/Y'),
@@ -87,22 +95,22 @@ class CheckNotifications extends Command
                     
                     if ($rolesIds->isEmpty()) continue;
 
-                    // 2. RÉCUPÉRATION DES UTILISATEURS (CORRIGÉ)
-                    // On utilise 'rolesCustom' (défini dans ton Utilisateur.php) pour passer par la table 'avoir'
-                    // On filtre sur 'role.idRole'
+                    // 2. RÉCUPÉRATION DES UTILISATEURS CIBLES
+                    // On utilise 'rolesCustom' pour passer par la table 'avoir'
                     $usersCibles = Utilisateur::whereHas('rolesCustom', function($query) use ($rolesIds) {
                         $query->whereIn('role.idRole', $rolesIds); 
                     })->get();
 
                     foreach ($usersCibles as $user) {
                         
-                        // 3. VÉRIFICATION : L'utilisateur a-t-il rendu le document ?
-                        // PROBLÈME ACTUEL : Pas de liaison ID entre Document et DocumentObligatoire.
-                        // SOLUTION TEMPORAIRE : On compare les NOMS.
+                        // -----------------------------------------------------------
+                        // 3. VÉRIFICATION ROBUSTE (PAR ID) - FINALE ✅
+                        // -----------------------------------------------------------
+                        // On vérifie si l'utilisateur possède un document qui a 
+                        // l'étiquette (idDocumentObligatoire) correspondante.
                         
                         $aDepose = $user->documents()
-                                        //  VÉRIFIE ICI : Est-ce que la colonne s'appelle 'nom' ou 'titre' dans ta table 'document' ?
-                                        ->where('nom', $doc->nom) 
+                                        ->where('idDocumentObligatoire', $doc->idDocumentObligatoire)
                                         ->exists();
 
                         if (!$aDepose) {
@@ -141,6 +149,9 @@ class CheckNotifications extends Command
                 }
             }
         }
+        
+        // Nettoyage auto des vieilles notifications (optionnel, ex: > 60 jours)
+        // \DB::table('notifications')->where('created_at', '<', now()->subDays(60))->delete();
         
         $this->info('--- Vérification terminée ---');
     }

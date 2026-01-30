@@ -66,7 +66,15 @@
     <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="notificationsDropdown" style="width: 320px; max-height: 400px; overflow-y: auto;">
         
         <li class="dropdown-header fw-bold bg-light py-2">
-            Jakinarazpenak <small class="fw-normal text-muted">(Notifications)</small>
+            {{-- LOGIQUE D'AFFICHAGE DU TITRE --}}
+            @if(app()->getLocale() == 'eus')
+                {{-- Si langue Basque : On affiche juste Basque --}}
+                Jakinarazpenak
+            @else
+                {{-- Sinon (Français) : Basque en haut, Français en bas --}}
+                <div>Jakinarazpenak</div>
+                <small class="fw-normal text-muted d-block">Notifications</small>
+            @endif
         </li>
 
         @forelse(Auth::user()->unreadNotifications as $notification)
@@ -97,8 +105,16 @@
         @empty
             <li class="dropdown-item text-center text-muted py-4">
                 <i class="bi bi-bell-slash fs-3 d-block mb-2"></i>
-                Ez dago jakinarazpen berririk<br>
-                <small>(Aucune nouvelle notification)</small>
+                
+                {{-- LOGIQUE D'AFFICHAGE VIDE --}}
+                @if(app()->getLocale() == 'eus')
+                    {{-- Si langue Basque uniquement --}}
+                    Ez dago jakinarazpen berririk
+                @else
+                    {{-- Sinon : Basque en haut, Français en bas --}}
+                    <div class="mb-1">Ez dago jakinarazpen berririk</div>
+                    <small>Aucune nouvelle notification</small>
+                @endif
             </li>
         @endforelse
     </ul>

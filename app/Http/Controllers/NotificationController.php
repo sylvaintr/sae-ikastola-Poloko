@@ -102,18 +102,19 @@ public function update(Request $request, $id)
     return redirect()->route('admin.notifications.index')->with('success', 'Règle modifiée avec succès');
 }
 
-// Marquer une notification comme lue et rediriger
-    public function markAsRead($id)
-    {
-        $notification = auth()->user()->notifications()->where('id', $id)->first();
+public function markAsRead($id)
+{
+    // 1. On cherche la notification
+    $notification = auth()->user()->notifications()->where('id', $id)->first();
 
-        if ($notification) {
-            $notification->markAsRead(); // C'est ici que la magie opère !
-            
-            // On redirige vers l'URL stockée dans la notif (action_url)
-            return redirect($notification->data['action_url'] ?? '/');
-        }
-
-        return back();
+    if ($notification) {
+        // 2. On la marque comme lue (ce qui met à jour le compteur en base de données)
+        $notification->markAsRead();
     }
+
+    // 3. LA SOLUTION : "Retour en arrière"
+    // Cette fonction recharge la page actuelle (là où se trouve la cloche).
+    // Comme la page se recharge, le compteur sera mis à jour visuellement.
+    return back();
+}
 }
