@@ -270,6 +270,7 @@ class ProfileController extends Controller
             'chemin' => $path,
             'type' => $type,
             'etat' => 'en_attente',
+            'idDocumentObligatoire' => $documentObligatoire->idDocumentObligatoire,
         ]);
 
         $user->documents()->attach($document->idDocument);
