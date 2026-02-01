@@ -127,7 +127,7 @@
                 <div>{{ __('demandes.history.planned') }} : <span class="text-dark">{{ $demande->montantP ? number_format($demande->montantP, 0, ',', ' ') . ' €' : '—' }}</span></div>
                 <div>{{ __('demandes.history.real') }} : <span class="text-dark">{{ $totalDepense ? number_format($totalDepense, 0, ',', ' ') . ' €' : '—' }}</span></div>
             </div>
-        @if ($demande->etat !== 'Terminé')
+        @if ($demande->etat !== 'Terminé' && $canManage)
             <div class="text-center">
                 <a href="{{ route('demandes.historique.create', $demande) }}" class="btn demande-btn-primary px-4">
                     {{ __('demandes.history.button.eu') }}

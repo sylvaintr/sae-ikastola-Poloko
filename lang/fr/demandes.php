@@ -292,7 +292,8 @@ return [
         'history_added' => 'Nouvel avancement ajouté.',
         'validated' => 'Demande clôturée.',
         'locked' => 'La demande est déjà terminée.',
-        'history_locked' => 'Cette demande est terminée, impossible d’ajouter un avancement.',
+        'history_locked' => 'Cette demande est terminée, impossible d\'ajouter un avancement.',
+        'unauthorized' => 'Vous n\'êtes pas autorisé à effectuer cette action sur cette demande.',
     ],
 ];
 

@@ -293,6 +293,7 @@ return [
         'validated' => 'Demande clôturée.',
         'locked' => 'La demande est déjà terminée.',
         'history_locked' => 'Eskaera hau amaituta dago, ezin da aurrerapenik gehitu.',
+        'unauthorized' => 'Ez duzu baimenik eskaera honetan ekintza hau egiteko.',
     ],
 ];
 

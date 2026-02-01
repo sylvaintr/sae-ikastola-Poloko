@@ -18,6 +18,46 @@ class DemandeController extends Controller
     private const DEFAULT_ETATS = ['En attente', 'En cours', self::STATUS_TERMINE];
     private const DEFAULT_URGENCES = ['Faible', 'Moyenne', 'Élevée'];
 
+    /**
+     * Vérifie si l'utilisateur connecté peut modifier/valider/supprimer la demande.
+     * Seuls les membres du CA et les utilisateurs ayant un rôle concerné par la demande sont autorisés.
+     */
+    private function canManageDemande(Tache $demande): bool
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        // Les membres du CA ont toujours accès
+        if ($user->hasRole('CA')) {
+            return true;
+        }
+
+        // Vérifier si l'utilisateur a un des rôles associés à la demande
+        $demandeRoleIds = $demande->roles()->pluck('role.idRole')->toArray();
+
+        if (empty($demandeRoleIds)) {
+            // Si aucun rôle n'est associé à la demande, seul le CA peut gérer
+            return false;
+        }
+
+        $userRoleIds = $user->roles()->pluck('role.idRole')->toArray();
+
+        return !empty(array_intersect($demandeRoleIds, $userRoleIds));
+    }
+
+    /**
+     * Retourne une réponse 403 si l'utilisateur n'est pas autorisé.
+     */
+    private function authorizeManageDemande(Tache $demande)
+    {
+        if (!$this->canManageDemande($demande)) {
+            abort(403, __('demandes.messages.unauthorized'));
+        }
+    }
+
     public function index(Request $request)
     {
         $filters = [
@@ -68,6 +108,7 @@ class DemandeController extends Controller
         $direction = strtolower($filters['direction']) === 'asc' ? 'asc' : 'desc';
 
         $demandes = $query
+            ->with('roles')
             ->orderBy($sortField, $direction)
             ->orderBy('idTache', 'desc')
             ->paginate(10)
@@ -76,7 +117,12 @@ class DemandeController extends Controller
         $etats = $this->loadOrDefault('etat', collect(self::DEFAULT_ETATS));
         $urgences = $this->loadOrDefault('urgence', collect(self::DEFAULT_URGENCES));
 
-        return view('demandes.index', compact('demandes', 'filters', 'etats', 'urgences'));
+        // Préparer les infos d'autorisation pour la vue
+        $user = Auth::user();
+        $isCA = $user?->hasRole('CA') ?? false;
+        $userRoleIds = $user ? $user->roles()->pluck('role.idRole')->toArray() : [];
+
+        return view('demandes.index', compact('demandes', 'filters', 'etats', 'urgences', 'isCA', 'userRoleIds'));
     }
 
     public function create()
@@ -90,7 +136,7 @@ class DemandeController extends Controller
 
     public function show(Tache $demande)
     {
-        $demande->loadMissing(['realisateurs', 'documents', 'historiques']);
+        $demande->loadMissing(['realisateurs', 'documents', 'historiques', 'roles']);
 
         $metadata = [
             'reporter' => $demande->user->name ?? $demande->reporter_name ?? 'Inconnu',
@@ -108,8 +154,9 @@ class DemandeController extends Controller
 
         $historiques = $demande->historiques;
         $totalDepense = $historiques->sum('depense');
+        $canManage = $this->canManageDemande($demande);
 
-        return view('demandes.show', compact('demande', 'metadata', 'photos', 'historiques', 'totalDepense'));
+        return view('demandes.show', compact('demande', 'metadata', 'photos', 'historiques', 'totalDepense', 'canManage'));
     }
 
     public function store(Request $request)
@@ -150,6 +197,8 @@ class DemandeController extends Controller
 
     public function edit(Tache $demande)
     {
+        $this->authorizeManageDemande($demande);
+
         if ($demande->etat === self::STATUS_TERMINE) {
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
         }
@@ -171,6 +220,8 @@ class DemandeController extends Controller
 
     public function update(Request $request, Tache $demande)
     {
+        $this->authorizeManageDemande($demande);
+
         if ($demande->etat === self::STATUS_TERMINE) {
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
         }
@@ -216,6 +267,8 @@ class DemandeController extends Controller
 
     public function destroy(Tache $demande)
     {
+        $this->authorizeManageDemande($demande);
+
         // Supprimer les documents liés (fichiers + enregistrements)
         foreach ($demande->documents as $doc) {
             // Supprimer le fichier physique
@@ -245,6 +298,8 @@ class DemandeController extends Controller
 
     public function createHistorique(Tache $demande)
     {
+        $this->authorizeManageDemande($demande);
+
         if ($demande->etat === self::STATUS_TERMINE) {
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_locked'));
         }
@@ -254,6 +309,8 @@ class DemandeController extends Controller
 
     public function storeHistorique(Request $request, Tache $demande)
     {
+        $this->authorizeManageDemande($demande);
+
         if ($demande->etat === self::STATUS_TERMINE) {
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_locked'));
         }
@@ -276,6 +333,8 @@ class DemandeController extends Controller
 
     public function validateDemande(Tache $demande)
     {
+        $this->authorizeManageDemande($demande);
+
         $demande->update(['etat' => self::STATUS_TERMINE]);
 
         $this->addHistoryEntry(

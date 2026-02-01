@@ -66,7 +66,7 @@
                 <div class="demande-field-col w-100">
                     <label for="demande-evenement" class="form-label">{{ __('demandes.form.labels.evenement.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.evenement.fr') }}</small></label>
                     <select id="demande-evenement" name="idEvenement" class="form-select" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : '' }}>
-                        <option value="">{{ __('demandes.form.labels.evenement_none') }}</option>
+                        <option value="">{{ __('demandes.form.evenement_none') }}</option>
                         @foreach ($evenements as $evenement)
                             <option value="{{ $evenement->idEvenement }}"
                                 data-roles="{{ $evenement->roles->pluck('idRole')->toJson() }}"
@@ -75,7 +75,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <small class="text-muted">{{ __('demandes.form.labels.evenement_hint') }}</small>
+                    <small class="text-muted">{{ __('demandes.form.evenement_hint') }}</small>
                 </div>
             </div>
 
@@ -116,7 +116,7 @@
                             {{-- Les inputs seront ajoutés dynamiquement par JavaScript --}}
                         </div>
                     </div>
-                    <small class="text-muted">{{ __('demandes.form.labels.cibles_hint') }}</small>
+                    <small class="text-muted">{{ __('demandes.form.cibles_hint') }}</small>
                 </div>
             </div>
 
@@ -243,7 +243,7 @@
             if (!roleData) return;
 
             const emptyEl = selectedRoles.querySelector('.role-list-empty-message');
-            if (emptyEl) emptyEl.style.display = 'none';
+            if (emptyEl) emptyEl.remove();
 
             selectedRoles.appendChild(createSelectedRoleElement(roleId, roleData.name));
 
