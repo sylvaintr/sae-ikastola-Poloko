@@ -248,6 +248,107 @@ class DemandeController extends Controller
         return to_route('demandes.show', $demande)->with('status', __('demandes.messages.updated'));
     }
 
+    /**
+     * Exporte les demandes en CSV.
+     */
+    public function export(Request $request)
+    {
+        $filters = [
+            'search' => $request->input('search'),
+            'etat' => $request->input('etat', 'all'),
+            'urgence' => $request->input('urgence', 'all'),
+            'date_from' => $request->input('date_from'),
+            'date_to' => $request->input('date_to'),
+            'sort' => $request->input('sort', 'date'),
+            'direction' => $request->input('direction', 'desc'),
+        ];
+
+        $query = Tache::with('roles');
+
+        if ($filters['search']) {
+            $searchTerm = trim($filters['search']);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('idTache', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('titre', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        if ($filters['etat'] && $filters['etat'] !== 'all') {
+            $query->where('etat', $filters['etat']);
+        }
+
+        if ($filters['urgence'] && $filters['urgence'] !== 'all') {
+            $query->where('urgence', $filters['urgence']);
+        }
+
+        if ($filters['date_from']) {
+            $query->whereDate('dateD', '>=', $filters['date_from']);
+        }
+
+        if ($filters['date_to']) {
+            $query->whereDate('dateD', '<=', $filters['date_to']);
+        }
+
+        $sortable = [
+            'id' => 'idTache',
+            'date' => 'dateD',
+            'title' => 'titre',
+            'urgence' => 'urgence',
+            'etat' => 'etat',
+        ];
+
+        $sortField = $sortable[$filters['sort']] ?? $sortable['date'];
+        $direction = strtolower($filters['direction']) === 'asc' ? 'asc' : 'desc';
+
+        $demandes = $query
+            ->orderBy($sortField, $direction)
+            ->orderBy('idTache', 'desc')
+            ->get();
+
+        $filename = 'demandes_' . now()->format('Y-m-d_His') . '.csv';
+
+        // BOM UTF-8 pour Excel
+        $csv = chr(0xEF) . chr(0xBB) . chr(0xBF);
+
+        // En-têtes CSV
+        $csv .= implode(';', [
+            'ID',
+            'Titre',
+            'Description',
+            'Urgence',
+            'État',
+            'Date début',
+            'Date fin',
+            'Montant prévu (€)',
+            'Montant réel (€)',
+            'Rôles cibles',
+        ]) . "\n";
+
+        // Données
+        foreach ($demandes as $demande) {
+            $roles = $demande->roles->pluck('name')->implode(', ');
+
+            $row = [
+                $demande->idTache,
+                '"' . str_replace('"', '""', $demande->titre ?? '') . '"',
+                '"' . str_replace('"', '""', $demande->description ?? '') . '"',
+                $demande->urgence ?? '',
+                $demande->etat ?? '',
+                optional($demande->dateD)->format('d/m/Y') ?? '',
+                optional($demande->dateF)->format('d/m/Y') ?? '',
+                $demande->montantP ? number_format($demande->montantP, 2, ',', ' ') : '',
+                $demande->montantR ? number_format($demande->montantR, 2, ',', ' ') : '',
+                '"' . str_replace('"', '""', $roles) . '"',
+            ];
+
+            $csv .= implode(';', $row) . "\n";
+        }
+
+        return response($csv)
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
+    }
+
     private function loadOrDefault(string $column, Collection $fallback): Collection
     {
         $values = Tache::select($column)->distinct()->orderBy($column)->pluck($column)->filter();

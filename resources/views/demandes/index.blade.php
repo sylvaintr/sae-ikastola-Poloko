@@ -7,7 +7,8 @@
         <div class="demande-toolbar text-end">
             <div class="d-flex flex-column flex-sm-row flex-wrap gap-3 gap-sm-4 justify-content-end">
                 <div class="demande-toolbar-item">
-                    <button type="button" class="btn demande-btn-outline fw-semibold px-4 py-2 w-100 w-sm-auto">
+                    <button type="button" id="export-csv-btn" class="btn demande-btn-outline fw-semibold px-4 py-2 w-100 w-sm-auto"
+                        data-export-url="{{ route('demandes.export', request()->query()) }}">
                         {{ __('demandes.toolbar.export.eu') }}
                     </button>
                     <small class="text-muted d-block d-sm-inline">{{ __('demandes.toolbar.export.fr') }}</small>
@@ -364,6 +365,21 @@
                     }
                     window.location.href = url.toString();
                 }, 500);
+            });
+        }
+
+        // Export CSV via lien temporaire
+        const exportBtn = document.getElementById('export-csv-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                const url = this.dataset.exportUrl;
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = '';
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             });
         }
     });

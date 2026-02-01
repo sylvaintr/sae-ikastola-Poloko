@@ -67,6 +67,7 @@ Route::middleware('auth')->group(function () {
         ->name('demandes.')
         ->group(function () {
             Route::get('/', [DemandeController::class, 'index'])->name('index');
+            Route::get('/export', [DemandeController::class, 'export'])->name('export');
             Route::get('/create', [DemandeController::class, 'create'])->name('create');
             Route::post('/', [DemandeController::class, 'store'])->name('store');
 
