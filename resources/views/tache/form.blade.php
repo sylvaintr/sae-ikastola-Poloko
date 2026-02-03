@@ -39,6 +39,7 @@
                     <input type="date" name="dateD" class="form-control"
                            placeholder="Date de début de la tâche"
                            value="{{ old('dateD', isset($tache) && $tache->dateD ? $tache->dateD->format('Y-m-d') : '') }}" required>
+                   
                 </div>
             </div>
 

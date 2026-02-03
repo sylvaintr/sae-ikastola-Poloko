@@ -184,8 +184,8 @@ class TacheController extends Controller
             'description' => 'required|string',
             'type' => 'required|in:low,medium,high',
             'dateD' => 'required|date',
-            'realisateurs' => 'nullable|array',
-            'realisateurs.*' => 'integer|exists:utilisateur,idUtilisateur'
+            'realisateurs' => 'required|array|min:1',
+            'realisateurs.*' => 'required|integer|exists:utilisateur,idUtilisateur'
         ]);
 
         $tache = Tache::create([
@@ -194,7 +194,10 @@ class TacheController extends Controller
             'type' => $validated['type'],
             'etat' => 'todo',
             'dateD' => $validated['dateD'],
-        ]);
+        ],
+       
+        );
+       
 
         // attacher realisateurs (pivot)
         if (!empty($validated['realisateurs'])) {
@@ -240,8 +243,9 @@ class TacheController extends Controller
             'description' => 'required|string',
             'type' => 'required|in:low,medium,high',
             'dateD' => 'required|date',
-            'realisateurs' => 'nullable|array',
-            'realisateurs.*' => 'integer|exists:utilisateur,idUtilisateur',
+            
+            'realisateurs' => 'required|array|min:1',
+            'realisateurs.*' => 'required|integer|exists:utilisateur,idUtilisateur',
         ]);
 
         $tache->update([
