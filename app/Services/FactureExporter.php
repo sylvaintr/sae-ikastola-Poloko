@@ -129,7 +129,7 @@ class FactureExporter
             ];
         } else {
             if (! $facture->previsionnel) {
-                $montants['regularisation'] = $factureCalculator->calculerMontantRegularisation($facture);
+                $montants['regularisation'] = $factureCalculator->calculerRegularisation($facture->idFacture);
             }
         }
 
@@ -172,7 +172,7 @@ class FactureExporter
                 $templateProcessor->cloneRow('montantreg', 0);
                 $montantReg = 0;
             } else {
-                $montantReg = $factureCalculator->calculerMontantRegularisation($facture);
+                $montantReg = $factureCalculator->calculerRegularisation($facture->idFacture);
                 $valeurPrevisionnelleNumeric += floatval($montantReg ?? 0);
                 $templateProcessor->setValue('montantreg', number_format($montantReg ?? 0, 2, ',', ' '));
             }
@@ -211,7 +211,7 @@ class FactureExporter
 
         } catch (\Throwable $e) {
             // If TemplateProcessor fails for any reason, copy the raw template as a fallback
-            @copy($templatePath, $docxPath);
+            dd($e->getMessage());
            
         }
 
