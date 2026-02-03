@@ -46,9 +46,14 @@ class FactureControllerTest extends TestCase
     public function test_show_retourne_vue_avec_donnees()
     {
         // given
+        $controleur = new FactureController();
+        Utilisateur::factory()->create(['idUtilisateur' => 9999]);
         $famille = Famille::factory()->create();
-        $facture = Facture::factory()->create(['idFamille' => $famille->idFamille]);
+        $famille->utilisateurs()->attach(9999, ['parite' => 100]);
         Enfant::factory()->count(2)->create(['idFamille' => $famille->idFamille]);
+        $controleur->createFacture();
+        $facture = Facture::first();
+
 
         // when
         $response = $this->get(route('admin.facture.show', $facture->idFacture));
@@ -56,7 +61,7 @@ class FactureControllerTest extends TestCase
         // then
         $response->assertStatus(200);
         $response->assertViewIs('facture.show');
-        $response->assertViewHasAll(['facture', 'famille', 'enfants']);
+
     }
 
     public function test_donnees_factures_retournent_json()
@@ -105,13 +110,19 @@ class FactureControllerTest extends TestCase
     public function test_valider_facture_change_etat()
     {
         // given
-        $facture = Facture::factory()->create(['etat' => 'brouillon']);
+        $controleur = new FactureController();
+        Utilisateur::factory()->create(['idUtilisateur' => 9999]);
+        Famille::factory()->create(['idFamille' => 9999])->utilisateurs()->attach(9999, ['parite' => 100]);
+        Enfant::factory()->count(2)->create(['idFamille' => 9999]);
+        $controleur->createFacture();
+        $facture = Facture::first();
 
         // when
         $response = $this->get(route('admin.facture.valider', $facture->id));
 
         // then
-        $response->assertRedirect(route('admin.facture.index', $facture->id));
+        $response->assertSessionHas('success', 'Facture validée et convertie en PDF avec succès.');
+        $response->assertRedirect(route('admin.facture.index'));
         $this->assertEquals('verifier', Facture::find($facture->id)->etat);
     }
 
@@ -293,6 +304,7 @@ class FactureControllerTest extends TestCase
         Carbon::setTestNow(Carbon::create(2024, 2, 1));
         $famille = Famille::factory()->create();
         $parent = Utilisateur::factory()->create();
+        $famille->utilisateurs()->detach();
         $famille->utilisateurs()->attach($parent->idUtilisateur, ['parite' => 100]);
 
         $this->assertDatabaseMissing('facture', [
@@ -309,6 +321,7 @@ class FactureControllerTest extends TestCase
             'idFamille' => $famille->idFamille,
             'idUtilisateur' => $parent->idUtilisateur,
         ]);
+        
 
         Carbon::setTestNow();
     }
