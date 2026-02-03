@@ -109,7 +109,7 @@ class Tache extends Model
 	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
 	 */
-	public function roleAssigné()
+	public function roleAssigne()
 	{
 		return $this->belongsTo(Role::class, 'idRole');
 	}
