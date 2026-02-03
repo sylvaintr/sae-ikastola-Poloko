@@ -219,47 +219,47 @@
                     <form action="{{ route('recettes.store', $evenement) }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label class="form-label fw-semibold mb-2">
+                            <label for="recette-description" class="form-label fw-semibold mb-2">
                                 <span class="basque">{{ Lang::get('evenements.description', [], 'eus') }}</span>
                                 @if (Lang::getLocale() == 'fr')
                                     <span class="fr text-muted">/ {{ Lang::get('evenements.description') }}</span>
                                 @endif
                             </label>
-                            <textarea name="description" class="form-control" rows="3" required></textarea>
+                            <textarea id="recette-description" name="description" class="form-control" rows="3" required></textarea>
                         </div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold mb-2">
+                                <label for="recette-type" class="form-label fw-semibold mb-2">
                                     <span class="basque">{{ Lang::get('evenements.type', [], 'eus') }}</span>
                                     @if (Lang::getLocale() == 'fr')
                                         <span class="fr text-muted">/ {{ Lang::get('evenements.type') }}</span>
                                     @endif
                                 </label>
-                                <select name="type" class="form-select" required>
+                                <select id="recette-type" name="type" class="form-select" required>
                                     <option value="recette">{{ __('evenements.type_recette') }}</option>
                                     <option value="depense_previsionnelle">{{ __('evenements.type_depense_prev') }}</option>
                                     <option value="depense">{{ __('evenements.type_depense') }}</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold mb-2">
+                                <label for="recette-prix" class="form-label fw-semibold mb-2">
                                     <span class="basque">{{ Lang::get('evenements.amount', [], 'eus') }}</span>
                                     @if (Lang::getLocale() == 'fr')
                                         <span class="fr text-muted">/ {{ Lang::get('evenements.amount') }}</span>
                                     @endif
                                     (&euro;)
                                 </label>
-                                <input type="number" name="prix" step="0.01" min="0" class="form-control" required>
+                                <input id="recette-prix" type="number" name="prix" step="0.01" min="0" class="form-control" required>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold mb-2">
+                                <label for="recette-quantite" class="form-label fw-semibold mb-2">
                                     <span class="basque">{{ Lang::get('evenements.quantity', [], 'eus') }}</span>
                                     @if (Lang::getLocale() == 'fr')
                                         <span class="fr text-muted">/ {{ Lang::get('evenements.quantity') }}</span>
                                     @endif
                                 </label>
-                                <input type="text" name="quantite" class="form-control" required>
+                                <input id="recette-quantite" type="text" name="quantite" class="form-control" required>
                             </div>
                         </div>
 

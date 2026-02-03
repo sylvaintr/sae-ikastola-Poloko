@@ -9,6 +9,37 @@ function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 }
 
+async function persistMoveResize(info, template) {
+    if (!template) return;
+
+    const url = template.replace('__ID__', info.event.id);
+
+    const payload = {
+        start: info.event.start?.toISOString(),
+        end: info.event.end?.toISOString() ?? null,
+    };
+
+    try {
+        const res = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken(),
+                Accept: 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+            info.revert();
+            console.error('Update failed', await res.text());
+        }
+    } catch (e) {
+        info.revert();
+        console.error('Update error', e);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const el = document.getElementById('calendar-root');
     if (!el) return;
@@ -18,10 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const eventObligatoireLabel = el.dataset.eventObligatoire || 'Événement obligatoire';
     const noDescriptionLabel = el.dataset.noDescription || 'Aucune description';
 
-    // Labels pour les demandes
-    const demandeLabel = el.dataset.demandeLabel || 'Demande';
-    const demandeUrgenceLabel = el.dataset.demandeUrgence || 'Urgence';
-    const demandeEtatLabel = el.dataset.demandeEtat || 'État';
+    // URL pour les demandes
     const demandeShowUrl = el.dataset.demandeShowUrl || '/demandes/__ID__';
 
     // Locale du calendrier (fr ou eu pour basque)
@@ -119,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (props.type === 'demande') {
                 const demandeId = info.event.id.replace('demande-', '');
                 const url = demandeShowUrl.replace('__ID__', demandeId);
-                window.location.href = url;
+                globalThis.location.href = url;
                 return;
             }
 
@@ -151,37 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.show();
         },
     });
-
-    async function persistMoveResize(info, template) {
-        if (!template) return;
-
-        const url = template.replace('__ID__', info.event.id);
-
-        const payload = {
-            start: info.event.start?.toISOString(),
-            end: info.event.end?.toISOString() ?? null,
-        };
-
-        try {
-            const res = await fetch(url, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken(),
-                    Accept: 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!res.ok) {
-                info.revert();
-                console.error('Update failed', await res.text());
-            }
-        } catch (e) {
-            info.revert();
-            console.error('Update error', e);
-        }
-    }
 
     calendar.render();
 });

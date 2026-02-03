@@ -20,19 +20,6 @@ class ProfileController extends Controller
     use HandlesDocumentDownloads;
 
     /**
-     * Taille maximale autorisée pour les documents obligatoires (en kilo-octets).
-     *
-     * 8192 KB = 8 MB. Cette limite respecte les recommandations de sécurité SonarQube
-     * (limite recommandée : inférieure ou égale à 8 MB pour les uploads de fichiers).
-     * Cette limite est choisie pour :
-     * - limiter l'impact mémoire/disque des uploads,
-     * - rester suffisante pour les documents administratifs usuels (PDF, images),
-     * - réduire les risques d'attaque par upload de fichiers trop volumineux.
-     */
-    private const MAX_DOCUMENT_SIZE_KB = 8192; // 8 MB - Compliant avec les recommandations SonarQube
-    private const ZIP_MAGIC_BYTES = '504b0304'; // Magic bytes pour fichiers ZIP/DOCX
-
-    /**
      * Methode pour afficher le formulaire de profil de l'utilisateur
      */
     public function edit(Request $request): View

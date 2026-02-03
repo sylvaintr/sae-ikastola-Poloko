@@ -37,15 +37,10 @@ class DemandeController extends Controller
 
         // Vérifier si l'utilisateur a un des rôles associés à la demande
         $demandeRoleIds = $demande->roles()->pluck('role.idRole')->toArray();
-
-        if (empty($demandeRoleIds)) {
-            // Si aucun rôle n'est associé à la demande, seul le CA peut gérer
-            return false;
-        }
-
         $userRoleIds = $user->roles()->pluck('role.idRole')->toArray();
 
-        return !empty(array_intersect($demandeRoleIds, $userRoleIds));
+        // Autorisé si la demande a des rôles ET l'utilisateur en possède au moins un
+        return !empty($demandeRoleIds) && !empty(array_intersect($demandeRoleIds, $userRoleIds));
     }
 
     /**
