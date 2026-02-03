@@ -7,6 +7,8 @@ use App\Models\Tache;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class CalendrierController extends Controller
 {
@@ -21,170 +23,165 @@ class CalendrierController extends Controller
     // FullCalendar appelle: /calendrier/events?start=...&end=...
     public function events(Request $request): JsonResponse
     {
-        $start = $request->query('start'); // ISO
-        $end   = $request->query('end');   // ISO
+        $start = $request->query('start');
+        $end = $request->query('end');
 
-        // Récupérer les rôles de l'utilisateur connecté
         $user = Auth::user();
         $userRoleIds = $user ? $user->rolesCustom()->pluck('role.idRole')->toArray() : [];
-
-        // Vérifier si l'utilisateur est administrateur (CA)
         $isAdmin = $user && $user->hasRole(self::ADMIN_ROLE);
 
-        // --- Événements ---
-        $eventQuery = Evenement::query();
+        $events = $this->getFilteredEvenements($isAdmin, $userRoleIds, $start, $end);
+        $demandes = $this->getFilteredDemandes($isAdmin, $userRoleIds, $start, $end);
 
-        // Si l'utilisateur est admin (CA), il voit tous les événements
-        // Sinon, filtrer par rôles : afficher uniquement les événements
-        // dont les rôles correspondent à ceux de l'utilisateur,
-        // OU les événements sans rôles assignés (visibles par tous)
+        return response()->json($events->merge($demandes));
+    }
+
+    /**
+     * Récupère les événements filtrés par rôles et dates.
+     */
+    private function getFilteredEvenements(bool $isAdmin, array $userRoleIds, ?string $start, ?string $end): Collection
+    {
+        $query = Evenement::query();
+
         if (!$isAdmin) {
-            if (!empty($userRoleIds)) {
-                $eventQuery->where(function ($q) use ($userRoleIds) {
-                    $q->whereHas('roles', function ($roleQuery) use ($userRoleIds) {
-                        $roleQuery->whereIn('role.idRole', $userRoleIds);
-                    })->orWhereDoesntHave('roles');
-                });
-            } else {
-                // Utilisateur sans rôles : afficher uniquement les événements sans rôles
-                $eventQuery->whereDoesntHave('roles');
-            }
+            $this->applyRoleFilterToEvenements($query, $userRoleIds);
         }
 
         if ($start && $end) {
-            // events qui chevauchent la fenêtre
-            $eventQuery->where(function ($q) use ($start, $end) {
-                $q->whereBetween('start_at', [$start, $end])
-                    ->orWhereBetween('end_at', [$start, $end])
-                    ->orWhere(function ($q2) use ($start, $end) {
-                        $q2->where('start_at', '<=', $start)
-                            ->where(function ($q3) use ($end) {
-                                $q3->whereNull('end_at')
-                                    ->orWhere('end_at', '>=', $end);
-                            });
-                    });
-            });
+            $this->applyDateFilterToEvenements($query, $start, $end);
         }
 
-        $events = $eventQuery->get()->map(function (Evenement $e) {
-            $startAt = $e->start_at; // cast Carbon
-            $endAt   = $e->end_at;
+        return $query->get()->map(fn(Evenement $e) => $this->mapEvenementToCalendar($e));
+    }
 
-            return [
-                'id'    => 'event-' . $e->idEvenement,
-                'title' => $e->titre ?? 'Évènement',
-                'start' => optional($startAt)->toISOString(),
-                'end'   => optional($endAt)->toISOString(), // peut être null
-                'allDay' => false,
+    /**
+     * Applique le filtre par rôles aux événements.
+     */
+    private function applyRoleFilterToEvenements(Builder $query, array $userRoleIds): void
+    {
+        if (!empty($userRoleIds)) {
+            $query->where(function ($q) use ($userRoleIds) {
+                $q->whereHas('roles', fn($roleQuery) => $roleQuery->whereIn('role.idRole', $userRoleIds))
+                    ->orWhereDoesntHave('roles');
+            });
+        } else {
+            $query->whereDoesntHave('roles');
+        }
+    }
 
-                'extendedProps' => [
-                    'type'        => 'evenement',
-                    'description' => $e->description,
-                    'obligatoire' => (bool) $e->obligatoire,
-                    'startLabel'  => optional($startAt)->translatedFormat('l d F Y \\à H\\hi'),
-                    'endLabel'    => $endAt ? $endAt->translatedFormat('l d F Y \\à H\\hi') : null,
-                ],
-            ];
+    /**
+     * Applique le filtre par dates aux événements.
+     */
+    private function applyDateFilterToEvenements(Builder $query, string $start, string $end): void
+    {
+        $query->where(function ($q) use ($start, $end) {
+            $q->whereBetween('start_at', [$start, $end])
+                ->orWhereBetween('end_at', [$start, $end])
+                ->orWhere(function ($q2) use ($start, $end) {
+                    $q2->where('start_at', '<=', $start)
+                        ->where(fn($q3) => $q3->whereNull('end_at')->orWhere('end_at', '>=', $end));
+                });
         });
+    }
 
-        // --- Demandes non terminées ---
-        $demandeQuery = Tache::where('etat', '!=', self::STATUS_TERMINE);
+    /**
+     * Mappe un événement au format FullCalendar.
+     */
+    private function mapEvenementToCalendar(Evenement $e): array
+    {
+        return [
+            'id' => 'event-' . $e->idEvenement,
+            'title' => $e->titre ?? 'Évènement',
+            'start' => optional($e->start_at)->toISOString(),
+            'end' => optional($e->end_at)->toISOString(),
+            'allDay' => false,
+            'extendedProps' => [
+                'type' => 'evenement',
+                'description' => $e->description,
+                'obligatoire' => (bool) $e->obligatoire,
+                'startLabel' => optional($e->start_at)->translatedFormat('l d F Y \\à H\\hi'),
+                'endLabel' => $e->end_at?->translatedFormat('l d F Y \\à H\\hi'),
+            ],
+        ];
+    }
 
-        // Si l'utilisateur est admin (CA), il voit toutes les demandes
-        // Sinon, filtrer par rôles avec priorité :
-        // 1. Si la demande a ses propres rôles → filtrer par ces rôles
-        // 2. Sinon, fallback sur les rôles de l'événement associé
-        // 3. Si ni la demande ni l'événement n'ont de rôles → visible par tous
+    /**
+     * Récupère les demandes filtrées par rôles et dates.
+     */
+    private function getFilteredDemandes(bool $isAdmin, array $userRoleIds, ?string $start, ?string $end): Collection
+    {
+        $query = Tache::where('etat', '!=', self::STATUS_TERMINE);
+
         if (!$isAdmin) {
-            if (!empty($userRoleIds)) {
-                $demandeQuery->where(function ($q) use ($userRoleIds) {
-                    // Demandes ayant leurs propres rôles correspondant à l'utilisateur
-                    $q->whereHas('roles', function ($roleQuery) use ($userRoleIds) {
-                        $roleQuery->whereIn('role.idRole', $userRoleIds);
-                    })
-                    // OU demandes sans rôles propres mais avec événement ayant des rôles correspondants
-                    ->orWhere(function ($q2) use ($userRoleIds) {
-                        $q2->whereDoesntHave('roles')
-                            ->whereHas('evenement.roles', function ($roleQuery) use ($userRoleIds) {
-                                $roleQuery->whereIn('role.idRole', $userRoleIds);
-                            });
-                    })
-                    // OU demandes sans rôles propres et sans événement lié (orphelines)
-                    ->orWhere(function ($q2) {
-                        $q2->whereDoesntHave('roles')
-                            ->whereNull('idEvenement');
-                    })
-                    // OU demandes sans rôles propres avec événement sans rôles (visible par tous)
-                    ->orWhere(function ($q2) {
-                        $q2->whereDoesntHave('roles')
-                            ->whereHas('evenement', function ($eventQuery) {
-                                $eventQuery->whereDoesntHave('roles');
-                            });
-                    });
-                });
-            } else {
-                // Utilisateur sans rôles : afficher uniquement les demandes
-                // sans rôles propres et (orphelines ou dont l'événement n'a pas de rôles)
-                $demandeQuery->where(function ($q) {
-                    $q->where(function ($q2) {
-                        $q2->whereDoesntHave('roles')
-                            ->whereNull('idEvenement');
-                    })
-                    ->orWhere(function ($q2) {
-                        $q2->whereDoesntHave('roles')
-                            ->whereHas('evenement', function ($eventQuery) {
-                                $eventQuery->whereDoesntHave('roles');
-                            });
-                    });
-                });
-            }
+            $this->applyRoleFilterToDemandes($query, $userRoleIds);
         }
 
         if ($start && $end) {
-            $demandeQuery->where(function ($q) use ($start, $end) {
-                $q->whereBetween('dateD', [$start, $end])
-                    ->orWhereBetween('dateF', [$start, $end])
-                    ->orWhere(function ($q2) use ($start, $end) {
-                        $q2->where('dateD', '<=', $start)
-                            ->where(function ($q3) use ($end) {
-                                $q3->whereNull('dateF')
-                                    ->orWhere('dateF', '>=', $end);
-                            });
-                    })
-                    // Inclure aussi les demandes sans date de fin qui commencent avant la fin de la fenêtre
-                    ->orWhere(function ($q2) use ($end) {
-                        $q2->whereNull('dateF')
-                            ->where('dateD', '<=', $end);
-                    });
-            });
+            $this->applyDateFilterToDemandes($query, $start, $end);
         }
 
-        $demandes = $demandeQuery->get()->map(function (Tache $d) {
-            $startAt = $d->dateD;
-            $endAt   = $d->dateF;
+        return $query->get()->map(fn(Tache $d) => $this->mapDemandeToCalendar($d));
+    }
 
-            return [
-                'id'    => 'demande-' . $d->idTache,
-                'title' => $d->titre ?? 'Demande',
-                'start' => optional($startAt)->toDateString(), // Date seulement pour allDay
-                'end'   => $endAt ? $endAt->addDay()->toDateString() : null, // FullCalendar: end est exclusif
-                'allDay' => true,
+    /**
+     * Applique le filtre par rôles aux demandes.
+     */
+    private function applyRoleFilterToDemandes(Builder $query, array $userRoleIds): void
+    {
+        if (!empty($userRoleIds)) {
+            $query->where(function ($q) use ($userRoleIds) {
+                $q->whereHas('roles', fn($rq) => $rq->whereIn('role.idRole', $userRoleIds))
+                    ->orWhere(fn($q2) => $q2->whereDoesntHave('roles')
+                        ->whereHas('evenement.roles', fn($rq) => $rq->whereIn('role.idRole', $userRoleIds)))
+                    ->orWhere(fn($q2) => $q2->whereDoesntHave('roles')->whereNull('idEvenement'))
+                    ->orWhere(fn($q2) => $q2->whereDoesntHave('roles')
+                        ->whereHas('evenement', fn($eq) => $eq->whereDoesntHave('roles')));
+            });
+        } else {
+            $query->where(function ($q) {
+                $q->where(fn($q2) => $q2->whereDoesntHave('roles')->whereNull('idEvenement'))
+                    ->orWhere(fn($q2) => $q2->whereDoesntHave('roles')
+                        ->whereHas('evenement', fn($eq) => $eq->whereDoesntHave('roles')));
+            });
+        }
+    }
 
-                'extendedProps' => [
-                    'type'        => 'demande',
-                    'description' => $d->description,
-                    'urgence'     => $d->urgence,
-                    'etat'        => $d->etat,
-                    'startLabel'  => optional($startAt)->translatedFormat('l d F Y'),
-                    'endLabel'    => $endAt ? $endAt->translatedFormat('l d F Y') : null,
-                ],
-            ];
+    /**
+     * Applique le filtre par dates aux demandes.
+     */
+    private function applyDateFilterToDemandes(Builder $query, string $start, string $end): void
+    {
+        $query->where(function ($q) use ($start, $end) {
+            $q->whereBetween('dateD', [$start, $end])
+                ->orWhereBetween('dateF', [$start, $end])
+                ->orWhere(function ($q2) use ($start, $end) {
+                    $q2->where('dateD', '<=', $start)
+                        ->where(fn($q3) => $q3->whereNull('dateF')->orWhere('dateF', '>=', $end));
+                })
+                ->orWhere(fn($q2) => $q2->whereNull('dateF')->where('dateD', '<=', $end));
         });
+    }
 
-        // Fusionner événements et demandes
-        $allEvents = $events->merge($demandes);
-
-        return response()->json($allEvents);
+    /**
+     * Mappe une demande au format FullCalendar.
+     */
+    private function mapDemandeToCalendar(Tache $d): array
+    {
+        return [
+            'id' => 'demande-' . $d->idTache,
+            'title' => $d->titre ?? 'Demande',
+            'start' => optional($d->dateD)->toDateString(),
+            'end' => $d->dateF?->addDay()->toDateString(),
+            'allDay' => true,
+            'extendedProps' => [
+                'type' => 'demande',
+                'description' => $d->description,
+                'urgence' => $d->urgence,
+                'etat' => $d->etat,
+                'startLabel' => optional($d->dateD)->translatedFormat('l d F Y'),
+                'endLabel' => $d->dateF?->translatedFormat('l d F Y'),
+            ],
+        ];
     }
 
     // Drag/drop & resize (si tu actives editable dans FullCalendar)
