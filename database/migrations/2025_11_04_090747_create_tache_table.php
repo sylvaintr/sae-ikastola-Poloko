@@ -25,12 +25,20 @@ return new class extends Migration
                 $table->decimal('montantR', 7)->nullable();
                 $table->integer('idEvenement')->nullable()->index('idevenement');
                 $table->integer('idRole')->nullable()->index('idrole');
+                $table->foreign('idRole')
+                    ->references('idRole')
+                    ->on('role')
+                    ->nullOnDelete();
             });
         } else {
             // Si la table existe déjà, ajouter la colonne idRole si elle n'existe pas
             Schema::table('tache', function (Blueprint $table) {
                 if (!Schema::hasColumn('tache', 'idRole')) {
                     $table->integer('idRole')->nullable()->after('idEvenement')->index('idrole');
+                    $table->foreign('idRole')
+                        ->references('idRole')
+                        ->on('role')
+                        ->nullOnDelete();
                 }
             });
         }
