@@ -116,7 +116,8 @@ class FactureCalculator
         $totalRegularisation = 0;
 
         
-        $enfants = $facture->famille()->enfants()->get();
+        $familleModel = $facture->famille;
+        $enfants = $familleModel ? $familleModel->enfants()->get() : collect();
         $cursorDate = $startDate->copy()->startOfMonth();
         $endDate = $facture->dateC->copy()->endOfMonth();
 
