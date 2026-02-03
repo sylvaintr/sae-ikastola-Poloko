@@ -82,65 +82,60 @@ class FactureCalculator
      */
     public function calculerRegularisation(int $idfacture): int
     {
-        $lastRegDate = Facture::where('idFamille', $idfamille)
+
+        $facture = Facture::find($idfacture);
+
+        // recupere la derniere date de facture non previsionnelle
+
+        if ($facture === null) {
+            return 0;
+        }
+        $lastRegDate = Facture::where('idFamille', $facture->idFamille)
+            ->where('idUtilisateur', $facture->idUtilisateur)
             ->where('previsionnel', false)
-            ->whereDate('dateC', '<>', Carbon::today())
+            ->whereDate('dateC', '<', $facture->dateC)
             ->max('dateC');
 
-        $startDate    = $lastRegDate ? Carbon::parse($lastRegDate) : Carbon::create(2000, 1, 1);
-        $facturesPrev = Facture::where('idFamille', $idfamille)
+        $startDate = $lastRegDate ? Carbon::parse($lastRegDate) : Carbon::create(2000, 1, 1);
+        $idFamille = (int)$facture->idFamille;
+        // récupération des factures prévisionnelles entre la date de départ et la date de la facture courante
+        $facturesPrev = Facture::where('idFamille', $idFamille)
             ->where('previsionnel', true)
             ->where('dateC', '>=', $startDate)
+            ->where('dateC', '<=', $facture->dateC)
             ->get();
 
+        // calcul du total prévisionnel
         $totalPrev = 0;
         foreach ($facturesPrev as $facture) {
             $montantDetails  = $this->calculerMontantFacture($facture->idFacture);
             $totalPrev      += $montantDetails['totalPrevisionnel']; // Null coalesce safety
         }
 
+        // calcul du total réel (garderie) entre les mois
         $totalRegularisation = 0;
 
-        $familleObj = Famille::find($idfamille);
-        if ($familleObj === null) {
-            return 0;
-        }
-        $enfants = $familleObj->enfants()->get();
-
+        
+        $enfants = $facture->famille()->enfants()->get();
         $cursorDate = $startDate->copy()->startOfMonth();
-        $endDate    = Carbon::now()->endOfMonth();
+        $endDate = $facture->dateC->copy()->endOfMonth();
 
         while ($cursorDate->lte($endDate)) {
+            foreach ($enfants as $enfant) {
+                $monthStart = $cursorDate->copy()->startOfMonth();
+                $monthEnd = $cursorDate->copy()->endOfMonth();
 
-            $facture = Facture::where('idFamille', $idfamille)
-                ->whereYear('dateC', $cursorDate->year)
-                ->whereMonth('dateC', $cursorDate->month)
-                ->first();
+                $nbfoisgarderie = Pratiquer::where('idEnfant', $enfant->idEnfant)
+                    ->whereBetween('dateP', [$monthStart, $monthEnd])
+                    ->where('activite', 'like', '%garderie%')
+                    ->count();
 
-            if ($facture) {
-                $montant             = app(FactureCalculator::class)->calculerMontantFacture($facture->idFacture);
-                $totalRegularisation += ($montant['montantcotisation'] ?? 0)
-                     + ($montant['montantparticipation'] ?? 0)
-                     + ($montant['montantparticipationSeaska'] ?? 0);
-
-                foreach ($enfants as $enfant) {
-
-                    $monthStart = $cursorDate->copy()->startOfMonth();
-                    $monthEnd   = $cursorDate->copy()->endOfMonth();
-
-                    $nbfoisgarderie = Pratiquer::where('idEnfant', $enfant->idEnfant)
-                        ->whereBetween('dateP', [$monthStart, $monthEnd])
-                        ->where('activite', 'like', '%garderie%')
-                        ->count();
-
-                    if ($nbfoisgarderie > 8) {
-                        $totalRegularisation += 20;
-                    } elseif ($nbfoisgarderie > 0) {
-                        $totalRegularisation += 10;
-                    }
+                if ($nbfoisgarderie > 8) {
+                    $totalRegularisation += 20;
+                } elseif ($nbfoisgarderie > 0) {
+                    $totalRegularisation += 10;
                 }
             }
-
             $cursorDate->addMonth();
         }
 

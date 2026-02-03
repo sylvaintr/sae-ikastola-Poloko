@@ -31,7 +31,6 @@ class EnfantFactory extends Factory
             'NNI' => $this->faker->unique()->numberBetween(100000000, 999999999),
             'nbFoisGarderie' => $this->faker->numberBetween(0, 15),
             'idClasse' => Classe::factory(),
-            'idFamille' => Famille::factory(),
         ];
     }
 }
