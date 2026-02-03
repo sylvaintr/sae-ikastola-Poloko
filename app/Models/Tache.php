@@ -102,4 +102,13 @@ class Tache extends Model
 			->orderByDesc('id');
 	}
 
+	/**
+	 * Rôles associés à la demande (pivot `tache_role`).
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+	 */
+	public function roles()
+	{
+		return $this->belongsToMany(Role::class, 'tache_role', 'idTache', 'idRole');
+	}
 }

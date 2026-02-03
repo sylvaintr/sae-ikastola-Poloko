@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\Tache;
+use App\Models\Role;
+use App\Models\Evenement;
 use App\Models\DemandeHistorique;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -12,17 +14,50 @@ use Illuminate\Support\Collection;
 
 class DemandeController extends Controller
 {
-    private const DEFAULT_TYPES = ['Réparation', 'Ménage', 'Maintenance'];
     private const STATUS_TERMINE = 'Terminé';
     private const DEFAULT_ETATS = ['En attente', 'En cours', self::STATUS_TERMINE];
     private const DEFAULT_URGENCES = ['Faible', 'Moyenne', 'Élevée'];
+
+    /**
+     * Vérifie si l'utilisateur connecté peut modifier/valider/supprimer la demande.
+     * Seuls les membres du CA et les utilisateurs ayant un rôle concerné par la demande sont autorisés.
+     */
+    private function canManageDemande(Tache $demande): bool
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return false;
+        }
+
+        // Les membres du CA ont toujours accès
+        if ($user->hasRole('CA')) {
+            return true;
+        }
+
+        // Vérifier si l'utilisateur a un des rôles associés à la demande
+        $demandeRoleIds = $demande->roles()->pluck('role.idRole')->toArray();
+        $userRoleIds = $user->roles()->pluck('role.idRole')->toArray();
+
+        // Autorisé si la demande a des rôles ET l'utilisateur en possède au moins un
+        return !empty($demandeRoleIds) && !empty(array_intersect($demandeRoleIds, $userRoleIds));
+    }
+
+    /**
+     * Retourne une réponse 403 si l'utilisateur n'est pas autorisé.
+     */
+    private function authorizeManageDemande(Tache $demande)
+    {
+        if (!$this->canManageDemande($demande)) {
+            abort(403, __('demandes.messages.unauthorized'));
+        }
+    }
 
     public function index(Request $request)
     {
         $filters = [
             'search' => $request->input('search'),
             'etat' => $request->input('etat', 'all'),
-            'type' => $request->input('type', 'all'),
             'urgence' => $request->input('urgence', 'all'),
             'date_from' => $request->input('date_from'),
             'date_to' => $request->input('date_to'),
@@ -44,8 +79,197 @@ class DemandeController extends Controller
             $query->where('etat', $filters['etat']);
         }
 
-        if ($filters['type'] && $filters['type'] !== 'all') {
-            $query->where('type', $filters['type']);
+        if ($filters['urgence'] && $filters['urgence'] !== 'all') {
+            $query->where('urgence', $filters['urgence']);
+        }
+
+        if ($filters['date_from']) {
+            $query->whereDate('dateD', '>=', $filters['date_from']);
+        }
+
+        if ($filters['date_to']) {
+            $query->whereDate('dateD', '<=', $filters['date_to']);
+        }
+
+        $sortable = [
+            'id' => 'idTache',
+            'date' => 'dateD',
+            'title' => 'titre',
+            'urgence' => 'urgence',
+            'etat' => 'etat',
+        ];
+
+        $sortField = $sortable[$filters['sort']] ?? $sortable['date'];
+        $direction = strtolower($filters['direction']) === 'asc' ? 'asc' : 'desc';
+
+        $demandes = $query
+            ->with('roles')
+            ->orderBy($sortField, $direction)
+            ->orderBy('idTache', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        $etats = $this->loadOrDefault('etat', collect(self::DEFAULT_ETATS));
+        $urgences = $this->loadOrDefault('urgence', collect(self::DEFAULT_URGENCES));
+
+        // Préparer les infos d'autorisation pour la vue
+        $user = Auth::user();
+        $isCA = $user?->hasRole('CA') ?? false;
+        $userRoleIds = $user ? $user->roles()->pluck('role.idRole')->toArray() : [];
+
+        return view('demandes.index', compact('demandes', 'filters', 'etats', 'urgences', 'isCA', 'userRoleIds'));
+    }
+
+    public function create()
+    {
+        $urgences = self::DEFAULT_URGENCES;
+        $roles = Role::orderBy('name')->get();
+        $evenements = Evenement::with('roles')->orderBy('titre')->get();
+
+        return view('demandes.create', compact('urgences', 'roles', 'evenements'));
+    }
+
+    public function show(Tache $demande)
+    {
+        $demande->loadMissing(['realisateurs', 'documents', 'historiques', 'roles']);
+
+        $metadata = [
+            'reporter' => $demande->user->name ?? $demande->reporter_name ?? 'Inconnu',
+            'report_date' => optional($demande->dateD)->translatedFormat('d F Y') ?? now()->translatedFormat('d F Y'),
+        ];
+
+        $photos = $demande->documents
+            ? $demande->documents
+                ->filter(fn($doc) => Storage::disk('public')->exists($doc->chemin))
+                ->map(fn($doc) => [
+                    'url' => Storage::url($doc->chemin),
+                    'nom' => $doc->nom,
+                ])->values()->all()
+            : [];
+
+        $historiques = $demande->historiques;
+        $totalDepense = $historiques->sum('depense');
+        $canManage = $this->canManageDemande($demande);
+
+        return view('demandes.show', compact('demande', 'metadata', 'photos', 'historiques', 'totalDepense', 'canManage'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'titre' => ['required', 'string', 'max:30'],
+            'description' => ['required', 'string', 'max:100'],
+            'urgence' => ['required', 'string', 'max:15'],
+            'dateD' => ['nullable', 'date'],
+            'dateF' => ['nullable', 'date', 'after_or_equal:dateD'],
+            'montantP' => ['nullable', 'numeric', 'min:0'],
+            'montantR' => ['nullable', 'numeric', 'min:0'],
+            'idEvenement' => ['nullable', 'integer', 'exists:evenement,idEvenement'],
+            'photos' => ['nullable', 'array', 'max:4'],
+            'photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['integer', 'exists:role,idRole'],
+        ]);
+
+        $data = collect($validated)->except(['photos', 'roles'])->toArray();
+        $data['idTache'] = (Tache::max('idTache') ?? 0) + 1;
+        $data['etat'] = 'En attente';
+        $data['dateD'] = $validated['dateD'] ?? now();
+        $data['dateF'] = $validated['dateF'] ?? null;
+
+        $demande = Tache::create($data);
+
+        // Synchroniser les rôles
+        if (!empty($validated['roles'])) {
+            $demande->roles()->sync($validated['roles']);
+        }
+
+        $this->storePhotos($demande, $request->file('photos', []));
+        $this->storeInitialHistory($demande);
+
+        return to_route('demandes.index')->with('status', __('demandes.messages.created'));
+    }
+
+    public function edit(Tache $demande)
+    {
+        $this->authorizeManageDemande($demande);
+
+        if ($demande->etat === self::STATUS_TERMINE) {
+            return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
+        }
+
+        $urgences = ['Faible', 'Moyenne', 'Élevée'];
+        $roles = Role::orderBy('name')->get();
+        $evenements = Evenement::with('roles')->orderBy('titre')->get();
+
+        // Charger les rôles de la demande
+        $demande->load('roles');
+
+        return view('demandes.create', [
+            'urgences' => $urgences,
+            'demande' => $demande,
+            'roles' => $roles,
+            'evenements' => $evenements,
+        ]);
+    }
+
+    public function update(Request $request, Tache $demande)
+    {
+        $this->authorizeManageDemande($demande);
+
+        if ($demande->etat === self::STATUS_TERMINE) {
+            return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
+        }
+
+        $validated = $request->validate([
+            'titre' => ['required', 'string', 'max:30'],
+            'description' => ['required', 'string', 'max:100'],
+            'urgence' => ['required', 'string', 'max:15'],
+            'dateD' => ['nullable', 'date'],
+            'dateF' => ['nullable', 'date', 'after_or_equal:dateD'],
+            'montantP' => ['nullable', 'numeric', 'min:0'],
+            'montantR' => ['nullable', 'numeric', 'min:0'],
+            'idEvenement' => ['nullable', 'integer', 'exists:evenement,idEvenement'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['integer', 'exists:role,idRole'],
+        ]);
+
+        $updates = collect($validated)->except(['dateD', 'dateF', 'roles'])->toArray();
+        $demande->update($updates);
+
+        // Synchroniser les rôles (vide si aucun rôle sélectionné)
+        $demande->roles()->sync($validated['roles'] ?? []);
+
+        return to_route('demandes.show', $demande)->with('status', __('demandes.messages.updated'));
+    }
+
+    /**
+     * Exporte les demandes en CSV.
+     */
+    public function export(Request $request)
+    {
+        $filters = [
+            'search' => $request->input('search'),
+            'etat' => $request->input('etat', 'all'),
+            'urgence' => $request->input('urgence', 'all'),
+            'date_from' => $request->input('date_from'),
+            'date_to' => $request->input('date_to'),
+            'sort' => $request->input('sort', 'date'),
+            'direction' => $request->input('direction', 'desc'),
+        ];
+
+        $query = Tache::with('roles');
+
+        if ($filters['search']) {
+            $searchTerm = trim($filters['search']);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('idTache', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('titre', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        if ($filters['etat'] && $filters['etat'] !== 'all') {
+            $query->where('etat', $filters['etat']);
         }
 
         if ($filters['urgence'] && $filters['urgence'] !== 'all') {
@@ -64,7 +288,6 @@ class DemandeController extends Controller
             'id' => 'idTache',
             'date' => 'dateD',
             'title' => 'titre',
-            'type' => 'type',
             'urgence' => 'urgence',
             'etat' => 'etat',
         ];
@@ -75,119 +298,50 @@ class DemandeController extends Controller
         $demandes = $query
             ->orderBy($sortField, $direction)
             ->orderBy('idTache', 'desc')
-            ->paginate(10)
-            ->withQueryString();
+            ->get();
 
-        $types = $this->loadOrDefault('type', collect(self::DEFAULT_TYPES));
-        $etats = $this->loadOrDefault('etat', collect(self::DEFAULT_ETATS));
-        $urgences = $this->loadOrDefault('urgence', collect(self::DEFAULT_URGENCES));
+        $filename = 'demandes_' . now()->format('Y-m-d_His') . '.csv';
 
-        return view('demandes.index', compact('demandes', 'filters', 'types', 'etats', 'urgences'));
-    }
+        // BOM UTF-8 pour Excel
+        $csv = chr(0xEF) . chr(0xBB) . chr(0xBF);
 
-    public function create()
-    {
-        $types = $this->loadOrDefault('type', collect(self::DEFAULT_TYPES));
+        // En-têtes CSV
+        $csv .= implode(';', [
+            'ID',
+            'Titre',
+            'Description',
+            'Urgence',
+            'État',
+            'Date début',
+            'Date fin',
+            'Montant prévu (€)',
+            'Montant réel (€)',
+            'Rôles cibles',
+        ]) . "\n";
 
-        $urgences = self::DEFAULT_URGENCES;
-        return view('demandes.create', compact('types', 'urgences'));
-    }
+        // Données
+        foreach ($demandes as $demande) {
+            $roles = $demande->roles->pluck('name')->implode(', ');
 
-    public function show(Tache $demande)
-    {
-        $demande->loadMissing(['realisateurs', 'documents', 'historiques']);
+            $row = [
+                $demande->idTache,
+                '"' . str_replace('"', '""', $demande->titre ?? '') . '"',
+                '"' . str_replace('"', '""', $demande->description ?? '') . '"',
+                $demande->urgence ?? '',
+                $demande->etat ?? '',
+                optional($demande->dateD)->format('d/m/Y') ?? '',
+                optional($demande->dateF)->format('d/m/Y') ?? '',
+                $demande->montantP ? number_format($demande->montantP, 2, ',', ' ') : '',
+                $demande->montantR ? number_format($demande->montantR, 2, ',', ' ') : '',
+                '"' . str_replace('"', '""', $roles) . '"',
+            ];
 
-        $metadata = [
-            'reporter' => $demande->user->name ?? $demande->reporter_name ?? 'Inconnu',
-            'report_date' => optional($demande->dateD)->translatedFormat('d F Y') ?? now()->translatedFormat('d F Y'),
-        ];
-
-        $photos = $demande->documents
-            ? $demande->documents
-                ->filter(fn($doc) => Storage::disk('public')->exists($doc->chemin))
-                ->map(fn($doc) => [
-                    'url' => Storage::url($doc->chemin),
-                    'nom' => $doc->nom,
-                ])->values()->all()
-            : [];
-
-        $historiques = $demande->historiques;
-        $totalDepense = $historiques->sum('depense');
-
-        return view('demandes.show', compact('demande', 'metadata', 'photos', 'historiques', 'totalDepense'));
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'titre' => ['required', 'string', 'max:30'],
-            'description' => ['required', 'string', 'max:100'],
-            'type' => ['required', 'string', 'max:15'],
-            'urgence' => ['required', 'string', 'max:15'],
-            'dateD' => ['nullable', 'date'],
-            'dateF' => ['nullable', 'date', 'after_or_equal:dateD'],
-            'montantP' => ['nullable', 'numeric', 'min:0'],
-            'montantR' => ['nullable', 'numeric', 'min:0'],
-            'idEvenement' => ['nullable', 'integer'],
-            'photos' => ['nullable', 'array', 'max:4'],
-            'photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
-        ]);
-
-        $data = collect($validated)->except(['photos'])->toArray();
-        $data['idTache'] = (Tache::max('idTache') ?? 0) + 1;
-        $data['etat'] = 'En attente';
-        $data['dateD'] = $validated['dateD'] ?? now();
-        $data['dateF'] = $validated['dateF'] ?? null;
-
-        $demande = Tache::create($data);
-
-        $this->storePhotos($demande, $request->file('photos', []));
-        $this->storeInitialHistory($demande);
-
-        return to_route('demandes.index')->with('status', __('demandes.messages.created'));
-    }
-
-    public function edit(Tache $demande)
-    {
-        if ($demande->etat === self::STATUS_TERMINE) {
-            return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
+            $csv .= implode(';', $row) . "\n";
         }
 
-        $types = Tache::select('type')->distinct()->orderBy('type')->pluck('type')->filter();
-        if ($types->isEmpty()) {
-            $types = collect(['Réparation', 'Ménage', 'Maintenance']);
-        }
-        $urgences = ['Faible', 'Moyenne', 'Élevée'];
-
-        return view('demandes.create', [
-            'types' => $types,
-            'urgences' => $urgences,
-            'demande' => $demande,
-        ]);
-    }
-
-    public function update(Request $request, Tache $demande)
-    {
-        if ($demande->etat === self::STATUS_TERMINE) {
-            return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
-        }
-
-        $validated = $request->validate([
-            'titre' => ['required', 'string', 'max:30'],
-            'description' => ['required', 'string', 'max:100'],
-            'type' => ['required', 'string', 'max:15'],
-            'urgence' => ['required', 'string', 'max:15'],
-            'dateD' => ['nullable', 'date'],
-            'dateF' => ['nullable', 'date', 'after_or_equal:dateD'],
-            'montantP' => ['nullable', 'numeric', 'min:0'],
-            'montantR' => ['nullable', 'numeric', 'min:0'],
-            'idEvenement' => ['nullable', 'integer'],
-        ]);
-
-        $updates = collect($validated)->except(['dateD', 'dateF'])->toArray();
-        $demande->update($updates);
-
-        return to_route('demandes.show', $demande)->with('status', __('demandes.messages.updated'));
+        return response($csv)
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
     }
 
     private function loadOrDefault(string $column, Collection $fallback): Collection
@@ -209,6 +363,8 @@ class DemandeController extends Controller
 
     public function destroy(Tache $demande)
     {
+        $this->authorizeManageDemande($demande);
+
         // Supprimer les documents liés (fichiers + enregistrements)
         foreach ($demande->documents as $doc) {
             // Supprimer le fichier physique
@@ -227,6 +383,9 @@ class DemandeController extends Controller
         // Supprimer les relations dans la table pivot 'realiser' (utilisateurs-tâches)
         $demande->realisateurs()->detach();
 
+        // Détacher les rôles de la demande
+        $demande->roles()->detach();
+
         // Supprimer la demande elle-même
         $demande->delete();
 
@@ -235,6 +394,8 @@ class DemandeController extends Controller
 
     public function createHistorique(Tache $demande)
     {
+        $this->authorizeManageDemande($demande);
+
         if ($demande->etat === self::STATUS_TERMINE) {
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_locked'));
         }
@@ -244,6 +405,8 @@ class DemandeController extends Controller
 
     public function storeHistorique(Request $request, Tache $demande)
     {
+        $this->authorizeManageDemande($demande);
+
         if ($demande->etat === self::STATUS_TERMINE) {
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_locked'));
         }
@@ -266,6 +429,8 @@ class DemandeController extends Controller
 
     public function validateDemande(Tache $demande)
     {
+        $this->authorizeManageDemande($demande);
+
         $demande->update(['etat' => self::STATUS_TERMINE]);
 
         $this->addHistoryEntry(

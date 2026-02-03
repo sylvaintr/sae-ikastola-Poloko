@@ -4,6 +4,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\DemandeController;
 use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\EvenementController;
+use App\Http\Controllers\RecetteController;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\LierController;
@@ -11,6 +14,8 @@ use App\Http\Controllers\FactureController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
+use App\Http\Controllers\CalendrierController;
+use App\Http\Controllers\IcsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,15 +37,29 @@ if (!defined('ROUTE_ADD')) {
 Route::get('/', [ActualiteController::class, 'index'])->name('home');
 Route::post('/actualites/filter', [ActualiteController::class, 'filter'])->name('actualites.filter');
 
+// Route publique (sans authentification) pour le flux ICS
+Route::get('/ics/{token}', [IcsController::class, 'feed'])->name('ics.feed');
+
 Route::middleware('auth')->group(function () {
 
     // ---------------- Profil utilisateur ----------------
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/regenerate-ics-token', [ProfileController::class, 'regenerateIcsToken'])
+        ->name('profile.regenerate-ics-token');
     Route::post('/profile/document', [ProfileController::class, 'uploadDocument'])->name('profile.document.upload');
     Route::get('/profile/document/{document}/download', [ProfileController::class, 'downloadDocument'])->name('profile.document.download');
     Route::delete('/profile/document/{document}', [ProfileController::class, 'deleteDocument'])->name('profile.document.delete');
+
+    //     <<<<<<< HEAD
+    //     Route::post('/profile/regenerate-ics-token', [ProfileController::class, 'regenerateIcsToken'])
+    //         ->name('profile.regenerate-ics-token');
+    // =======
+    //     Route::post('/profile/document', [ProfileController::class, 'uploadDocument'])->name('profile.document.upload');
+    //     Route::get('/profile/document/{document}/download', [ProfileController::class, 'downloadDocument'])->name('profile.document.download');
+    //     Route::delete('/profile/document/{document}', [ProfileController::class, 'deleteDocument'])->name('profile.document.delete');
+    // >>>>>>> origin/master
 
     // ---------------- Gestion Demandes ----------------
     Route::middleware('can:access-demande')
@@ -48,6 +67,7 @@ Route::middleware('auth')->group(function () {
         ->name('demandes.')
         ->group(function () {
             Route::get('/', [DemandeController::class, 'index'])->name('index');
+            Route::get('/export', [DemandeController::class, 'export'])->name('export');
             Route::get('/create', [DemandeController::class, 'create'])->name('create');
             Route::post('/', [DemandeController::class, 'store'])->name('store');
 
@@ -61,7 +81,19 @@ Route::middleware('auth')->group(function () {
             Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
         });
 
-    // ---------------- Routes administrateur (role CA) ----------------
+    /*
+    |--------------------------------------------------------------------------
+    | Calendrier
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/calendrier', [CalendrierController::class, 'index'])->name('calendrier.index');
+    Route::get('/calendrier/events', [CalendrierController::class, 'events'])->name('calendrier.events');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Routes administrateur (role CA)
+    |--------------------------------------------------------------------------
+    */
     Route::middleware(['role:CA'])->group(function () {
         Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -123,43 +155,50 @@ Route::middleware('auth')->group(function () {
 
             // ---------------- Ajout des routes Famille + LierController ----------------
             Route::prefix('familles')->name('familles.')->group(function () {
-    Route::get('/', [FamilleController::class, 'index'])->name('index');
-    Route::get('/create', [FamilleController::class, 'create'])->name('create');
-    Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
-    Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
-    Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
-   
-    
-    });
-
-           
+                Route::get('/', [FamilleController::class, 'index'])->name('index');
+                Route::get('/create', [FamilleController::class, 'create'])->name('create');
+                Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
+                Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
+                Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
+                Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
+            });
         });
+    });
+    Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
+    Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
+
+    // ---------------- Présence ----------------
+    Route::get('/presence', function () {
+        return view('presence.index');
+    })->name('presence.index');
+    Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
+    Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
+    Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
+    Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
+
+    /*--------------------------------------------------------------------------
+            | Routes événements et recettes
+            |--------------------------------------------------------------------------*/
+    Route::middleware('can:access-evenement')->group(function () {
+        Route::resource('evenements', EvenementController::class);
+        Route::prefix('evenements/{evenement}/recettes')->name('recettes.')->group(function () {
+            Route::post('/', [RecetteController::class, 'store'])->name('store');
         });
-        Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
- Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
-
-        // ---------------- Présence ----------------
-        Route::get('/presence', function () { return view('presence.index'); })->name('presence.index');
-        Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
-        Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
-        Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
-        Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
-    
-
-    Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
-        Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);
-        Route::get('/pannel/etiquettes/data', [EtiquetteController::class, 'data'])->name('etiquettes.data');
+        Route::resource('recettes', RecetteController::class)->except(['index', 'create', 'store', 'show']);
     });
+});
 
-    Route::middleware(['permission:gerer-actualites'])->name('admin.')->group(function () {
-        Route::resource('actualites', ActualiteController::class)->except(['index', 'show']);
-        Route::get('/pannel/actualites/data', [ActualiteController::class, 'data'])->name('actualites.data');
-        Route::get('/pannel/actualites', [ActualiteController::class, 'adminIndex'])->name('actualites.index');
-        Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
-            ->name('actualites.detachDocument');
-    });
+Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
+    Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);
+    Route::get('/pannel/etiquettes/data', [EtiquetteController::class, 'data'])->name('etiquettes.data');
+});
 
+Route::middleware(['permission:gerer-actualites'])->name('admin.')->group(function () {
+    Route::resource('actualites', ActualiteController::class)->except(['index', 'show']);
+    Route::get('/pannel/actualites/data', [ActualiteController::class, 'data'])->name('actualites.data');
+    Route::get('/pannel/actualites', [ActualiteController::class, 'adminIndex'])->name('actualites.index');
+    Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
+        ->name('actualites.detachDocument');
 });
 
 Route::get('/actualites/{id}', [ActualiteController::class, 'show'])->name('actualites.show');

@@ -1,6 +1,12 @@
 <?php
 
 return [
+    // Clés simples pour le calendrier
+    'title' => 'Demande',
+    'urgence' => 'Urgence',
+    'etat' => 'État',
+    'type' => 'Type',
+
     'toolbar' => [
         'export' => [
             'eu' => 'Esportatu (CSV)',
@@ -151,7 +157,18 @@ return [
                 'eu' => 'Argazkia',
                 'fr' => 'Photo',
             ],
+            'evenement' => [
+                'eu' => 'Gertaera lotua',
+                'fr' => 'Événement associé',
+            ],
+            'cibles' => [
+                'eu' => 'Helburu rolak',
+                'fr' => 'Rôles cibles',
+            ],
         ],
+        'evenement_none' => '-- Aucun événement --',
+        'evenement_hint' => 'Optionnel : associez cette demande à un événement pour pré-remplir les rôles cibles.',
+        'cibles_hint' => 'Optionnel : définissez les rôles qui verront cette demande dans le calendrier.',
         'buttons' => [
             'back' => [
                 'eu' => 'Itzuli',
@@ -275,7 +292,8 @@ return [
         'history_added' => 'Nouvel avancement ajouté.',
         'validated' => 'Demande clôturée.',
         'locked' => 'La demande est déjà terminée.',
-        'history_locked' => 'Cette demande est terminée, impossible d’ajouter un avancement.',
+        'history_locked' => 'Cette demande est terminée, impossible d\'ajouter un avancement.',
+        'unauthorized' => 'Vous n\'êtes pas autorisé à effectuer cette action sur cette demande.',
     ],
 ];
 
