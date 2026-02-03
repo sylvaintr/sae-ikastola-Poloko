@@ -6,6 +6,7 @@ use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\DemandeController;
 use App\Http\Controllers\TacheController;
 use App\Http\Controllers\UtilisateurController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Admin\AccountController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
@@ -200,6 +201,9 @@ Route::middleware('auth')->group(function () {
 
     // Recherche des utilisateurs
     Route::get('/users/search', [UtilisateurController::class, 'search'])->name('users.search');
+
+    // Recherche des rôles
+    Route::get('/roles/search', [RoleController::class, 'search'])->name('roles.search');
 
     Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
         Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);

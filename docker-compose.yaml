@@ -37,8 +37,6 @@ services:
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
       TZ: Europe/Paris
     ports:
       - "3307:3306"
@@ -66,8 +64,8 @@ services:
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      PMA_USER: ikastola_user
-      PMA_PASSWORD: secret123
+      PMA_USER: root
+      PMA_PASSWORD: root
     depends_on:
       - mysql
     networks:
