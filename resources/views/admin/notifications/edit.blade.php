@@ -1,12 +1,11 @@
 <x-app-layout>
-    <div class="container py-5">
+    <div class="container py-4 py-md-5">
         <div class="mb-5">
-          
             <h2 class="fw-bold mb-0">
                 {{ __('notifications.edit_header', [], 'eus') }}
             </h2>
             
-           
+            {{-- Sous-titre avec le nom de la règle --}}
             @if(app()->getLocale() == 'fr')
                 <div class="text-muted small mt-1">
                     {{ __('notifications.edit_subtitle', [], 'fr') }} : {{ $setting->title }}
@@ -19,18 +18,17 @@
         </div>
 
         <div class="card border-0 shadow-sm">
-            <div class="card-body p-4">
+            <div class="card-body p-3 p-md-4">
                 
-               
                 <form method="POST" action="{{ route('admin.notifications.update', $setting->id) }}" class="admin-form" id="notification-form">
                     @csrf
                     @method('PUT')
-
-                  
-                    <div class="row g-4 mb-4 align-items-start">
+                    
+                   
+                    <div class="row g-3 mb-4 align-items-start">
                         
-                       
-                        <div class="col-md-6">
+                      
+                        <div class="col-12 col-md-6">
                             <label for="title" class="form-label fw-bold">
                                 {{ __('notifications.form_title', [], 'eus') }}
                                 @if(app()->getLocale() == 'fr')
@@ -40,11 +38,12 @@
                                 @endif
                             </label>
                             <input type="text" id="title" name="title" class="form-control" 
-                                   value="{{ old('title', $setting->title) }}" required>
+                                   value="{{ old('title', $setting->title) }}" 
+                                   placeholder="{{ __('notifications.form_title_placeholder') }}" required>
                         </div>
 
                        
-                        <div class="col-md-2">
+                        <div class="col-6 col-md-2">
                             <label for="recurrence" class="form-label fw-bold">
                                 {{ __('notifications.form_recurrence', [], 'eus') }}
                                 @if(app()->getLocale() == 'fr')
@@ -54,11 +53,12 @@
                                 @endif
                             </label>
                             <input type="number" id="recurrence" name="recurrence_days" class="form-control" 
-                                   value="{{ old('recurrence_days', $setting->recurrence_days) }}">
+                                   value="{{ old('recurrence_days', $setting->recurrence_days) }}" 
+                                   placeholder="{{ __('notifications.form_recurrence_placeholder') }}">
                         </div>
 
-                        
-                        <div class="col-md-2">
+                       
+                        <div class="col-6 col-md-2">
                             <label for="reminder" class="form-label fw-bold">
                                 {{ __('notifications.form_reminder', [], 'eus') }}
                                 @if(app()->getLocale() == 'fr')
@@ -68,11 +68,12 @@
                                 @endif
                             </label>
                             <input type="number" id="reminder" name="reminder_days" class="form-control" 
-                                   value="{{ old('reminder_days', $setting->reminder_days) }}" required>
+                                   value="{{ old('reminder_days', $setting->reminder_days) }}" 
+                                   placeholder="{{ __('notifications.form_reminder_placeholder') }}" required>
                         </div>
 
-                     
-                        <div class="col-md-2 text-center">
+                      
+                        <div class="col-12 col-md-2 text-start text-md-center">
                             <label class="form-label fw-bold d-block mb-2">
                                 {{ __('notifications.form_active', [], 'eus') }}
                                 @if(app()->getLocale() == 'fr')
@@ -81,16 +82,16 @@
                                     </div>
                                 @endif
                             </label>
-                            <div class="form-check form-switch d-flex justify-content-center">
-                                <input class="form-check-input" type="checkbox" id="isActive" name="is_active" 
-                                       {{ $setting->is_active ? 'checked' : '' }}
+                            <div class="form-check form-switch d-flex justify-content-start justify-content-md-center ps-0">
+                                <input class="form-check-input ms-0" type="checkbox" id="isActive" name="is_active" 
+                                       {{ $setting->is_active ? 'checked' : '' }} 
                                        style="width: 3rem; height: 1.5rem; cursor: pointer;">
                             </div>
                         </div>
                     </div>
 
-                   
-                    <div class="mb-5">
+                
+                    <div class="mb-4">
                         <label for="description" class="form-label fw-bold">
                             {{ __('notifications.form_description', [], 'eus') }}
                             @if(app()->getLocale() == 'fr')
@@ -99,12 +100,13 @@
                                 </div>
                             @endif
                         </label>
-                        <textarea id="description" name="description" class="form-control" rows="3" style="resize: none;">{{ old('description', $setting->description) }}</textarea>
+                        <textarea id="description" name="description" class="form-control" rows="3" style="resize: none;" 
+                                  placeholder="{{ __('notifications.form_description_placeholder') }}">{{ old('description', $setting->description) }}</textarea>
                     </div>
 
                     <hr class="text-muted my-4">
-
                   
+                 
                     <div class="mb-3">
                         <h4 class="fw-bold mb-0">
                             {{ __('notifications.target_title', [], 'eus') }}
@@ -116,18 +118,14 @@
                         @endif
                     </div>
 
-                    <div class="row g-4">
-                      
-                        <div class="col-md-6">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
                             <div id="available-modules" class="border rounded p-2 bg-white" style="height: auto; min-height: 200px;">
                                 
-                               
+                                {{-- Document --}}
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-3 border rounded bg-white shadow-sm" 
-                                     data-id="0" 
-                                     data-type="Document" 
-                                     data-model-class="App\Models\DocumentObligatoire" {{-- IMPORTANT POUR LA PRÉ-SÉLECTION --}}
-                                     data-name="{{ __('notifications.module_doc_title', [], 'eus') }}" 
-                                     style="cursor: pointer; transition: 0.2s;">
+                                     data-id="0" data-type="Document" data-model-class="App\Models\DocumentObligatoire"
+                                     data-name="{{ __('notifications.module_doc_title', [], 'eus') }}" style="cursor: pointer;">
                                     <div>
                                         <span class="fw-bold d-block text-primary">
                                             {{ __('notifications.module_doc_title', [], 'eus') }}
@@ -144,13 +142,10 @@
                                     <i class="bi bi-file-earmark-text fs-3 text-primary"></i>
                                 </div>
 
-                              
+                                {{-- Événement --}}
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm" 
-                                     data-id="0" 
-                                     data-type="Evènement" 
-                                     data-model-class="App\Models\Evenement" {{-- IMPORTANT POUR LA PRÉ-SÉLECTION --}}
-                                     data-name="{{ __('notifications.module_event_title', [], 'eus') }}" 
-                                     style="cursor: pointer; transition: 0.2s;">
+                                     data-id="0" data-type="Evènement" data-model-class="App\Models\Evenement"
+                                     data-name="{{ __('notifications.module_event_title', [], 'eus') }}" style="cursor: pointer;">
                                     <div>
                                         <span class="fw-bold d-block text-success">
                                             {{ __('notifications.module_event_title', [], 'eus') }}
@@ -166,13 +161,11 @@
                                     </div>
                                     <i class="bi bi-calendar-event fs-3 text-success"></i>
                                 </div>
-
                             </div>
                         </div>
-
-                       
-                        <div class="col-md-6">
-                            <div class="mb-3">
+                        
+                        <div class="col-12 col-md-6">
+                            <div class="mb-1">
                                 <span class="text-muted small d-block">
                                     {{ __('notifications.selection_active', [], 'eus') }}
                                 </span>
@@ -183,30 +176,30 @@
                                 @endif
                             </div>
 
-                            <div id="selected-modules-container" class="border rounded p-3 bg-light" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                            <div id="selected-modules-container" class="border rounded p-3 bg-light" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
                                 <div class="module-list-empty-message text-muted text-center">
-                                    <i class="bi bi-arrow-left me-2"></i> 
+                                    <i class="bi bi-arrow-up bi-arrow-left-md me-2 d-none d-md-inline"></i>
+                                    <i class="bi bi-arrow-up d-inline d-md-none me-2"></i>
                                     {{ __('notifications.selection_empty', [], 'eus') }}
                                     @if(app()->getLocale() == 'fr')
                                         <div class="small mt-1">{{ __('notifications.selection_empty', [], 'fr') }}</div>
                                     @endif
                                 </div>
                             </div>
-
                             <div id="hidden-inputs-container"></div>
                         </div>
                     </div>
 
-                  
-                    <div class="d-flex justify-content-end gap-3 mt-5">
-                        <a href="{{ route('admin.notifications.index') }}" class="btn btn-outline-secondary px-4 fw-bold">
+                    {{-- BOUTONS --}}
+                    <div class="d-flex flex-column flex-md-row justify-content-end gap-3 mt-5">
+                        <a href="{{ route('admin.notifications.index') }}" class="btn btn-outline-secondary px-4 fw-bold order-2 order-md-1">
                             @if(app()->getLocale() == 'fr')
                                 {{ __('notifications.btn_cancel', [], 'fr') }}
                             @else
                                 {{ __('notifications.btn_cancel', [], 'eus') }}
                             @endif
                         </a>
-                        <button type="submit" class="btn text-white px-4 fw-bold" style="background-color: #F59E0B;">
+                        <button type="submit" class="btn text-white px-4 fw-bold order-1 order-md-2" style="background-color: #F59E0B;">
                             @if(app()->getLocale() == 'fr')
                                 {{ __('notifications.btn_update', [], 'fr') }}
                             @else
@@ -214,20 +207,19 @@
                             @endif
                         </button>
                     </div>
-
                 </form>
             </div>
         </div>
     </div>
 
     @push('scripts')
+    {{-- SCRIPT JS IDENTIQUE --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-           
+        
             const currentTargetType = "{{ str_replace('\\', '\\\\', $setting->target_type) }}";
             const currentTargetId = "{{ $setting->target_id }}";
 
-            
             const style = document.createElement('style');
             style.innerHTML = `
                 .form-check-input:checked { background-color: #F59E0B; border-color: #F59E0B; }
@@ -236,19 +228,16 @@
             `;
             document.head.appendChild(style);
 
-            
             const availableContainer = document.getElementById('available-modules');
             const selectedContainer = document.getElementById('selected-modules-container');
             const hiddenInputsContainer = document.getElementById('hidden-inputs-container');
             
-           
             availableContainer.addEventListener('click', function(e) {
                 const item = e.target.closest('.module-item');
                 if (!item) return;
                 addModule(item.dataset.id, item.dataset.type, item.dataset.name, item);
             });
 
-         
             function addModule(id, type, name, originalItem) {
                 clearSelection();
                 originalItem.style.display = 'none';
@@ -269,17 +258,13 @@
 
                 selectedContainer.appendChild(selectedItem);
 
-              
-                const inputId = document.createElement('input');
-                inputId.type = 'hidden'; inputId.name = 'module_id'; inputId.value = id;
+                const inputId = document.createElement('input'); inputId.type = 'hidden'; inputId.name = 'module_id'; inputId.value = id;
                 hiddenInputsContainer.appendChild(inputId);
 
-                const inputType = document.createElement('input');
-                inputType.type = 'hidden'; inputType.name = 'module_type'; inputType.value = type;
+                const inputType = document.createElement('input'); inputType.type = 'hidden'; inputType.name = 'module_type'; inputType.value = type;
                 hiddenInputsContainer.appendChild(inputType);
             }
 
-           
             function removeModule(selectedItem, originalItem) {
                 selectedItem.remove();
                 originalItem.style.display = null;
@@ -288,7 +273,8 @@
                 selectedContainer.style.display = 'flex';
                 selectedContainer.innerHTML = `
                     <div class="module-list-empty-message text-muted text-center">
-                        <i class="bi bi-arrow-left me-2"></i> 
+                        <i class="bi bi-arrow-up bi-arrow-left-md me-2 d-none d-md-inline"></i> 
+                        <i class="bi bi-arrow-up d-inline d-md-none me-2"></i>
                         {{ __('notifications.selection_empty', [], 'eus') }}
                         @if(app()->getLocale() == 'fr')
                             <div class="small mt-1">{{ __('notifications.selection_empty', [], 'fr') }}</div>
@@ -304,8 +290,7 @@
            
             const items = document.querySelectorAll('.module-item');
             items.forEach(item => {
-                // On vérifie si l'attribut data-model-class correspond à ce qui est en base de données
-                // ex: App\Models\DocumentObligatoire == App\Models\DocumentObligatoire
+              
                 if (item.dataset.modelClass === currentTargetType) {
                     addModule(item.dataset.id, item.dataset.type, item.dataset.name, item);
                 }
