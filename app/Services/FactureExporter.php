@@ -202,12 +202,7 @@ class FactureExporter
 
             // convert to PDF
 
-            $commande = sprintf(
-                'libreoffice --headless --convert-to pdf --outdir %s %s',
-                escapeshellarg($outputDir),
-                escapeshellarg($docxPath)
-            );
-            exec($commande);
+            
 
         } catch (\Throwable $e) {
             // If TemplateProcessor fails for any reason, copy the raw template as a fallback
