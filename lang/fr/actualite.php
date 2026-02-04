@@ -66,7 +66,7 @@ return [
     'archived' => 'Archivées',
     'modals' => [
         'delete' => [
-            'title' => "Supprimer l'actualité",
+            'title' => 'Supprimer l\'actualité',
             'message' => 'Voulez-vous vraiment supprimer cette actualité ?',
             'cancel' => 'Annuler',
             'confirm' => 'Supprimer',
