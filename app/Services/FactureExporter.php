@@ -132,7 +132,7 @@ class FactureExporter
 
             // Apply parite (percentage) to compute final total for this parent
             $pariteNumeric   = is_numeric($parite) ? floatval($parite) : 0.0;
-            $totalTtcNumeric = $valeurPrevisionnelleNumeric * (1 - ($pariteNumeric / 100));
+            $totalTtcNumeric = $valeurPrevisionnelleNumeric * (($pariteNumeric / 100));
 
             $templateProcessor->setValue('pariter', $pariteNumeric);
             $templateProcessor->setValue('totalPrevisionnel', $valeurPrevisionnelle);
@@ -141,6 +141,8 @@ class FactureExporter
             $templateProcessor->saveAs($docxPath);
 
             // convert to PDF
+            $factureConversionService = app()->make('App\Services\FactureConversionService');
+            $factureConversionService->convertFactureToPdf($facture);
 
         } catch (\Throwable $e) {
             // If TemplateProcessor fails for any reason, copy the raw template as a fallback
