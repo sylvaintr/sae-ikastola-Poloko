@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [DemandeController::class, 'index'])->name('index');
             Route::get('/create', [DemandeController::class, 'create'])->name('create');
             Route::post('/', [DemandeController::class, 'store'])->name('store');
+            Route::get('/export-all-csv', [DemandeController::class, 'exportAllCsv'])->name('export.all.csv');
 
             Route::get(ROUTE_DEMANDE, [DemandeController::class, 'show'])->name('show');
             Route::get(ROUTE_DEMANDE . '/edit', [DemandeController::class, 'edit'])->name('edit');
@@ -63,6 +64,7 @@ Route::middleware('auth')->group(function () {
             Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
             Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
             Route::get(ROUTE_DEMANDE . '/export-csv', [DemandeController::class, 'exportCsv'])->name('export.csv');
+            Route::get(ROUTE_DEMANDE . '/document/{document}', [DemandeController::class, 'showDocument'])->name('document.show');
         });
 
     // ---------------- Routes administrateur (role CA) ----------------

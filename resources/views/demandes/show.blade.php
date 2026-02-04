@@ -135,10 +135,17 @@
             </div>
             <div class="d-flex flex-column flex-md-row gap-3 align-items-center">
                 <div class="text-center">
-                    <a href="{{ route('demandes.export.csv', $demande) }}" class="btn btn-outline-secondary px-4">
-                        <i class="bi bi-download me-2"></i>
-                        {{ __('demandes.toolbar.export.eu') }}
-                    </a>
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <a href="{{ route('demandes.export.csv', $demande) }}" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-download me-2"></i>
+                            {{ __('demandes.toolbar.export.eu') }}
+                        </a>
+                        <i class="bi bi-info-circle text-info" 
+                           data-bs-toggle="tooltip" 
+                           data-bs-placement="top"
+                           title="{{ __('demandes.toolbar.export.help.fr') }}"
+                           style="cursor: help; font-size: 1.1rem;"></i>
+                    </div>
                     <div class="text-muted small mt-1">{{ __('demandes.toolbar.export.fr') }}</div>
                 </div>
                 @if ($demande->etat !== 'Terminé')
@@ -193,6 +200,12 @@
                 descEl.textContent = this.getAttribute('data-description') || '—';
                 modal.show();
             });
+        });
+
+        // Initialiser les tooltips Bootstrap
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
         });
     });
 </script>

@@ -5,6 +5,10 @@ return [
         'export' => [
             'eu' => 'Esportatu (CSV)',
             'fr' => 'Exporter (CSV)',
+            'help' => [
+                'eu' => 'CSV fitxategia formatu irakurgarri bihurtzeko, erabili webgune doako bat, adibidez: ConvertCSV.com edo CSVed.com',
+                'fr' => 'Pour convertir le fichier CSV en format lisible, utilisez un site gratuit comme ConvertCSV.com ou CSVed.com',
+            ],
         ],
         'create' => [
             'eu' => 'Sortu txartel eskaera',
