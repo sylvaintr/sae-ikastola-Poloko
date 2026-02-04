@@ -9,39 +9,38 @@ use App\Models\DocumentObligatoire;
 
 class NotificationController extends Controller
 {
-    // Affiche la liste
+   
     public function index()
     {
         $settings = NotificationSetting::with('target')->latest()->get();
         return view('admin.notifications.index', compact('settings'));
     }
 
-    // Affiche le formulaire
+    
     public function create()
     {
-        // On charge les données pour les listes déroulantes (sélecteur JS)
+        
         $evenements = Evenement::all(); 
         $documents = DocumentObligatoire::all();
         
         return view('admin.notifications.create', compact('evenements', 'documents'));
     }
 
-    // Enregistre la notification
+    
     public function store(Request $request)
     {
-        // 1. Tes règles de validation
+        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'module_id' => 'required|integer',
-            'module_type' => 'required|string', // "Document" ou "Evènement"
+            'module_type' => 'required|string',
             'recurrence_days' => 'nullable|integer',
             'reminder_days' => 'nullable|integer',
-            'description' => 'nullable|string', // J'ajoute description car elle est dans ton formulaire
-            'is_active' => 'nullable', // Pour le switch
+            'description' => 'nullable|string',
+            'is_active' => 'nullable', 
         ]);
 
-        // 2. Conversion du type "String" en "Classe Laravel"
-        // C'est indispensable pour le polymorphisme
+       
         $targetClass = null;
 
         if ($request->module_type === 'Document') {
@@ -50,51 +49,51 @@ class NotificationController extends Controller
             $targetClass = \App\Models\Evenement::class;
         }
 
-        // Sécurité : si le type est inconnu
+        
         if (!$targetClass) {
             return back()->withErrors(['module_type' => 'Type de module invalide.']);
         }
 
-        // 3. Création en base de données
+        
         NotificationSetting::create([
             'title' => $request->title,
             'description' => $request->description,
             'recurrence_days' => $request->recurrence_days,
             'reminder_days' => $request->reminder_days,
-            'is_active' => $request->has('is_active'), // Checkbox cochée = true
+            'is_active' => $request->has('is_active'), 
             
-            // Les colonnes magiques pour le lien
+            
             'target_id' => $request->module_id,
             'target_type' => $targetClass,
         ]);
 
-        // 4. Redirection
+       
         return redirect()->route('admin.notifications.index')
                          ->with('success', 'Notification ajoutée avec succès !');
     }
 
     public function edit($id)
 {
-    // 1. On trouve la règle
+ 
     $setting = \App\Models\NotificationSetting::findOrFail($id);
 
-    // 2. On l'envoie à la vue 'edit'
+    
     return view('admin.notifications.edit', compact('setting'));
 }
 
 public function update(Request $request, $id)
 {
-    // Validation...
+    
     $setting = \App\Models\NotificationSetting::findOrFail($id);
     
-    // Mise à jour (Simplifiée)
+    
     $setting->update([
         'title' => $request->title,
         'description' => $request->description,
         'recurrence_days' => $request->recurrence_days,
         'reminder_days' => $request->reminder_days,
-        'is_active' => $request->has('is_active'), // Checkbox handling
-        // On ne met à jour le module que si l'utilisateur en a choisi un nouveau
+        'is_active' => $request->has('is_active'),
+       
         'target_type' => $request->module_type == 'Document' ? 'App\Models\DocumentObligatoire' : 'App\Models\Evenement',
         'target_id' => $request->module_id,
     ]);
@@ -104,17 +103,15 @@ public function update(Request $request, $id)
 
 public function markAsRead($id)
 {
-    // 1. On cherche la notification
+   
     $notification = auth()->user()->notifications()->where('id', $id)->first();
 
     if ($notification) {
-        // 2. On la marque comme lue (ce qui met à jour le compteur en base de données)
+       
         $notification->markAsRead();
     }
 
-    // 3. LA SOLUTION : "Retour en arrière"
-    // Cette fonction recharge la page actuelle (là où se trouve la cloche).
-    // Comme la page se recharge, le compteur sera mis à jour visuellement.
+    
     return back();
 }
 }
