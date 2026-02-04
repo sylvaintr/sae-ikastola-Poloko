@@ -135,12 +135,19 @@ class FactureController extends Controller
         if ($facture === null) {
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
-        $client = $facture->famille()->first()->utilisateurs()->first();
+        $client = $facture->utilisateur()->first();
         if (in_array($facture->etat, ['verifier', self::ETAT_MANUEL_VERIFIER], true)) {
 
-            $famille = Famille::find($facture->idFamille);
+            $mail = new FactureMail($facture, $client);
 
-            $mail        = new FactureMail($facture, $famille);
+            // Déterminer la langue préférée du destinataire et l'appliquer au Mailable
+            $langueDestinataire = $client->languePref ?? config('app.locale', 'fr');
+            if (method_exists($mail, 'locale')) {
+                $mail->locale($langueDestinataire);
+            } else {
+                app()->setLocale($langueDestinataire);
+            }
+
             $piecejointe = $this->exportFacture($id, true);
 
             $mail->attachData($piecejointe, 'facture-' . $facture->idFacture . '.pdf', [
