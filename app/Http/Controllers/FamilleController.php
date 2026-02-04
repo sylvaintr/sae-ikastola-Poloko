@@ -21,9 +21,12 @@ class FamilleController extends Controller
         $data = $request->validate([
             'enfants' => 'array',
             'utilisateurs' => 'array',
+            'aineDansAutreSeaska' => 'nullable|boolean',
         ]);
 
-        $famille = Famille::create(['aineDansAutreSeaska' => false]);
+        $famille = Famille::create([
+            'aineDansAutreSeaska' => (bool) ($data['aineDansAutreSeaska'] ?? false),
+        ]);
 
         $this->createEnfants($data['enfants'] ?? [], $famille->idFamille);
         $this->createUtilisateurs($data['utilisateurs'] ?? [], $famille);
@@ -57,12 +60,14 @@ class FamilleController extends Controller
     {
         // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
         $roleParent = Role::where('name', 'parent')->first();
-        $tousUtilisateurs = Utilisateur::doesntHave('familles')
-            ->whereHas('rolesCustom', function ($query) use ($roleParent) {
-                if ($roleParent) {
-                    $query->where('role.idRole', $roleParent->idRole);
-                }
-            })
+        // Un parent peut appartenir à plusieurs familles => on affiche tous les parents (sans filtrer sur "sans famille")
+        $tousUtilisateurs = Utilisateur::whereHas('rolesCustom', function ($query) use ($roleParent) {
+            if ($roleParent) {
+                $query->where('role.idRole', $roleParent->idRole);
+            }
+        })
+            ->orderBy('nom')
+            ->orderBy('prenom')
             ->get();
 
         $tousEnfants = Enfant::where(function ($query) {
@@ -85,11 +90,25 @@ class FamilleController extends Controller
         $idsUtilisateursFamille = $famille->utilisateurs->pluck('idUtilisateur')->toArray();
         $idsEnfantsFamille = $famille->enfants->pluck('idEnfant')->toArray();
 
-        // Utilisateurs sans famille OU déjà dans cette famille
-        $tousUtilisateurs = Utilisateur::where(function ($query) use ($idsUtilisateursFamille) {
-            $query->doesntHave('familles')
-                  ->orWhereIn('idUtilisateur', $idsUtilisateursFamille);
-        })->get();
+        // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
+        $roleParent = Role::where('name', 'parent')->first();
+
+        // Un parent peut appartenir à plusieurs familles => tous les parents.
+        // On garde en plus ceux déjà liés à la famille (au cas où un utilisateur lié n'aurait pas le rôle parent).
+        $tousUtilisateurs = Utilisateur::where(function ($query) use ($idsUtilisateursFamille, $roleParent) {
+            $query->whereHas('rolesCustom', function ($q2) use ($roleParent) {
+                if ($roleParent) {
+                    $q2->where('role.idRole', $roleParent->idRole);
+                }
+            });
+
+            if (!empty($idsUtilisateursFamille)) {
+                $query->orWhereIn('idUtilisateur', $idsUtilisateursFamille);
+            }
+        })
+            ->orderBy('nom')
+            ->orderBy('prenom')
+            ->get();
 
         // Enfants sans famille OU déjà dans cette famille
         $tousEnfants = Enfant::where(function ($query) use ($idsEnfantsFamille) {
@@ -98,7 +117,10 @@ class FamilleController extends Controller
                   ->orWhere('idFamille', 0);
             })
             ->orWhereIn('idEnfant', $idsEnfantsFamille);
-        })->get();
+        })
+            ->orderBy('nom')
+            ->orderBy('prenom')
+            ->get();
 
         return view('admin.familles.create', compact('famille', 'tousUtilisateurs', 'tousEnfants'));
     }
@@ -176,25 +198,44 @@ class FamilleController extends Controller
     {
         $request->validate([
             'q' => 'nullable|string|min:0|max:50',
+            'famille_id' => 'nullable|integer',
         ]);
 
         $query = $request->input('q', '');
+        $familleId = $request->input('famille_id');
 
         // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
         $roleParent = Role::where('name', 'parent')->first();
-        
-        $users = Utilisateur::doesntHave('familles')
-            ->whereHas('rolesCustom', function ($q) use ($roleParent) {
+
+        $idsUtilisateursFamille = [];
+        if (!empty($familleId)) {
+            $famille = Famille::with('utilisateurs')->find($familleId);
+            if ($famille) {
+                $idsUtilisateursFamille = $famille->utilisateurs->pluck('idUtilisateur')->toArray();
+            }
+        }
+
+        // Un parent peut appartenir à plusieurs familles => recherche sur tous les parents.
+        // On garde en plus ceux déjà liés à la famille (au cas où un utilisateur lié n'aurait pas le rôle parent).
+        $users = Utilisateur::where(function ($q) use ($roleParent, $idsUtilisateursFamille) {
+            $q->whereHas('rolesCustom', function ($q3) use ($roleParent) {
                 if ($roleParent) {
-                    $q->where('role.idRole', $roleParent->idRole);
+                    $q3->where('role.idRole', $roleParent->idRole);
                 }
-            })
+            });
+
+            if (!empty($idsUtilisateursFamille)) {
+                $q->orWhereIn('idUtilisateur', $idsUtilisateursFamille);
+            }
+        })
             ->when($query, function ($q) use ($query) {
                 $q->where(function ($subQ) use ($query) {
                     $subQ->where('nom', 'like', "%{$query}%")
                          ->orWhere('prenom', 'like', "%{$query}%");
                 });
             })
+            ->orderBy('nom')
+            ->orderBy('prenom')
             ->limit(50)
             ->get()
             ->map(function ($user) {

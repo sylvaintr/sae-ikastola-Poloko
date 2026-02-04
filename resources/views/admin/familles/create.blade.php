@@ -11,6 +11,9 @@
                 $defaultRatio = $p1->pivot->parite;
             }
         }
+
+        // PHP 8.4: sécuriser les opérations arithmétiques (éviter int - string)
+        $defaultRatio = is_numeric($defaultRatio) ? (int) $defaultRatio : 50;
     @endphp
 
     <div class="container py-5">
@@ -57,33 +60,22 @@
                            onkeyup="searchParentsAJAX(this.value)">
 
                     <div id="available-parents" class="border rounded p-3 bg-white shadow-sm" style="height: auto; max-height: 500px; overflow-y: auto;">
-                        @if($isEdit)
-                            @foreach($famille->utilisateurs as $user)
-                                <button type="button"
-                                        class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
-                                        onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
-                                    <span class="text-dark item-name text-truncate me-2">{{ $user->nom }} {{ $user->prenom }}</span>
-                                    <div class="ms-auto d-flex align-items-center text-secondary">
-                                        <span class="me-3 small fw-bold">{{ __('famille.parent_label', [], 'eus') }}</span>
-                                        <i class="bi bi-plus-circle text-dark fs-5"></i>
-                                    </div>
-                                </button>
-                            @endforeach
-                        @else
-                            @if(isset($tousUtilisateurs))
-                                @foreach($tousUtilisateurs as $user)
-                                    <button type="button"
-                                            class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
-                                            onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
-                                        <span class="text-dark item-name text-truncate me-2">{{ $user->nom }} {{ $user->prenom }}</span>
-                                        <div class="ms-auto d-flex align-items-center text-secondary">
-                                            <span class="me-3 small fw-bold">{{ __('famille.parent_label', [], 'eus') }}</span>
-                                            <i class="bi bi-plus-circle text-dark fs-5"></i>
-                                        </div>
-                                    </button>
-                                @endforeach
-                            @endif
-                        @endif
+                        @php
+                            $parentsDisponibles = $tousUtilisateurs
+                                ?? ($isEdit ? $famille->utilisateurs : collect());
+                        @endphp
+
+                        @foreach($parentsDisponibles as $user)
+                            <button type="button"
+                                    class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
+                                    onclick="addRole({{ $user->idUtilisateur }}, '{{ $user->nom }} {{ $user->prenom }}')">
+                                <span class="text-dark item-name text-truncate me-2">{{ $user->nom }} {{ $user->prenom }}</span>
+                                <div class="ms-auto d-flex align-items-center text-secondary">
+                                    <span class="me-3 small fw-bold">{{ __('famille.parent_label', [], 'eus') }}</span>
+                                    <i class="bi bi-plus-circle text-dark fs-5"></i>
+                                </div>
+                            </button>
+                        @endforeach
                     </div>
                 </div>
 
@@ -107,33 +99,22 @@
                            onkeyup="searchEnfantsAJAX(this.value)">
 
                     <div id="available-enfants" class="border rounded p-3 bg-white shadow-sm" style="height: auto; max-height: 500px; overflow-y: auto;">
-                        @if($isEdit)
-                            @foreach($famille->enfants as $enfant)
-                                <button type="button"
-                                        class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
-                                        onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
-                                    <span class="text-dark item-name text-truncate me-2">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
-                                    <div class="ms-auto d-flex align-items-center text-secondary">
-                                        <span class="me-3 small fw-bold">{{ __('famille.child_label', [], 'eus') }}</span>
-                                        <i class="bi bi-plus-circle text-dark fs-5"></i>
-                                    </div>
-                                </button>
-                            @endforeach
-                        @else
-                            @if(isset($tousEnfants))
-                                @foreach($tousEnfants as $enfant)
-                                    <button type="button"
-                                            class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
-                                            onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
-                                        <span class="text-dark item-name text-truncate me-2">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
-                                        <div class="ms-auto d-flex align-items-center text-secondary">
-                                            <span class="me-3 small fw-bold">{{ __('famille.child_label', [], 'eus') }}</span>
-                                            <i class="bi bi-plus-circle text-dark fs-5"></i>
-                                        </div>
-                                    </button>
-                                @endforeach
-                            @endif
-                        @endif
+                        @php
+                            $enfantsDisponibles = $tousEnfants
+                                ?? ($isEdit ? $famille->enfants : collect());
+                        @endphp
+
+                        @foreach($enfantsDisponibles as $enfant)
+                            <button type="button"
+                                    class="role-item d-flex align-items-center p-2 mb-2 border rounded bg-white hover-shadow w-100 text-start"
+                                    onclick="addChild({{ $enfant->idEnfant }}, '{{ $enfant->nom }} {{ $enfant->prenom }}')">
+                                <span class="text-dark item-name text-truncate me-2">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
+                                <div class="ms-auto d-flex align-items-center text-secondary">
+                                    <span class="me-3 small fw-bold">{{ __('famille.child_label', [], 'eus') }}</span>
+                                    <i class="bi bi-plus-circle text-dark fs-5"></i>
+                                </div>
+                            </button>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -145,15 +126,76 @@
                     @if (Lang::getLocale() == 'fr') | {{ __('famille.selected_users') }}* @endif
                 </h6>
                 <div id="selected-roles" class="border rounded p-3 bg-light" style="min-height: 200px; max-height: 400px; overflow-y: auto;">
-                    <div class="role-list-empty-message text-muted text-center mt-5">
-                        {{ __('famille.click_to_select', [], 'eus') }}
-                        @if (Lang::getLocale() == 'fr') <br><small>{{ __('famille.click_to_select') }}</small> @endif
+                    @if($isEdit)
+                        @foreach($famille->utilisateurs as $user)
+                            <button type="button"
+                                    class="role-item d-flex align-items-center p-2 mb-1 border rounded shadow-sm w-100 text-start text-white"
+                                    style="background-color: orange"
+                                    onclick="this.remove(); checkEmpty(); checkParityVisibility();">
+                                <span class="fw-bold small item-name text-truncate me-2">{{ $user->nom }} {{ $user->prenom }}</span>
+                                <div class="ms-auto d-flex align-items-center gap-2">
+                                    <small>{{ __('famille.parent_label', [], 'eus') }}</small>
+                                    <b class="fs-5">&times;</b>
+                                </div>
+                                <input type="hidden" class="user-id" value="{{ $user->idUtilisateur }}">
+                            </button>
+                        @endforeach
+
+                        @foreach($famille->enfants as $enfant)
+                            <button type="button"
+                                    class="role-item d-flex align-items-center p-2 mb-1 border rounded shadow-sm bg-white w-100 text-start"
+                                    onclick="this.remove(); checkEmpty();">
+                                <span class="fw-bold small item-name text-dark text-truncate me-2">{{ $enfant->nom }} {{ $enfant->prenom }}</span>
+                                <div class="ms-auto d-flex align-items-center gap-2 text-secondary">
+                                    <small>{{ __('famille.child_label', [], 'eus') }}</small>
+                                    <b class="text-dark fs-5">&times;</b>
+                                </div>
+                                <input type="hidden" class="child-id" value="{{ $enfant->idEnfant }}">
+                            </button>
+                        @endforeach
+
+                        @if($famille->utilisateurs->isEmpty() && $famille->enfants->isEmpty())
+                            <div class="role-list-empty-message text-muted text-center mt-5">
+                                {{ __('famille.click_to_select', [], 'eus') }}
+                                @if (Lang::getLocale() == 'fr') <br><small>{{ __('famille.click_to_select') }}</small> @endif
+                            </div>
+                        @endif
+                    @else
+                        <div class="role-list-empty-message text-muted text-center mt-5">
+                            {{ __('famille.click_to_select', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr') <br><small>{{ __('famille.click_to_select') }}</small> @endif
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Aîné dans une autre école Seaska --}}
+            <div class="mb-4">
+                <div class="border rounded p-3 bg-white shadow-sm">
+                    <div class="form-check form-switch m-0">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               role="switch"
+                               id="aineDansAutreSeaska"
+                               @checked($isEdit ? (bool) $famille->aineDansAutreSeaska : false)>
+                        <label class="form-check-label fw-bold" for="aineDansAutreSeaska">
+                            {{ __('famille.aine_other_seaska_label', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr')
+                                <br><small class="text-muted fw-normal">{{ __('famille.aine_other_seaska_label') }}</small>
+                            @endif
+                        </label>
+                    </div>
+                    <div class="mt-2 small text-muted">
+                        {{ __('famille.aine_other_seaska_help', [], 'eus') }}
+                        @if (Lang::getLocale() == 'fr')
+                            <br>{{ __('famille.aine_other_seaska_help') }}
+                        @endif
                     </div>
                 </div>
             </div>
 
-            <div id="financial-section" style="display: none;" class="mt-4 mb-4">
-                <div x-data="{ ratio: {{ $defaultRatio }} }">
+            <div id="financial-section" class="mt-4 mb-4">
+                <div x-data="{ ratio: {{ (int) $defaultRatio }} }">
                     <div class="d-flex flex-column flex-lg-row align-items-lg-center w-100">
                         <div class="mb-3 mb-lg-0 text-center text-lg-start">
                             <h5 class="mb-0 fw-bold">
@@ -162,6 +204,12 @@
                                     <br><small class="text-muted fw-normal fs-6">{{ __('famille.financial_split') }}</small>
                                 @endif
                             </h5>
+                            <div id="parity-empty-msg" class="small text-muted mt-2">
+                                {{ __('famille.parity_requires_parent', [], 'eus') }}
+                                @if (Lang::getLocale() == 'fr')
+                                    <br>{{ __('famille.parity_requires_parent') }}
+                                @endif
+                            </div>
                         </div>
 
                         <div class="flex-grow-1 w-100 px-2 ms-lg-5">
@@ -174,33 +222,39 @@
                                                class="form-range my-1"
                                                min="0"
                                                max="100"
-                                               x-model="ratio"
-                                               x-ref="sliderParite"
                                                style="accent-color: orange;">
                                     </div>
-                                    <div class="mt-1 fw-bolder fs-5 text-dark">
-                                        <span x-text="ratio">{{ $defaultRatio }}</span> / <span x-text="100 - ratio">{{ 100 - $defaultRatio }}</span>
+                                    <div class="mt-2 fw-bolder fs-5 text-dark d-flex align-items-center justify-content-center gap-2">
+                                        <input type="number"
+                                               min="0"
+                                               max="100"
+                                               step="1"
+                                               class="form-control form-control-sm text-center fw-bolder"
+                                               style="width: 84px;"
+                                               id="parite-parent-1"
+                                               aria-label="Parité parent 1"
+                                               value="{{ (int) $defaultRatio }}">
+                                        <span class="text-muted" id="parite-separator">/</span>
+                                        <input type="number"
+                                               min="0"
+                                               max="100"
+                                               step="1"
+                                               class="form-control form-control-sm text-center fw-bolder bg-light"
+                                               style="width: 84px;"
+                                               id="parite-parent-2"
+                                               aria-label="Parité parent 2"
+                                               value="{{ 100 - (int) $defaultRatio }}"
+                                               readonly
+                                               tabindex="-1"
+                                               aria-readonly="true"
+                                               style="pointer-events: none;">
                                     </div>
                                 </div>
                                 <span id="label-parent-2" class="fw-bold text-secondary text-truncate text-start" style="width: 80px; min-width: 60px;">P2</span>
                             </div>
                         </div>
 
-                        <div class="mt-3 mt-lg-0 ms-lg-4 d-flex justify-content-center justify-content-lg-end">
-                            <div class="d-flex gap-2 w-100 w-lg-auto">
-                                <a href="{{ route('admin.familles.index')}}"
-                                   class="btn px-3 py-2 fw-bold flex-fill flex-lg-grow-0 text-center"
-                                   style="background:white; border:1px solid orange; color:orange;">
-                                    {{ __('famille.cancel', [], 'eus') }}
-                                </a>
-                                <button type="button"
-                                        class="btn px-3 py-2 fw-bold flex-fill flex-lg-grow-0"
-                                        style="background:orange; color:white; border:1px solid orange;"
-                                        @if($isEdit) onclick="saveParityOnly({{ $idFamille }})" @else onclick="createFamily()" @endif>
-                                    {{ __('famille.save', [], 'eus') }}
-                                </button>
-                            </div>
-                        </div>
+                        {{-- Boutons déplacés en bas de page (évite les doublons) --}}
                     </div>
                 </div>
             </div>
@@ -217,7 +271,7 @@
                             id="btnSaveFamily"
                             class="btn px-3 py-2 fw-bold flex-fill flex-lg-grow-0"
                             style="background:orange; color:white; border:1px solid orange;"
-                            @if($isEdit) onclick="saveParityOnly({{ $idFamille }})" @else onclick="createFamily()" @endif>
+                            @if($isEdit) onclick="saveFamily({{ $idFamille }})" @else onclick="createFamily()" @endif>
                         {{ __('famille.save', [], 'eus') }}
                     </button>
                 </div>
@@ -304,6 +358,11 @@
         const financialSection = document.getElementById('financial-section');
         const labelP1 = document.getElementById('label-parent-1');
         const labelP2 = document.getElementById('label-parent-2');
+        const sliderParite = document.getElementById('range-parite');
+        const inputPariteP1 = document.getElementById('parite-parent-1');
+        const inputPariteP2 = document.getElementById('parite-parent-2');
+        const parityEmptyMsg = document.getElementById('parity-empty-msg');
+        const paritySeparator = document.getElementById('parite-separator');
 
         let pendingData = null;
         let isCreateMode = false;
@@ -330,6 +389,7 @@
 
         function searchParentsAJAX(query) {
             const container = document.getElementById('available-parents');
+            const currentFamilleId = {{ $idFamille ? (int) $idFamille : 'null' }};
 
             if (query.trim().length === 0) {
                 container.innerHTML = initialParentsHTML;
@@ -338,7 +398,8 @@
 
             const url = "{{ url('/api/search/users') }}";
 
-            fetch(`${url}?q=${encodeURIComponent(query)}`)
+            const familleParam = currentFamilleId ? `&famille_id=${currentFamilleId}` : '';
+            fetch(`${url}?q=${encodeURIComponent(query)}${familleParam}`)
                 .then(res => {
                     if (!res.ok) throw new Error("Erreur HTTP " + res.status);
                     return res.json();
@@ -404,13 +465,36 @@
             }
         }
 
+        function clampInt(value, min, max) {
+            const n = Number.parseInt(value, 10);
+            if (Number.isNaN(n)) return min;
+            return Math.min(max, Math.max(min, n));
+        }
+
+        function setParity(ratio) {
+            const v = clampInt(ratio, 0, 100);
+            if (sliderParite) sliderParite.value = String(v);
+            if (inputPariteP1) inputPariteP1.value = String(v);
+            if (inputPariteP2) inputPariteP2.value = String(100 - v);
+        }
+
+        function getParity() {
+            // Source de vérité : slider si présent, sinon champ P1
+            if (sliderParite) return clampInt(sliderParite.value, 0, 100);
+            if (inputPariteP1) return clampInt(inputPariteP1.value, 0, 100);
+            return 50;
+        }
+
         function checkParityVisibility() {
             const parentInputs = selectedRoles.querySelectorAll('input.user-id');
-            const slider = document.querySelector('[x-ref="sliderParite"]');
-            const alpineData = slider ? Alpine.$data(slider.closest('[x-data]')) : null;
 
-            if (parentInputs.length > 0) {
-                financialSection.style.display = 'block';
+            const hasParents = parentInputs.length > 0;
+            if (parityEmptyMsg) {
+                parityEmptyMsg.style.display = hasParents ? 'none' : 'block';
+            }
+
+            // Toujours visible, mais on active/désactive selon le nombre de parents
+            if (hasParents) {
                 const p1NameEl = parentInputs[0].closest('.role-item').querySelector('.item-name');
                 if (p1NameEl) {
                     labelP1.innerText = p1NameEl.innerText.split(' ')[0];
@@ -418,25 +502,41 @@
 
                 if (parentInputs.length === 1) {
                     labelP2.style.display = 'none';
-                    slider.value = 100;
-                    if (alpineData) alpineData.ratio = 100;
-                    slider.disabled = true;
-                    slider.style.opacity = '0.5';
+                    if (inputPariteP2) inputPariteP2.style.display = 'none';
+                    if (paritySeparator) paritySeparator.style.display = 'none';
+                    setParity(100);
+                    if (sliderParite) {
+                        sliderParite.disabled = true;
+                        sliderParite.style.opacity = '0.5';
+                    }
+                    if (inputPariteP1) inputPariteP1.disabled = true;
                 } else {
                     const p2NameEl = parentInputs[1].closest('.role-item').querySelector('.item-name');
                     if (p2NameEl) {
                         labelP2.innerText = p2NameEl.innerText.split(' ')[0];
                         labelP2.style.display = 'inline';
                     }
-                    slider.disabled = false;
-                    slider.style.opacity = '1';
+                    if (inputPariteP2) inputPariteP2.style.display = '';
+                    if (paritySeparator) paritySeparator.style.display = '';
                     const targetVal = isEditMode ? dbRatio : 50;
-                    slider.value = targetVal;
-                    if (alpineData) alpineData.ratio = targetVal;
+                    setParity(targetVal);
+                    if (sliderParite) {
+                        sliderParite.disabled = false;
+                        sliderParite.style.opacity = '1';
+                    }
+                    if (inputPariteP1) inputPariteP1.disabled = false;
                 }
-                slider.dispatchEvent(new Event('input'));
             } else {
-                financialSection.style.display = 'none';
+                // Aucun parent sélectionné -> désactiver les contrôles
+                labelP2.style.display = 'inline';
+                if (inputPariteP2) inputPariteP2.style.display = '';
+                if (paritySeparator) paritySeparator.style.display = '';
+                if (sliderParite) {
+                    sliderParite.disabled = true;
+                    sliderParite.style.opacity = '0.5';
+                }
+                if (inputPariteP1) inputPariteP1.disabled = true;
+                setParity(50);
             }
         }
 
@@ -490,24 +590,39 @@
                 return;
             }
 
-            const slider = document.querySelector('[x-ref="sliderParite"]');
+            const ratio = getParity();
+            const aineDansAutreSeaska = !!document.getElementById('aineDansAutreSeaska')?.checked;
             pendingData = {
                 utilisateurs: Array.from(parents).map((p, i) => ({
                     idUtilisateur: p.value,
-                    parite: parents.length === 2 ? (i === 0 ? slider.value : 100 - slider.value) : 100
+                    parite: parents.length === 2 ? (i === 0 ? ratio : 100 - ratio) : 100
                 })),
-                enfants: Array.from(children).map(c => ({ idEnfant: c.value }))
+                enfants: Array.from(children).map(c => ({ idEnfant: c.value })),
+                aineDansAutreSeaska
             };
             isCreateMode = true;
             showConfirm(translations.confirmCreateTitle, translations.confirmCreateMsg);
         }
 
-        function saveParityOnly(id) {
-            const slider = document.querySelector('[x-ref="sliderParite"]');
+        function saveFamily(id) {
+            const parents = selectedRoles.querySelectorAll('input.user-id');
+            const children = selectedRoles.querySelectorAll('input.child-id');
+
+            if (!parents.length || !children.length) {
+                alert(translations.errorSelection.eus + (showFrench ? "\n" + translations.errorSelection.fr : ""));
+                return;
+            }
+
+            const ratio = getParity();
+            const aineDansAutreSeaska = !!document.getElementById('aineDansAutreSeaska')?.checked;
             pendingData = {
                 idFamille: id,
-                idUtilisateur: selectedRoles.querySelector('input.user-id').value,
-                parite: slider.value
+                utilisateurs: Array.from(parents).map((p, i) => ({
+                    idUtilisateur: p.value,
+                    parite: parents.length === 2 ? (i === 0 ? ratio : 100 - ratio) : 100
+                })),
+                enfants: Array.from(children).map(c => ({ idEnfant: c.value })),
+                aineDansAutreSeaska
             };
             isCreateMode = false;
             showConfirm(translations.confirmParityTitle, translations.confirmParityMsg);
@@ -534,7 +649,9 @@
             modalMessage.style.display = 'none';
             modalLoading.style.display = 'block';
             
-            const url = isCreateMode ? "{{ route('admin.familles.store') }}" : "{{ route('admin.lier.updateParite') }}";
+            const storeUrl = "{{ route('admin.familles.store') }}";
+            const updateBaseUrl = "{{ url('/admin/familles') }}";
+            const url = isCreateMode ? storeUrl : `${updateBaseUrl}/${encodeURIComponent(pendingData.idFamille)}`;
             
             // Lancer la requête immédiatement
             const fetchPromise = fetch(url, {
@@ -571,8 +688,11 @@
                     alert('Erreur lors de la création de la famille');
                 });
             } else {
-                // Pour la mise à jour de parité
-                fetchPromise.then(() => {
+                // Pour la mise à jour (édition)
+                fetchPromise.then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur HTTP ' + response.status);
+                    }
                     globalThis.bootstrap.Modal.getInstance(document.getElementById('confirmationModal')).hide();
                     new globalThis.bootstrap.Modal(document.getElementById('successModal')).show();
                     document.getElementById('btnSuccessOk').onclick = () => window.location.href = "{{ route('admin.familles.index') }}";
@@ -603,6 +723,16 @@
             if (enfantsContainer) {
                 initialEnfantsHTML = enfantsContainer.innerHTML;
             }
+
+            // Sync slider <-> input parité
+            if (sliderParite) {
+                sliderParite.addEventListener('input', () => setParity(sliderParite.value));
+            }
+            if (inputPariteP1) {
+                inputPariteP1.addEventListener('input', () => setParity(inputPariteP1.value));
+            }
+            // Init values
+            setParity(getParity());
         });
     </script>
 </x-app-layout>

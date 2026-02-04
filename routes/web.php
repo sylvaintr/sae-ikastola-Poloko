@@ -143,6 +143,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
     Route::get(ROUTE_ID, [FamilleController::class, 'show'])->name('show');
     Route::get(ROUTE_ID . '/edit', [FamilleController::class, 'edit'])->name('edit');
+    Route::put(ROUTE_ID, [FamilleController::class, 'update'])->name('update');
     Route::delete(ROUTE_ID, [FamilleController::class, 'delete'])->name('delete');
    
     
