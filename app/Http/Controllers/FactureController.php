@@ -237,6 +237,8 @@ class FactureController extends Controller
                 }
                 // assurer visibilité publique
                 Storage::disk('public')->setVisibility('factures/' . $filename, 'public');
+                // convertir en PDF
+                $this->factureConversionService->convertirWordToPdf(Storage::disk('public')->path('factures/' . $filename), Storage::disk('public')->path('factures/facture-' . $facture->idFacture . '.pdf'));
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::error('Erreur lors de l\'upload facture', ['err' => $e->getMessage()]);
                 return redirect()->route('admin.facture.index')->with('error', 'facture.uploadfail');

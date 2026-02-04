@@ -38,9 +38,9 @@ class FactureCalculator
             default => 75,
         };
 
-        $montantParticipation = $enfants->count() * 9.65;
+        $montantParticipation = $enfants->count() * config('facture.cost_per_child_participation', 9.65);
 
-        $montantParticipationSeaska = $famille->aineDansAutreSeaska ? 7.70 : 0;
+        $montantParticipationSeaska = $famille->aineDansAutreSeaska ? config('facture.seaska_participation_amount', 7.7) : 0;
 
         $montantGarderiePrev = 0;
         foreach ($enfants as $enfant) {
@@ -76,11 +76,11 @@ class FactureCalculator
     }
 
     /**
-     * calcule le montant de la regulation  pour une facture donnée
-     * @param int $idfamille identifiant de la famille
-     * @return int montant de la regulation
+     * calcule le montant de la regulation pour une facture donnée
+     * @param int $idfacture identifiant de la facture
+     * @return float montant de la regulation (peut être négatif)
      */
-    public function calculerRegularisation(int $idfacture): int
+    public function calculerRegularisation(int $idfacture): float
     {
 
         $facture = Facture::find($idfacture);
@@ -97,7 +97,7 @@ class FactureCalculator
             ->max('dateC');
 
         $startDate = $lastRegDate ? Carbon::parse($lastRegDate) : Carbon::create(2000, 1, 1);
-        $idFamille = (int)$facture->idFamille;
+        $idFamille = (int) $facture->idFamille;
         // récupération des factures prévisionnelles entre la date de départ et la date de la facture courante
         $facturesPrev = Facture::where('idFamille', $idFamille)
             ->where('previsionnel', true)
@@ -115,16 +115,15 @@ class FactureCalculator
         // calcul du total réel (garderie) entre les mois
         $totalRegularisation = 0;
 
-        
         $familleModel = $facture->famille;
-        $enfants = $familleModel ? $familleModel->enfants()->get() : collect();
-        $cursorDate = $startDate->copy()->startOfMonth();
-        $endDate = $facture->dateC->copy()->endOfMonth();
+        $enfants      = $familleModel ? $familleModel->enfants()->get() : collect();
+        $cursorDate   = $startDate->copy()->startOfMonth();
+        $endDate      = $facture->dateC->copy()->endOfMonth();
 
         while ($cursorDate->lte($endDate)) {
             foreach ($enfants as $enfant) {
                 $monthStart = $cursorDate->copy()->startOfMonth();
-                $monthEnd = $cursorDate->copy()->endOfMonth();
+                $monthEnd   = $cursorDate->copy()->endOfMonth();
 
                 $nbfoisgarderie = Pratiquer::where('idEnfant', $enfant->idEnfant)
                     ->whereBetween('dateP', [$monthStart, $monthEnd])
