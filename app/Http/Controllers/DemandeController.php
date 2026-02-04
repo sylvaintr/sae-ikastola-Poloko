@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DemandeController extends Controller
 {
@@ -115,8 +116,9 @@ class DemandeController extends Controller
             ? $demande->documents
                 ->filter(fn($doc) => Storage::disk('public')->exists($doc->chemin))
                 ->map(fn($doc) => [
-                    'url' => Storage::url($doc->chemin),
+                    'url' => route('demandes.document.show', ['demande' => $demande, 'document' => $doc]),
                     'nom' => $doc->nom,
+                    'id' => $doc->idDocument,
                 ])->values()->all()
             : [];
 
@@ -333,6 +335,89 @@ class DemandeController extends Controller
                 'etat' => 'actif',
             ]);
         }
+    }
+
+    /**
+     * Exporte toutes les demandes en CSV.
+     */
+    public function exportAllCsv(): StreamedResponse
+    {
+        $demandes = Tache::query()
+            ->orderBy('dateD', 'desc')
+            ->orderBy('idTache', 'desc')
+            ->get();
+
+        $filename = 'Ensemble_Des_Demandes_' . date('Y-m-d') . '.csv';
+        $headers = $this->buildCsvHeaders($filename);
+
+        $callback = function () use ($demandes) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // En-têtes du CSV
+            fputcsv($file, [
+                __('demandes.export.id'),
+                __('demandes.export.date_creation'),
+                __('demandes.export.titre'),
+                __('demandes.export.description'),
+                __('demandes.export.type'),
+                __('demandes.export.urgence'),
+                __('demandes.export.etat'),
+                __('demandes.export.date_fin'),
+                __('demandes.export.montant_previsionnel'),
+                __('demandes.export.montant_reel'),
+                __('demandes.export.realisateurs'),
+            ], ';');
+
+            // Données des demandes
+            foreach ($demandes as $demande) {
+                $demande->loadMissing(['realisateurs', 'historiques']);
+                
+                $realisateurs = $demande->realisateurs->pluck('name')->join(', ');
+                $montantReel = $demande->historiques->sum('depense');
+
+                fputcsv($file, [
+                    $demande->idTache,
+                    $this->formatDateForCsv($demande->dateD),
+                    $demande->titre,
+                    $demande->description,
+                    $demande->type ?? '—',
+                    $demande->urgence ?? '—',
+                    $demande->etat ?? '—',
+                    $this->formatDateForCsv($demande->dateF),
+                    $this->formatMontantForCsv($demande->montantP),
+                    $this->formatMontantForCsv($montantReel, true),
+                    $realisateurs ?: '—',
+                ], ';');
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Affiche/sert une image d'un document lié à une demande.
+     */
+    public function showDocument(Tache $demande, Document $document)
+    {
+        // Vérifier que le document appartient à la demande
+        if ($document->idTache !== $demande->idTache) {
+            abort(404, 'Document not found for this demande.');
+        }
+
+        // Vérifier que le fichier existe
+        if (!Storage::disk('public')->exists($document->chemin)) {
+            abort(404, 'File not found.');
+        }
+
+        $filePath = Storage::disk('public')->path($document->chemin);
+        $mimeType = Storage::disk('public')->mimeType($document->chemin) ?? 'image/jpeg';
+
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+        ]);
     }
 
 }

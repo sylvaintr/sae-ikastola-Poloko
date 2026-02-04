@@ -48,11 +48,14 @@ trait HandlesCsvExport
     /**
      * Construit les en-têtes HTTP pour le CSV.
      */
-    private function buildCsvHeaders(string $filename): array
+    protected function buildCsvHeaders(string $filename): array
     {
         return [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Pragma' => 'public',
+            'Expires' => '0',
         ];
     }
 
@@ -110,7 +113,7 @@ trait HandlesCsvExport
     /**
      * Formate une date pour l'export CSV.
      */
-    private function formatDateForCsv($date): string
+    protected function formatDateForCsv($date): string
     {
         return $date ? $date->format(self::DATE_FORMAT_CSV) : '—';
     }
@@ -118,7 +121,7 @@ trait HandlesCsvExport
     /**
      * Formate un montant pour l'export CSV.
      */
-    private function formatMontantForCsv(?float $montant, bool $defaultToZero = false): string
+    protected function formatMontantForCsv(?float $montant, bool $defaultToZero = false): string
     {
         if ($montant === null && !$defaultToZero) {
             return '—';
