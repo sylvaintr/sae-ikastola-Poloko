@@ -106,7 +106,7 @@ class FactureController extends Controller
      * @param bool $returnBinary Indique si la méthode doit retourner le binaire du fichier (true) ou une réponse HTTP (false)
      * @return Response|RedirectResponse response contenant le fichier exporté
      */
-    public function exportFacture(string $id, bool $returnBinary = false): Response | RedirectResponse | string
+    public function exportFacture(string $id, bool $returnBinary = false): Response | RedirectResponse | string | null
     {
 
         $montants = $this->factureCalculator->calculerMontantFacture($id);
@@ -129,7 +129,7 @@ class FactureController extends Controller
      * @param string $id Identifiant de la facture à envoyer
      * @return RedirectResponse response de redirection vers la liste des factures
      */
-    public function envoyerFacture(string $id): RedirectResponse
+    public function envoyerFacture(string $id): RedirectResponse | null
     {
         $facture = Facture::find($id ?? null);
         if ($facture === null) {

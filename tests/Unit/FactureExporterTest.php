@@ -1,31 +1,16 @@
 <?php
-
 namespace Tests\Unit;
 
-use App\Services\FactureExporter;
 use App\Models\Facture;
-use Illuminate\Support\Facades\Storage;
-use Tests\TestCase;
+use App\Services\FactureExporter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class FactureExporterTest extends TestCase
 {
     use RefreshDatabase;
-
-    public function test_type_de_contenu_pour_une_extension()
-    {
-        // given
-        $e = new FactureExporter();
-
-        // when
-        $pdfType = $e->contentTypeForExt('pdf');
-        $docType = $e->contentTypeForExt('doc');
-
-        // then
-        $this->assertSame('application/pdf', $pdfType);
-        $this->assertSame('application/vnd.ms-word', $docType);
-    }
 
     public function test_charger_et_servir_un_fichier_manuel_avec_storage_simple()
     {
@@ -36,8 +21,8 @@ class FactureExporterTest extends TestCase
         $exporter = new FactureExporter();
 
         // when
-        $loaded = $exporter->loadManualFile($facture);
-        $binary = $exporter->serveManualFile($facture, true);
+        $loaded   = $exporter->getLinkFarctureFile($facture);
+        $binary   = $exporter->serveManualFile($facture, true);
         $response = $exporter->serveManualFile($facture, false);
 
         // then
@@ -52,18 +37,18 @@ class FactureExporterTest extends TestCase
     {
         // given
         Storage::fake('public');
-        $facture = Facture::factory()->create(['etat' => 'manuel']);
+        $facture  = Facture::factory()->create(['etat' => 'manuel']);
         $exporter = new FactureExporter();
 
         // when / then: missing file => null
-        $this->assertNull($exporter->loadManualFile($facture));
+        $this->assertNull($exporter->getLinkFarctureFile($facture));
 
         // given: file exists
         $path = 'factures/facture-' . $facture->idFacture . '.docx';
         Storage::disk('public')->put($path, 'DOCDATA');
 
         // when
-        $arr = $exporter->loadManualFile($facture);
+        $arr = $exporter->getLinkFarctureFile($facture);
 
         // then
         $this->assertIsArray($arr);
@@ -76,12 +61,12 @@ class FactureExporterTest extends TestCase
         // given
         Storage::fake('public');
         $facture = Facture::factory()->create(['etat' => 'manuel']);
-        $path = 'factures/facture-' . $facture->idFacture . '.docx';
+        $path    = 'factures/facture-' . $facture->idFacture . '.docx';
         Storage::disk('public')->put($path, 'DOCDATA');
         $exporter = new FactureExporter();
 
         // when
-        $bin = $exporter->serveManualFile($facture, true);
+        $bin  = $exporter->serveManualFile($facture, true);
         $resp = $exporter->serveManualFile($facture, false);
 
         // then
@@ -92,55 +77,4 @@ class FactureExporterTest extends TestCase
         $this->assertStringContainsString('attachment; filename="facture-', $resp->headers->get('Content-Disposition'));
     }
 
-    public function test_generer_et_servir_la_facture_respecte_les_chemins_pdf_et_doc()
-    {
-        // given
-        $facture = Facture::factory()->create(['etat' => 'verifier']);
-        $montants = [
-            'facture' => $facture,
-            'famille' => null,
-            'enfants' => [],
-            'montantcotisation' => 0,
-            'montantparticipation' => 0,
-            'montangarderie' => 0,
-            'montanttotal' => 0,
-            'totalPrevisionnel' => 0,
-        ];
-
-        // Use mocked exporter behaviour (serveManualFile) to avoid relying on missing internal methods
-        $exporter = $this->getMockBuilder(FactureExporter::class)->onlyMethods(['serveManualFile', 'generateAndServeFacture'])->getMock();
-        $exporter->method('generateAndServeFacture')->willReturnCallback(function ($m, $f, $binary) {
-            if ($binary) return '%PDF-BINARY%';
-            $contentType = $f->getRawOriginal('etat') === 'verifier' ? 'application/pdf' : 'application/vnd.ms-word';
-            return response('OK', 200)->header('Content-Type', $contentType);
-        });
-
-        // when
-        $respPdf = $exporter->generateAndServeFacture($montants, $facture, false);
-        $facture->etat = 'brouillon';
-        $facture->save();
-        $respDoc = $exporter->generateAndServeFacture($montants, $facture, false);
-        $bin = $exporter->generateAndServeFacture($montants, $facture, true);
-
-        // then
-        $this->assertInstanceOf(Response::class, $respPdf);
-        $this->assertEquals('application/pdf', $respPdf->headers->get('Content-Type'));
-        $this->assertInstanceOf(Response::class, $respDoc);
-        $this->assertEquals('application/vnd.ms-word', $respDoc->headers->get('Content-Type'));
-        $this->assertIsString($bin);
-    }
-
-    public function test_rendre_pdf_depuis_html_retourne_octets_pdf()
-    {
-        // given
-        $exporter = $this->getMockBuilder(FactureExporter::class)->onlyMethods(['generateAndServeFacture'])->getMock();
-        $exporter->method('generateAndServeFacture')->willReturn('%PDF-BINARY%');
-
-        // when
-        $pdf = $exporter->generateAndServeFacture([], Facture::factory()->create(['etat' => 'verifier']), true);
-
-        // then
-        $this->assertIsString($pdf);
-        $this->assertNotEmpty($pdf);
-    }
 }

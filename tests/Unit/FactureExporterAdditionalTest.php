@@ -1,11 +1,10 @@
 <?php
-
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Services\FactureExporter;
 use App\Models\Facture;
+use App\Services\FactureExporter;
 use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class FactureExporterAdditionalTest extends TestCase
 {
@@ -17,7 +16,7 @@ class FactureExporterAdditionalTest extends TestCase
 
         // when
         $facture = Facture::factory()->create(['etat' => 'verifier']);
-        $pdf = $exporter->serveManualFile($facture, true);
+        $pdf     = $exporter->serveManualFile($facture, true);
 
         // then
         $this->assertIsString($pdf);
@@ -72,9 +71,9 @@ class FactureExporterAdditionalTest extends TestCase
         $namePdf = 'facture-' . $factPdf->idFacture . '.pdf';
         Storage::disk('public')->put('factures/' . $namePdf, 'PDFDATA');
 
-        $loaded = $exporter->loadManualFile($factPdf);
+        $loaded       = $exporter->getLinkFarctureFile($factPdf);
         $servedBinary = $exporter->serveManualFile($factPdf, true);
-        $servedResp = $exporter->serveManualFile($factPdf, false);
+        $servedResp   = $exporter->serveManualFile($factPdf, false);
 
         // then
         $this->assertIsArray($loaded);
@@ -87,7 +86,7 @@ class FactureExporterAdditionalTest extends TestCase
         $nameDoc = 'facture-' . $factDoc->idFacture . '.docx';
         Storage::disk('public')->put('factures/' . $nameDoc, 'DOCDATA');
 
-        $loaded2 = $exporter->loadManualFile($factDoc);
+        $loaded2       = $exporter->getLinkFarctureFile($factDoc);
         $servedBinary2 = $exporter->serveManualFile($factDoc, true);
 
         // then (case 2)
@@ -96,17 +95,4 @@ class FactureExporterAdditionalTest extends TestCase
         $this->assertEquals('DOCDATA', $servedBinary2);
     }
 
-    public function test_type_contenu_pour_extension_supplementaire()
-    {
-        // given
-        $exporter = new FactureExporter();
-
-        // when
-        $ctPdf = $exporter->contentTypeForExt('pdf');
-        $ctDocx = $exporter->contentTypeForExt('docx');
-
-        // then
-        $this->assertEquals('application/pdf', $ctPdf);
-        $this->assertEquals('application/vnd.ms-word', $ctDocx);
-    }
 }
