@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Facture;
-use App\Models\Etre;
+use App\Models\PRATIQUE;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 
@@ -26,47 +26,46 @@ class FactureCalculator
         $famille = $facture->famille()->first();
         $enfants = $famille->enfants()->get();
 
-        $montantcotisation = match ($enfants->count()) {
+        $montantCotisation = match ($enfants->count()) {
             0 => 0,
             1 => 45,
             2 => 65,
             default => 75,
         };
 
-        $montantparticipation = $enfants->count() * 9.65;
+        $montantParticipation = $enfants->count() * 9.65;
 
-        $montantparticipationSeaska = $famille->aineDansAutreSeaska ? 7.70 : 0;
+        $montantParticipationSeaska = $famille->aineDansAutreSeaska ? 7.70 : 0;
 
-        $montangarderieprev = 0;
-
+        $montantGarderiePrev = 0;
         foreach ($enfants as $enfant) {
             if ($facture->previsionnel) {
-                $nbfoisgarderie = (int) ($enfant->nbFoisGarderie ?? 0);
+                $nbFoisGarderie = (int) ($enfant->nbFoisGarderie ?? 0);
             } else {
-                $nbfoisgarderie = Etre::where('idEnfant', $enfant->idEnfant)
+                $nbFoisGarderie = PRATIQUE::where('idEnfant', $enfant->idEnfant)
                     ->where('activite', 'like', 'garderie%')
                     ->count();
             }
 
-            if ($nbfoisgarderie > 0 && $nbfoisgarderie <= 8) {
-                $montangarderieprev += 10;
-            } elseif ($nbfoisgarderie > 8) {
-                $montangarderieprev += 20;
+            if ($nbFoisGarderie > 0 && $nbFoisGarderie <= 8) {
+                $montantGarderiePrev += 10;
+            } elseif ($nbFoisGarderie > 8) {
+                $montantGarderiePrev += 20;
             }
         }
 
-        $montanttotalprev = $montangarderieprev + $montantcotisation + $montantparticipation + $montantparticipationSeaska;
+        $montantTotalPrev = $montantGarderiePrev + $montantCotisation + $montantParticipation + $montantParticipationSeaska;
 
         return [
             'facture' => $facture,
             'famille' => $famille,
             'enfants' => $enfants,
-            'montantcotisation' => $montantcotisation,
-            'montantparticipation' => $montantparticipation,
-            'montantparticipationSeaska' => $montantparticipationSeaska,
-            'montangarderie' => $montangarderieprev,
-            'montanttotal' => $montanttotalprev,
-            'totalPrevisionnel' => $montanttotalprev,
+            'montantcotisation' => $montantCotisation,
+            'montantparticipation' => $montantParticipation,
+            'montantparticipationSeaska' => $montantParticipationSeaska,
+            'montangarderie' => $montantGarderiePrev,
+            'montanttotal' => $montantTotalPrev,
+            'totalPrevisionnel' => $montantTotalPrev,
         ];
     }
 }

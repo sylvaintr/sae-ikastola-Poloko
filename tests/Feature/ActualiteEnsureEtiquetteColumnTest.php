@@ -12,7 +12,7 @@ class ActualiteEnsureEtiquetteColumnTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_ensureEtiquette_table_called_when_is_public_column_missing()
+    public function test_ensureEtiquette_table_called_when_public_column_missing()
     {
         // given
         $this->withoutMiddleware();

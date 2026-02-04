@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('etiquette', function (Blueprint $table) {
             $table->integer('idEtiquette')->primary()->autoIncrement();
             $table->string('nom', 50);
-            $table->boolean('is_public')->default(false);
+            $table->boolean('public')->default(false);
         });
     }
 

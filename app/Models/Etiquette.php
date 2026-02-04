@@ -25,7 +25,7 @@ class Etiquette extends Model
 
 	protected $casts = [
 		'idEtiquette' => 'int',
-        'is_public' => 'bool',
+        'public' => 'bool',
 	];
 
 	/**
@@ -35,7 +35,7 @@ class Etiquette extends Model
 	 */
 	protected $fillable = [
 		'nom',
-        'is_public',
+        'public',
 	];
 
 	/**

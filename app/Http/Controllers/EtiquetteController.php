@@ -63,15 +63,15 @@ class EtiquetteController extends Controller
         $validated = $request->validate(
             [
                 'nom' => 'required|string|max:50',
-                'is_public' => ['nullable', 'boolean'],
+                'public' => ['nullable', 'boolean'],
                 'roles' => ['nullable', 'array'],
                 'roles.*' => ['exists:role,idRole'],
             ]
         );
 
         $payload = ['nom' => $validated['nom']];
-        if (\Illuminate\Support\Facades\Schema::hasColumn('etiquette', 'is_public')) {
-            $payload['is_public'] = (bool) ($validated['is_public'] ?? false);
+        if (\Illuminate\Support\Facades\Schema::hasColumn('etiquette', 'public')) {
+            $payload['public'] = (bool) ($validated['public'] ?? false);
         }
 
         $etiquette = Etiquette::create($payload);
@@ -114,7 +114,7 @@ class EtiquetteController extends Controller
 
         $validated = $request->validate([
             'nom' => 'required|string|max:50',
-            'is_public' => ['nullable', 'boolean'],
+            'public' => ['nullable', 'boolean'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['exists:role,idRole'],
         ]);
@@ -129,8 +129,8 @@ class EtiquetteController extends Controller
         $updatePayload = [
             'nom' => $validated['nom'],
         ];
-        if (\Illuminate\Support\Facades\Schema::hasColumn('etiquette', 'is_public')) {
-            $updatePayload['is_public'] = (bool) ($validated['is_public'] ?? false);
+        if (\Illuminate\Support\Facades\Schema::hasColumn('etiquette', 'public')) {
+            $updatePayload['public'] = (bool) ($validated['public'] ?? false);
         }
 
         $etiquette->update($updatePayload);
@@ -147,13 +147,13 @@ class EtiquetteController extends Controller
     }
 
     /**
-     * Ajoute la colonne is_public sur etiquette si absente (pas de nouvelle migration).
+     * Ajoute la colonne public sur etiquette si absente (pas de nouvelle migration).
      */
     private function ensureEtiquetteIsPublicColumn(): void
     {
-        if (!Schema::hasColumn('etiquette', 'is_public')) {
+        if (!Schema::hasColumn('etiquette', 'public')) {
             Schema::table('etiquette', function ($table) {
-                $table->boolean('is_public')->default(false)->after('nom');
+                $table->boolean('public')->default(false)->after('nom');
             });
         }
     }

@@ -101,7 +101,7 @@
                             @foreach ($historiques as $item)
                                 <tr>
                                     <td>{{ $item->statut }}</td>
-                                    <td>{{ optional($item->date_evenement)->format('d-m-Y') ?? '—' }}</td>
+                                    <td>{{ optional($item->dateE)->format('d-m-Y') ?? '—' }}</td>
                                     <td>{{ $item->titre }}</td>
                                     <td>{{ $item->responsable ?? '—' }}</td>
                                     <td>{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}</td>
@@ -109,7 +109,7 @@
                                         <button type="button" class="btn demande-action-btn history-view-btn"
                                             data-description="{{ $item->description ?? '—' }}"
                                             data-titre="{{ $item->titre }}"
-                                            data-date="{{ optional($item->date_evenement)->format('d/m/Y') ?? '—' }}"
+                                            data-date="{{ optional($item->dateE)->format('d/m/Y') ?? '—' }}"
                                             data-depense="{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}"
                                             title="{{ __('demandes.actions.view') }}">
                                             <i class="bi bi-eye"></i>

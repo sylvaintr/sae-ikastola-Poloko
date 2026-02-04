@@ -17,13 +17,13 @@ class DemandeHistorique extends Model
         'titre',
         'responsable',
         'depense',
-        'date_evenement',
+        'dateE',
         'description',
     ];
 
     protected $casts = [
         'idDemande' => 'int',
-        'date_evenement' => 'date',
+        'dateE' => 'date',
         'depense' => 'float',
     ];
 
