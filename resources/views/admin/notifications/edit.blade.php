@@ -1,12 +1,12 @@
 <x-app-layout>
     <div class="container py-5">
         <div class="mb-5">
-            {{-- HEADER BILINGUE --}}
+          
             <h2 class="fw-bold mb-0">
                 {{ __('notifications.edit_header', [], 'eus') }}
             </h2>
             
-            {{-- Sous-titre Français en dessous --}}
+           
             @if(app()->getLocale() == 'fr')
                 <div class="text-muted small mt-1">
                     {{ __('notifications.edit_subtitle', [], 'fr') }} : {{ $setting->title }}
@@ -21,15 +21,15 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body p-4">
                 
-                {{-- FORMULAIRE D'ÉDITION --}}
+               
                 <form method="POST" action="{{ route('admin.notifications.update', $setting->id) }}" class="admin-form" id="notification-form">
                     @csrf
                     @method('PUT')
 
-                    {{-- Section 1 : Paramètres Généraux --}}
+                  
                     <div class="row g-4 mb-4 align-items-start">
                         
-                        {{-- TITRE --}}
+                       
                         <div class="col-md-6">
                             <label for="title" class="form-label fw-bold">
                                 {{ __('notifications.form_title', [], 'eus') }}
@@ -43,7 +43,7 @@
                                    value="{{ old('title', $setting->title) }}" required>
                         </div>
 
-                        {{-- RÉCURRENCE --}}
+                       
                         <div class="col-md-2">
                             <label for="recurrence" class="form-label fw-bold">
                                 {{ __('notifications.form_recurrence', [], 'eus') }}
@@ -57,7 +57,7 @@
                                    value="{{ old('recurrence_days', $setting->recurrence_days) }}">
                         </div>
 
-                        {{-- RAPPEL --}}
+                        
                         <div class="col-md-2">
                             <label for="reminder" class="form-label fw-bold">
                                 {{ __('notifications.form_reminder', [], 'eus') }}
@@ -71,7 +71,7 @@
                                    value="{{ old('reminder_days', $setting->reminder_days) }}" required>
                         </div>
 
-                        {{-- ACTIVÉ --}}
+                     
                         <div class="col-md-2 text-center">
                             <label class="form-label fw-bold d-block mb-2">
                                 {{ __('notifications.form_active', [], 'eus') }}
@@ -89,7 +89,7 @@
                         </div>
                     </div>
 
-                    {{-- DESCRIPTION --}}
+                   
                     <div class="mb-5">
                         <label for="description" class="form-label fw-bold">
                             {{ __('notifications.form_description', [], 'eus') }}
@@ -104,7 +104,7 @@
 
                     <hr class="text-muted my-4">
 
-                    {{-- Section 2 : Sélection du Module --}}
+                  
                     <div class="mb-3">
                         <h4 class="fw-bold mb-0">
                             {{ __('notifications.target_title', [], 'eus') }}
@@ -117,11 +117,11 @@
                     </div>
 
                     <div class="row g-4">
-                        {{-- Colonne Gauche : Les Boutons --}}
+                      
                         <div class="col-md-6">
                             <div id="available-modules" class="border rounded p-2 bg-white" style="height: auto; min-height: 200px;">
                                 
-                                {{-- BOUTON 1 : DOCUMENTS --}}
+                               
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-3 border rounded bg-white shadow-sm" 
                                      data-id="0" 
                                      data-type="Document" 
@@ -144,7 +144,7 @@
                                     <i class="bi bi-file-earmark-text fs-3 text-primary"></i>
                                 </div>
 
-                                {{-- BOUTON 2 : ÉVÉNEMENTS --}}
+                              
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm" 
                                      data-id="0" 
                                      data-type="Evènement" 
@@ -170,7 +170,7 @@
                             </div>
                         </div>
 
-                        {{-- Colonne Droite : Sélection --}}
+                       
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <span class="text-muted small d-block">
@@ -197,7 +197,7 @@
                         </div>
                     </div>
 
-                    {{-- BOUTONS D'ACTION --}}
+                  
                     <div class="d-flex justify-content-end gap-3 mt-5">
                         <a href="{{ route('admin.notifications.index') }}" class="btn btn-outline-secondary px-4 fw-bold">
                             @if(app()->getLocale() == 'fr')
@@ -223,12 +223,11 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // -- DONNÉES ACTUELLES (PHP -> JS) --
-            // On échappe les backslashes pour que App\Models\Toto ne casse pas le JS
+           
             const currentTargetType = "{{ str_replace('\\', '\\\\', $setting->target_type) }}";
             const currentTargetId = "{{ $setting->target_id }}";
 
-            // -- STYLE CSS --
+            
             const style = document.createElement('style');
             style.innerHTML = `
                 .form-check-input:checked { background-color: #F59E0B; border-color: #F59E0B; }
@@ -237,19 +236,19 @@
             `;
             document.head.appendChild(style);
 
-            // -- LOGIQUE JS --
+            
             const availableContainer = document.getElementById('available-modules');
             const selectedContainer = document.getElementById('selected-modules-container');
             const hiddenInputsContainer = document.getElementById('hidden-inputs-container');
             
-            // 1. GESTION DU CLIC
+           
             availableContainer.addEventListener('click', function(e) {
                 const item = e.target.closest('.module-item');
                 if (!item) return;
                 addModule(item.dataset.id, item.dataset.type, item.dataset.name, item);
             });
 
-            // 2. AJOUT MODULE
+         
             function addModule(id, type, name, originalItem) {
                 clearSelection();
                 originalItem.style.display = 'none';
@@ -270,7 +269,7 @@
 
                 selectedContainer.appendChild(selectedItem);
 
-                // Inputs cachés pour le formulaire
+              
                 const inputId = document.createElement('input');
                 inputId.type = 'hidden'; inputId.name = 'module_id'; inputId.value = id;
                 hiddenInputsContainer.appendChild(inputId);
@@ -280,7 +279,7 @@
                 hiddenInputsContainer.appendChild(inputType);
             }
 
-            // 3. RETIRER MODULE
+           
             function removeModule(selectedItem, originalItem) {
                 selectedItem.remove();
                 originalItem.style.display = null;
@@ -302,7 +301,7 @@
                 existingItems.forEach(item => item.querySelector('.bi-x-circle-fill').click());
             }
 
-            // --- AUTO-INITIALISATION (Correction de la sélection par défaut) ---
+           
             const items = document.querySelectorAll('.module-item');
             items.forEach(item => {
                 // On vérifie si l'attribut data-model-class correspond à ce qui est en base de données

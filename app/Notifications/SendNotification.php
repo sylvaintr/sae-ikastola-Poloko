@@ -15,7 +15,7 @@ class SendNotification extends Notification
     }
 
     public function via($notifiable) {
-        return ['database']; // Stocke dans la table 'notifications'
+        return ['database']; 
     }
 
     public function toArray($notifiable) {
@@ -23,7 +23,7 @@ class SendNotification extends Notification
             'title' => $this->data['title'],
             'message' => $this->data['message'],
             'action_url' => $this->data['action_url'] ?? '#',
-            'icon' => 'bi-info-circle', // Tu pourras personnaliser l'icône dans ta vue
+            'icon' => 'bi-info-circle', 
         ];
     }
 }

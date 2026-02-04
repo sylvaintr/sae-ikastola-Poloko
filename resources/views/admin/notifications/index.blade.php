@@ -2,14 +2,14 @@
     <div class="container py-5">
         
         <div class="d-flex justify-content-between align-items-center mb-5">
-            {{-- TITRE --}}
+          
             <div>
-                {{-- 1. Le titre en Basque (Toujours visible) --}}
+              
                 <h2 class="fw-bold mb-0">
                     {{ __('notifications.title', [], 'eus') }}
                 </h2>
                 
-                {{-- 2. Le sous-titre en Français (En dessous) --}}
+               
                 @if(app()->getLocale() == 'fr')
                     <div class="text-muted small mt-1">
                         {{ __('notifications.title', [], 'fr') }}
@@ -17,15 +17,15 @@
                 @endif
             </div>
 
-            {{-- BOUTON AJOUTER (CORRIGÉ : Français en bas) --}}
+           
             <div class="d-flex flex-column align-items-end mt-5">
                 
-                {{-- 1. Le Bouton (Texte Basque uniquement) --}}
+               
                 <a href="{{ route('admin.notifications.create') }}" class="btn text-white px-4 fw-bold" style="background-color: #F59E0B;">
                     {{ __('notifications.add', [], 'eus') }}
                 </a>
 
-                {{-- 2. Texte Français (En dessous du bouton) --}}
+               
                 @if(app()->getLocale() == 'fr')
                     <span class="text-muted small mt-1">
                         {{ __('notifications.add', [], 'fr') }}
@@ -41,7 +41,7 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
-                                {{-- COLONNE TITRE --}}
+                              
                                 <th class="ps-4 py-3" style="width: 25%;">
                                     {{ __('notifications.table_title', [], 'eus') }}
                                     @if(app()->getLocale() == 'fr')
@@ -49,7 +49,7 @@
                                     @endif
                                 </th>
 
-                                {{-- COLONNE MODULE --}}
+                              
                                 <th style="width: 15%;">
                                     {{ __('notifications.table_module', [], 'eus') }}
                                     @if(app()->getLocale() == 'fr')
@@ -57,7 +57,7 @@
                                     @endif
                                 </th>
 
-                                {{-- COLONNE DESCRIPTION --}}
+                              
                                 <th style="width: 25%;">
                                     {{ __('notifications.table_description', [], 'eus') }}
                                     @if(app()->getLocale() == 'fr')
@@ -65,7 +65,7 @@
                                     @endif
                                 </th>
 
-                                {{-- COLONNE RÉCURRENCE --}}
+                                
                                 <th class="text-center" style="width: 10%;">
                                     {{ __('notifications.table_recurrence', [], 'eus') }}
                                     @if(app()->getLocale() == 'fr')
@@ -73,7 +73,6 @@
                                     @endif
                                 </th>
 
-                                {{-- COLONNE RAPPEL --}}
                                 <th class="text-center" style="width: 10%;">
                                     {{ __('notifications.table_reminder', [], 'eus') }}
                                     @if(app()->getLocale() == 'fr')
@@ -81,7 +80,6 @@
                                     @endif
                                 </th>
 
-                                {{-- COLONNE ACTIVÉ --}}
                                 <th class="text-center" style="width: 5%;">
                                     {{ __('notifications.table_active', [], 'eus') }}
                                     @if(app()->getLocale() == 'fr')
@@ -89,7 +87,6 @@
                                     @endif
                                 </th>
 
-                                {{-- COLONNE ACTIONS --}}
                                 <th class="text-end pe-4" style="width: 10%;">
                                     {{ __('notifications.table_actions', [], 'eus') }}
                                     @if(app()->getLocale() == 'fr')

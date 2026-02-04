@@ -1,12 +1,12 @@
 <x-app-layout>
     <div class="container py-5">
         <div class="mb-5">
-            {{-- HEADER BILINGUE --}}
+           
             <h2 class="fw-bold mb-0">
                 {{ __('notifications.create_header', [], 'eus') }}
             </h2>
             
-            {{-- Sous-titre Français en dessous --}}
+          
             @if(app()->getLocale() == 'fr')
                 <div class="text-muted small mt-1">
                     {{ __('notifications.create_subtitle', [], 'fr') }}
@@ -24,10 +24,10 @@
                 <form method="POST" action="{{ route('admin.notifications.store') }}" class="admin-form" id="notification-form">
                     @csrf
 
-                    {{-- Section 1 : Paramètres Généraux --}}
+                    
                     <div class="row g-4 mb-4 align-items-start">
                         
-                        {{-- TITRE --}}
+                       
                         <div class="col-md-6">
                             <label for="title" class="form-label fw-bold">
                                 {{ __('notifications.form_title', [], 'eus') }}
@@ -41,7 +41,7 @@
                                    placeholder="{{ __('notifications.form_title_placeholder') }}" required>
                         </div>
 
-                        {{-- RÉCURRENCE --}}
+                        
                         <div class="col-md-2">
                             <label for="recurrence" class="form-label fw-bold">
                                 {{ __('notifications.form_recurrence', [], 'eus') }}
@@ -55,7 +55,7 @@
                                    placeholder="{{ __('notifications.form_recurrence_placeholder') }}">
                         </div>
 
-                        {{-- RAPPEL --}}
+                       
                         <div class="col-md-2">
                             <label for="reminder" class="form-label fw-bold">
                                 {{ __('notifications.form_reminder', [], 'eus') }}
@@ -69,7 +69,7 @@
                                    placeholder="{{ __('notifications.form_reminder_placeholder') }}" required>
                         </div>
 
-                        {{-- ACTIVÉ --}}
+                      
                         <div class="col-md-2 text-center">
                             <label class="form-label fw-bold d-block mb-2">
                                 {{ __('notifications.form_active', [], 'eus') }}
@@ -86,7 +86,7 @@
                         </div>
                     </div>
 
-                    {{-- DESCRIPTION --}}
+                   
                     <div class="mb-5">
                         <label for="description" class="form-label fw-bold">
                             {{ __('notifications.form_description', [], 'eus') }}
@@ -102,7 +102,7 @@
 
                     <hr class="text-muted my-4">
 
-                    {{-- Section 2 : Sélection du Module --}}
+                
                     <div class="mb-3">
                         <h4 class="fw-bold mb-0">
                             {{ __('notifications.target_title', [], 'eus') }}
@@ -115,26 +115,26 @@
                     </div>
 
                     <div class="row g-4">
-                        {{-- Colonne Gauche : Les Boutons de Choix --}}
+                  
                         <div class="col-md-6">
                             <input type="text" id="module-search" class="form-control mb-3" 
                                    placeholder="{{ __('notifications.search_placeholder') }}" style="display:none;">
                             
                             <div id="available-modules" class="border rounded p-2 bg-white" style="height: auto; min-height: 200px;">
                                 
-                                {{-- BOUTON 1 : DOCUMENTS --}}
+                               
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-3 border rounded bg-white shadow-sm" 
                                      data-id="0" 
                                      data-type="Document" 
                                      data-name="{{ __('notifications.module_doc_title', [], 'eus') }}" 
                                      style="cursor: pointer; transition: 0.2s;">
                                     <div>
-                                        {{-- Titre Basque --}}
+                                       
                                         <span class="fw-bold d-block text-primary">
                                             {{ __('notifications.module_doc_title', [], 'eus') }}
                                         </span>
                                         
-                                        {{-- Description bilingue --}}
+                                      
                                         <small class="text-muted">
                                             {{ __('notifications.module_doc_desc', [], 'eus') }}
                                             @if(app()->getLocale() == 'fr')
@@ -147,19 +147,19 @@
                                     <i class="bi bi-file-earmark-text fs-3 text-primary"></i>
                                 </div>
 
-                                {{-- BOUTON 2 : ÉVÉNEMENTS --}}
+                                
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm" 
                                      data-id="0" 
                                      data-type="Evènement" 
                                      data-name="{{ __('notifications.module_event_title', [], 'eus') }}" 
                                      style="cursor: pointer; transition: 0.2s;">
                                     <div>
-                                        {{-- Titre Basque --}}
+                                       
                                         <span class="fw-bold d-block text-success">
                                             {{ __('notifications.module_event_title', [], 'eus') }}
                                         </span>
                                         
-                                        {{-- Description bilingue --}}
+                                      
                                         <small class="text-muted">
                                             {{ __('notifications.module_event_desc', [], 'eus') }}
                                             @if(app()->getLocale() == 'fr')
@@ -175,7 +175,7 @@
                             </div>
                         </div>
 
-                        {{-- Colonne Droite : Le Résultat Sélectionné --}}
+                        
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <span class="text-muted small d-block">
@@ -202,7 +202,7 @@
                         </div>
                     </div>
 
-                    {{-- ZONE DES BOUTONS (MODIFIÉE) --}}
+                   
                     <div class="d-flex justify-content-end gap-3 mt-5">
                         {{-- BOUTON ANNULER --}}
                         <a href="{{ route('admin.notifications.index') }}" 
@@ -214,7 +214,7 @@
                             @endif
                         </a>
 
-                        {{-- BOUTON SAUVEGARDER --}}
+                  
                         <button type="submit" 
                                 class="btn text-white px-4 fw-bold" 
                                 style="background-color: #F59E0B;">
@@ -234,7 +234,7 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // -- STYLE CSS INTERNE --
+          
             const style = document.createElement('style');
             style.innerHTML = `
                 .form-check-input:checked {
@@ -253,12 +253,12 @@
             `;
             document.head.appendChild(style);
 
-            // -- LOGIQUE JAVASCRIPT --
+            
             const availableContainer = document.getElementById('available-modules');
             const selectedContainer = document.getElementById('selected-modules-container');
             const hiddenInputsContainer = document.getElementById('hidden-inputs-container');
             
-            // 1. GESTION DU CLIC (AJOUT)
+          
             availableContainer.addEventListener('click', function(e) {
                 const item = e.target.closest('.module-item');
                 if (!item) return;
@@ -270,19 +270,19 @@
                 addModule(id, type, name, item);
             });
 
-            // 2. FONCTION POUR AJOUTER
+          
             function addModule(id, type, name, originalItem) {
                 clearSelection();
 
-                // Masquer à gauche
+            
                 originalItem.style.display = 'none';
                 originalItem.classList.remove('d-flex');
 
-                // Vider le message "Vide"
+              
                 selectedContainer.innerHTML = '';
                 selectedContainer.style.display = 'block';
 
-                // Créer l'élément visuel à droite
+                
                 const selectedItem = document.createElement('div');
                 selectedItem.className = 'module-selected-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded shadow-sm';
                 selectedItem.dataset.originId = id;
@@ -296,14 +296,14 @@
                     <i class="bi bi-x-circle-fill fs-4 text-white" style="cursor: pointer;"></i>
                 `;
 
-                // Suppression au clic sur la croix
+                
                 selectedItem.querySelector('.bi-x-circle-fill').addEventListener('click', function() {
                     removeModule(selectedItem, originalItem);
                 });
 
                 selectedContainer.appendChild(selectedItem);
 
-                // --- CRÉATION DES INPUTS POUR LE CONTROLLER ---
+              
                 const inputId = document.createElement('input');
                 inputId.type = 'hidden';
                 inputId.name = 'module_id'; 
@@ -317,18 +317,18 @@
                 hiddenInputsContainer.appendChild(inputType);
             }
 
-            // 3. FONCTION POUR RETIRER
+            
             function removeModule(selectedItem, originalItem) {
                 selectedItem.remove();
 
-                // Réafficher le bouton à gauche
+                
                 originalItem.style.display = null;
                 originalItem.classList.add('d-flex');
 
-                // Vider les inputs cachés
+              
                 hiddenInputsContainer.innerHTML = '';
 
-                // Remettre le message vide
+               
                 selectedContainer.style.display = 'flex';
                 selectedContainer.innerHTML = `
                     <div class="module-list-empty-message text-muted text-center">
@@ -340,7 +340,6 @@
                     </div>`;
             }
 
-            // 4. FONCTION POUR VIDER
             function clearSelection() {
                 const existingItems = selectedContainer.querySelectorAll('.module-selected-item');
                 existingItems.forEach(item => {
