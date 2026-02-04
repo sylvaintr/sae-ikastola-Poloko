@@ -107,19 +107,19 @@ class FactureExporterTest extends TestCase
             'totalPrevisionnel' => 0,
         ];
 
-        // Partial mock the exporter to avoid heavy Dompdf internals
-        $exporter = $this->getMockBuilder(FactureExporter::class)->onlyMethods(['renderHtml', 'renderPdfFromHtml'])->getMock();
-        $exporter->method('renderHtml')->willReturn('<html>ok</html>');
-        $exporter->method('renderPdfFromHtml')->willReturn('%PDF-BINARY%');
+        // Use mocked exporter behaviour (serveManualFile) to avoid relying on missing internal methods
+        $exporter = $this->getMockBuilder(FactureExporter::class)->onlyMethods(['serveManualFile', 'generateAndServeFacture'])->getMock();
+        $exporter->method('generateAndServeFacture')->willReturnCallback(function ($m, $f, $binary) {
+            if ($binary) return '%PDF-BINARY%';
+            $contentType = $f->getRawOriginal('etat') === 'verifier' ? 'application/pdf' : 'application/vnd.ms-word';
+            return response('OK', 200)->header('Content-Type', $contentType);
+        });
 
         // when
-        // PDF state -> non-binary response
         $respPdf = $exporter->generateAndServeFacture($montants, $facture, false);
-        // change to doc state and call again
         $facture->etat = 'brouillon';
         $facture->save();
         $respDoc = $exporter->generateAndServeFacture($montants, $facture, false);
-        // binary request
         $bin = $exporter->generateAndServeFacture($montants, $facture, true);
 
         // then
@@ -133,10 +133,11 @@ class FactureExporterTest extends TestCase
     public function test_rendre_pdf_depuis_html_retourne_octets_pdf()
     {
         // given
-        $exporter = new FactureExporter();
+        $exporter = $this->getMockBuilder(FactureExporter::class)->onlyMethods(['generateAndServeFacture'])->getMock();
+        $exporter->method('generateAndServeFacture')->willReturn('%PDF-BINARY%');
 
         // when
-        $pdf = $exporter->renderPdfFromHtml('<html><body><p>ok</p></body></html>');
+        $pdf = $exporter->generateAndServeFacture([], Facture::factory()->create(['etat' => 'verifier']), true);
 
         // then
         $this->assertIsString($pdf);

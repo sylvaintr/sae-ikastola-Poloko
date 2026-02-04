@@ -30,7 +30,7 @@ class FactureControllerRegularisationTest extends TestCase
         $monthDate = Carbon::now()->subMonth()->startOfMonth();
 
         // create a facture for that month (non-previsionnel)
-        Facture::factory()->create([
+        $reg = Facture::factory()->create([
             'idFamille' => $famille->idFamille,
             'previsionnel' => false,
             'dateC' => $monthDate,
@@ -61,7 +61,8 @@ class FactureControllerRegularisationTest extends TestCase
 
         // when
         $ctrl = new \App\Services\FactureCalculator();
-        $res = $ctrl->calculerRegularisation($famille->idFamille);
+        // use the non-previsionnel facture id as reference
+        $res = $ctrl->calculerRegularisation($reg->idFacture);
 
         // then
         // Expect 10 because nbfoisgarderie == 1 (<=8 and >0)

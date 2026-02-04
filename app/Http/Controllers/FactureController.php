@@ -5,6 +5,7 @@ use App\Mail\Facture as FactureMail;
 use App\Models\Facture;
 use App\Models\Famille;
 use App\Services\FactureCalculator;
+use App\Services\FactureConversionService;
 use App\Services\FactureExporter;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -30,11 +31,13 @@ class FactureController extends Controller
 
     private $factureCalculator;
     private $factureExporter;
+    private $factureConversionService;
 
     public function __construct()
     {
-        $this->factureCalculator = app(FactureCalculator::class);
-        $this->factureExporter   = app(FactureExporter::class);
+        $this->factureCalculator        = app(FactureCalculator::class);
+        $this->factureExporter          = app(FactureExporter::class);
+        $this->factureConversionService = app(FactureConversionService::class);
     }
 
     /**
@@ -114,13 +117,10 @@ class FactureController extends Controller
 
         $facture = $montants['facture'];
 
-        
-
         $manualResponse = $this->factureExporter->serveManualFile($facture, $returnBinary);
         if ($manualResponse) {
             return $manualResponse;
         }
-        
 
     }
 
@@ -163,67 +163,20 @@ class FactureController extends Controller
 
         // On ne traite que si l'état n'est pas déjà validé
         if ($facture->etat != 'verifier') {
+            // Use the conversion service synchronously (dependency-injected)
+            $ok = $this->factureConversionService->convertFactureToPdf($facture);
 
-            $nomfichier          = 'facture-' . $facture->idFacture;
-            $extensionsPossibles = ['doc', 'docx', 'odt'];
-            $outputDir           = storage_path('app/public/factures/');
-
-            // Variable pour savoir si on a réussi la conversion
-            $conversionReussie = false;
-            
-
-            foreach ($extensionsPossibles as $ext) {
-                $ancienCheminRelatif = self::DIR_FACTURES . $nomfichier . '.' . $ext;
-
-                // Si le fichier Word existe
-                if (Storage::disk('public')->exists($ancienCheminRelatif)) {
-                    
-
-                    $inputPath = Storage::disk('public')->path($ancienCheminRelatif);
-                    $pdfCible  = $outputDir . $nomfichier . '.pdf';
-
-                    // 1. NETTOYAGE PRÉVENTIF : Supprimer l'ancien PDF s'il existe déjà
-                    // (Cela évite les erreurs de permission si root a créé le fichier précédent)
-                    if (file_exists($pdfCible)) {
-                        unlink($pdfCible);
-                    }
-
-                    // 2. COMMANDE DE CONVERSION
-                    // "export HOME=/tmp" est OBLIGATOIRE pour que www-data puisse lancer LibreOffice
-                    $command = 'export HOME=/tmp && libreoffice --headless --convert-to pdf ' . escapeshellarg($inputPath) . ' --outdir ' . escapeshellarg($outputDir) . ' 2>&1';
-
-                    $output    = [];
-                    $returnVar = 0;
-                    exec($command, $output, $returnVar);
-
-                    // 3. VÉRIFICATION DU RÉSULTAT
-                    if (file_exists($pdfCible)) {
-                        // Succès : Le PDF est là, on peut supprimer le Word
-                        Storage::disk('public')->delete($ancienCheminRelatif);
-                        $conversionReussie = true;
-
-                        // On arrête la boucle, on a trouvé et converti le fichier
-                        break;
-                    } else {
-                        // Échec : On loggue l'erreur pour le développeur
-                        \Illuminate\Support\Facades\Log::error("Échec conversion LibreOffice Facture $id", ['cmd_output' => $output]);
-                    }
-                }
-            }
-
-            if ($conversionReussie) {
-                // Mise à jour de l'état seulement si le PDF a été créé
+            if ($ok) {
+                // passer l'état à 'verifier'
                 $facture->etat = 'verifier';
                 $facture->save();
                 return redirect()->route('admin.facture.index')->with('success', 'Facture validée et convertie en PDF avec succès.');
-            } else {
-                // Si on sort de la boucle sans avoir réussi
-                return redirect()->route('admin.facture.index')->with('error', 'Impossible de convertir le fichier Word. Vérifiez qu\'il existe ou consultez les logs.');
             }
 
-        } else {
-            return redirect()->route('admin.facture.index', $facture->idFacture)->with('error', 'facture.dejasvalidee');
+            return redirect()->route('admin.facture.index')->with('error', 'Impossible de convertir le fichier Word. Vérifiez qu\'il existe ou consultez les logs.');
         }
+
+        return redirect()->route('admin.facture.index', $facture->idFacture)->with('error', 'facture.dejasvalidee');
     }
 
     public function update(Request $request, string $id): RedirectResponse
