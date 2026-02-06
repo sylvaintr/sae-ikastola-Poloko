@@ -2,7 +2,6 @@
 namespace App\Services;
 
 use App\Models\Facture;
-use App\Models\Famille;
 use App\Models\Pratiquer;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
