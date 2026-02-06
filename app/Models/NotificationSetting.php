@@ -7,16 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class NotificationSetting extends Model
 {
     protected $fillable = [
-        'title', 
-        'description', 
-        'recurrence_days', 
-        'reminder_days', 
-        'is_active', 
-        'target_id', 
+        'title',
+        'description',
+        'recurrence_days',
+        'reminder_days',
+        'is_active',
+        'target_id',
         'target_type'
     ];
 
-    // Lien vers Evenement ou DocumentObligatoire
     public function target()
     {
         return $this->morphTo();
@@ -25,11 +24,11 @@ class NotificationSetting extends Model
     public function roles()
     {
         return $this->belongsToMany(
-            Role::class, 
-            'notification_setting_role', 
-            'notification_setting_id', 
-            'role_id', 
-            'id', 
+            Role::class,
+            'notification_setting_role',
+            'notification_setting_id',
+            'role_id',
+            'id',
             'idRole'
         );
     }
