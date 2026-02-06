@@ -14,7 +14,7 @@ class CheckNotifications extends Command
 {
     protected $signature = 'notifications:check';
 
-    protected $description = 'Vérifie les événements (rappels) et les documents obligatoires (manquants + récurrence)';
+    protected $description = 'Vérifie les événements (rappels) et les documents obligatoires';
 
     public function handle()
     {
@@ -29,8 +29,6 @@ class CheckNotifications extends Command
         }
 
         foreach ($rules as $rule) {
-           
-            
             if ($rule->target_type === 'App\Models\Evenement' && $rule->target_id == 0) {
                 $this->processEvents($rule);
             } elseif ($rule->target_type === 'App\Models\DocumentObligatoire' && $rule->target_id == 0) {
@@ -41,7 +39,6 @@ class CheckNotifications extends Command
         $this->info('--- Vérification terminée ---');
     }
 
-    
     private function processEvents($rule)
     {
         $this->info("Traitement Règle Événements : {$rule->title} (Rappel à J-{$rule->reminder_days})");
@@ -63,7 +60,7 @@ class CheckNotifications extends Command
                         ->exists();
 
                     if ($dejaFait) {
-                        continue; 
+                        continue;
                     }
 
                     $user->notify(new SendNotification([
@@ -77,7 +74,6 @@ class CheckNotifications extends Command
         }
     }
 
-   
     private function processDocuments($rule)
     {
         $this->info("Traitement Règle Documents : {$rule->title} (Récurrence : {$rule->recurrence_days} jours)");
@@ -88,7 +84,7 @@ class CheckNotifications extends Command
             $rolesIds = $doc->roles->pluck('idRole');
 
             if ($rolesIds->isEmpty()) {
-                continue; 
+                continue;
             }
 
             $usersCibles = Utilisateur::whereHas('rolesCustom', function ($query) use ($rolesIds) {
@@ -101,7 +97,6 @@ class CheckNotifications extends Command
         }
     }
 
-  
     private function checkSingleUserDocument($user, $doc, $rule)
     {
         $aDepose = $user->documents()
@@ -119,7 +114,7 @@ class CheckNotifications extends Command
                     $nextAlertDate = $lastNotif->created_at->addDays($rule->recurrence_days);
 
                     if (now()->lessThan($nextAlertDate)) {
-                        return; 
+                        return;
                     }
                 }
             }
@@ -134,4 +129,3 @@ class CheckNotifications extends Command
         }
     }
 }
-
