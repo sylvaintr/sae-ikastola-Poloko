@@ -32,17 +32,16 @@ class FactureConversionService
                 $inputPath = Storage::disk('public')->path($ancienCheminRelatif);
                 $pdfCible  = $outputDir . $nomfichier . '.pdf';
 
-                $success = $this->convertirWordToPdf($inputPath, $pdfCible);
+                $result  = $this->convertirWordToPdf($inputPath, $pdfCible);
+                $success = $result['success'] ?? false;
 
                 if ($success) {
                     // supprimer l'ancien Word
                     Storage::disk('public')->delete($ancienCheminRelatif);
-
-                    Log::info('FactureConversionService: conversion réussie', ['id' => $facture->idFacture, 'cmd_output' => $output]);
+                    Log::info('FactureConversionService: conversion réussie', ['id' => $facture->idFacture, 'cmd_output' => $result['output'] ?? []]);
                     return true;
                 }
-
-                Log::error('FactureConversionService: échec conversion', ['id' => $facture->idFacture, 'cmd_output' => $output, 'return' => $returnVar]);
+                Log::error('FactureConversionService: échec conversion', ['id' => $facture->idFacture, 'cmd_output' => $result['output'] ?? [], 'return' => $result['return'] ?? null]);
             }
         }
 
@@ -67,16 +66,15 @@ class FactureConversionService
                 $inputPath = Storage::disk('public')->path($ancienCheminRelatif);
                 $pdfCible  = $outputDir . $nomfichier . '.pdf';
 
-                $success = $this->convertirWordToPdf($inputPath, $pdfCible);
+                $result  = $this->convertirWordToPdf($inputPath, $pdfCible);
+                $success = $result['success'] ?? false;
 
                 if ($success) {
-                    // supprimer l'ancien Word
-
-                    Log::info('FactureConversionService: conversion réussie', ['id' => $facture->idFacture, 'cmd_output' => $output]);
+                    Log::info('FactureConversionService: conversion réussie', ['id' => $facture->idFacture, 'cmd_output' => $result['output'] ?? []]);
                     return true;
                 }
 
-                Log::error('FactureConversionService: échec conversion', ['id' => $facture->idFacture, 'cmd_output' => $output, 'return' => $returnVar]);
+                Log::error('FactureConversionService: échec conversion', ['id' => $facture->idFacture, 'cmd_output' => $result['output'] ?? [], 'return' => $result['return'] ?? null]);
             }
         }
 
@@ -84,7 +82,14 @@ class FactureConversionService
         return false;
     }
 
-    public function convertirWordToPdf(string $inputPath, string $outputPath): bool
+    /**
+     * Execute la commande de conversion et retourne un tableau contenant success, output et return
+     *
+     * @param string $inputPath
+     * @param string $outputPath
+     * @return array{success:bool, output:array, return:int}
+     */
+    public function convertirWordToPdf(string $inputPath, string $outputPath): array
     {
         if (file_exists($outputPath)) {
             @unlink($outputPath);
@@ -96,6 +101,10 @@ class FactureConversionService
         $returnVar = 0;
         exec($command, $output, $returnVar);
 
-        return file_exists($outputPath);
+        return [
+            'success' => file_exists($outputPath),
+            'output'  => $output,
+            'return'  => $returnVar,
+        ];
     }
 }
