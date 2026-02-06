@@ -12,8 +12,8 @@
                             <i class="bi bi-download me-2"></i>
                             {{ __('demandes.toolbar.export.eu') }}
                         </a>
-                        <i class="bi bi-info-circle text-info" 
-                           data-bs-toggle="tooltip" 
+                        <i class="bi bi-info-circle text-info"
+                           data-bs-toggle="tooltip"
                            data-bs-placement="top"
                            title="{{ __('demandes.toolbar.export.help.fr') }}"
                            style="cursor: help; font-size: 1.1rem;"></i>
