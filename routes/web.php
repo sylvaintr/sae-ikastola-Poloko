@@ -12,6 +12,7 @@ use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
 use App\Http\Controllers\NotificationController;
+
 /*
 |--------------------------------------------------------------------------
 | Constantes pour routes récurrentes
