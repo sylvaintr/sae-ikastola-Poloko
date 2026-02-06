@@ -11,7 +11,7 @@ Artisan::command('inspire', function () {
 
 
 Schedule::command('notifications:check')
-    ->dailyAt('16:00')
+    ->dailyAt('08:00')
     ->timezone('Europe/Paris');
 
 // Schedule a monthly task that resolves the controller and calls the method.
