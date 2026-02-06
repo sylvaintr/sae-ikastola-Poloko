@@ -17,6 +17,7 @@ use App\Http\Controllers\EtiquetteController;
 use App\Http\Controllers\CalendrierController;
 use App\Http\Controllers\IcsController;
 use App\Http\Controllers\NotificationController;
+
 /*
 |--------------------------------------------------------------------------
 | Constantes pour routes récurrentes
