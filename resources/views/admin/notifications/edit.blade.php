@@ -4,7 +4,7 @@
             <h2 class="fw-bold mb-0">
                 {{ __('notifications.edit_header', [], 'eus') }}
             </h2>
-            
+
             {{-- Sous-titre avec le nom de la règle --}}
             @if(app()->getLocale() == 'fr')
                 <div class="text-muted small mt-1">
@@ -19,15 +19,14 @@
 
         <div class="card border-0 shadow-sm">
             <div class="card-body p-3 p-md-4">
-                
+
                 <form method="POST" action="{{ route('admin.notifications.update', $setting->id) }}" class="admin-form" id="notification-form">
                     @csrf
                     @method('PUT')
-                    
-                   
+
                     <div class="row g-3 mb-4 align-items-start">
-                        
-                      
+
+                       
                         <div class="col-12 col-md-6">
                             <label for="title" class="form-label fw-bold">
                                 {{ __('notifications.form_title', [], 'eus') }}
@@ -37,8 +36,8 @@
                                     </div>
                                 @endif
                             </label>
-                            <input type="text" id="title" name="title" class="form-control" 
-                                   value="{{ old('title', $setting->title) }}" 
+                            <input type="text" id="title" name="title" class="form-control"
+                                   value="{{ old('title', $setting->title) }}"
                                    placeholder="{{ __('notifications.form_title_placeholder') }}" required>
                         </div>
 
@@ -52,8 +51,8 @@
                                     </div>
                                 @endif
                             </label>
-                            <input type="number" id="recurrence" name="recurrence_days" class="form-control" 
-                                   value="{{ old('recurrence_days', $setting->recurrence_days) }}" 
+                            <input type="number" id="recurrence" name="recurrence_days" class="form-control"
+                                   value="{{ old('recurrence_days', $setting->recurrence_days) }}"
                                    placeholder="{{ __('notifications.form_recurrence_placeholder') }}">
                         </div>
 
@@ -67,14 +66,15 @@
                                     </div>
                                 @endif
                             </label>
-                            <input type="number" id="reminder" name="reminder_days" class="form-control" 
-                                   value="{{ old('reminder_days', $setting->reminder_days) }}" 
+                            <input type="number" id="reminder" name="reminder_days" class="form-control"
+                                   value="{{ old('reminder_days', $setting->reminder_days) }}"
                                    placeholder="{{ __('notifications.form_reminder_placeholder') }}" required>
                         </div>
 
-                      
+                        
                         <div class="col-12 col-md-2 text-start text-md-center">
-                            <label class="form-label fw-bold d-block mb-2">
+                          
+                            <label for="isActive" class="form-label fw-bold d-block mb-2">
                                 {{ __('notifications.form_active', [], 'eus') }}
                                 @if(app()->getLocale() == 'fr')
                                     <div class="text-muted small fw-normal" style="font-size: 0.85em;">
@@ -83,14 +83,14 @@
                                 @endif
                             </label>
                             <div class="form-check form-switch d-flex justify-content-start justify-content-md-center ps-0">
-                                <input class="form-check-input ms-0" type="checkbox" id="isActive" name="is_active" 
-                                       {{ $setting->is_active ? 'checked' : '' }} 
+                                <input class="form-check-input ms-0" type="checkbox" id="isActive" name="is_active"
+                                       {{ $setting->is_active ? 'checked' : '' }}
                                        style="width: 3rem; height: 1.5rem; cursor: pointer;">
                             </div>
                         </div>
                     </div>
 
-                
+                    
                     <div class="mb-4">
                         <label for="description" class="form-label fw-bold">
                             {{ __('notifications.form_description', [], 'eus') }}
@@ -100,13 +100,13 @@
                                 </div>
                             @endif
                         </label>
-                        <textarea id="description" name="description" class="form-control" rows="3" style="resize: none;" 
+                        <textarea id="description" name="description" class="form-control" rows="3" style="resize: none;"
                                   placeholder="{{ __('notifications.form_description_placeholder') }}">{{ old('description', $setting->description) }}</textarea>
                     </div>
 
                     <hr class="text-muted my-4">
+
                   
-                 
                     <div class="mb-3">
                         <h4 class="fw-bold mb-0">
                             {{ __('notifications.target_title', [], 'eus') }}
@@ -119,11 +119,12 @@
                     </div>
 
                     <div class="row g-3">
+                    
                         <div class="col-12 col-md-6">
                             <div id="available-modules" class="border rounded p-2 bg-white" style="height: auto; min-height: 200px;">
-                                
+
                                 {{-- Document --}}
-                                <div class="module-item d-flex align-items-center justify-content-between p-3 mb-3 border rounded bg-white shadow-sm" 
+                                <div class="module-item d-flex align-items-center justify-content-between p-3 mb-3 border rounded bg-white shadow-sm"
                                      data-id="0" data-type="Document" data-model-class="App\Models\DocumentObligatoire"
                                      data-name="{{ __('notifications.module_doc_title', [], 'eus') }}" style="cursor: pointer;">
                                     <div>
@@ -142,8 +143,8 @@
                                     <i class="bi bi-file-earmark-text fs-3 text-primary"></i>
                                 </div>
 
-                                {{-- Événement --}}
-                                <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm" 
+                               
+                                <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm"
                                      data-id="0" data-type="Evènement" data-model-class="App\Models\Evenement"
                                      data-name="{{ __('notifications.module_event_title', [], 'eus') }}" style="cursor: pointer;">
                                     <div>
@@ -163,7 +164,8 @@
                                 </div>
                             </div>
                         </div>
-                        
+
+                      
                         <div class="col-12 col-md-6">
                             <div class="mb-1">
                                 <span class="text-muted small d-block">
@@ -190,7 +192,7 @@
                         </div>
                     </div>
 
-                    {{-- BOUTONS --}}
+                    
                     <div class="d-flex flex-column flex-md-row justify-content-end gap-3 mt-5">
                         <a href="{{ route('admin.notifications.index') }}" class="btn btn-outline-secondary px-4 fw-bold order-2 order-md-1">
                             @if(app()->getLocale() == 'fr')
@@ -213,13 +215,12 @@
     </div>
 
     @push('scripts')
-    {{-- SCRIPT JS IDENTIQUE --}}
+   
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-        
-            const currentTargetType = "{{ str_replace('\\', '\\\\', $setting->target_type) }}";
-            const currentTargetId = "{{ $setting->target_id }}";
 
+            const currentTargetType = "{{ str_replace('\\', '\\\\', $setting->target_type) }}";
+         
             const style = document.createElement('style');
             style.innerHTML = `
                 .form-check-input:checked { background-color: #F59E0B; border-color: #F59E0B; }
@@ -231,7 +232,7 @@
             const availableContainer = document.getElementById('available-modules');
             const selectedContainer = document.getElementById('selected-modules-container');
             const hiddenInputsContainer = document.getElementById('hidden-inputs-container');
-            
+
             availableContainer.addEventListener('click', function(e) {
                 const item = e.target.closest('.module-item');
                 if (!item) return;
@@ -273,7 +274,7 @@
                 selectedContainer.style.display = 'flex';
                 selectedContainer.innerHTML = `
                     <div class="module-list-empty-message text-muted text-center">
-                        <i class="bi bi-arrow-up bi-arrow-left-md me-2 d-none d-md-inline"></i> 
+                        <i class="bi bi-arrow-up bi-arrow-left-md me-2 d-none d-md-inline"></i>
                         <i class="bi bi-arrow-up d-inline d-md-none me-2"></i>
                         {{ __('notifications.selection_empty', [], 'eus') }}
                         @if(app()->getLocale() == 'fr')
@@ -287,7 +288,6 @@
                 existingItems.forEach(item => item.querySelector('.bi-x-circle-fill').click());
             }
 
-           
             const items = document.querySelectorAll('.module-item');
             items.forEach(item => {
               

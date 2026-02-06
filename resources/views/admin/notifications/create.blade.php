@@ -17,14 +17,12 @@
 
         <div class="card border-0 shadow-sm">
             <div class="card-body p-3 p-md-4">
-                
+
                 <form method="POST" action="{{ route('admin.notifications.store') }}" class="admin-form" id="notification-form">
                     @csrf
 
-                
                     <div class="row g-3 mb-4 align-items-start">
-                        
-                       
+
                         <div class="col-12 col-md-6">
                             <label for="title" class="form-label fw-bold">
                                 {{ __('notifications.form_title', [], 'eus') }}
@@ -34,11 +32,11 @@
                                     </div>
                                 @endif
                             </label>
-                            <input type="text" id="title" name="title" class="form-control" 
+                            <input type="text" id="title" name="title" class="form-control"
                                    placeholder="{{ __('notifications.form_title_placeholder') }}" required>
                         </div>
 
-                      
+                        {{-- Récurrence --}}
                         <div class="col-6 col-md-2">
                             <label for="recurrence" class="form-label fw-bold">
                                 {{ __('notifications.form_recurrence', [], 'eus') }}
@@ -48,11 +46,11 @@
                                     </div>
                                 @endif
                             </label>
-                            <input type="number" id="recurrence" name="recurrence_days" class="form-control" 
+                            <input type="number" id="recurrence" name="recurrence_days" class="form-control"
                                    placeholder="{{ __('notifications.form_recurrence_placeholder') }}">
                         </div>
 
-                      
+                       
                         <div class="col-6 col-md-2">
                             <label for="reminder" class="form-label fw-bold">
                                 {{ __('notifications.form_reminder', [], 'eus') }}
@@ -62,13 +60,14 @@
                                     </div>
                                 @endif
                             </label>
-                            <input type="number" id="reminder" name="reminder_days" class="form-control" 
+                            <input type="number" id="reminder" name="reminder_days" class="form-control"
                                    placeholder="{{ __('notifications.form_reminder_placeholder') }}" required>
                         </div>
 
-                    
+                      
                         <div class="col-12 col-md-2 text-start text-md-center">
-                            <label class="form-label fw-bold d-block mb-2">
+                            {{-- CORRECTION SONARQUBE : Ajout du for="isActive" --}}
+                            <label for="isActive" class="form-label fw-bold d-block mb-2">
                                 {{ __('notifications.form_active', [], 'eus') }}
                                 @if(app()->getLocale() == 'fr')
                                     <div class="text-muted small fw-normal" style="font-size: 0.85em;">
@@ -77,13 +76,13 @@
                                 @endif
                             </label>
                             <div class="form-check form-switch d-flex justify-content-start justify-content-md-center ps-0">
-                                <input class="form-check-input ms-0" type="checkbox" id="isActive" name="is_active" checked 
+                                <input class="form-check-input ms-0" type="checkbox" id="isActive" name="is_active" checked
                                        style="width: 3rem; height: 1.5rem; cursor: pointer;">
                             </div>
                         </div>
                     </div>
 
-                   
+                    
                     <div class="mb-4">
                         <label for="description" class="form-label fw-bold">
                             {{ __('notifications.form_description', [], 'eus') }}
@@ -93,7 +92,7 @@
                                 </div>
                             @endif
                         </label>
-                        <textarea id="description" name="description" class="form-control" rows="3" style="resize: none;" 
+                        <textarea id="description" name="description" class="form-control" rows="3" style="resize: none;"
                                   placeholder="{{ __('notifications.form_description_placeholder') }}"></textarea>
                     </div>
 
@@ -112,12 +111,12 @@
                     </div>
 
                     <div class="row g-3">
-                      
+                       
                         <div class="col-12 col-md-6">
                             <div id="available-modules" class="border rounded p-2 bg-white" style="height: auto; min-height: 200px; max-height: 300px; overflow-y: auto;">
-                                
-                                {{-- Document --}}
-                                <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm" 
+
+                               
+                                <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm"
                                      data-id="0" data-type="Document" data-name="{{ __('notifications.module_doc_title', [], 'eus') }}" style="cursor: pointer;">
                                     <div>
                                         <span class="fw-bold d-block text-primary">
@@ -135,8 +134,8 @@
                                     <i class="bi bi-file-earmark-text fs-3 text-primary"></i>
                                 </div>
 
-                                {{-- Événement --}}
-                                <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm" 
+                            
+                                <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm"
                                      data-id="0" data-type="Evènement" data-name="{{ __('notifications.module_event_title', [], 'eus') }}" style="cursor: pointer;">
                                     <div>
                                         <span class="fw-bold d-block text-success">
@@ -156,7 +155,7 @@
                             </div>
                         </div>
 
-                        {{-- SÉLECTION --}}
+                        
                         <div class="col-12 col-md-6">
                             <div class="mb-1">
                                 <span class="text-muted small d-block">
@@ -171,7 +170,7 @@
 
                             <div id="selected-modules-container" class="border rounded p-3 bg-light" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
                                 <div class="module-list-empty-message text-muted text-center">
-                                    <i class="bi bi-arrow-up bi-arrow-left-md me-2 d-none d-md-inline"></i> 
+                                    <i class="bi bi-arrow-up bi-arrow-left-md me-2 d-none d-md-inline"></i>
                                     <i class="bi bi-arrow-up d-inline d-md-none me-2"></i>
                                     {{ __('notifications.selection_empty', [], 'eus') }}
                                     @if(app()->getLocale() == 'fr')
@@ -183,7 +182,7 @@
                         </div>
                     </div>
 
-                  
+                    
                     <div class="d-flex flex-column flex-md-row justify-content-end gap-3 mt-5">
                         <a href="{{ route('admin.notifications.index') }}" class="btn btn-outline-secondary px-4 fw-bold order-2 order-md-1">
                             @if(app()->getLocale() == 'fr')
@@ -207,7 +206,7 @@
     </div>
 
     @push('scripts')
-  
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const style = document.createElement('style');
@@ -221,7 +220,7 @@
             const availableContainer = document.getElementById('available-modules');
             const selectedContainer = document.getElementById('selected-modules-container');
             const hiddenInputsContainer = document.getElementById('hidden-inputs-container');
-            
+
             availableContainer.addEventListener('click', function(e) {
                 const item = e.target.closest('.module-item');
                 if (!item) return;
@@ -243,7 +242,7 @@
                     <div><span class="fw-bold d-block">${name}</span><small style="opacity: 0.8;">Type: ${type}</small></div>
                     <i class="bi bi-x-circle-fill fs-4 text-white" style="cursor: pointer;"></i>
                 `;
-                
+
                 selectedItem.querySelector('.bi-x-circle-fill').addEventListener('click', function() {
                     removeModule(selectedItem, originalItem);
                 });
@@ -265,7 +264,7 @@
                 selectedContainer.style.display = 'flex';
                 selectedContainer.innerHTML = `
                     <div class="module-list-empty-message text-muted text-center">
-                        <i class="bi bi-arrow-up bi-arrow-left-md me-2 d-none d-md-inline"></i> 
+                        <i class="bi bi-arrow-up bi-arrow-left-md me-2 d-none d-md-inline"></i>
                         <i class="bi bi-arrow-up d-inline d-md-none me-2"></i>
                         {{ __('notifications.selection_empty', [], 'eus') }}
                         @if(app()->getLocale() == 'fr')
