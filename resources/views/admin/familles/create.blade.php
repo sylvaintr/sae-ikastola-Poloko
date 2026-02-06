@@ -629,7 +629,7 @@
         }
 
         let isSubmitting = false;
-        document.getElementById('btnConfirmSave').onclick = function() {
+        document.getElementById('btnConfirmSave').onclick = async function() {
             const btn = document.getElementById('btnConfirmSave');
             const btnCancel = document.getElementById('btnCancelModal');
             const modalMessage = document.getElementById('modalMessage');
@@ -653,63 +653,62 @@
             const updateBaseUrl = "{{ url('/admin/familles') }}";
             const url = isCreateMode ? storeUrl : `${updateBaseUrl}/${encodeURIComponent(pendingData.idFamille)}`;
             
-            // Lancer la requête immédiatement
-            const fetchPromise = fetch(url, {
-                method: isCreateMode ? 'POST' : 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
-                body: JSON.stringify(pendingData)
-            });
-            
-            if (isCreateMode) {
-                // Pour la création, rediriger après confirmation du succès
-                fetchPromise.then(response => {
+            // Timeout pour éviter un "chargement infini" si le serveur ne répond pas
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 15000);
+
+            try {
+                const response = await fetch(url, {
+                    method: isCreateMode ? 'POST' : 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify(pendingData),
+                    signal: controller.signal,
+                });
+
+                if (isCreateMode) {
                     if (response.ok) {
                         window.location.href = "{{ route('admin.familles.index') }}";
+                        return;
+                    }
+                } else {
+                    if (response.ok) {
+                        globalThis.bootstrap.Modal.getInstance(document.getElementById('confirmationModal'))?.hide();
+                        new globalThis.bootstrap.Modal(document.getElementById('successModal')).show();
+                        document.getElementById('btnSuccessOk').onclick = () => window.location.href = "{{ route('admin.familles.index') }}";
+                        return;
+                    }
+                }
+
+                // Erreur HTTP: essayer d'afficher un message utile
+                const contentType = response.headers.get('content-type') || '';
+                let details = '';
+                try {
+                    if (contentType.includes('application/json')) {
+                        const json = await response.json();
+                        details = json?.message ? String(json.message) : JSON.stringify(json);
                     } else {
-                        // En cas d'erreur, réactiver le bouton
-                        isSubmitting = false;
-                        btn.disabled = false;
-                        btn.style.opacity = '1';
-                        btn.style.cursor = 'pointer';
-                        btnCancel.disabled = false;
-                        modalMessage.style.display = 'block';
-                        modalLoading.style.display = 'none';
-                        alert('Erreur lors de la création de la famille');
+                        details = (await response.text())?.slice(0, 300) || '';
                     }
-                }).catch(() => {
-                    // En cas d'erreur, réactiver le bouton
-                    isSubmitting = false;
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    btn.style.cursor = 'pointer';
-                    btnCancel.disabled = false;
-                    modalMessage.style.display = 'block';
-                    modalLoading.style.display = 'none';
-                    alert('Erreur lors de la création de la famille');
-                });
-            } else {
-                // Pour la mise à jour (édition)
-                fetchPromise.then(response => {
-                    if (!response.ok) {
-                        throw new Error('Erreur HTTP ' + response.status);
-                    }
-                    globalThis.bootstrap.Modal.getInstance(document.getElementById('confirmationModal')).hide();
-                    new globalThis.bootstrap.Modal(document.getElementById('successModal')).show();
-                    document.getElementById('btnSuccessOk').onclick = () => window.location.href = "{{ route('admin.familles.index') }}";
-                    isSubmitting = false;
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    btn.style.cursor = 'pointer';
-                }).catch(() => {
-                    // En cas d'erreur, réactiver le bouton
-                    isSubmitting = false;
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                    btn.style.cursor = 'pointer';
-                    btnCancel.disabled = false;
-                    modalMessage.style.display = 'block';
-                    modalLoading.style.display = 'none';
-                });
+                } catch (_) {
+                    details = '';
+                }
+
+                throw new Error(`Erreur HTTP ${response.status}${details ? ' — ' + details : ''}`);
+            } catch (err) {
+                const msg = err?.name === 'AbortError'
+                    ? 'Le serveur met trop de temps à répondre. Réessayez.'
+                    : (err?.message || 'Erreur lors de la sauvegarde.');
+
+                modalMessage.textContent = msg;
+                modalMessage.style.display = 'block';
+            } finally {
+                clearTimeout(timeout);
+                isSubmitting = false;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+                btnCancel.disabled = false;
+                modalLoading.style.display = 'none';
             }
         };
 
