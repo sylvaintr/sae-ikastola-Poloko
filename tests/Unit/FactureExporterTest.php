@@ -12,6 +12,44 @@ class FactureExporterTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_getLinkFarctureFile_returns_array_when_file_exists()
+    {
+        Storage::disk('public')->put('factures/facture-42.docx', 'docx-content');
+
+        $facture            = new Facture();
+        $facture->idFacture = 42;
+        $facture->etat      = 'draft';
+
+        $service = new FactureExporter();
+
+        $res = $service->getLinkFarctureFile($facture);
+
+        $this->assertIsArray($res);
+        $this->assertEquals('docx', $res['ext']);
+        $this->assertEquals('facture-42.docx', $res['filename']);
+        $this->assertEquals('docx-content', $res['content']);
+    }
+
+    public function test_serveManualFile_returns_binary_or_response_based_on_flag()
+    {
+        Storage::disk('public')->put('factures/facture-43.pdf', 'pdf-bytes');
+
+        $facture            = new Facture();
+        $facture->idFacture = 43;
+        $facture->etat      = 'verifier';
+
+        $service = new FactureExporter();
+
+        $binary = $service->serveManualFile($facture, true);
+        $this->assertIsString($binary);
+        $this->assertEquals('pdf-bytes', $binary);
+
+        $resp = $service->serveManualFile($facture, false);
+        $this->assertInstanceOf(Response::class, $resp);
+        $this->assertEquals('application/pdf', $resp->headers->get('Content-Type'));
+        $this->assertStringContainsString('facture-43.pdf', $resp->headers->get('Content-Disposition'));
+    }
+
     public function test_charger_et_servir_un_fichier_manuel_avec_storage_simple()
     {
         // given
