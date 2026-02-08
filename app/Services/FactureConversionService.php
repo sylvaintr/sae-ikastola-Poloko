@@ -27,7 +27,7 @@ class FactureConversionService
      * @param bool $deleteOriginal si true supprime le fichier source après conversion réussie
      * @return bool
      */
-    private function convertFactureToPdf(Facture $facture, bool $deleteOriginal = false): bool
+    public function convertFactureToPdf(Facture $facture, bool $deleteOriginal = false): bool
     {
         $nomfichier          = 'facture-' . $facture->idFacture;
         $extensionsPossibles = ['doc', 'docx', 'odt'];

@@ -256,7 +256,10 @@ class AccountControllerTest extends TestCase
         $private = \App\Models\Actualite::factory()->create(['type' => 'private']);
         $private->etiquettes()->attach($etiquette->idEtiquette);
 
-        $authView = (new \App\Http\Controllers\ActualiteController())->index();
+        $req = \Illuminate\Http\Request::create('/', 'GET');
+        $req->setLaravelSession($this->app['session.store']);
+        $req->setUserResolver(fn() => \App\Models\Utilisateur::find($user->idUtilisateur));
+        $authView = (new \App\Http\Controllers\ActualiteController())->index($req);
         $this->assertInstanceOf(\Illuminate\View\View::class, $authView);
     }
 
@@ -407,16 +410,12 @@ class AccountControllerTest extends TestCase
         // set selectedEtiquettes in session
         session(['selectedEtiquettes' => [$etiquette->idEtiquette]]);
 
-        $controller = new \App\Http\Controllers\ActualiteController();
-
-        // when (call without creating a new Request so Auth facade is used)
-        $view = $controller->index();
+        // when: perform a real GET request so session and auth are correctly wired
+        $response = $this->withSession(['selectedEtiquettes' => [$etiquette->idEtiquette]])->actingAs($user)->get(route('home'));
 
         // then
-        $this->assertInstanceOf(\Illuminate\View\View::class, $view);
-        $data = $view->getData();
-        $this->assertArrayHasKey('actualites', $data);
-        $actualites = $data['actualites'];
+        $response->assertStatus(200);
+        $actualites = $response->original->getData()['actualites'];
         $this->assertNotEmpty($actualites);
         $this->assertContains($actualite->idActualite, $actualites->pluck('idActualite')->toArray());
     }

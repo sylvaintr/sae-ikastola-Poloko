@@ -167,7 +167,7 @@ class FactureController extends Controller
     {
         $facture = Facture::find($id ?? null);
         if ($facture === null) {
-            redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
+            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
 
         // On ne traite que si l'état n'est pas déjà validé
