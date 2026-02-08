@@ -341,16 +341,17 @@
 
     <script>
         const translations = {
-            errorNoChildren: { eus: "{{ __('famille.error_no_children', [], 'eus') }}", fr: "{{ __('famille.error_no_children', [], 'fr') }}" },
-            errorSelection: { eus: "{{ __('famille.error_selection', [], 'eus') }}", fr: "{{ __('famille.error_selection', [], 'fr') }}" },
-            confirmCreateTitle: { eus: "{{ __('famille.confirm_create_title', [], 'eus') }}", fr: "{{ __('famille.confirm_create_title', [], 'fr') }}" },
-            confirmCreateMsg: { eus: "{{ __('famille.confirm_create_msg', [], 'eus') }}", fr: "{{ __('famille.confirm_create_msg', [], 'fr') }}" },
-            confirmParityTitle: { eus: "{{ __('famille.confirm_parity_title', [], 'eus') }}", fr: "{{ __('famille.confirm_parity_title', [], 'fr') }}" },
-            confirmParityMsg: { eus: "{{ __('famille.confirm_parity_msg', [], 'eus') }}", fr: "{{ __('famille.confirm_parity_msg', [], 'fr') }}" },
-            parentLabel: "{{ __('famille.parent_label', [], 'eus') }}",
-            childLabel: "{{ __('famille.child_label', [], 'eus') }}",
-            emptyMsg: "{{ __('famille.click_to_select', [], 'eus') }}",
-            noUserFound: "{{ __('famille.no_results', [], 'eus') }}"
+           
+            errorNoChildren: { eus: @json(__('famille.error_no_children', [], 'eus')), fr: @json(__('famille.error_no_children', [], 'fr')) },
+            errorSelection: { eus: @json(__('famille.error_selection', [], 'eus')), fr: @json(__('famille.error_selection', [], 'fr')) },
+            confirmCreateTitle: { eus: @json(__('famille.confirm_create_title', [], 'eus')), fr: @json(__('famille.confirm_create_title', [], 'fr')) },
+            confirmCreateMsg: { eus: @json(__('famille.confirm_create_msg', [], 'eus')), fr: @json(__('famille.confirm_create_msg', [], 'fr')) },
+            confirmParityTitle: { eus: @json(__('famille.confirm_parity_title', [], 'eus')), fr: @json(__('famille.confirm_parity_title', [], 'fr')) },
+            confirmParityMsg: { eus: @json(__('famille.confirm_parity_msg', [], 'eus')), fr: @json(__('famille.confirm_parity_msg', [], 'fr')) },
+            parentLabel: @json(__('famille.parent_label', [], 'eus')),
+            childLabel: @json(__('famille.child_label', [], 'eus')),
+            emptyMsg: @json(__('famille.click_to_select', [], 'eus')),
+            noUserFound: @json(__('famille.no_results', [], 'eus'))
         };
 
         const showFrench = "{{ Lang::getLocale() }}" === 'fr';
@@ -541,10 +542,7 @@
         }
 
         function addRole(id, name) {
-            if (isEditMode && nbEnfantsInitial === 0) {
-                alert(translations.errorNoChildren.eus + (showFrench ? "\n" + translations.errorNoChildren.fr : ""));
-                return;
-            }
+            // Ne pas bloquer l'ajout d'un parent (les enfants seront exigés au moment de l'enregistrement)
             if (selectedRoles.querySelectorAll('input.user-id').length >= 2) return;
             if (Array.from(selectedRoles.querySelectorAll('input.user-id')).some(i => i.value == id)) return;
 
