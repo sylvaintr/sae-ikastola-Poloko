@@ -132,7 +132,7 @@ class FactureExporter
 
             // Apply parite (percentage) to compute final total for this parent
             $pariteNumeric   = is_numeric($parite) ? floatval($parite) : 0.0;
-            $totalTtcNumeric = $valeurPrevisionnelleNumeric * (($pariteNumeric / 100));
+            $totalTtcNumeric = $valeurPrevisionnelleNumeric * ($pariteNumeric / 100);
 
             $templateProcessor->setValue('pariter', $pariteNumeric);
             $templateProcessor->setValue('totalPrevisionnel', $valeurPrevisionnelle);
