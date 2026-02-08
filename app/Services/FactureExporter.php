@@ -145,9 +145,9 @@ class FactureExporter
             $factureConversionService->convertFactureToPdf($facture);
 
         } catch (\Throwable $e) {
-            // If TemplateProcessor fails for any reason, copy the raw template as a fallback
-            dd($e->getMessage());
-
+            // If TemplateProcessor fails for any reason, log and return null
+            \Illuminate\Support\Facades\Log::error('FactureExporter: template error', ['err' => $e->getMessage()]);
+            return null;
         }
 
     }
