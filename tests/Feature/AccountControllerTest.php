@@ -390,20 +390,27 @@ class AccountControllerTest extends TestCase
         // create mapping in posseder so the etiquette is bound to the role
         \App\Models\Posseder::create(['idRole' => $role->idRole, 'idEtiquette' => $etiquette->idEtiquette]);
 
-        $user->rolesCustom()->attach($role->idRole, ['model_type' => \App\Models\Utilisateur::class]);
+        // persist the role assignment for the user (use Avoir to mirror app behaviour)
+        \App\Models\Avoir::create([
+            'idUtilisateur' => $user->idUtilisateur,
+            'idRole'        => $role->idRole,
+            'model_type'    => \App\Models\Utilisateur::class,
+        ]);
 
-        // create an actualite and attach the etiquette (use public to avoid role-interaction flakiness)
-        $actualite = \App\Models\Actualite::factory()->create(['type' => 'public']);
+        // create an actualite and attach the etiquette (use public and ensure dateP is not in the future)
+        $actualite = \App\Models\Actualite::factory()->create([
+            'type' => 'public',
+            'dateP' => now(),
+        ]);
         $actualite->etiquettes()->attach($etiquette->idEtiquette);
 
         // set selectedEtiquettes in session
         session(['selectedEtiquettes' => [$etiquette->idEtiquette]]);
 
         $controller = new \App\Http\Controllers\ActualiteController();
-        $request    = Request::create('/actualites', 'GET');
 
-        // when
-        $view = $controller->index($request);
+        // when (call without creating a new Request so Auth facade is used)
+        $view = $controller->index();
 
         // then
         $this->assertInstanceOf(\Illuminate\View\View::class, $view);

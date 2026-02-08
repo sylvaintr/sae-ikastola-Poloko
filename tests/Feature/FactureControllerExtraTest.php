@@ -95,7 +95,11 @@ class FactureControllerExtraTest extends TestCase
         $famille->utilisateurs()->detach();
         $famille->utilisateurs()->attach($client->idUtilisateur);
 
-        $facture = Facture::factory()->create(['etat' => 'verifier', 'idFamille' => $famille->idFamille]);
+        $facture = Facture::factory()->create([
+            'etat' => 'verifier',
+            'idFamille' => $famille->idFamille,
+            'idUtilisateur' => $client->idUtilisateur,
+        ]);
 
         // Mock exporter to return some pdf binary data
         $mock = $this->createMock(FactureExporter::class);

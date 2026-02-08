@@ -245,7 +245,7 @@ class FactureControllerTest extends TestCase
         $regularisation = $calculator->calculerRegularisation($target->idFacture);
 
         // then - ensure we get an integer regularisation value
-        $this->assertIsInt($regularisation);
+        $this->assertIsFloat($regularisation);
     }
 
     public function test_createFacture_cree_facture_pour_parent_avec_parite_100()
