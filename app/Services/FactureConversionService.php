@@ -17,39 +17,17 @@ class FactureConversionService
      */
     public function convertFactureToPdfAndDeleteWord(Facture $facture): bool
     {
-        $nomfichier          = 'facture-' . $facture->idFacture;
-        $extensionsPossibles = ['doc', 'docx', 'odt'];
-        $outputDir           = storage_path('app/public/factures/');
-
-        if (! file_exists($outputDir)) {
-            @mkdir($outputDir, 0755, true);
-        }
-
-        foreach ($extensionsPossibles as $ext) {
-            $ancienCheminRelatif = 'factures/' . $nomfichier . '.' . $ext;
-
-            if (Storage::disk('public')->exists($ancienCheminRelatif)) {
-                $inputPath = Storage::disk('public')->path($ancienCheminRelatif);
-                $pdfCible  = $outputDir . $nomfichier . '.pdf';
-
-                $result  = $this->convertirWordToPdf($inputPath, $pdfCible);
-                $success = $result['success'] ?? false;
-
-                if ($success) {
-                    // supprimer l'ancien Word
-                    Storage::disk('public')->delete($ancienCheminRelatif);
-                    Log::info('FactureConversionService: conversion réussie', ['id' => $facture->idFacture, 'cmd_output' => $result['output'] ?? []]);
-                    return true;
-                }
-                Log::error('FactureConversionService: échec conversion', ['id' => $facture->idFacture, 'cmd_output' => $result['output'] ?? [], 'return' => $result['return'] ?? null]);
-            }
-        }
-
-        Log::warning('FactureConversionService: aucun fichier source trouvé', ['id' => $facture->idFacture]);
-        return false;
+        return $this->convertFactureToPdf($facture, true);
     }
 
-    public function convertFactureToPdf(Facture $facture): bool
+    /**
+     * Factorise la recherche du fichier source, la conversion et les logs.
+     *
+     * @param Facture $facture
+     * @param bool $deleteOriginal si true supprime le fichier source après conversion réussie
+     * @return bool
+     */
+    private function convertFactureToPdf(Facture $facture, bool $deleteOriginal = false): bool
     {
         $nomfichier          = 'facture-' . $facture->idFacture;
         $extensionsPossibles = ['doc', 'docx', 'odt'];
@@ -70,6 +48,9 @@ class FactureConversionService
                 $success = $result['success'] ?? false;
 
                 if ($success) {
+                    if ($deleteOriginal) {
+                        Storage::disk('public')->delete($ancienCheminRelatif);
+                    }
                     Log::info('FactureConversionService: conversion réussie', ['id' => $facture->idFacture, 'cmd_output' => $result['output'] ?? []]);
                     return true;
                 }
