@@ -180,7 +180,9 @@ trait FamilleSynchronizationTrait
      */
     private function syncUtilisateurPivot(Famille $famille, int $utilisateurId, ?int $parite): void
     {
-        if ($famille->utilisateurs()->where('idUtilisateur', $utilisateurId)->exists()) {
+        // IMPORTANT: la relation belongsToMany joint `utilisateur` et `lier`.
+        // `idUtilisateur` existe dans les 2 tables => utiliser wherePivot pour éviter la colonne ambiguë.
+        if ($famille->utilisateurs()->wherePivot('idUtilisateur', $utilisateurId)->exists()) {
             $famille->utilisateurs()->updateExistingPivot($utilisateurId, ['parite' => $parite]);
         } else {
             $famille->utilisateurs()->attach($utilisateurId, ['parite' => $parite]);
