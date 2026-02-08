@@ -7,6 +7,7 @@ use App\Models\Famille;
 use App\Services\FactureCalculator;
 use App\Services\FactureConversionService;
 use App\Services\FactureExporter;
+use App\Services\FactureFileService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -32,12 +33,13 @@ class FactureController extends Controller
     private $factureCalculator;
     private $factureExporter;
     private $factureConversionService;
-
+    private $factureFileService;
     public function __construct()
     {
         $this->factureCalculator        = app(FactureCalculator::class);
         $this->factureExporter          = app(FactureExporter::class);
         $this->factureConversionService = app(FactureConversionService::class);
+        $this->factureFileService       = app(FactureFileService::class);
     }
 
     /**
@@ -165,7 +167,7 @@ class FactureController extends Controller
     {
         $facture = Facture::find($id ?? null);
         if ($facture === null) {
-            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
+            redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
 
         // On ne traite que si l'état n'est pas déjà validé
@@ -197,59 +199,21 @@ class FactureController extends Controller
             'facture' => 'nullable|file|mimes:doc,docx,odt|max:2048',
         ]);
 
-        if ($request->hasFile('facture')) {
-            $file = $request->file('facture');
+        $response = $this->factureFileService->processUploadedFile($request, $facture);
 
-            // Vérification des premiers octets (magic bytes)
-            $fh    = fopen($file->getRealPath(), 'rb');
-            $bytes = fread($fh, 8);
-            fclose($fh);
+        if ($response === null) {
+            $facture->etat = 'manuel';
+            $facture->save();
 
-            $oleHeader = "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1"; // .doc (OLE)
-            $zipHeader = "\x50\x4B\x03\x04";                 // .docx / .odt (ZIP)
-
-            if (! (strpos($bytes, $oleHeader) === 0 || strpos($bytes, $zipHeader) === 0)) {
-
-                return redirect()->route('admin.facture.index')->with('error', 'facture.invalidfile');
-            }
-
-            $extensionsPossibles = ['doc', 'docx', 'odt'];
-
-            foreach ($extensionsPossibles as $ext) {
-                $ancienChemin = 'factures/facture-' . $facture->idFacture . '.' . $ext;
-
-                // On vérifie sur le disque 'public' car vous utilisez storeAs(..., ..., 'public') plus bas
-                if (Storage::disk('public')->exists($ancienChemin)) {
-                    Storage::disk('public')->delete($ancienChemin);
-                }
-            }
-
-            // Enregistrer le fichier uploadé dans storage/app/public/factures
-            try {
-                $extension = strtolower($file->getClientOriginalExtension() ?? $file->extension());
-                if (! in_array($extension, $extensionsPossibles, true)) {
-                    $extension = 'docx';
-                }
-                $filename = 'facture-' . $facture->idFacture . '.' . $extension;
-                $stored   = $file->storeAs('public/factures', $filename);
-                if ($stored === false) {
-                    return redirect()->route('admin.facture.index')->with('error', 'facture.uploadfail');
-                }
-                // assurer visibilité publique
-                Storage::disk('public')->setVisibility('factures/' . $filename, 'public');
-                // convertir en PDF
-                $this->factureConversionService->convertirWordToPdf(Storage::disk('public')->path('factures/' . $filename), Storage::disk('public')->path('factures/facture-' . $facture->idFacture . '.pdf'));
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('Erreur lors de l\'upload facture', ['err' => $e->getMessage()]);
-                return redirect()->route('admin.facture.index')->with('error', 'facture.uploadfail');
-            }
-
+            $response = redirect()->route('admin.facture.index')->with('success', 'facture.etatupdatesuccess');
         }
-        $facture->etat = 'manuel';
-        $facture->save();
 
-        return redirect()->route('admin.facture.index')->with('success', 'facture.etatupdatesuccess');
+        return $response;
     }
+
+    // file upload processing moved to FactureFileService
+
+    // helpers moved to FactureFileService
 
     /**
      * Methode pour creer les factures mensuelles
