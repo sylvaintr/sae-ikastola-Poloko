@@ -402,7 +402,7 @@ class AccountControllerTest extends TestCase
 
         // create an actualite and attach the etiquette (use public and ensure dateP is not in the future)
         $actualite = \App\Models\Actualite::factory()->create([
-            'type' => 'public',
+            'type'  => 'public',
             'dateP' => now(),
         ]);
         $actualite->etiquettes()->attach($etiquette->idEtiquette);

@@ -165,27 +165,31 @@ class FactureController extends Controller
 
     public function validerFacture(string $id): ?RedirectResponse
     {
+        $response = null;
+
         $facture = Facture::find($id ?? null);
         if ($facture === null) {
-            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
-        }
+            $response = redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
+        } else {
+            // On ne traite que si l'état n'est pas déjà validé
+            if ($facture->etat != 'verifier') {
+                // Use the conversion service synchronously (dependency-injected)
+                $ok = $this->factureConversionService->convertFactureToPdf($facture);
 
-        // On ne traite que si l'état n'est pas déjà validé
-        if ($facture->etat != 'verifier') {
-            // Use the conversion service synchronously (dependency-injected)
-            $ok = $this->factureConversionService->convertFactureToPdf($facture);
-
-            if ($ok) {
-                // passer l'état à 'verifier'
-                $facture->etat = 'verifier';
-                $facture->save();
-                return redirect()->route('admin.facture.index')->with('success', 'Facture validée et convertie en PDF avec succès.');
+                if ($ok) {
+                    // passer l'état à 'verifier'
+                    $facture->etat = 'verifier';
+                    $facture->save();
+                    $response = redirect()->route('admin.facture.index')->with('success', 'Facture validée et convertie en PDF avec succès.');
+                } else {
+                    $response = redirect()->route('admin.facture.index')->with('error', 'Impossible de convertir le fichier Word. Vérifiez qu\'il existe ou consultez les logs.');
+                }
+            } else {
+                $response = redirect()->route('admin.facture.index', $facture->idFacture)->with('error', 'facture.dejasvalidee');
             }
-
-            return redirect()->route('admin.facture.index')->with('error', 'Impossible de convertir le fichier Word. Vérifiez qu\'il existe ou consultez les logs.');
         }
 
-        return redirect()->route('admin.facture.index', $facture->idFacture)->with('error', 'facture.dejasvalidee');
+        return $response;
     }
 
     public function update(Request $request, string $id): RedirectResponse
