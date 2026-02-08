@@ -1,15 +1,14 @@
 <?php
-
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
-use App\Models\Famille;
+use App\Models\Activite;
 use App\Models\Enfant;
 use App\Models\Facture;
-use App\Models\Activite;
+use App\Models\Famille;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Tests\TestCase;
 
 class FactureControllerRegularisationTest extends TestCase
 {
@@ -23,7 +22,7 @@ class FactureControllerRegularisationTest extends TestCase
 
         // Ensure the enfant has a concrete primary key value
         $enfant = Enfant::factory()->create([
-            'idEnfant' => 1,
+            'idEnfant'  => 1,
             'idFamille' => $famille->idFamille,
         ]);
 
@@ -31,9 +30,9 @@ class FactureControllerRegularisationTest extends TestCase
 
         // create a facture for that month (non-previsionnel)
         $reg = Facture::factory()->create([
-            'idFamille' => $famille->idFamille,
+            'idFamille'    => $famille->idFamille,
             'previsionnel' => false,
-            'dateC' => $monthDate,
+            'dateC'        => $monthDate,
         ]);
 
         // create an activite and an etre record (1 occurrence => nbfoisgarderie == 1)
@@ -43,7 +42,7 @@ class FactureControllerRegularisationTest extends TestCase
         DB::table('pratiquer')->insert([
             'idEnfant' => $enfant->idEnfant,
             'activite' => $activiteKey,
-            'dateP' => $monthDate->toDateTimeString(),
+            'dateP'    => $monthDate->toDateTimeString(),
         ]);
 
         // Mock FactureCalculator to return zeros so only the garderie logic contributes
@@ -51,10 +50,10 @@ class FactureControllerRegularisationTest extends TestCase
             ->onlyMethods(['calculerMontantFacture'])
             ->getMock();
         $mockCalculator->method('calculerMontantFacture')->willReturn([
-            'montantcotisation' => 0,
-            'montantparticipation' => 0,
+            'montantcotisation'          => 0,
+            'montantparticipation'       => 0,
             'montantparticipationSeaska' => 0,
-            'totalPrevisionnel' => 0,
+            'totalPrevisionnel'          => 0,
         ]);
 
         $this->app->instance(\App\Services\FactureCalculator::class, $mockCalculator);
@@ -66,6 +65,6 @@ class FactureControllerRegularisationTest extends TestCase
 
         // then
         // Expect 10 because nbfoisgarderie == 1 (<=8 and >0)
-        $this->assertSame(10, $res);
+        $this->assertSame(10.0, $res);
     }
 }

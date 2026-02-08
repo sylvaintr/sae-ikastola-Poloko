@@ -1,14 +1,13 @@
 <?php
-
 namespace Tests\Unit;
 
 use App\Models\Facture;
 use App\Models\Famille;
 use App\Models\Utilisateur;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class FactureControllerTest extends TestCase
 {
@@ -27,7 +26,7 @@ class FactureControllerTest extends TestCase
 
         // when
         $ctrl = new \App\Http\Controllers\FactureController();
-        $resp = $ctrl->validerFacture((string)$facture->idFacture);
+        $resp = $ctrl->validerFacture((string) $facture->idFacture);
 
         // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
@@ -57,8 +56,8 @@ class FactureControllerTest extends TestCase
         $this->app->instance(\App\Services\FactureExporter::class, $mockExporter);
 
         // when
-        $ctrl = new \App\Http\Controllers\FactureController();
-        $result = $ctrl->exportFacture((string)$facture->idFacture, true);
+        $ctrl   = new \App\Http\Controllers\FactureController();
+        $result = $ctrl->exportFacture((string) $facture->idFacture, true);
 
         // then
         $this->assertSame('BINARYDATA', $result);
@@ -72,15 +71,15 @@ class FactureControllerTest extends TestCase
         $mockCalculator = $this->getMockBuilder(\App\Services\FactureCalculator::class)->onlyMethods(['calculerMontantFacture'])->getMock();
         $mockCalculator->method('calculerMontantFacture')->willReturn(['facture' => $facture]);
 
-            $mockExporter = $this->getMockBuilder(\App\Services\FactureExporter::class)->onlyMethods(['serveManualFile'])->getMock();
-            $mockExporter->method('serveManualFile')->willReturn('PDFBIN');
+        $mockExporter = $this->getMockBuilder(\App\Services\FactureExporter::class)->onlyMethods(['serveManualFile'])->getMock();
+        $mockExporter->method('serveManualFile')->willReturn('PDFBIN');
 
         $this->app->instance(\App\Services\FactureCalculator::class, $mockCalculator);
         $this->app->instance(\App\Services\FactureExporter::class, $mockExporter);
 
         // when
-        $ctrl = new \App\Http\Controllers\FactureController();
-        $result = $ctrl->exportFacture((string)$facture->idFacture, true);
+        $ctrl   = new \App\Http\Controllers\FactureController();
+        $result = $ctrl->exportFacture((string) $facture->idFacture, true);
 
         // then
         $this->assertSame('PDFBIN', $result);
@@ -90,14 +89,14 @@ class FactureControllerTest extends TestCase
     {
         // given
         $famille = Famille::factory()->create();
-        $user = Utilisateur::factory()->create(['email' => 'to@example.test']);
+        $user    = Utilisateur::factory()->create(['email' => 'to@example.test']);
         $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 1]);
 
         $facture = Facture::factory()->create(['etat' => 'brouillon', 'idFamille' => $famille->idFamille, 'idUtilisateur' => $user->idUtilisateur]);
 
         // when
         $ctrl = new \App\Http\Controllers\FactureController();
-        $resp = $ctrl->envoyerFacture((string)$facture->idFacture);
+        $resp = $ctrl->envoyerFacture((string) $facture->idFacture);
 
         // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
@@ -120,7 +119,7 @@ class FactureControllerTest extends TestCase
     {
         // given
         $famille = Famille::factory()->create();
-        $user = Utilisateur::factory()->create();
+        $user    = Utilisateur::factory()->create();
         $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 1]);
 
         // when
@@ -134,26 +133,26 @@ class FactureControllerTest extends TestCase
     public function test_calculerRegularisation_retourne_difference_attendue()
     {
         // given
-        $famille = Famille::factory()->create();
+        $famille   = Famille::factory()->create();
         $monthDate = \Carbon\Carbon::now()->subMonth()->startOfDay();
 
-        $reg = Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel' => false, 'dateC' => $monthDate]);
+        $reg  = Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel' => false, 'dateC' => $monthDate]);
         $prev = Facture::factory()->create(['idFamille' => $famille->idFamille, 'previsionnel' => true, 'dateC' => $monthDate]);
 
-            $calculator = $this->getMockBuilder(\App\Services\FactureCalculator::class)->onlyMethods(['calculerMontantFacture'])->getMock();
-            $calculator->method('calculerMontantFacture')->willReturn([
-                'totalPrevisionnel' => 5,
-                'montantcotisation' => 10,
-                'montantparticipation' => 0,
-                'montantparticipationSeaska' => 0,
-            ]);
+        $calculator = $this->getMockBuilder(\App\Services\FactureCalculator::class)->onlyMethods(['calculerMontantFacture'])->getMock();
+        $calculator->method('calculerMontantFacture')->willReturn([
+            'totalPrevisionnel'          => 5,
+            'montantcotisation'          => 10,
+            'montantparticipation'       => 0,
+            'montantparticipationSeaska' => 0,
+        ]);
 
-            // when
-            // call calculerRegularisation on the mocked calculator so internal calls use the stubbed method
-            $res = $calculator->calculerRegularisation($reg->idFacture);
+        // when
+        // call calculerRegularisation on the mocked calculator so internal calls use the stubbed method
+        $res = $calculator->calculerRegularisation($reg->idFacture);
 
         // then
-        $this->assertSame(-5, $res);
+        $this->assertSame(-5.0, $res);
     }
 
     public function test_show_previsionnel_retourne_vue()
@@ -164,15 +163,15 @@ class FactureControllerTest extends TestCase
 
         $mockCalculator = $this->getMockBuilder(\App\Services\FactureCalculator::class)->onlyMethods(['calculerMontantFacture'])->getMock();
         $mockCalculator->method('calculerMontantFacture')->willReturn([
-            'facture' => $facture,
-            'famille' => $famille,
-            'nbEnfants' => 0,
-            'montangarderie' => 0,
-            'montantcotisation' => 0,
-            'montantparticipation' => 0,
+            'facture'                    => $facture,
+            'famille'                    => $famille,
+            'nbEnfants'                  => 0,
+            'montangarderie'             => 0,
+            'montantcotisation'          => 0,
+            'montantparticipation'       => 0,
             'montantparticipationSeaska' => 0,
-            'montanttotal' => 0,
-            'totalPrevisionnel' => 0,
+            'montanttotal'               => 0,
+            'totalPrevisionnel'          => 0,
         ]);
 
         $this->app->instance(\App\Services\FactureCalculator::class, $mockCalculator);
@@ -183,7 +182,7 @@ class FactureControllerTest extends TestCase
         \Illuminate\Support\Facades\Storage::disk('public')->put('factures/facture-' . $facture->idFacture . '.pdf', '%PDF%');
 
         $ctrl = new \App\Http\Controllers\FactureController();
-        $view = $ctrl->show((string)$facture->idFacture);
+        $view = $ctrl->show((string) $facture->idFacture);
 
         // then
         $this->assertInstanceOf(\Illuminate\View\View::class, $view);
@@ -202,7 +201,7 @@ class FactureControllerTest extends TestCase
 
         // when
         $ctrl = new \App\Http\Controllers\FactureController();
-        $resp = $ctrl->show((string)$facture->idFacture);
+        $resp = $ctrl->show((string) $facture->idFacture);
 
         // then
         $this->assertInstanceOf(\Illuminate\View\View::class, $resp);
@@ -226,14 +225,14 @@ class FactureControllerTest extends TestCase
     {
         // given
         $mockCalculator = $this->getMockBuilder(\App\Services\FactureCalculator::class)->onlyMethods(['calculerMontantFacture'])->getMock();
-        $redirect = redirect()->route('admin.facture.index');
+        $redirect       = redirect()->route('admin.facture.index');
         $mockCalculator->method('calculerMontantFacture')->willReturn($redirect);
 
         $this->app->instance(\App\Services\FactureCalculator::class, $mockCalculator);
 
         // when
         $ctrl = new \App\Http\Controllers\FactureController();
-        $res = $ctrl->exportFacture('1');
+        $res  = $ctrl->exportFacture('1');
 
         // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $res);
@@ -251,7 +250,7 @@ class FactureControllerTest extends TestCase
 
         // when
         $ctrl = new \App\Http\Controllers\FactureController();
-        $res = $ctrl->show((string)$facture->idFacture);
+        $res  = $ctrl->show((string) $facture->idFacture);
 
         // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $res);
@@ -260,17 +259,17 @@ class FactureControllerTest extends TestCase
     public function test_calculerRegularisation_retourne_zero_si_aucune_facture()
     {
         // given
-        $famille = Famille::factory()->create();
+        $famille    = Famille::factory()->create();
         $calculator = $this->getMockBuilder(\App\Services\FactureCalculator::class)->onlyMethods(['calculerMontantFacture'])->getMock();
         $calculator->method('calculerMontantFacture')->willReturn(['totalPrevisionnel' => 0, 'montantcotisation' => 0, 'montantparticipation' => 0, 'montantparticipationSeaska' => 0]);
 
         // when
         // create a target facture for which regularisation should be calculated
         $target = Facture::factory()->create(['idFamille' => $famille->idFamille]);
-        $res = $calculator->calculerRegularisation($target->idFacture);
+        $res    = $calculator->calculerRegularisation($target->idFacture);
 
         // then
-        $this->assertSame(0, $res);
+        $this->assertSame(0.0, $res);
     }
 
     public function test_validerFacture_retourne_erreur_si_deja_validee()
@@ -280,7 +279,7 @@ class FactureControllerTest extends TestCase
 
         // when
         $ctrl = new \App\Http\Controllers\FactureController();
-        $resp = $ctrl->validerFacture((string)$facture->idFacture);
+        $resp = $ctrl->validerFacture((string) $facture->idFacture);
 
         // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
@@ -297,7 +296,7 @@ class FactureControllerTest extends TestCase
 
         // when
         $ctrl = new \App\Http\Controllers\FactureController();
-        $resp = $ctrl->update($request, (string)$facture->idFacture);
+        $resp = $ctrl->update($request, (string) $facture->idFacture);
 
         // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
@@ -337,7 +336,7 @@ class FactureControllerTest extends TestCase
         \Illuminate\Support\Facades\Mail::fake();
 
         $famille = \App\Models\Famille::factory()->create();
-        $user = \App\Models\Utilisateur::factory()->create(['email' => 'to@example.test']);
+        $user    = \App\Models\Utilisateur::factory()->create(['email' => 'to@example.test']);
         $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 1]);
 
         $facture = \App\Models\Facture::factory()->create(['etat' => 'verifier', 'idFamille' => $famille->idFamille, 'idUtilisateur' => $user->idUtilisateur]);
@@ -353,7 +352,7 @@ class FactureControllerTest extends TestCase
 
         // when
         $ctrl = new \App\Http\Controllers\FactureController();
-        $resp = $ctrl->envoyerFacture((string)$facture->idFacture);
+        $resp = $ctrl->envoyerFacture((string) $facture->idFacture);
 
         // then
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
@@ -368,7 +367,7 @@ class FactureControllerTest extends TestCase
 
         // when
         $ctrl = new \App\Http\Controllers\FactureController();
-        $resp = $ctrl->update($request, (string)$facture->idFacture);
+        $resp = $ctrl->update($request, (string) $facture->idFacture);
 
         // then: ensure controller returned a redirect and state updated
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
