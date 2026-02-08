@@ -140,7 +140,7 @@ class DemandeController extends Controller
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
             'idEvenement' => ['nullable', 'integer'],
-            'idRole' => ['nullable', 'integer', 'exists:role,idRole'],
+            'idRole' => ['required', 'integer', 'exists:role,idRole'],
             'photos' => ['nullable', 'array', 'max:4'],
             'photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
         ]);
@@ -200,7 +200,7 @@ class DemandeController extends Controller
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
             'idEvenement' => ['nullable', 'integer'],
-            'idRole' => ['nullable', 'integer', 'exists:role,idRole'],
+            'idRole' => ['required', 'integer', 'exists:role,idRole'],
         ]);
 
         $updates = collect($validated)->except(['dateD', 'dateF'])->toArray();
