@@ -338,13 +338,71 @@ class DemandeController extends Controller
     }
 
     /**
-     * Exporte toutes les demandes en CSV.
+     * Exporte en CSV uniquement les demandes affichées sur la page courante (mêmes filtres/tri/pagination que l'index).
      */
-    public function exportAllCsv(): StreamedResponse
+    public function exportAllCsv(Request $request): StreamedResponse
     {
-        $demandes = Tache::query()
-            ->orderBy('dateD', 'desc')
+        $filters = [
+            'search' => $request->input('search'),
+            'etat' => $request->input('etat', 'all'),
+            'type' => $request->input('type', 'all'),
+            'urgence' => $request->input('urgence', 'all'),
+            'date_from' => $request->input('date_from'),
+            'date_to' => $request->input('date_to'),
+            'sort' => $request->input('sort', 'date'),
+            'direction' => $request->input('direction', 'desc'),
+        ];
+
+        $query = Tache::query();
+
+        if ($filters['search']) {
+            $searchTerm = trim($filters['search']);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('idTache', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('titre', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        if ($filters['etat'] && $filters['etat'] !== 'all') {
+            $query->where('etat', $filters['etat']);
+        }
+
+        if ($filters['type'] && $filters['type'] !== 'all') {
+            $query->where('type', $filters['type']);
+        }
+
+        if ($filters['urgence'] && $filters['urgence'] !== 'all') {
+            $query->where('urgence', $filters['urgence']);
+        }
+
+        if ($filters['date_from']) {
+            $query->whereDate('dateD', '>=', $filters['date_from']);
+        }
+
+        if ($filters['date_to']) {
+            $query->whereDate('dateD', '<=', $filters['date_to']);
+        }
+
+        $sortable = [
+            'id' => 'idTache',
+            'date' => 'dateD',
+            'title' => 'titre',
+            'type' => 'type',
+            'urgence' => 'urgence',
+            'etat' => 'etat',
+        ];
+
+        $sortField = $sortable[$filters['sort']] ?? $sortable['date'];
+        $direction = strtolower($filters['direction']) === 'asc' ? 'asc' : 'desc';
+
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = 10; // doit correspondre à paginate(10) dans index()
+
+        $demandes = $query
+            ->orderBy($sortField, $direction)
             ->orderBy('idTache', 'desc')
+            ->with(['realisateurs', 'historiques'])
+            ->forPage($page, $perPage)
             ->get();
 
         $filename = 'Ensemble_Des_Demandes_' . date('Y-m-d') . '.csv';
@@ -371,8 +429,6 @@ class DemandeController extends Controller
 
             // Données des demandes
             foreach ($demandes as $demande) {
-                $demande->loadMissing(['realisateurs', 'historiques']);
-                
                 $realisateurs = $demande->realisateurs->pluck('name')->join(', ');
                 $montantReel = $demande->historiques->sum('depense');
 
