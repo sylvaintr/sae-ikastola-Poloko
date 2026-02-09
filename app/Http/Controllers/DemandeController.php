@@ -44,12 +44,12 @@ class DemandeController extends Controller
                 // pour éviter que "1" matche 1,10,11,21,...
                 if (ctype_digit($searchTerm)) {
                     $q->where('idTache', (int) $searchTerm);
-                } else {
-                    $q->where('idTache', 'like', '%' . $searchTerm . '%');
+                    return;
                 }
 
-                // Et on autorise toujours une recherche par titre
-                $q->orWhere('titre', 'like', '%' . $searchTerm . '%');
+                // Sinon, recherche texte (ID partiel ou titre)
+                $q->where('idTache', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('titre', 'like', '%' . $searchTerm . '%');
             });
         }
 
@@ -368,11 +368,11 @@ class DemandeController extends Controller
             $query->where(function ($q) use ($searchTerm) {
                 if (ctype_digit($searchTerm)) {
                     $q->where('idTache', (int) $searchTerm);
-                } else {
-                    $q->where('idTache', 'like', '%' . $searchTerm . '%');
+                    return;
                 }
 
-                $q->orWhere('titre', 'like', '%' . $searchTerm . '%');
+                $q->where('idTache', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('titre', 'like', '%' . $searchTerm . '%');
             });
         }
 
