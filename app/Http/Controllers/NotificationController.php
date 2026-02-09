@@ -89,8 +89,7 @@ class NotificationController extends Controller
             'target_id' => $request->module_id,
         ]);
 
-        return redirect()->route('admin.notifications.index')
-                         ->with('success', 'Règle modifiée avec succès');
+        return redirect()->route('admin.notifications.index');
     }
 
     public function markAsRead($id)
