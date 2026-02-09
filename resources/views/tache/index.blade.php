@@ -133,29 +133,91 @@
             <table class="table align-middle demande-table mb-0">
                 <thead>
                     <tr>
+                        @php
+                            $queryBase = request()->except('page');
+                            $sortState = $filters['sort'] ?? 'date';
+                            $directionState = $filters['direction'] ?? 'desc';
+                            $sortHelper = function (string $key) use ($sortState, $directionState, $queryBase) {
+                                $isCurrent = $sortState === $key;
+                                $nextDir = $isCurrent && $directionState === 'asc' ? 'desc' : 'asc';
+                                $icon = $isCurrent
+                                    ? ($directionState === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill')
+                                    : 'bi-caret-down';
+                                $url = request()->fullUrlWithQuery(array_merge($queryBase, ['sort' => $key, 'direction' => $nextDir]));
+                                return [$url, $icon];
+                            };
+                        @endphp
+                        @php [$urlId, $iconId] = $sortHelper('id'); @endphp
                         <th>
-                            <span class="admin-table-heading">Eskatu ID</span>
-                            <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Request ID</p>
+                            <div class="demande-header-cell">
+                                <div class="demande-header-label">
+                                    <span class="admin-table-heading">Eskatu ID</span>
+                                    <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Request ID</p>
+                                </div>
+                                <a href="{{ $urlId }}" class="demande-sort-link" aria-label="Trier par ID">
+                                    <i class="bi {{ $iconId }}"></i>
+                                </a>
+                            </div>
                         </th>
+                        @php [$urlDate, $iconDate] = $sortHelper('date'); @endphp
                         <th>
-                            <span class="admin-table-heading">Data</span>
-                            <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Date</p>
+                            <div class="demande-header-cell">
+                                <div class="demande-header-label">
+                                    <span class="admin-table-heading">Data</span>
+                                    <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Date</p>
+                                </div>
+                                <a href="{{ $urlDate }}" class="demande-sort-link" aria-label="Trier par date">
+                                    <i class="bi {{ $iconDate }}"></i>
+                                </a>
+                            </div>
                         </th>
+                        @php [$urlTitle, $iconTitle] = $sortHelper('title'); @endphp
                         <th>
-                            <span class="admin-table-heading">Izenburua</span>
-                            <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Titre</p>
+                            <div class="demande-header-cell">
+                                <div class="demande-header-label">
+                                    <span class="admin-table-heading">Izenburua</span>
+                                    <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Titre</p>
+                                </div>
+                                <a href="{{ $urlTitle }}" class="demande-sort-link" aria-label="Trier par titre">
+                                    <i class="bi {{ $iconTitle }}"></i>
+                                </a>
+                            </div>
                         </th>
+                        @php [$urlAssignation, $iconAssignation] = $sortHelper('assignation'); @endphp
                         <th>
-                            <span class="admin-table-heading">Esleipena</span>
-                            <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Assignation</p>
+                            <div class="demande-header-cell">
+                                <div class="demande-header-label">
+                                    <span class="admin-table-heading">Esleipena</span>
+                                    <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Assignation</p>
+                                </div>
+                                <a href="{{ $urlAssignation }}" class="demande-sort-link" aria-label="Trier par assignation">
+                                    <i class="bi {{ $iconAssignation }}"></i>
+                                </a>
+                            </div>
                         </th>
+                        @php [$urlUrgence, $iconUrgence] = $sortHelper('urgence'); @endphp
                         <th>
-                            <span class="admin-table-heading">Larrialdia</span>
-                            <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Urgence</p>
+                            <div class="demande-header-cell">
+                                <div class="demande-header-label">
+                                    <span class="admin-table-heading">Larrialdia</span>
+                                    <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Urgence</p>
+                                </div>
+                                <a href="{{ $urlUrgence }}" class="demande-sort-link" aria-label="Trier par urgence">
+                                    <i class="bi {{ $iconUrgence }}"></i>
+                                </a>
+                            </div>
                         </th>
+                        @php [$urlEtat, $iconEtat] = $sortHelper('etat'); @endphp
                         <th>
-                            <span class="admin-table-heading">Egoera</span>
-                            <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Statut</p>
+                            <div class="demande-header-cell">
+                                <div class="demande-header-label">
+                                    <span class="admin-table-heading">Egoera</span>
+                                    <p class="text-muted mb-0" style="font-size: 0.75rem; font-weight: normal; margin-top: 0.25rem;">Statut</p>
+                                </div>
+                                <a href="{{ $urlEtat }}" class="demande-sort-link" aria-label="Trier par statut">
+                                    <i class="bi {{ $iconEtat }}"></i>
+                                </a>
+                            </div>
                         </th>
                         <th style="min-width: 140px;">
                             <span class="admin-table-heading">Ekintzak</span>
