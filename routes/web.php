@@ -172,6 +172,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('actualites', ActualiteController::class)->except(['index', 'show']);
         Route::get('/pannel/actualites/data', [ActualiteController::class, 'data'])->name('actualites.data');
         Route::get('/pannel/actualites', [ActualiteController::class, 'adminIndex'])->name('actualites.index');
+        Route::post('/actualites/{idActualite}/duplicate', [ActualiteController::class, 'duplicate'])->name('actualites.duplicate');
         Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
             ->name('actualites.detachDocument');
     });

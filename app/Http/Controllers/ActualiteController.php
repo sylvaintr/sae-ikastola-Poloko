@@ -227,6 +227,42 @@ class ActualiteController extends Controller
         return back()->with('success', 'Image retirée.');
     }
 
+    /**
+     * Duplique une actualité avec ses étiquettes et documents.
+     */
+    public function duplicate($id)
+    {
+        $original = Actualite::with(['etiquettes', 'documents'])->findOrFail($id);
+
+        // Créer une nouvelle actualité avec les mêmes données (sauf idActualite)
+        $duplicate = Actualite::create([
+            'titrefr' => $original->titrefr ? ($original->titrefr . ' (Copie)') : null,
+            'titreeus' => $original->titreeus ? ($original->titreeus . ' (Kopia)') : null,
+            'descriptionfr' => $original->descriptionfr,
+            'descriptioneus' => $original->descriptioneus,
+            'contenufr' => $original->contenufr,
+            'contenueus' => $original->contenueus,
+            'type' => $original->type,
+            'dateP' => now(),
+            'archive' => false,
+            'lien' => $original->lien,
+            'idUtilisateur' => Auth::id(),
+        ]);
+
+        // Dupliquer les étiquettes
+        if ($original->etiquettes->isNotEmpty()) {
+            $duplicate->etiquettes()->sync($original->etiquettes->pluck('idEtiquette')->toArray());
+        }
+
+        // Dupliquer les documents (attacher les mêmes documents, pas de copie physique)
+        if ($original->documents->isNotEmpty()) {
+            $duplicate->documents()->sync($original->documents->pluck('idDocument')->toArray());
+        }
+
+        return redirect()->route('admin.actualites.edit', $duplicate->idActualite)
+            ->with('success', __('actualite.duplicated_success'));
+    }
+
     public function adminIndex(Request $request)
     {
         $this->ensureEtiquetteIsPublicColumn();
