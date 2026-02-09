@@ -34,4 +34,6 @@ return [
     'email_intro'                   => 'Mesedez, atxikita aurkituko duzu :id zenbakidun faktura, data :date.',
     'email_contact'                 => 'Edozein galderarako, jarri gurekin harremanetan: :email.',
 
+    'inexistantefile'               => 'Faktura honen fitxategia ezin da aurkitu.',
+
 ];

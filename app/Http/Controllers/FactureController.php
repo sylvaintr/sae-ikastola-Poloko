@@ -27,8 +27,7 @@ use Yajra\DataTables\Facades\DataTables;
  */
 class FactureController extends Controller
 {
-    private const DIR_FACTURES         = 'factures/';
-    private const ETAT_MANUEL_VERIFIER = 'manuel verifier';
+    private const DIR_FACTURES = 'factures/';
 
     private $factureCalculator;
     private $factureExporter;
@@ -138,7 +137,7 @@ class FactureController extends Controller
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
         $client = $facture->utilisateur()->first();
-        if (in_array($facture->etat, ['verifier', self::ETAT_MANUEL_VERIFIER], true)) {
+        if ($facture->etat === 'verifier') {
 
             $mail = new FactureMail($facture, $client);
 
@@ -180,9 +179,9 @@ class FactureController extends Controller
                     // passer l'état à 'verifier'
                     $facture->etat = 'verifier';
                     $facture->save();
-                    $response = redirect()->route('admin.facture.index')->with('success', 'Facture validée et convertie en PDF avec succès.');
+                    $response = redirect()->route('admin.facture.index')->with('success', 'facture.validersuccess');
                 } else {
-                    $response = redirect()->route('admin.facture.index')->with('error', 'Impossible de convertir le fichier Word. Vérifiez qu\'il existe ou consultez les logs.');
+                    $response = redirect()->route('admin.facture.index')->with('error', 'facture.inexistantefile');
                 }
             } else {
                 $response = redirect()->route('admin.facture.index', $facture->idFacture)->with('error', 'facture.dejasvalidee');
@@ -229,22 +228,23 @@ class FactureController extends Controller
         $mois = Carbon::now()->month;
 
         $previsionnel = ! in_array($mois, [2, 8], true);
-        $familles     = Famille::get();
-        foreach ($familles as $famille) {
-            $parents = $famille->utilisateurs()->get();
-            foreach ($parents as $parent) {
-                if (($parent->pivot->parite ?? 0) > 0) {
-                    $facture                = new Facture();
-                    $facture->idFamille     = $famille->idFamille;
-                    $facture->idUtilisateur = $parent->idUtilisateur;
-                    $facture->previsionnel  = $previsionnel;
-                    $facture->dateC         = now();
-                    $facture->etat          = 'brouillon';
-                    $facture->save();
-                    $this->factureExporter->generateFactureToWord($facture);
+        Famille::chunk(100, function ($familles) use ($previsionnel) {
+            foreach ($familles as $famille) {
+                $parents = $famille->utilisateurs()->get();
+                foreach ($parents as $parent) {
+                    if (($parent->pivot->parite ?? 0) > 0) {
+                        $facture                = new Facture();
+                        $facture->idFamille     = $famille->idFamille;
+                        $facture->idUtilisateur = $parent->idUtilisateur;
+                        $facture->previsionnel  = $previsionnel;
+                        $facture->dateC         = now();
+                        $facture->etat          = 'brouillon';
+                        $facture->save();
+                        $this->factureExporter->generateFactureToWord($facture);
+                    }
                 }
             }
-        }
+        });
     }
 
 }
