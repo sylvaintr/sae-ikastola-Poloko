@@ -16,9 +16,9 @@
                 <p class="text-muted mb-0">
                     {{ __('demandes.show.reported_by', ['name' => $metadata['reporter'], 'date' => $metadata['report_date']]) }}
                 </p>
-                @if($demande->roleAssigné)
+                @if($demande->roleAssigne)
                     <p class="text-muted mb-0 mt-2">
-                        <strong>{{ __('demandes.show.assigned_to') }}:</strong> {{ $demande->roleAssigné->name }}
+                        <strong>{{ __('demandes.show.assigned_to') }}:</strong> {{ $demande->roleAssigne->name }}
                     </p>
                 @endif
             </div>

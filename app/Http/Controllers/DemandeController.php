@@ -105,7 +105,7 @@ class DemandeController extends Controller
 
     public function show(Tache $demande)
     {
-        $demande->loadMissing(['realisateurs', 'documents', 'historiques', 'roleAssigné']);
+        $demande->loadMissing(['realisateurs', 'documents', 'historiques', 'roleAssigne']);
 
         $metadata = [
             'reporter' => $demande->user->name ?? $demande->reporter_name ?? 'Inconnu',
@@ -308,7 +308,7 @@ class DemandeController extends Controller
             'idDemande' => $demande->idTache,
             'statut' => $statut,
             'titre' => $demande->titre,
-            'responsable' => $user?->name ?? '',
+            'responsable' => $user ? ($user->name ?? '') : '',
             'depense' => $depense,
             'date_evenement' => now(),
             'description' => $description,
