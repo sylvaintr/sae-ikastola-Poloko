@@ -5,6 +5,10 @@ return [
         'export' => [
             'eu' => 'Esportatu (CSV)',
             'fr' => 'Exporter (CSV)',
+            'help' => [
+                'eu' => 'CSV fitxategia formatu irakurgarri bihurtzeko, erabili webgune doako bat, adibidez: ConvertCSV.com edo CSVed.com',
+                'fr' => 'Pour convertir le fichier CSV en format lisible, utilisez un site gratuit comme ConvertCSV.com ou CSVed.com',
+            ],
         ],
         'create' => [
             'eu' => 'Sortu txartel eskaera',
@@ -151,6 +155,11 @@ return [
                 'eu' => 'Argazkia',
                 'fr' => 'Photo',
             ],
+            'assigne' => [
+                'eu' => 'Batzordea esleitu',
+                'fr' => 'Assigner à une commission',
+                'none' => 'Batzorderik esleitu gabe',
+            ],
         ],
         'buttons' => [
             'back' => [
@@ -262,6 +271,7 @@ return [
     'show' => [
         'type_default' => 'Gertakaria',
         'reported_by' => ':name jakinarazia • :date',
+        'assigned_to' => 'Esleitutako batzordea',
         'back' => [
             'eu' => 'Itzuli eskaeretara',
             'fr' => 'Retour aux demandes',
@@ -276,6 +286,21 @@ return [
         'validated' => 'Demande clôturée.',
         'locked' => 'La demande est déjà terminée.',
         'history_locked' => 'Eskaera hau amaituta dago, ezin da aurrerapenik gehitu.',
+    ],
+    'export' => [
+        'demande_title' => 'Eskaera',
+        'historique_title' => 'Historikoa',
+        'id' => 'ID',
+        'titre' => 'Izenburua',
+        'description' => 'Deskribapena',
+        'type' => 'Mota',
+        'etat' => 'Egoera',
+        'urgence' => 'Larrialdia',
+        'date_creation' => 'Sortze data',
+        'date_fin' => 'Amaiera data',
+        'montant_previsionnel' => 'Aurreikuspen gastua',
+        'montant_reel' => 'Benetako gastua',
+        'realisateurs' => 'Egileak',
     ],
 ];
 
