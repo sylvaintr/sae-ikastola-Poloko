@@ -114,13 +114,13 @@ class ActualiteController extends Controller
                     $deleteUrl = route('admin.actualites.delete', $row);
                 
                     return '
-                        <a href="'.$showUrl.'" style="color: black;"><i class="bi bi-eye"></i></a>
-                        <a href="'.$editUrl.'" style="color: black;"><i class="bi bi-pencil-fill"></i></a>
+                        <a href="'.$showUrl.'" class="text-dark"><i class="bi bi-eye"></i></a>
+                        <a href="'.$editUrl.'" class="text-dark"><i class="bi bi-pencil-fill"></i></a>
                 
-                        <form action="'.$deleteUrl.'" method="POST" style="display:inline;">
+                        <form action="'.$deleteUrl.'" method="POST" class="d-inline">
                             '.csrf_field().'
                             '.method_field('DELETE').'
-                            <button type="submit" style="border: none; padding: 0px"
+                            <button type="submit" class="btn btn-link p-0 border-0 text-dark"
                                 onclick="return confirm(\'Supprimer cette actualité ?\')">
                                 <i class="bi bi-x-lg"></i>
                             </button>
