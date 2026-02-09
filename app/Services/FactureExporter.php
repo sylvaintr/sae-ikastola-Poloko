@@ -19,7 +19,7 @@ class FactureExporter
             $chemin = 'factures/' . $nom . '.' . $ext;
             if (Storage::disk('public')->exists($chemin)) {
                 return [
-                    'content'  => file_get_contents(Storage::disk('public')->path($chemin)),
+                    'content'  => Storage::disk('public')->get($chemin),
                     'ext'      => $ext,
                     'filename' => $nom . '.' . $ext,
                 ];
@@ -43,9 +43,15 @@ class FactureExporter
         if ($returnBinary) {
             return $manualFile['content'];
         }
-
+        $contentType = match ($manualFile['ext']) {
+            'pdf'   => 'application/pdf',
+            'doc'   => 'application/msword',
+            'docx'  => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'odt'   => 'application/vnd.oasis.opendocument.text',
+            default => 'application/octet-stream',
+        };
         return response($manualFile['content'], 200)
-            ->header('Content-Type', ($manualFile['ext'] === 'pdf') ? 'application/pdf' : 'application/vnd.ms-word')
+            ->header('Content-Type', $contentType)
             ->header('Content-Disposition', 'attachment; filename="' . $manualFile['filename'] . '"');
     }
 

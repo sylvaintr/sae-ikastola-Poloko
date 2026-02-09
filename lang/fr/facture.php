@@ -29,8 +29,10 @@ return [
     'fichierpdfintrouvable'         => 'Le fichier PDF de cette facture manuelle est introuvable.',
     // Email specific
     'email_subject'                 => 'Votre facture : :company',
-    'email_title'                   => 'Facture n° : :id',
+    'email_title'                   => 'Facture n° :id',
     'email_greeting'                => 'Bonjour :name,',
     'email_intro'                   => 'Veuillez trouver ci-joint la facture :id  datée du :date.',
     'email_contact'                 => 'Pour toute question, contactez-nous à :email.',
+
+    'inexistantefile'               => 'Le fichier de la facture est introuvable.',
 ];
