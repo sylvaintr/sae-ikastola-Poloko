@@ -24,6 +24,8 @@ class TacheController extends Controller
             'urgence' => $request->input('urgence', 'all'),
             'date_min' => $request->input('date_min'),
             'date_max' => $request->input('date_max'),
+            'sort' => $request->input('sort', 'date'),
+            'direction' => $request->input('direction', 'desc'),
         ];
 
         $query = Tache::query()->with('realisateurs');
@@ -58,8 +60,31 @@ class TacheController extends Controller
             $query->whereDate('dateD', '<=', $filters['date_max']);
         }
 
+        $sortable = [
+            'id' => 'idTache',
+            'date' => 'dateD',
+            'title' => 'titre',
+            'assignation' => 'assignation',
+            'urgence' => 'type',
+            'etat' => 'etat',
+        ];
+
+        $sortKey = $filters['sort'] ?? 'date';
+        $direction = strtolower($filters['direction'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
+        $sortField = $sortable[$sortKey] ?? $sortable['date'];
+
+        if ($sortField === 'assignation') {
+            $query->orderByRaw(
+                "(SELECT CONCAT(u.prenom, ' ', u.nom) FROM realiser r " .
+                "JOIN utilisateur u ON u.idUtilisateur = r.idUtilisateur " .
+                "WHERE r.idTache = tache.idTache " .
+                "ORDER BY u.prenom, u.nom LIMIT 1) {$direction}"
+            );
+        } else {
+            $query->orderBy($sortField, $direction);
+        }
+
         $taches = $query
-            ->orderBy('dateD', 'desc')
             ->orderBy('idTache', 'desc')
             ->paginate(10)
             ->withQueryString();
