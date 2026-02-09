@@ -32,14 +32,16 @@
             </div>
         @endif
 
-        <div class="row g-3 align-items-start">
+        <form class="row g-3 align-items-start" method="GET" action="{{ route('tache.index') }}" id="tache-filter-form">
             {{-- RECHERCHE --}}
             <div class="col-md-4">
                 <input
                     type="text"
                     id="search-global"
+                    name="search"
                     class="admin-search-input"
                     placeholder="Bilatu zereginetan..."
+                    value="{{ $filters['search'] ?? '' }}"
                 >
                 <p class="text-muted mt-0 admin-button-subtitle">
                     Rechercher dans les tâches
@@ -69,11 +71,11 @@
                                 Egoera
                                 <small class="d-block text-muted">Statut</small>
                             </label>
-                            <select id="filter-etat" class="form-select">
-                                <option value="">Tous les statuts</option>
-                                <option value="todo">En attente</option>
-                                <option value="doing">En cours</option>
-                                <option value="done">Terminé</option>
+                            <select id="filter-etat" name="etat" class="form-select">
+                                <option value="all" @selected(($filters['etat'] ?? 'all') === 'all')>Tous les statuts</option>
+                                @foreach ($etats as $key => $label)
+                                    <option value="{{ $key }}" @selected(($filters['etat'] ?? '') === $key)>{{ $label }}</option>
+                                @endforeach
                             </select>
                         </div>
 
@@ -83,11 +85,11 @@
                                 Larrialdia
                                 <small class="d-block text-muted">Urgence</small>
                             </label>
-                            <select id="filter-urgence" class="form-select">
-                                <option value="">Toutes les urgences</option>
-                                <option value="low">Faible</option>
-                                <option value="medium">Moyenne</option>
-                                <option value="high">Élevée</option>
+                            <select id="filter-urgence" name="urgence" class="form-select">
+                                <option value="all" @selected(($filters['urgence'] ?? 'all') === 'all')>Toutes les urgences</option>
+                                @foreach ($urgences as $key => $label)
+                                    <option value="{{ $key }}" @selected(($filters['urgence'] ?? '') === $key)>{{ $label }}</option>
+                                @endforeach
                             </select>
                         </div>
 
@@ -98,7 +100,7 @@
                                     Data min
                                     <small class="d-block text-muted">Date min</small>
                                 </label>
-                                <input type="date" id="filter-date-min" class="form-control">
+                                <input type="date" id="filter-date-min" name="date_min" class="form-control" value="{{ $filters['date_min'] ?? '' }}">
                             </div>
 
                             <div class="col-6">
@@ -106,29 +108,29 @@
                                     Data max
                                     <small class="d-block text-muted">Date max</small>
                                 </label>
-                                <input type="date" id="filter-date-max" class="form-control">
+                                <input type="date" id="filter-date-max" name="date_max" class="form-control" value="{{ $filters['date_max'] ?? '' }}">
                             </div>
                         </div>
 
                         {{-- ACTIONS --}}
                         <div class="d-flex gap-2">
-                            <button id="apply-filters" class="btn btn-warning w-100">
+                            <button type="submit" class="btn btn-warning w-100">
                                 Filtrer
                             </button>
 
-                            <button id="reset-filters" class="btn btn-outline-warning w-100">
+                            <a href="{{ route('tache.index') }}" class="btn btn-outline-warning w-100">
                                 Réinitialiser
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-        </div>
+        </form>
 
         {{-- TABLE --}}
         <div class="table-responsive row overflow-auto" style="width: 100%; max-height: 75vh;">
-            <table class="table align-middle datatable-taches mb-0">
+            <table class="table align-middle demande-table mb-0">
                 <thead>
                     <tr>
                         <th>
@@ -161,8 +163,62 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    @forelse ($taches as $tache)
+                        <tr>
+                            <td class="fw-semibold">#{{ $tache->idTache }}</td>
+                            <td>{{ optional($tache->dateD)->format('d/m/Y') ?? '—' }}</td>
+                            <td>{{ $tache->titre }}</td>
+                            @php
+                                $first = $tache->realisateurs->first();
+                                $assignation = $first ? ($first->prenom . ' ' . strtoupper(substr($first->nom, 0, 1)) . '.') : '—';
+                                $urgenceLabel = $urgences[$tache->type] ?? '—';
+                                $etatLabel = $etats[$tache->etat] ?? '—';
+                            @endphp
+                            <td>{{ $assignation }}</td>
+                            <td>{{ $urgenceLabel }}</td>
+                            <td>{{ $etatLabel }}</td>
+                            <td class="text-center">
+                                <div class="d-inline-flex gap-2">
+                                    <a href="{{ route('tache.show', $tache) }}" title="Voir plus" class="demande-action-btn">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @can('gerer-tache')
+                                        <a href="{{ route('tache.edit', $tache) }}" title="Modifier la tâche" class="demande-action-btn">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706l-1 1a.5.5 0 0 1-.708 0L13 2.207l1-1a.5.5 0 0 1 .707 0l.795.733z" />
+                                                <path d="M13.5 3.207L6 10.707V13h2.293l7.5-7.5L13.5 3.207zm-10 8.647V14h2.146l8.147-8.146-2.146-2.147L3.5 11.854z" />
+                                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 1 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                            </svg>
+                                        </a>
+                                        <a href="#" class="delete-tache demande-action-btn" data-url="{{ route('tache.delete', $tache) }}" title="Supprimer la tâche">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5" />
+                                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM14.5 2h-13v1h13z" />
+                                            </svg>
+                                        </a>
+                                        @if ($tache->etat === 'done')
+                                            <i class="bi bi-check-circle-fill demande-action-btn big-icon text-success" title="Tâche terminée" style="opacity: 0.5; cursor:not-allowed;"></i>
+                                        @else
+                                            <a href="#" class="mark-done demande-action-btn text-success" title="Marquer comme terminée" data-url="{{ route('tache.markDone', $tache->idTache) }}">
+                                                <i class="bi bi-check-lg"></i>
+                                            </a>
+                                        @endif
+                                    @endcan
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">Aucune tâche trouvée.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
             </table>
+        </div>
+
+        <div class="mt-3">
+            {{ $taches->links() }}
         </div>
     </div>
 
@@ -246,63 +302,6 @@
                 setTimeout(hideToast, 3200);
             }
 
-            // Charger la datatable
-            let table = $('.datatable-taches').DataTable({
-                paging: true,
-                processing: true,
-                serverSide: true,
-                searching: false,
-                lengthChange: false,
-                pageLength: 50,
-                scrollX: true,
-                info: true,
-
-                dom:
-                    "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'>>" +
-                    "<'row'<'col-sm-12'tr>>" +
-                    "<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
-
-                language: {
-                    url: "/datatables/i18n/fr-FR.json",
-                    paginate: {
-                        first: '‹‹',
-                        previous: '‹',
-                        next: '›',
-                        last: '››'
-                    }
-                },
-                
-                columnDefs: [
-                    {
-                        targets: 0,
-                        className: 'text-start'
-                    }
-                ],
-
-                ajax: {
-                    url: "{{ route('tache.get-datatable') }}",
-                    data: function (d) {
-                        d.search_global = $('#search-global').val();
-                        d.etat          = $('#filter-etat').val();
-                        d.urgence       = $('#filter-urgence').val();
-                        d.date_min      = $('#filter-date-min').val();
-                        d.date_max      = $('#filter-date-max').val();
-                    }
-                },
-                columns: [
-                    { data: 'idTache' },
-                    { data: 'dateD' },
-                    { data: 'titre' },
-                    { data: 'assignation' },
-                    { data: 'urgence' },
-                    { data: 'etat' },
-                    { data: 'action', orderable: false, searchable: false },
-                ],
-                drawCallback: function () {
-                    this.api().columns.adjust();
-                }
-            });
-
             function debounce(fn, delay = 300) {
                 let timeout;
                 return function (...args) {
@@ -311,27 +310,22 @@
                 };
             }
 
-            {{-- Recherche globale --}}
-            $('#search-global').on(
-                'keyup change',
-                debounce(function () {
-                    table.ajax.reload();
-                }, 300)
-            );
+            const filterForm = document.getElementById('tache-filter-form');
+            const searchInput = document.getElementById('search-global');
 
-            // Appliquer filtres
-            $('#apply-filters').on('click', function () {
-                table.ajax.reload();
-            });
-
-            // Réinitialiser filtres
-            $('#reset-filters').on('click', function () {
-                $('#filter-etat').val('');
-                $('#filter-urgence').val('');
-                $('#filter-date-min').val('');
-                $('#filter-date-max').val('');
-                table.ajax.reload();
-            });
+            if (searchInput && filterForm) {
+                searchInput.addEventListener('input', debounce(function () {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('page');
+                    const value = this.value.trim();
+                    if (value) {
+                        url.searchParams.set('search', value);
+                    } else {
+                        url.searchParams.delete('search');
+                    }
+                    window.location.href = url.toString();
+                }, 500));
+            }
 
 
             {{-- CSRF --}}
@@ -377,7 +371,7 @@
                             url: url,
                             type: 'PATCH',
                             success: function () {
-                                table.ajax.reload(null, false);
+                                window.location.reload();
                             },
                             error: function () {
                                 openConfirmModal(
