@@ -16,9 +16,67 @@ class TacheController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('tache.index');
+        $filters = [
+            'search' => $request->input('search'),
+            'etat' => $request->input('etat', 'all'),
+            'urgence' => $request->input('urgence', 'all'),
+            'date_min' => $request->input('date_min'),
+            'date_max' => $request->input('date_max'),
+        ];
+
+        $query = Tache::query()->with('realisateurs');
+
+        if ($filters['search']) {
+            $search = Str::of($filters['search'])->lower()->ascii();
+            $query->where(function ($q) use ($search) {
+                $q->where('idTache', 'like', "%{$search}%")
+                    ->orWhere('titre', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('realisateurs', function ($qr) use ($search) {
+                        $qr->where('prenom', 'like', "%{$search}%")
+                            ->orWhere('nom', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($filters['etat'] && $filters['etat'] !== 'all') {
+            $query->where('etat', $filters['etat']);
+        }
+
+        if ($filters['urgence'] && $filters['urgence'] !== 'all') {
+            $query->where('type', $filters['urgence']);
+        }
+
+        if ($filters['date_min']) {
+            $query->whereDate('dateD', '>=', $filters['date_min']);
+        }
+
+        if ($filters['date_max']) {
+            $query->whereDate('dateD', '<=', $filters['date_max']);
+        }
+
+        $taches = $query
+            ->orderBy('dateD', 'desc')
+            ->orderBy('idTache', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        $etats = [
+            'todo' => 'En attente',
+            'doing' => 'En cours',
+            'done' => 'Terminé',
+        ];
+
+        $urgences = [
+            'low' => 'Faible',
+            'medium' => 'Moyenne',
+            'high' => 'Élevée',
+        ];
+
+        return view('tache.index', compact('taches', 'filters', 'etats', 'urgences'));
     }
 
     public function getDatatable(Request $request)

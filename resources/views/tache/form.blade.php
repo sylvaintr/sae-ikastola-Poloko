@@ -33,14 +33,15 @@
             </div>
 
             <div class="row mb-4">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold mb-0">Hasiera data <span class="text-danger">*</span></label>
-                    <p class="text-muted mt-0 admin-button-subtitle">Date de début de la tâche</p>
-                    <input type="date" name="dateD" class="form-control"
-                           placeholder="Date de début de la tâche"
-                           value="{{ old('dateD', isset($tache) && $tache->dateD ? $tache->dateD->format('Y-m-d') : '') }}" required>
-                   
-                </div>
+                  <div class="col-md-6">
+                      <label class="form-label fw-bold mb-0">Hasiera data <span class="text-danger">*</span></label>
+                      <p class="text-muted mt-0 admin-button-subtitle">Date de début de la tâche</p>
+                      <input type="text" id="dateD_display" class="form-control" inputmode="numeric"
+                          placeholder="jj/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}"
+                          value="{{ old('dateD') ? \Carbon\Carbon::parse(old('dateD'))->format('d/m/Y') : (isset($tache) && $tache->dateD ? $tache->dateD->format('d/m/Y') : '') }}" required>
+                      <input type="hidden" id="dateD" name="dateD"
+                          value="{{ old('dateD', isset($tache) && $tache->dateD ? $tache->dateD->format('Y-m-d') : '') }}">
+                  </div>
             </div>
 
             <div class="mb-4">
@@ -100,6 +101,9 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('tache-form');
+    const dateDisplay = document.getElementById('dateD_display');
+    const dateHidden = document.getElementById('dateD');
     const userSearch = document.getElementById('user-search');
     const availableUsers = document.getElementById('available-users');
     const selectedUsers = document.getElementById('selected-users');
@@ -107,6 +111,46 @@ document.addEventListener('DOMContentLoaded', function () {
     const usersError = document.getElementById('users-error');
     const selectedUserIds = new Set();
     let allUsersData = [];
+
+    function parseFrDateToIso(value) {
+        const match = value.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (!match) {
+            return null;
+        }
+
+        const day = parseInt(match[1], 10);
+        const month = parseInt(match[2], 10);
+        const year = parseInt(match[3], 10);
+        const iso = `${year.toString().padStart(4, '0')}-${match[2]}-${match[1]}`;
+        const parsed = new Date(iso);
+
+        if (Number.isNaN(parsed.getTime())) {
+            return null;
+        }
+
+        if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() + 1 !== month || parsed.getUTCDate() !== day) {
+            return null;
+        }
+
+        return iso;
+    }
+
+    form.addEventListener('submit', function (event) {
+        const iso = parseFrDateToIso(dateDisplay.value);
+        if (!iso) {
+            dateDisplay.setCustomValidity('Format attendu : jj/mm/aaaa');
+            dateDisplay.reportValidity();
+            event.preventDefault();
+            return;
+        }
+
+        dateDisplay.setCustomValidity('');
+        dateHidden.value = iso;
+    });
+
+    dateDisplay.addEventListener('input', function () {
+        dateDisplay.setCustomValidity('');
+    });
     
     // Normaliser une chaîne en supprimant les accents
     function normalizeString(str) {
