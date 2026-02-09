@@ -44,4 +44,5 @@ return [
     'btn_cancel' => 'Annuler',
     'btn_save' => 'Enregistrer',
     'btn_update' => 'Mettre à jour',
+    'success_update' => 'Règle modifiée avec succès',
 ];

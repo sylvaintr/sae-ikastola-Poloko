@@ -44,4 +44,5 @@ return [
     'btn_cancel' => 'Utzi',
     'btn_save' => 'Gorde',
     'btn_update' => 'Eguneratu',
+    'success_update' => 'Araua ongi aldatu da',
 ];

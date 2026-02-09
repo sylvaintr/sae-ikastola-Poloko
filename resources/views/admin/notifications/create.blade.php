@@ -47,7 +47,7 @@
                                 @endif
                             </label>
                             <input type="number" id="recurrence" name="recurrence_days" class="form-control"
-                                   placeholder="{{ __('notifications.form_recurrence_placeholder') }}">
+                                   placeholder="{{ __('notifications.form_recurrence_placeholder') }}"min="0">
                         </div>
 
                        
@@ -61,7 +61,7 @@
                                 @endif
                             </label>
                             <input type="number" id="reminder" name="reminder_days" class="form-control"
-                                   placeholder="{{ __('notifications.form_reminder_placeholder') }}" required>
+                                   placeholder="{{ __('notifications.form_reminder_placeholder') }}" required min="0">
                         </div>
 
                       

@@ -1,11 +1,11 @@
 <x-app-layout>
     <div class="container py-4 py-md-5">
+
         <div class="mb-5">
             <h2 class="fw-bold mb-0">
                 {{ __('notifications.edit_header', [], 'eus') }}
             </h2>
 
-            {{-- Sous-titre avec le nom de la règle --}}
             @if(app()->getLocale() == 'fr')
                 <div class="text-muted small mt-1">
                     {{ __('notifications.edit_subtitle', [], 'fr') }} : {{ $setting->title }}
@@ -26,7 +26,6 @@
 
                     <div class="row g-3 mb-4 align-items-start">
 
-                       
                         <div class="col-12 col-md-6">
                             <label for="title" class="form-label fw-bold">
                                 {{ __('notifications.form_title', [], 'eus') }}
@@ -41,7 +40,6 @@
                                    placeholder="{{ __('notifications.form_title_placeholder') }}" required>
                         </div>
 
-                       
                         <div class="col-6 col-md-2">
                             <label for="recurrence" class="form-label fw-bold">
                                 {{ __('notifications.form_recurrence', [], 'eus') }}
@@ -53,10 +51,9 @@
                             </label>
                             <input type="number" id="recurrence" name="recurrence_days" class="form-control"
                                    value="{{ old('recurrence_days', $setting->recurrence_days) }}"
-                                   placeholder="{{ __('notifications.form_recurrence_placeholder') }}">
+                                   placeholder="{{ __('notifications.form_recurrence_placeholder') }}" min="0">
                         </div>
 
-                       
                         <div class="col-6 col-md-2">
                             <label for="reminder" class="form-label fw-bold">
                                 {{ __('notifications.form_reminder', [], 'eus') }}
@@ -68,12 +65,10 @@
                             </label>
                             <input type="number" id="reminder" name="reminder_days" class="form-control"
                                    value="{{ old('reminder_days', $setting->reminder_days) }}"
-                                   placeholder="{{ __('notifications.form_reminder_placeholder') }}" required>
+                                   placeholder="{{ __('notifications.form_reminder_placeholder') }}" required min="0">
                         </div>
 
-                        
                         <div class="col-12 col-md-2 text-start text-md-center">
-                          
                             <label for="isActive" class="form-label fw-bold d-block mb-2">
                                 {{ __('notifications.form_active', [], 'eus') }}
                                 @if(app()->getLocale() == 'fr')
@@ -90,7 +85,6 @@
                         </div>
                     </div>
 
-                    
                     <div class="mb-4">
                         <label for="description" class="form-label fw-bold">
                             {{ __('notifications.form_description', [], 'eus') }}
@@ -106,7 +100,6 @@
 
                     <hr class="text-muted my-4">
 
-                  
                     <div class="mb-3">
                         <h4 class="fw-bold mb-0">
                             {{ __('notifications.target_title', [], 'eus') }}
@@ -119,11 +112,9 @@
                     </div>
 
                     <div class="row g-3">
-                    
                         <div class="col-12 col-md-6">
                             <div id="available-modules" class="border rounded p-2 bg-white" style="height: auto; min-height: 200px;">
 
-                                {{-- Document --}}
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-3 border rounded bg-white shadow-sm"
                                      data-id="0" data-type="Document" data-model-class="App\Models\DocumentObligatoire"
                                      data-name="{{ __('notifications.module_doc_title', [], 'eus') }}" style="cursor: pointer;">
@@ -143,7 +134,6 @@
                                     <i class="bi bi-file-earmark-text fs-3 text-primary"></i>
                                 </div>
 
-                               
                                 <div class="module-item d-flex align-items-center justify-content-between p-3 mb-2 border rounded bg-white shadow-sm"
                                      data-id="0" data-type="Evènement" data-model-class="App\Models\Evenement"
                                      data-name="{{ __('notifications.module_event_title', [], 'eus') }}" style="cursor: pointer;">
@@ -165,7 +155,6 @@
                             </div>
                         </div>
 
-                      
                         <div class="col-12 col-md-6">
                             <div class="mb-1">
                                 <span class="text-muted small d-block">
@@ -192,7 +181,6 @@
                         </div>
                     </div>
 
-                    
                     <div class="d-flex flex-column flex-md-row justify-content-end gap-3 mt-5">
                         <a href="{{ route('admin.notifications.index') }}" class="btn btn-outline-secondary px-4 fw-bold order-2 order-md-1">
                             @if(app()->getLocale() == 'fr')
@@ -215,12 +203,9 @@
     </div>
 
     @push('scripts')
-   
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-
             const currentTargetType = "{{ str_replace('\\', '\\\\', $setting->target_type) }}";
-         
             const style = document.createElement('style');
             style.innerHTML = `
                 .form-check-input:checked { background-color: #F59E0B; border-color: #F59E0B; }
@@ -290,7 +275,6 @@
 
             const items = document.querySelectorAll('.module-item');
             items.forEach(item => {
-              
                 if (item.dataset.modelClass === currentTargetType) {
                     addModule(item.dataset.id, item.dataset.type, item.dataset.name, item);
                 }
