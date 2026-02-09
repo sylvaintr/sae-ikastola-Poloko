@@ -11,6 +11,7 @@ use App\Http\Controllers\FactureController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\EnfantController;
 use App\Http\Controllers\ActualiteController;
+use App\Http\Controllers\ActualiteMediaController;
 use App\Http\Controllers\EtiquetteController;
 
 /*
@@ -183,8 +184,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/actualites' . ROUTE_ID, [ActualiteController::class, 'show'])->name('actualites.show');
-Route::get('/actualites/{actualite}/images.zip', [ActualiteController::class, 'downloadImagesZip'])->name('actualites.images.zip');
-Route::get('/actualites/{actualite}/documents/{document}', [ActualiteController::class, 'showDocument'])->name('actualites.document.show');
+Route::get('/actualites/{actualite}/images.zip', [ActualiteMediaController::class, 'downloadImagesZip'])->name('actualites.images.zip');
+Route::get('/actualites/{actualite}/documents/{document}', [ActualiteMediaController::class, 'showDocument'])->name('actualites.document.show');
 
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['fr', 'eus'])) {
