@@ -177,6 +177,7 @@
                                type="checkbox"
                                role="switch"
                                id="aineDansAutreSeaska"
+                               aria-checked="{{ ($isEdit ? (bool) $famille->aineDansAutreSeaska : false) ? 'true' : 'false' }}"
                                @checked($isEdit ? (bool) $famille->aineDansAutreSeaska : false)>
                         <label class="form-check-label fw-bold" for="aineDansAutreSeaska">
                             {{ __('famille.aine_other_seaska_label', [], 'eus') }}
@@ -719,6 +720,15 @@
             }
             if (enfantsContainer) {
                 initialEnfantsHTML = enfantsContainer.innerHTML;
+            }
+
+            // Accessibilité: role="switch" => maintenir aria-checked synchronisé
+            const aineSwitch = document.getElementById('aineDansAutreSeaska');
+            if (aineSwitch) {
+                aineSwitch.setAttribute('aria-checked', aineSwitch.checked ? 'true' : 'false');
+                aineSwitch.addEventListener('change', () => {
+                    aineSwitch.setAttribute('aria-checked', aineSwitch.checked ? 'true' : 'false');
+                });
             }
 
             // Sync slider <-> input parité
