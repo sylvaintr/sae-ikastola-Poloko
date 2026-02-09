@@ -1,9 +1,8 @@
 <?php
-
 namespace App\Mail;
 
-use App\Models\Famille;
 use App\Models\Facture as FactureModel;
+use App\Models\Utilisateur;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -15,17 +14,16 @@ class Facture extends Mailable
     use Queueable, SerializesModels;
 
     public FactureModel $facture;
-    public Famille $famille;
+    public Utilisateur $utilisateur;
 
     /**
      * Constructeur pour initialiser une nouvelle instance du message.
      */
-    public function __construct(FactureModel $facture, Famille $famille)
+    public function __construct(FactureModel $facture, Utilisateur $utilisateur)
     {
-        $this->facture = $facture;
-        $this->famille = $famille;
+        $this->facture     = $facture;
+        $this->utilisateur = $utilisateur;
     }
-
 
     /**
      * methode pour definir l'enveloppe du mail
@@ -34,7 +32,7 @@ class Facture extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Votre facture Ikastola',
+            subject: __('facture.email_subject', ['company' => config('mail.from.name')]),
         );
     }
 
@@ -48,10 +46,10 @@ class Facture extends Mailable
         return new Content(
             view: 'facture.mail',
             with: [
-                'facture' => $this->facture,
-                'famille' => $this->famille,
+                'facture'      => $this->facture,
+                'utilisateur'  => $this->utilisateur,
                 'companyEmail' => config('mail.from.address'),
-                'companyName' => config('mail.from.name'),
+                'companyName'  => config('mail.from.name'),
             ],
 
         );

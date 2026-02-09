@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Enfant;
+use App\Models\Famille;
+use App\Models\Classe;
 
 class EnfantModelTest extends TestCase
 {
@@ -15,8 +17,13 @@ class EnfantModelTest extends TestCase
         // given
         // no prior setup required
 
-        // when
-        $enfant = Enfant::factory()->create();
+        // when: create related famille and classe then the enfant
+        $famille = Famille::factory()->create();
+        $classe = Classe::factory()->create();
+        $enfant = Enfant::factory()->create([
+            'idFamille' => $famille->idFamille,
+            'idClasse' => $classe->idClasse,
+        ]);
 
         // then
         $this->assertNotNull($enfant->famille);

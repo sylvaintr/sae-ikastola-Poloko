@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('facture', function (Blueprint $table) {
             $table->integer('idFacture')->primary()->autoIncrement();
-            $table->enum('etat', ['manuel', 'brouillon', 'verifier','manuel verifier']);
+            $table->enum('etat', ['manuel', 'brouillon', 'verifier']);
             $table->date('dateC');
             $table->boolean('previsionnel');
             $table->integer('idUtilisateur')->index('idutilisateur');

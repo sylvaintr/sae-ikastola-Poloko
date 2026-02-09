@@ -30,13 +30,13 @@ class Activite extends Model
 	protected $primaryKey = ['activite', 'dateP'];
 
 	/**
-	 * Relation hasMany vers les enregistrements `PRATIQUE` (présences/inscriptions).
-	 * La colonne locale `activite` (string) correspond à `PRATIQUE.activite`.
+	 * Relation hasMany vers les enregistrements `Pratiquer` (présences/inscriptions).
+	 * La colonne locale `activite` (string) correspond à `Pratiquer.activite`.
 	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
-	public function etres()
+	public function pratiquers()
 	{
-		return $this->hasMany(PRATIQUE::class, 'activite', 'activite');
+		return $this->hasMany(Pratiquer::class, 'activite', 'activite');
 	}
 }
