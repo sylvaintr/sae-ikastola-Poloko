@@ -9,6 +9,7 @@ use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\LierController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\ClasseController;
+use App\Http\Controllers\EnfantController;
 use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
 
@@ -23,6 +24,8 @@ if (!defined('ROUTE_ADD')) {
     define('ROUTE_EDIT', '/modifier');
     define('ROUTE_VALIDATE', '/valider');
     define('ROUTE_ARCHIVE', '/archiver');
+    define('ROUTE_ID', '/{id}');
+    define('ROUTE_FACTURE', '/facture');
 
     define('ROUTE_CLASSE', '/{classe}');
     define('ROUTE_OBLIGATORY_DOCUMENT', '/{obligatoryDocument}');
@@ -101,6 +104,18 @@ Route::middleware('auth')->group(function () {
                     Route::get(ROUTE_CLASSE, 'show')->name('show');
                 });
 
+            // ---------------- Enfants ----------------
+            Route::prefix('enfants')->name('enfants.')->controller(\App\Http\Controllers\EnfantController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get(ROUTE_ADD, 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get(ROUTE_ID, 'show')->name('show');
+                    Route::get(ROUTE_ID . ROUTE_EDIT, 'edit')->name('edit');
+                    Route::put(ROUTE_ID, 'update')->name('update');
+                    Route::delete(ROUTE_ID, 'destroy')->name('destroy');
+                });
+
             // ---------------- Documents obligatoires ----------------
             Route::prefix('documents-obligatoires')
                 ->name('obligatory_documents.')
@@ -115,20 +130,21 @@ Route::middleware('auth')->group(function () {
                 });
 
             // ---------------- Factures ----------------
-            Route::resource('/facture', FactureController::class);
+            Route::resource(ROUTE_FACTURE, FactureController::class);
             Route::get('/factures-data', [FactureController::class, 'facturesData'])->name('factures.data');
-            Route::get('/facture/{id}/export', [FactureController::class, 'exportFacture'])->name('facture.export');
-            Route::get('/facture/{id}/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
-            Route::get('/facture/{id}/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
+            Route::get(ROUTE_FACTURE . ROUTE_ID . '/export', [FactureController::class, 'exportFacture'])->name('facture.export');
+            Route::get(ROUTE_FACTURE . ROUTE_ID . '/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
+            Route::get(ROUTE_FACTURE . ROUTE_ID . '/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
 
             // ---------------- Ajout des routes Famille + LierController ----------------
             Route::prefix('familles')->name('familles.')->group(function () {
     Route::get('/', [FamilleController::class, 'index'])->name('index');
     Route::get('/create', [FamilleController::class, 'create'])->name('create');
     Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
-    Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
-    Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
+    Route::get(ROUTE_ID, [FamilleController::class, 'show'])->name('show');
+    Route::get(ROUTE_ID . '/edit', [FamilleController::class, 'edit'])->name('edit');
+    Route::put(ROUTE_ID, [FamilleController::class, 'update'])->name('update');
+    Route::delete(ROUTE_ID, [FamilleController::class, 'delete'])->name('delete');
    
     
     });
@@ -162,7 +178,7 @@ Route::middleware('auth')->group(function () {
 
 });
 
-Route::get('/actualites/{id}', [ActualiteController::class, 'show'])->name('actualites.show');
+Route::get('/actualites' . ROUTE_ID, [ActualiteController::class, 'show'])->name('actualites.show');
 
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['fr', 'eus'])) {

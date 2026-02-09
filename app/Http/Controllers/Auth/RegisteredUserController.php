@@ -63,6 +63,7 @@ class RegisteredUserController extends Controller
                     ->symbols()
             ],
             'languePref' => ['nullable', 'string', 'in:fr,eus'],
+            'dateNaissance' => ['nullable', 'date', 'before:today'],
         ]);
 
         // Map 'name' -> prenom/nom when provided
@@ -81,6 +82,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'mdp' => Hash::make($request->password),
             'languePref' => $request->input('languePref', 'fr'),
+            'dateNaissance' => $request->filled('dateNaissance') ? $request->dateNaissance : null,
             'statutValidation' => false, // Toujours non validé pour les inscriptions publiques
         ]);
 
