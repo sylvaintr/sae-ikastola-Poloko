@@ -76,4 +76,5 @@ return [
     'duplicated_success' => 'Berria arrakastaz bikoiztu da.',
 
 
+    'download_images_zip' => 'Irudiak deskargatu (ZIP)',
 ];

@@ -183,6 +183,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/actualites' . ROUTE_ID, [ActualiteController::class, 'show'])->name('actualites.show');
+Route::get('/actualites/{actualite}/images.zip', [ActualiteController::class, 'downloadImagesZip'])->name('actualites.images.zip');
+Route::get('/actualites/{actualite}/documents/{document}', [ActualiteController::class, 'showDocument'])->name('actualites.document.show');
 
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['fr', 'eus'])) {

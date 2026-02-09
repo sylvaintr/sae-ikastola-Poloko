@@ -11,10 +11,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Yajra\DataTables\Facades\DataTables;
 
 class ActualiteController extends Controller
 {
+    private const ZIP_PREFIX_IMAGES = 'image_';
+
     /**
      * Affiche la liste publique des actualités (Front-end).
      */
@@ -146,6 +149,109 @@ class ActualiteController extends Controller
     {
         $actualite = Actualite::with(['etiquettes', 'documents', 'utilisateur'])->findOrFail($id);
         return view('actualites.show', compact('actualite'));
+    }
+
+    /**
+     * Télécharge toutes les images d'une actualité sous forme de ZIP.
+     * Nom du ZIP: image_TitreActualité.zip
+     */
+    public function downloadImagesZip(Actualite $actualite): BinaryFileResponse
+    {
+        $actualite->loadMissing('documents');
+
+        $images = $actualite->documents->where('type', 'image')->values();
+        if ($images->isEmpty()) {
+            abort(404, 'Aucune image à télécharger.');
+        }
+
+        $titre = $actualite->titrefr ?? $actualite->titreeus ?? ('actualite_' . $actualite->idActualite);
+        $base = $this->sanitizeFilename(self::ZIP_PREFIX_IMAGES . $titre);
+        $zipFilename = $base . '.zip';
+
+        $tmpPath = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . uniqid('actu_images_', true) . '.zip';
+
+        $zip = new \ZipArchive();
+        if ($zip->open($tmpPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+            abort(500, "Impossible de créer l'archive ZIP.");
+        }
+
+        $usedNames = [];
+        $i = 1;
+        foreach ($images as $doc) {
+            if (!Storage::disk('public')->exists($doc->chemin)) {
+                continue;
+            }
+
+            $path = Storage::disk('public')->path($doc->chemin);
+            $ext = pathinfo($doc->chemin, PATHINFO_EXTENSION);
+
+            $name = $doc->nom ?: ('image_' . $i . ($ext ? ('.' . $ext) : ''));
+            // Nettoyer et garantir unicité dans le ZIP
+            $name = $this->sanitizeFilename($name);
+            if ($ext && !str_ends_with(strtolower($name), '.' . strtolower($ext))) {
+                $name .= '.' . $ext;
+            }
+            $candidate = $name;
+            $suffix = 2;
+            while (isset($usedNames[strtolower($candidate)])) {
+                $candidate = pathinfo($name, PATHINFO_FILENAME) . '_' . $suffix . ($ext ? ('.' . $ext) : '');
+                $suffix++;
+            }
+            $usedNames[strtolower($candidate)] = true;
+
+            $zip->addFile($path, $candidate);
+            $i++;
+        }
+
+        $zip->close();
+
+        return response()
+            ->download($tmpPath, $zipFilename, ['Content-Type' => 'application/zip'])
+            ->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Sert un document (image) d'une actualité via une route Laravel.
+     * Permet d'afficher les images même si le lien `public/storage` n'existe pas.
+     */
+    public function showDocument(Actualite $actualite, Document $document)
+    {
+        // Vérifie que le document est bien rattaché à cette actualité
+        $isAttached = $actualite->documents()
+            ->wherePivot('idDocument', $document->getKey())
+            ->exists();
+
+        if (! $isAttached) {
+            abort(404);
+        }
+
+        // On sert uniquement depuis le disque public
+        $path = $document->chemin;
+        if (! is_string($path) || $path === '' || ! Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        $absolutePath = Storage::disk('public')->path($path);
+        $mime = Storage::disk('public')->mimeType($path) ?: 'application/octet-stream';
+
+        return response()->file($absolutePath, [
+            'Content-Type' => $mime,
+            // Laisse le navigateur afficher (pas forcer le download)
+            'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+        ]);
+    }
+
+    /**
+     * Nettoie une chaîne pour un nom de fichier (ZIP et fichiers internes).
+     */
+    private function sanitizeFilename(string $name): string
+    {
+        $name = trim($name);
+        $name = preg_replace('/[^a-zA-Z0-9._-]/', '_', $name) ?? $name;
+        $name = preg_replace('/_+/', '_', $name) ?? $name;
+        $name = trim($name, '_');
+
+        return $name !== '' ? $name : 'fichier';
     }
 
     public function edit($id)

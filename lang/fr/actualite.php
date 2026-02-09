@@ -76,4 +76,5 @@ return [
     'duplicated_success' => 'Actualité dupliquée avec succès.',
 
 
+    'download_images_zip' => 'Télécharger les images (ZIP)',
 ];

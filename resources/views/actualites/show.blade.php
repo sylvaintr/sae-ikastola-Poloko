@@ -108,6 +108,19 @@
                     @endif
                 </p>
 
+                {{-- Téléchargement des images en ZIP --}}
+                @if ($allImages->count() > 0)
+                    <div class="mb-4">
+                        <a href="{{ route('actualites.images.zip', $actualite) }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-file-zip me-2"></i>
+                            {{ __('actualite.download_images_zip', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr')
+                                / {{ __('actualite.download_images_zip') }}
+                            @endif
+                        </a>
+                    </div>
+                @endif
+
                 {{-- Contenu Basque --}}
                 <div class="actu-body-primary" id="contenu-basque">
 
@@ -137,7 +150,7 @@
                         @php
                             $mainAlt = Lang::getLocale() == 'fr' ? ($actualite->titrefr ?? $mainImage->nom) : ($actualite->titreeus ?? $mainImage->nom);
                         @endphp
-                        <img src="{{ asset('storage/' . $mainImage->chemin) }}" class="main-image" alt="{{ $mainAlt }}">
+                        <img src="{{ route('actualites.document.show', ['actualite' => $actualite, 'document' => $mainImage]) }}" class="main-image" alt="{{ $mainAlt }}">
                         <p class="text-center text-muted small mt-2 fst-italic">
                             {{ $mainImage->nom }}
                         </p>
@@ -180,7 +193,7 @@
                                     @php
                                         $galleryAlt = Lang::getLocale() == 'fr' ? __('actualite.alt_gallery_image') : __('actualite.alt_gallery_image');
                                     @endphp
-                                    <img src="{{ asset('storage/' . $image->chemin) }}" class="d-block w-100"
+                                    <img src="{{ route('actualites.document.show', ['actualite' => $actualite, 'document' => $image]) }}" class="d-block w-100"
                                         alt="{{ $galleryAlt }}">
                                 </div>
                             @endforeach
