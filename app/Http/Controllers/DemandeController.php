@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DemandeController extends Controller
@@ -21,10 +22,14 @@ class DemandeController extends Controller
     private const STATUS_TERMINE = 'Terminé';
     private const DEFAULT_ETATS = ['En attente', 'En cours', self::STATUS_TERMINE];
     private const DEFAULT_URGENCES = ['Faible', 'Moyenne', 'Élevée'];
+    private const PER_PAGE = 10;
 
-    public function index(Request $request)
+    /**
+     * Extrait les filtres de la requête (utilisés par index + export).
+     */
+    private function extractFilters(Request $request): array
     {
-        $filters = [
+        return [
             'search' => $request->input('search'),
             'etat' => $request->input('etat', 'all'),
             'type' => $request->input('type', 'all'),
@@ -34,14 +39,21 @@ class DemandeController extends Controller
             'sort' => $request->input('sort', 'date'),
             'direction' => $request->input('direction', 'desc'),
         ];
+    }
 
+    /**
+     * Construit la query demandes en appliquant les filtres.
+     */
+    private function buildDemandesQuery(array $filters): Builder
+    {
         $query = Tache::query();
 
-        if ($filters['search']) {
-            $searchTerm = trim($filters['search']);
+        if (!empty($filters['search'])) {
+            $searchTerm = trim((string) $filters['search']);
+
             $query->where(function ($q) use ($searchTerm) {
                 // Si l'utilisateur tape un ID (numérique), on fait une recherche exacte sur l'ID
-                // pour éviter que "1" matche 1,10,11,21,...
+                // pour éviter que "1" matche 1,10,11,21,... ou via le titre.
                 if (ctype_digit($searchTerm)) {
                     $q->where('idTache', (int) $searchTerm);
                     return;
@@ -53,26 +65,36 @@ class DemandeController extends Controller
             });
         }
 
-        if ($filters['etat'] && $filters['etat'] !== 'all') {
+        if (!empty($filters['etat']) && $filters['etat'] !== 'all') {
             $query->where('etat', $filters['etat']);
         }
 
-        if ($filters['type'] && $filters['type'] !== 'all') {
+        if (!empty($filters['type']) && $filters['type'] !== 'all') {
             $query->where('type', $filters['type']);
         }
 
-        if ($filters['urgence'] && $filters['urgence'] !== 'all') {
+        if (!empty($filters['urgence']) && $filters['urgence'] !== 'all') {
             $query->where('urgence', $filters['urgence']);
         }
 
-        if ($filters['date_from']) {
+        if (!empty($filters['date_from'])) {
             $query->whereDate('dateD', '>=', $filters['date_from']);
         }
 
-        if ($filters['date_to']) {
+        if (!empty($filters['date_to'])) {
             $query->whereDate('dateD', '<=', $filters['date_to']);
         }
 
+        return $query;
+    }
+
+    /**
+     * Résout le champ de tri + direction à partir des filtres.
+     *
+     * @return array{0:string,1:string}
+     */
+    private function resolveSort(array $filters): array
+    {
         $sortable = [
             'id' => 'idTache',
             'date' => 'dateD',
@@ -82,13 +104,23 @@ class DemandeController extends Controller
             'etat' => 'etat',
         ];
 
-        $sortField = $sortable[$filters['sort']] ?? $sortable['date'];
-        $direction = strtolower($filters['direction']) === 'asc' ? 'asc' : 'desc';
+        $sortKey = (string) ($filters['sort'] ?? 'date');
+        $sortField = $sortable[$sortKey] ?? $sortable['date'];
+        $direction = strtolower((string) ($filters['direction'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        return [$sortField, $direction];
+    }
+
+    public function index(Request $request)
+    {
+        $filters = $this->extractFilters($request);
+        $query = $this->buildDemandesQuery($filters);
+        [$sortField, $direction] = $this->resolveSort($filters);
 
         $demandes = $query
             ->orderBy($sortField, $direction)
             ->orderBy('idTache', 'desc')
-            ->paginate(10)
+            ->paginate(self::PER_PAGE)
             ->withQueryString();
 
         $types = $this->loadOrDefault('type', collect(self::DEFAULT_TYPES));
@@ -350,66 +382,12 @@ class DemandeController extends Controller
      */
     public function exportAllCsv(Request $request): StreamedResponse
     {
-        $filters = [
-            'search' => $request->input('search'),
-            'etat' => $request->input('etat', 'all'),
-            'type' => $request->input('type', 'all'),
-            'urgence' => $request->input('urgence', 'all'),
-            'date_from' => $request->input('date_from'),
-            'date_to' => $request->input('date_to'),
-            'sort' => $request->input('sort', 'date'),
-            'direction' => $request->input('direction', 'desc'),
-        ];
-
-        $query = Tache::query();
-
-        if ($filters['search']) {
-            $searchTerm = trim($filters['search']);
-            $query->where(function ($q) use ($searchTerm) {
-                if (ctype_digit($searchTerm)) {
-                    $q->where('idTache', (int) $searchTerm);
-                    return;
-                }
-
-                $q->where('idTache', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('titre', 'like', '%' . $searchTerm . '%');
-            });
-        }
-
-        if ($filters['etat'] && $filters['etat'] !== 'all') {
-            $query->where('etat', $filters['etat']);
-        }
-
-        if ($filters['type'] && $filters['type'] !== 'all') {
-            $query->where('type', $filters['type']);
-        }
-
-        if ($filters['urgence'] && $filters['urgence'] !== 'all') {
-            $query->where('urgence', $filters['urgence']);
-        }
-
-        if ($filters['date_from']) {
-            $query->whereDate('dateD', '>=', $filters['date_from']);
-        }
-
-        if ($filters['date_to']) {
-            $query->whereDate('dateD', '<=', $filters['date_to']);
-        }
-
-        $sortable = [
-            'id' => 'idTache',
-            'date' => 'dateD',
-            'title' => 'titre',
-            'type' => 'type',
-            'urgence' => 'urgence',
-            'etat' => 'etat',
-        ];
-
-        $sortField = $sortable[$filters['sort']] ?? $sortable['date'];
-        $direction = strtolower($filters['direction']) === 'asc' ? 'asc' : 'desc';
+        $filters = $this->extractFilters($request);
+        $query = $this->buildDemandesQuery($filters);
+        [$sortField, $direction] = $this->resolveSort($filters);
 
         $page = max(1, (int) $request->input('page', 1));
-        $perPage = 10; // doit correspondre à paginate(10) dans index()
+        $perPage = self::PER_PAGE; // doit correspondre à index()
 
         $demandes = $query
             ->orderBy($sortField, $direction)
