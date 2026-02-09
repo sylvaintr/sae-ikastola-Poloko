@@ -40,8 +40,16 @@ class DemandeController extends Controller
         if ($filters['search']) {
             $searchTerm = trim($filters['search']);
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('idTache', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('titre', 'like', '%' . $searchTerm . '%');
+                // Si l'utilisateur tape un ID (numérique), on fait une recherche exacte sur l'ID
+                // pour éviter que "1" matche 1,10,11,21,...
+                if (ctype_digit($searchTerm)) {
+                    $q->where('idTache', (int) $searchTerm);
+                } else {
+                    $q->where('idTache', 'like', '%' . $searchTerm . '%');
+                }
+
+                // Et on autorise toujours une recherche par titre
+                $q->orWhere('titre', 'like', '%' . $searchTerm . '%');
             });
         }
 
@@ -358,8 +366,13 @@ class DemandeController extends Controller
         if ($filters['search']) {
             $searchTerm = trim($filters['search']);
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('idTache', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('titre', 'like', '%' . $searchTerm . '%');
+                if (ctype_digit($searchTerm)) {
+                    $q->where('idTache', (int) $searchTerm);
+                } else {
+                    $q->where('idTache', 'like', '%' . $searchTerm . '%');
+                }
+
+                $q->orWhere('titre', 'like', '%' . $searchTerm . '%');
             });
         }
 
