@@ -8,7 +8,7 @@
             <div class="d-flex flex-column flex-sm-row flex-wrap gap-3 gap-sm-4 justify-content-end">
                 <div class="demande-toolbar-item">
                     <div class="d-flex align-items-center gap-2">
-                        <a href="{{ route('demandes.export.all.csv') }}" class="btn demande-btn-outline fw-semibold px-4 py-2 w-100 w-sm-auto">
+                        <a href="{{ route('demandes.export.all.csv', request()->query()) }}" class="btn demande-btn-outline fw-semibold px-4 py-2 w-100 w-sm-auto">
                             <i class="bi bi-download me-2"></i>
                             {{ __('demandes.toolbar.export.eu') }}
                         </a>
