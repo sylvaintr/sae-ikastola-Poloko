@@ -111,7 +111,7 @@ class FactureControllerTest extends TestCase
         $response = $this->get(route('admin.facture.export', $facture->id));
 
         // then
-        $response->assertHeader('Content-Type', 'application/vnd.ms-word');
+        $response->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     }
 
     public function test_valider_facture_change_etat()

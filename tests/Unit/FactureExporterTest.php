@@ -111,7 +111,7 @@ class FactureExporterTest extends TestCase
         $this->assertIsString($bin);
         $this->assertEquals('DOCDATA', $bin);
         $this->assertInstanceOf(Response::class, $resp);
-        $this->assertEquals('application/vnd.ms-word', $resp->headers->get('Content-Type'));
+        $this->assertEquals('application/vnd.openxmlformats-officedocument.wordprocessingml.document', $resp->headers->get('Content-Type'));
         $this->assertStringContainsString('attachment; filename="facture-', $resp->headers->get('Content-Disposition'));
     }
 
