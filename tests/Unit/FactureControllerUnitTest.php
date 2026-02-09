@@ -29,8 +29,8 @@ class FactureControllerUnitTest extends TestCase
         $calculator->method('calculerMontantFacture')->willReturn($montants);
         app()->instance(FactureCalculator::class, $calculator);
 
-        $exporter = $this->getMockBuilder(FactureExporter::class)->onlyMethods(['generateAndServeFacture'])->getMock();
-        $exporter->method('generateAndServeFacture')->willReturn(response('OK', 200)->header('Content-Type', 'application/pdf'));
+        $exporter = $this->getMockBuilder(FactureExporter::class)->onlyMethods(['serveManualFile'])->getMock();
+        $exporter->method('serveManualFile')->willReturn(response('OK', 200)->header('Content-Type', 'application/pdf'));
         app()->instance(FactureExporter::class, $exporter);
 
         // when
@@ -60,8 +60,8 @@ class FactureControllerUnitTest extends TestCase
         $calculator->method('calculerMontantFacture')->willReturn($montants);
         app()->instance(FactureCalculator::class, $calculator);
 
-        $exporter = $this->getMockBuilder(FactureExporter::class)->onlyMethods(['generateAndServeFacture'])->getMock();
-        $exporter->method('generateAndServeFacture')->willReturn('%PDF%');
+        $exporter = $this->getMockBuilder(FactureExporter::class)->onlyMethods(['serveManualFile'])->getMock();
+        $exporter->method('serveManualFile')->willReturn('%PDF%');
         app()->instance(FactureExporter::class, $exporter);
 
         // when

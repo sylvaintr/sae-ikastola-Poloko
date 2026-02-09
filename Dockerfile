@@ -12,7 +12,9 @@
         git \
         netcat-openbsd \
         libreoffice \
+        openjdk17-jre \
         ttf-freefont \
+        font-noto \
         && install-php-extensions \
         pdo_mysql \
         pdo_pgsql \
@@ -32,6 +34,7 @@
 
     # Définition du dossier de travail
     WORKDIR /var/www/html
+    ENV HOME=/tmp
 
     # --- Étape de build (Optimisation du cache) ---
 
@@ -44,12 +47,12 @@
     RUN if [ -f package.json ]; then npm ci; fi
 
     # 5. Copie du reste du code source
-    COPY . .
+    COPY --chown=www-data:www-data . .
 
     # 6. Permissions et structure des dossiers Laravel
-    RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
-        && chown -R www-data:www-data storage bootstrap/cache \
-        && chmod -R 775 storage bootstrap/cache
+    RUN chmod 777 /tmp \
+    && mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
     # 7. Lien symbolique et scripts finaux
     RUN php artisan storage:link || true

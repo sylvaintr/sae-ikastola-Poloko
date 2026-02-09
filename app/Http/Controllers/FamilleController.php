@@ -8,20 +8,25 @@ use Illuminate\Contracts\View\View;
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Utilisateur;
+use App\Models\Role;
+use App\Http\Controllers\Traits\FamilleSynchronizationTrait;
 
 class FamilleController extends Controller
 {
+    use FamilleSynchronizationTrait;
     private const FAMILLE_NOT_FOUND = 'Famille non trouvée';
-    private const DEFAULT_PASSWORD = 'defaultpassword';
 
     public function ajouter(Request $request): JsonResponse
     {
         $data = $request->validate([
             'enfants' => 'array',
             'utilisateurs' => 'array',
+            'aineDansAutreSeaska' => 'nullable|boolean',
         ]);
 
-        $famille = Famille::create(['aineDansAutreSeaska' => false]);
+        $famille = Famille::create([
+            'aineDansAutreSeaska' => (bool) ($data['aineDansAutreSeaska'] ?? false),
+        ]);
 
         $this->createEnfants($data['enfants'] ?? [], $famille->idFamille);
         $this->createUtilisateurs($data['utilisateurs'] ?? [], $famille);
@@ -53,7 +58,17 @@ class FamilleController extends Controller
 
     public function create(): View
     {
-        $tousUtilisateurs = Utilisateur::doesntHave('familles')->get();
+        // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
+        $roleParent = Role::where('name', 'parent')->first();
+        // Un parent peut appartenir à plusieurs familles => on affiche tous les parents (sans filtrer sur "sans famille")
+        $tousUtilisateurs = Utilisateur::whereHas('rolesCustom', function ($query) use ($roleParent) {
+            if ($roleParent) {
+                $query->where('role.idRole', $roleParent->idRole);
+            }
+        })
+            ->orderBy('nom')
+            ->orderBy('prenom')
+            ->get();
 
         $tousEnfants = Enfant::where(function ($query) {
             $query->whereNull('idFamille')
@@ -71,7 +86,43 @@ class FamilleController extends Controller
             return redirect()->route('admin.familles.index');
         }
 
-        return view('admin.familles.create', compact('famille'));
+        // Charger aussi les utilisateurs et enfants disponibles pour pouvoir en ajouter
+        $idsUtilisateursFamille = $famille->utilisateurs->pluck('idUtilisateur')->toArray();
+        $idsEnfantsFamille = $famille->enfants->pluck('idEnfant')->toArray();
+
+        // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
+        $roleParent = Role::where('name', 'parent')->first();
+
+        // Un parent peut appartenir à plusieurs familles => tous les parents.
+        // On garde en plus ceux déjà liés à la famille (au cas où un utilisateur lié n'aurait pas le rôle parent).
+        $tousUtilisateurs = Utilisateur::where(function ($query) use ($idsUtilisateursFamille, $roleParent) {
+            $query->whereHas('rolesCustom', function ($q2) use ($roleParent) {
+                if ($roleParent) {
+                    $q2->where('role.idRole', $roleParent->idRole);
+                }
+            });
+
+            if (!empty($idsUtilisateursFamille)) {
+                $query->orWhereIn('idUtilisateur', $idsUtilisateursFamille);
+            }
+        })
+            ->orderBy('nom')
+            ->orderBy('prenom')
+            ->get();
+
+        // Enfants sans famille OU déjà dans cette famille
+        $tousEnfants = Enfant::where(function ($query) use ($idsEnfantsFamille) {
+            $query->where(function ($q) {
+                $q->whereNull('idFamille')
+                  ->orWhere('idFamille', 0);
+            })
+            ->orWhereIn('idEnfant', $idsEnfantsFamille);
+        })
+            ->orderBy('nom')
+            ->orderBy('prenom')
+            ->get();
+
+        return view('admin.familles.create', compact('famille', 'tousUtilisateurs', 'tousEnfants'));
     }
 
     public function index()
@@ -93,11 +144,27 @@ class FamilleController extends Controller
             return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
 
-        $famille->enfants()->delete();
+        // Vérifier s'il y a des factures associées
+        $hasFactures = $famille->factures()->exists();
+        
+        if ($hasFactures) {
+            return response()->json([
+                'message' => 'Impossible de supprimer la famille : des factures sont associées',
+                'error' => 'HAS_FACTURES'
+            ], 422);
+        }
+
+        // Détacher les enfants plutôt que de les supprimer (mettre idFamille à null)
+        // Cela préserve les données des enfants pour d'éventuelles réassignations
+        $famille->enfants()->update(['idFamille' => null]);
+        
+        // Détacher les utilisateurs de la famille
         $famille->utilisateurs()->detach();
+        
+        // Supprimer la famille
         $famille->delete();
 
-        return response()->json(['message' => 'Famille et enfants supprimés avec succès']);
+        return response()->json(['message' => 'Famille supprimée avec succès. Les enfants ont été détachés.']);
     }
 
     public function searchByParent(Request $request): JsonResponse
@@ -130,22 +197,54 @@ class FamilleController extends Controller
     public function searchUsers(Request $request): JsonResponse
     {
         $request->validate([
-            'q' => 'nullable|string|min:2|max:50',
+            'q' => 'nullable|string|min:0|max:50',
+            'famille_id' => 'nullable|integer',
         ]);
 
-        $query = $request->input('q');
+        $query = $request->input('q', '');
+        $familleId = $request->input('famille_id');
 
-        if (!$query || strlen($query) < 2) {
-            return response()->json([]);
+        // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
+        $roleParent = Role::where('name', 'parent')->first();
+
+        $idsUtilisateursFamille = [];
+        if (!empty($familleId)) {
+            $famille = Famille::with('utilisateurs')->find($familleId);
+            if ($famille) {
+                $idsUtilisateursFamille = $famille->utilisateurs->pluck('idUtilisateur')->toArray();
+            }
         }
 
-        $users = Utilisateur::doesntHave('familles')
-            ->where(function ($q) use ($query) {
-                $q->where('nom', 'like', "%{$query}%")
-                  ->orWhere('prenom', 'like', "%{$query}%");
+        // Un parent peut appartenir à plusieurs familles => recherche sur tous les parents.
+        // On garde en plus ceux déjà liés à la famille (au cas où un utilisateur lié n'aurait pas le rôle parent).
+        $users = Utilisateur::where(function ($q) use ($roleParent, $idsUtilisateursFamille) {
+            $q->whereHas('rolesCustom', function ($q3) use ($roleParent) {
+                if ($roleParent) {
+                    $q3->where('role.idRole', $roleParent->idRole);
+                }
+            });
+
+            if (!empty($idsUtilisateursFamille)) {
+                $q->orWhereIn('idUtilisateur', $idsUtilisateursFamille);
+            }
+        })
+            ->when($query, function ($q) use ($query) {
+                $q->where(function ($subQ) use ($query) {
+                    $subQ->where('nom', 'like', "%{$query}%")
+                         ->orWhere('prenom', 'like', "%{$query}%");
+                });
             })
-            ->limit(20)
-            ->get();
+            ->orderBy('nom')
+            ->orderBy('prenom')
+            ->limit(50)
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'idUtilisateur' => $user->idUtilisateur,
+                    'nom' => $user->nom,
+                    'prenom' => $user->prenom,
+                ];
+            });
 
         return response()->json($users);
     }
@@ -161,13 +260,30 @@ class FamilleController extends Controller
         $data = $request->validate([
             'enfants' => 'array',
             'utilisateurs' => 'array',
+            'aineDansAutreSeaska' => 'boolean',
         ]);
 
-        $this->updateEnfants($data['enfants'] ?? []);
-        $this->updateUtilisateurs($data['utilisateurs'] ?? []);
+        // Mettre à jour les attributs de la famille
+        if (isset($data['aineDansAutreSeaska'])) {
+            $famille->aineDansAutreSeaska = $data['aineDansAutreSeaska'];
+            $famille->save();
+        }
+
+        // Gérer les enfants : mise à jour, ajout et suppression
+        if (isset($data['enfants'])) {
+            $this->syncEnfants($data['enfants'], $famille->idFamille);
+        }
+
+        // Gérer les utilisateurs : mise à jour, ajout et suppression
+        if (isset($data['utilisateurs'])) {
+            $this->syncUtilisateurs($data['utilisateurs'], $famille);
+        }
+
+        $famille->load('enfants', 'utilisateurs');
 
         return response()->json([
-            'message' => 'Famille mise à jour (enfants + utilisateurs)',
+            'message' => 'Famille mise à jour avec succès',
+            'famille' => $famille,
         ], 200);
     }
 
@@ -199,11 +315,18 @@ class FamilleController extends Controller
                     'parite' => $userData['parite'] ?? null,
                 ]);
             } else {
+                // Générer un mot de passe aléatoire sécurisé si non fourni
+                $password = $userData['mdp'] ?? null;
+                if (!$password) {
+                    $password = \Illuminate\Support\Str::random(12);
+                }
+
                 $newUser = Utilisateur::create([
                     'nom' => $userData['nom'],
                     'prenom' => $userData['prenom'],
-                    'mdp' => $userData['mdp'] ?? bcrypt(self::DEFAULT_PASSWORD),
+                    'mdp' => bcrypt($password),
                     'languePref' => $userData['languePref'] ?? 'fr',
+                    'email' => $userData['email'] ?? null,
                 ]);
 
                 $famille->utilisateurs()->attach($newUser->idUtilisateur, [
@@ -213,43 +336,6 @@ class FamilleController extends Controller
         }
     }
 
-    private function updateEnfants(array $enfantsData): void
-    {
-        foreach ($enfantsData as $childData) {
-            if (!isset($childData['idEnfant'])) {
-                continue;
-            }
 
-            $enfant = Enfant::find($childData['idEnfant']);
-
-            if ($enfant) {
-                if (isset($childData['nom'])) {
-                    $enfant->nom = $childData['nom'];
-                }
-                if (isset($childData['prenom'])) {
-                    $enfant->prenom = $childData['prenom'];
-                }
-                $enfant->save();
-            }
-        }
-    }
-
-    private function updateUtilisateurs(array $usersData): void
-    {
-        foreach ($usersData as $userData) {
-            if (!isset($userData['idUtilisateur'])) {
-                continue;
-            }
-
-            $utilisateur = Utilisateur::find($userData['idUtilisateur']);
-
-            if ($utilisateur) {
-                if (isset($userData['languePref'])) {
-                    $utilisateur->languePref = $userData['languePref'];
-                }
-                $utilisateur->save();
-            }
-        }
-    }
 }
 

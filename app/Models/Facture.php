@@ -24,7 +24,7 @@ class Facture extends Model
 	use HasFactory;
 	protected $table = 'facture';
 	protected $primaryKey = 'idFacture';
-	public $incrementing = false;
+	public $incrementing = true;
 	public $timestamps = false;
 
 	protected $casts = [

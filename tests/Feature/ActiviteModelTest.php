@@ -20,6 +20,6 @@ class ActiviteModelTest extends TestCase
 
         // then
         $this->assertDatabaseHas('activite', ['activite' => $activite->activite, 'dateP' => $activite->dateP]);
-        $this->assertGreaterThanOrEqual(0,  $activite->etres()->count());
+        $this->assertGreaterThanOrEqual(0,  $activite->pratiquers()->count());
     }
 }
