@@ -95,7 +95,7 @@ class ActualiteMediaController extends Controller
     {
         $zip = new \ZipArchive();
         if ($zip->open($tmpPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
-            abort(500, "Impossible de créer l'archive ZIP.");
+            abort(500);
         }
 
         return $zip;
