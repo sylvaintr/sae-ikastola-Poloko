@@ -46,7 +46,7 @@
                         'color' => 'secondary',
                     ],
                     'notifications' => [
-                        'route' => 'admin.notifications',
+                        'route' => 'admin.notifications.index',
                         'icon' => 'bi-bell',
                         'color' => 'primary',
                     ],
