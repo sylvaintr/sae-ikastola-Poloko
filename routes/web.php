@@ -12,6 +12,7 @@ use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\EnfantController;
 use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/document', [ProfileController::class, 'uploadDocument'])->name('profile.document.upload');
     Route::get('/profile/document/{document}/download', [ProfileController::class, 'downloadDocument'])->name('profile.document.download');
     Route::delete('/profile/document/{document}', [ProfileController::class, 'deleteDocument'])->name('profile.document.delete');
+    Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
     // ---------------- Gestion Demandes ----------------
     Route::middleware('can:access-demande')
@@ -74,7 +76,7 @@ Route::middleware('auth')->group(function () {
             Route::view('/', 'admin.index')->name('index');
             Route::view('/publications', 'admin.messages')->name('messages');
             Route::view('/familles', 'admin.families')->name('families');
-            Route::view('/notifications', 'admin.notifications')->name('notifications');
+            
 
             // ---------------- Comptes ----------------
             Route::prefix('comptes')->name('accounts.')->controller(AccountController::class)
@@ -141,29 +143,26 @@ Route::middleware('auth')->group(function () {
 
             // ---------------- Ajout des routes Famille + LierController ----------------
             Route::prefix('familles')->name('familles.')->group(function () {
-    Route::get('/', [FamilleController::class, 'index'])->name('index');
-    Route::get('/create', [FamilleController::class, 'create'])->name('create');
-    Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
-    Route::get(ROUTE_ID, [FamilleController::class, 'show'])->name('show');
-    Route::get(ROUTE_ID . '/edit', [FamilleController::class, 'edit'])->name('edit');
-    Route::put(ROUTE_ID, [FamilleController::class, 'update'])->name('update');
-    Route::delete(ROUTE_ID, [FamilleController::class, 'delete'])->name('delete');
-   
-    
+                Route::get('/', [FamilleController::class, 'index'])->name('index');
+                Route::get('/create', [FamilleController::class, 'create'])->name('create');
+                Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
+                Route::get(ROUTE_ID, [FamilleController::class, 'show'])->name('show');
+                Route::get(ROUTE_ID . '/edit', [FamilleController::class, 'edit'])->name('edit');
+                Route::put(ROUTE_ID, [FamilleController::class, 'update'])->name('update');
+                Route::delete(ROUTE_ID, [FamilleController::class, 'delete'])->name('delete');
+            });
+        });
     });
+    
+    Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
+    Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 
-           
-        });
-        });
-        Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
- Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
-
-        // ---------------- Présence ----------------
-        Route::get('/presence', function () { return view('presence.index'); })->name('presence.index');
-        Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
-        Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
-        Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
-        Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
+    // ---------------- Présence ----------------
+    Route::get('/presence', function () { return view('presence.index'); })->name('presence.index');
+    Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
+    Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
+    Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
+    Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
     
 
     Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
@@ -179,6 +178,25 @@ Route::middleware('auth')->group(function () {
         Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
             ->name('actualites.detachDocument');
     });
+
+});
+
+Route::middleware(['auth'])->group(function () {
+    
+    Route::get('/admin/notifications', [NotificationController::class, 'index'])
+         ->name('admin.notifications.index');
+   
+    Route::get('/admin/notifications/create', [NotificationController::class, 'create'])
+         ->name('admin.notifications.create');
+   
+    Route::post('/admin/notifications', [NotificationController::class, 'store'])
+         ->name('admin.notifications.store');
+
+    Route::get('/admin/notifications/{id}/edit', [NotificationController::class, 'edit'])
+         ->name('admin.notifications.edit');
+
+    Route::put('/admin/notifications/{id}', [NotificationController::class, 'update'])
+         ->name('admin.notifications.update');
 
 });
 
