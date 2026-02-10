@@ -140,7 +140,6 @@ Route::middleware('auth')->group(function () {
                     Route::get('/', 'index')->name('index');
                     Route::get('{role}', 'show')->name('show');
                     Route::post('{role}/permissions', 'attach')->name('permissions.attach');
-                    Route::delete('{role}/permissions/{permission}', 'detach')->name('permissions.detach');
                 });
 
             // ---------------- Factures ----------------

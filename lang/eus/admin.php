@@ -1,4 +1,7 @@
 <?php
+if (! defined('OBLIGATORY_DOCUMENTS_LABEL')) {
+    define('OBLIGATORY_DOCUMENTS_LABEL', 'Beharrezko dokumentuak');
+}
 
 $common = [
     'roles'                    => 'Rolak',
@@ -29,7 +32,7 @@ return [
         'enfants'              => 'Haurrak',
         'invoices'             => 'Fakturak',
         'notifications'        => 'Jakinarazpenak',
-        'obligatory_documents' => 'Beharrezko dokumentuak',
+        'obligatory_documents' => OBLIGATORY_DOCUMENTS_LABEL,
         'role_permissions'     => 'Rolen kudeaketa',
         'descriptions'         => [
             'add_message'          => 'Erabiltzaileek ikus ditzaketen argitalpenak eta berriak kudeatu',
@@ -96,7 +99,7 @@ return [
             'no_roles'         => 'Ez dago esleituriko rolarik',
             'archived_notice'  => 'Kontu hau artxibatuta dago. Kontsulta bakarrik baimenduta dago.',
             'details_title'    => 'Kontuaren informazioa',
-            'documents_title'  => 'Beharrezko dokumentuak',
+            'documents_title'  => 'OBLIGATORY_DOCUMENTS_LABEL',
             'documents'        => [
                 'name'               => 'Izena',
                 'state'              => 'Egoera',
@@ -220,7 +223,7 @@ return [
         'no_children'         => 'Ez da haurrik erregistratu',
     ],
     'obligatory_documents'           => [
-        'title'               => 'Beharrezko dokumentuak',
+        'title'               => 'OBLIGATORY_DOCUMENTS_LABEL',
         'subtitle'            => 'Beharrezko dokumentuaks',
         'description'         => 'Orri honek beharrezko dokumentuak kudeatzeko aukera emango du.',
         'add_button'          => 'Gehitu dokumentu bat',
@@ -306,4 +309,8 @@ return [
     'back_to_roles'                  => 'Itzuli rolen zerrendara',
     'selected_permissions'           => 'Hautatutako baimenak',
     'search_permissions_placeholder' => 'Bilatu baimenak izenaren arabera...',
+    'some_permissions_not_found'     => 'Baimen batzuk ez daude aurkitu.',
+    'permissions_attached'           => 'Baimenak arrakastaz esleitu dira.',
+    'all_permissions_removed'        => 'Baimen guztiak arrakastaz kendu dira rol honetatik.',
+    'attach_permission_not_found'    => 'Baimenik ez da aurkitu. Ziurtatu baimenaren IDa edo izena zuzena den.',
 ];

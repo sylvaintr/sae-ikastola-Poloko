@@ -327,5 +327,9 @@ return [
     'back_to_roles'                  => 'Retour à la liste des rôles',
     'selected_permissions'           => 'Permissions sélectionnées',
     'search_permissions_placeholder' => 'Tapez pour rechercher...',
+    'some_permissions_not_found'     => 'Certaines permissions n\'ont pas été trouvées.',
+    'permissions_attached'           => 'Permissions attachées avec succès.',
+    'all_permissions_removed'        => 'Toutes les permissions ont été supprimées du rôle.',
+    'attach_permission_not_found'    => 'Permission introuvable.',
 
 ];
