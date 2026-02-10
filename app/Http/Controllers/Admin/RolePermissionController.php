@@ -46,14 +46,6 @@ class RolePermissionController extends Controller
             return $this->respondNotFound($request);
         }
 
-        if ($request->wantsJson()) {
-            return response()->json([
-                'message'   => 'Permissions attachées',
-                'attached'  => $attached,
-                'not_found' => $notFound,
-            ], 200);
-        }
-
         $msg = count($attached) > 1 ? 'Permissions attachées au rôle.' : 'Permission attachée au rôle.';
         if (count($notFound) > 0) {
             $msg .= ' Certaines permissions introuvables: ' . implode(', ', $notFound) . '.';
@@ -81,18 +73,12 @@ class RolePermissionController extends Controller
 
         $role->revokePermissionTo($perm);
 
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Permission détachée', 'permission' => $perm], 200);
-        }
-
         return redirect()->back()->with('success', 'Permission supprimée du rôle.');
     }
 
     protected function respondNotFound(Request $request)
     {
-        if ($request->wantsJson()) {
-            return response()->json(['message' => 'Permission introuvable'], 404);
-        }
+
         return redirect()->back()->withErrors(['permission' => 'Permission introuvable.']);
     }
 
@@ -113,7 +99,8 @@ class RolePermissionController extends Controller
      */
     public function index(Request $request)
     {
-        $roles = Role::select('idRole', 'name')->orderBy('name')->get();
+        $perPage = 10;
+        $roles   = Role::select('idRole', 'name')->orderBy('name')->paginate($perPage)->withQueryString();
         return view('admin.roles.index', [
             'roles' => $roles,
         ]);
