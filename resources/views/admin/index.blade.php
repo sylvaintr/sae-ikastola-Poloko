@@ -45,6 +45,11 @@
                         'icon' => 'bi-receipt',
                         'color' => 'secondary',
                     ],
+                    'role_permissions' => [
+                        'route' => 'admin.roles.index',
+                        'icon' => 'bi-shield-lock',
+                        'color' => 'dark',
+                    ],
                     'notifications' => [
                         'route' => 'admin.notifications.index',
                         'icon' => 'bi-bell',
