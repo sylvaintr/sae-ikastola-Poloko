@@ -1,18 +1,17 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PresenceController;
-use App\Http\Controllers\DemandeController;
+use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\Admin\AccountController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ClasseController;
+use App\Http\Controllers\DemandeController;
+use App\Http\Controllers\EtiquetteController;
+use App\Http\Controllers\FactureController;
 use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\LierController;
-use App\Http\Controllers\FactureController;
-use App\Http\Controllers\ClasseController;
-use App\Http\Controllers\EnfantController;
-use App\Http\Controllers\ActualiteController;
-use App\Http\Controllers\EtiquetteController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PresenceController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +19,7 @@ use App\Http\Controllers\NotificationController;
 |--------------------------------------------------------------------------
 */
 
-if (!defined('ROUTE_ADD')) {
+if (! defined('ROUTE_ADD')) {
     define('ROUTE_ADD', '/ajouter');
     define('ROUTE_EDIT', '/modifier');
     define('ROUTE_VALIDATE', '/valider');
@@ -76,7 +75,6 @@ Route::middleware('auth')->group(function () {
             Route::view('/', 'admin.index')->name('index');
             Route::view('/publications', 'admin.messages')->name('messages');
             Route::view('/familles', 'admin.families')->name('families');
-            
 
             // ---------------- Comptes ----------------
             Route::prefix('comptes')->name('accounts.')->controller(AccountController::class)
@@ -134,6 +132,17 @@ Route::middleware('auth')->group(function () {
                     Route::delete(ROUTE_OBLIGATORY_DOCUMENT, 'destroy')->name('destroy');
                 });
 
+            // ---------------- Gestion des permissions pour les rôles ----------------
+            Route::prefix('roles')
+                ->name('roles.')
+                ->controller(\App\Http\Controllers\Admin\RolePermissionController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('{role}', 'show')->name('show');
+                    Route::post('{role}/permissions', 'attach')->name('permissions.attach');
+                    Route::delete('{role}/permissions/{permission}', 'detach')->name('permissions.detach');
+                });
+
             // ---------------- Factures ----------------
             Route::resource(ROUTE_FACTURE, FactureController::class);
             Route::get('/factures-data', [FactureController::class, 'facturesData'])->name('factures.data');
@@ -153,17 +162,16 @@ Route::middleware('auth')->group(function () {
             });
         });
     });
-    
+
     Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
     Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 
     // ---------------- Présence ----------------
-    Route::get('/presence', function () { return view('presence.index'); })->name('presence.index');
+    Route::get('/presence', function () {return view('presence.index');})->name('presence.index');
     Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
     Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
     Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
     Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
-    
 
     Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
         Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);
@@ -182,21 +190,21 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    
+
     Route::get('/admin/notifications', [NotificationController::class, 'index'])
-         ->name('admin.notifications.index');
-   
+        ->name('admin.notifications.index');
+
     Route::get('/admin/notifications/create', [NotificationController::class, 'create'])
-         ->name('admin.notifications.create');
-   
+        ->name('admin.notifications.create');
+
     Route::post('/admin/notifications', [NotificationController::class, 'store'])
-         ->name('admin.notifications.store');
+        ->name('admin.notifications.store');
 
     Route::get('/admin/notifications/{id}/edit', [NotificationController::class, 'edit'])
-         ->name('admin.notifications.edit');
+        ->name('admin.notifications.edit');
 
     Route::put('/admin/notifications/{id}', [NotificationController::class, 'update'])
-         ->name('admin.notifications.update');
+        ->name('admin.notifications.update');
 
 });
 
