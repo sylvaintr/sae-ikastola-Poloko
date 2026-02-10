@@ -57,7 +57,7 @@
                                 @foreach ($permissions as $permission)
                                     {{-- On affiche seulement si le rôle ne l'a pas déjà --}}
                                     @php $hasPerm = $role->hasPermissionTo($permission); @endphp
-                                    <div class="role-item perm-item {{ $hasPerm ? 'd-none' : '' }}" 
+                                    <div class="role-item perm-item {{ $hasPerm ? 'd-none' : '' }}"
                                          data-perm-id="{{ $permission->id }}"
                                          data-perm-name="{{ $permission->name }}">
                                         <span>{{ $permission->name }}</span>
