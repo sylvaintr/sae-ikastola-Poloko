@@ -53,10 +53,13 @@ class CheckNotifications extends Command
 
                 $users = Utilisateur::all();
 
+                // CORRECTION ICI : On force le format Y-m-d pour la comparaison
+                $dateEventFormattee = Carbon::parse($event->dateE)->format('Y-m-d');
+
                 foreach ($users as $user) {
                     $dejaFait = $user->notifications()
-                        ->where('data->title', "Rappel : {$event->titre}")
-                        ->whereDate('created_at', Carbon::today())
+                        ->where('data->event_id', $event->idEvenement)
+                        ->where('data->event_date', $dateEventFormattee)
                         ->exists();
 
                     if ($dejaFait) {
@@ -64,9 +67,11 @@ class CheckNotifications extends Command
                     }
 
                     $user->notify(new SendNotification([
-                        'title' => "Rappel : {$event->titre}",
-                        'message' => "L'événement aura lieu le " . Carbon::parse($event->dateE)->format('d/m/Y'),
+                        'title'      => "Rappel : {$event->titre}",
+                        'message'    => "L'événement aura lieu le " . Carbon::parse($event->dateE)->format('d/m/Y'),
                         'action_url' => url('/evenements/' . $event->idEvenement),
+                        'event_id'   => $event->idEvenement,
+                        'event_date' => $dateEventFormattee
                     ]));
                 }
                 $this->info("    -> Notifications envoyées.");
@@ -106,9 +111,16 @@ class CheckNotifications extends Command
         if (!$aDepose) {
             if ($rule->recurrence_days > 0) {
                 $lastNotif = $user->notifications()
-                    ->where('data->title', "Document manquant : {$doc->nom}")
+                    ->where('data->doc_id', $doc->idDocumentObligatoire)
                     ->latest()
                     ->first();
+
+                if (!$lastNotif) {
+                     $lastNotif = $user->notifications()
+                        ->where('data->title', "Document manquant : {$doc->nom}")
+                        ->latest()
+                        ->first();
+                }
 
                 if ($lastNotif) {
                     $nextAlertDate = $lastNotif->created_at->addDays($rule->recurrence_days);
@@ -120,9 +132,10 @@ class CheckNotifications extends Command
             }
 
             $user->notify(new SendNotification([
-                'title' => "Document manquant : {$doc->nom}",
-                'message' => "Merci de déposer le document requis : {$doc->nom}.",
+                'title'      => "Document manquant : {$doc->nom}",
+                'message'    => "Merci de déposer le document requis : {$doc->nom}.",
                 'action_url' => url('/documents'),
+                'doc_id'     => $doc->idDocumentObligatoire
             ]));
 
             $this->info("    -> Alerte envoyée à {$user->nom} pour {$doc->nom}");
