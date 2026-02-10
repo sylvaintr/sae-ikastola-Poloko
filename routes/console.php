@@ -6,19 +6,19 @@ use Illuminate\Support\Facades\Schedule;
 use App\Http\Controllers\FactureController;
 use Illuminate\Support\Facades\DB;
 
+// Définition de la commande 'inspire'
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
+})->purpose('Display an inspiring quote');
+
+// Planification des tâches
+Schedule::command('inspire')->hourly();
 
 Schedule::command('notifications:check')
     ->dailyAt('08:00')
     ->timezone('Europe/Paris');
 
-/**
- * Nettoyage automatique de la base de données.
- * Supprime les notifications lues il y a plus de 15 jours.
- * Se lance tous les jours à minuit.
- */
+// Nettoyage automatique des notifications lues (> 15 jours)
 Schedule::call(function () {
     DB::table('notifications')
         ->whereNotNull('read_at')
@@ -26,7 +26,7 @@ Schedule::call(function () {
         ->delete();
 })->daily();
 
-// Schedule a monthly task that resolves the controller and calls the method.
+// Génération mensuelle des factures
 Schedule::call(function () {
     app(FactureController::class)->createFacture();
 })->monthly();

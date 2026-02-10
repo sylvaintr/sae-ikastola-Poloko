@@ -17,19 +17,15 @@ class NotificationController extends Controller
 
     public function create()
     {
-        $evenements = Evenement::all();
-        $documents = DocumentObligatoire::all();
-
-        return view('admin.notifications.create', compact('evenements', 'documents'));
+        return view('admin.notifications.create');
     }
 
     public function store(Request $request)
     {
-        
         $request->validate([
             'title' => 'required|string|max:255',
             'module_id' => 'required|integer',
-            'module_type' => 'required|string',
+            'module_type' => 'required|in:Document,Evènement',
             'recurrence_days' => 'nullable|integer',
             'reminder_days' => 'nullable|integer',
             'description' => 'nullable|string',
@@ -42,10 +38,6 @@ class NotificationController extends Controller
             $targetClass = DocumentObligatoire::class;
         } elseif ($request->module_type === 'Evènement') {
             $targetClass = Evenement::class;
-        }
-
-        if (!$targetClass) {
-            return back()->withErrors(['module_type' => 'Type de module invalide.']);
         }
 
         NotificationSetting::create([
@@ -65,8 +57,6 @@ class NotificationController extends Controller
     public function edit($id)
     {
         $setting = NotificationSetting::findOrFail($id);
-        
-       
         return view('admin.notifications.edit', compact('setting'));
     }
 
@@ -74,10 +64,23 @@ class NotificationController extends Controller
     {
         $setting = NotificationSetting::findOrFail($id);
 
-      
-        $targetClass = ($request->module_type == 'Document')
-            ? DocumentObligatoire::class
-            : Evenement::class;
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'module_id' => 'required|integer',
+            'module_type' => 'required|in:Document,Evènement',
+            'recurrence_days' => 'nullable|integer',
+            'reminder_days' => 'nullable|integer',
+            'description' => 'nullable|string',
+            'is_active' => 'nullable',
+        ]);
+
+        $targetClass = null;
+
+        if ($request->module_type === 'Document') {
+            $targetClass = DocumentObligatoire::class;
+        } elseif ($request->module_type === 'Evènement') {
+            $targetClass = Evenement::class;
+        }
 
         $setting->update([
             'title' => $request->title,
@@ -89,7 +92,7 @@ class NotificationController extends Controller
             'target_id' => $request->module_id,
         ]);
 
-        return redirect()->route('admin.notifications.index');
+       return redirect()->route('admin.notifications.index');
     }
 
     public function markAsRead($id)
@@ -103,4 +106,3 @@ class NotificationController extends Controller
         return back();
     }
 }
-
