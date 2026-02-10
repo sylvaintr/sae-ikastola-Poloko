@@ -30,6 +30,7 @@ return [
         'invoices'             => 'Fakturak',
         'notifications'        => 'Jakinarazpenak',
         'obligatory_documents' => 'Beharrezko dokumentuak',
+        'role_permissions'     => 'Rolen kudeaketa',
         'descriptions'         => [
             'add_message'          => 'Erabiltzaileek ikus ditzaketen argitalpenak eta berriak kudeatu',
             'accounts'             => 'Erabiltzaile kontuak, beren rolak eta balioztatzeak kudeatu',
@@ -39,6 +40,7 @@ return [
             'obligatory_documents' => 'Erabiltzaileentzat beharrezkoak diren dokumentuak kudeatu',
             'invoices'             => 'Fakturak eta ordainketak kudeatu',
             'notifications'        => 'Jakinarazpenak eta sistema alertak kudeatu',
+            'role_permissions'     => 'Rolen eta baimenak kudeatu, funtzionalitateetarako sarbidea kontrolatzeko',
         ],
     ],
     'accounts_page'                  => [

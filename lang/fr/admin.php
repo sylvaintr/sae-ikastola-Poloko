@@ -32,6 +32,7 @@ return [
         'enfants'              => 'Enfants',
         'invoices'             => 'Factures',
         'notifications'        => 'Notifications',
+        'role_permissions'     => 'Rôles & Permissions',
         'obligatory_documents' => OBLIGATORY_DOCUMENTS_LABEL,
         'descriptions'         => [
             'add_message'          => 'Gérez les publications et actualités visibles par les utilisateurs',
@@ -42,6 +43,7 @@ return [
             'obligatory_documents' => 'Gérez les documents obligatoires requis pour les utilisateurs',
             'invoices'             => 'Gérez les factures et les paiements',
             'notifications'        => 'Gérez les notifications et alertes système',
+            'role_permissions'     => 'Gérez les rôles et permissions pour contrôler l\'accès aux fonctionnalités',
         ],
     ],
     'accounts_page'                  => (function () use ($common) {
