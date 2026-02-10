@@ -21,8 +21,6 @@ class FactureFactory extends Factory
     public function definition(): array
     {
         return [
-            // Facture primary key is non-incrementing; generate a unique id for the factory
-            'idFacture' => $this->faker->unique()->numberBetween(100000, 9999999),
             'etat' => $this->faker->randomElement([ 'brouillon', 'verifier']),
             'dateC' => $this->faker->dateTimeBetween('-1 month', 'now'),
             'previsionnel' => $this->faker->boolean(),

@@ -1,31 +1,26 @@
 <?php
-
 namespace App\Services;
 
 use App\Models\Facture;
-use Pelago\Emogrifier\CssInliner;
-use Dompdf\Dompdf;
-use Dompdf\Options;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class FactureExporter
 {
 
-
-
-
-    public function loadManualFile(Facture $facture): ?array
+    public function getLinkFarctureFile(Facture $facture): ?array
     {
-        $nom = 'facture-' . $facture->idFacture;
-        $exts = $facture->etat === 'manuel' ? ['doc', 'docx', 'odt'] : ['pdf'];
+        $nom  = 'facture-' . $facture->idFacture;
+        $exts = $facture->etat === 'verifier' ? ['pdf'] : ['doc', 'docx', 'odt'];
 
         foreach ($exts as $ext) {
             $chemin = 'factures/' . $nom . '.' . $ext;
             if (Storage::disk('public')->exists($chemin)) {
                 return [
-                    'content' => file_get_contents(Storage::disk('public')->path($chemin)),
-                    'ext' => $ext,
+                    'content'  => Storage::disk('public')->get($chemin),
+                    'ext'      => $ext,
                     'filename' => $nom . '.' . $ext,
                 ];
             }
@@ -34,98 +29,133 @@ class FactureExporter
         return null;
     }
 
-    public function renderHtml(array $data): string
-    {
-        $html = view('facture.template.facture-html', $data)->render();
-        return CssInliner::fromHtml($html)->inlineCss()->render();
-    }
-
-    public function renderPdfFromHtml(string $html): string
-    {
-        $options = new Options();
-        $options->set('isHtml5ParserEnabled', true);
-        $options->set('isRemoteEnabled', true);
-        $options->set('defaultPaperMargins', [-10, -10, -10, -10]);
-
-        $dompdf = new Dompdf($options);
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-
-        return $dompdf->output();
-    }
-
-    public function contentTypeForExt(string $ext): string
-    {
-        if ($ext === 'pdf') {
-            return 'application/pdf';
-        }
-        return 'application/vnd.ms-word';
-    }
-
     /**
- * Handles logic for serving an existing uploaded file.
- */
- public function serveManualFile(Facture $facture, bool $returnBinary): Response|string|null
-{
-    $manualFile = $this->loadManualFile($facture);
+     * Handles logic for serving an existing uploaded file.
+     */
+    public function serveManualFile(Facture $facture, bool $returnBinary): Response | string | null
+    {
+        $manualFile = $this->getLinkFarctureFile($facture);
 
-    if ($manualFile === null) {
-        return null;
+        if ($manualFile === null) {
+            return null;
+        }
+
+        if ($returnBinary) {
+            return $manualFile['content'];
+        }
+        $contentType = match ($manualFile['ext']) {
+            'pdf'   => 'application/pdf',
+            'doc'   => 'application/msword',
+            'docx'  => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'odt'   => 'application/vnd.oasis.opendocument.text',
+            default => 'application/octet-stream',
+        };
+        return response($manualFile['content'], 200)
+            ->header('Content-Type', $contentType)
+            ->header('Content-Disposition', 'attachment; filename="' . $manualFile['filename'] . '"');
     }
 
-    if ($returnBinary) {
-        return $manualFile['content'];
+    public function generateFactureToWord(Facture $facture)
+    {
+        $factureCalculator = app()->make('App\Services\FactureCalculator');
+        $montants          = $factureCalculator->calculerMontantFacture((string) $facture->idFacture);
+
+        // Protect against RedirectResponse returned by the calculator
+        if ($montants instanceof RedirectResponse) {
+            $montants = [
+                'facture'                    => $facture,
+                'famille'                    => $facture->famille,
+                'nbEnfants'                  => 0,
+                'montantcotisation'          => 0,
+                'montantparticipation'       => 0,
+                'montantparticipationSeaska' => 0,
+                'montangarderie'             => 0,
+                'montanttotal'               => 0,
+                'totalPrevisionnel'          => 0,
+                'enfants'                    => [],
+            ];
+        } else {
+            if (! $facture->previsionnel) {
+                $montants['regularisation'] = $factureCalculator->calculerRegularisation($facture->idFacture);
+            }
+        }
+
+        $parent    = $facture->utilisateur; // relation property
+        $nbEnfants = $montants['nbEnfants'] ?? 0;
+
+        $templatePath = storage_path('app/templates/facture_template.docx');
+
+        if (! file_exists($templatePath)) {
+            abort(500, "Le modèle Word est introuvable à : " . $templatePath);
+        }
+
+        // 3. Initialisation de PhpWord TemplateProcessor et remplissage des variables
+        $outputDir = storage_path('app/public/factures/');
+        if (! file_exists($outputDir)) {
+            mkdir($outputDir, 0755, true);
+        }
+
+        $docxFileName = 'facture-' . $facture->idFacture . '.docx';
+        $docxPath     = $outputDir . $docxFileName;
+
+        try {
+            $templateProcessor = new TemplateProcessor($templatePath);
+
+            $templateProcessor->setValue('idFacture', $facture->idFacture);
+            $templateProcessor->setValue('dateFacture', $facture->dateC->format('d/m/Y'));
+
+            $templateProcessor->setValue('nom', $parent ? $parent->nom : '');
+            $templateProcessor->setValue('nbEnfants', $nbEnfants);
+
+            $templateProcessor->setValue('montantCotisation', number_format($montants['montantcotisation'] ?? 0, 2, ',', ' '));
+            $templateProcessor->setValue('montantParticipation', number_format($montants['montantparticipation'] ?? 0, 2, ',', ' '));
+            $templateProcessor->setValue('montantParticiparionSeaska', number_format($montants['montantparticipationSeaska'] ?? 0, 2, ',', ' '));
+            $templateProcessor->setValue('montantgarderie', number_format($montants['montangarderie'] ?? 0, 2, ',', ' '));
+
+            //
+            // Work with numeric values for calculations, format only for the template
+            $valeurPrevisionnelleNumeric = floatval($montants['totalPrevisionnel'] ?? 0);
+            if ($facture->previsionnel) {
+                $templateProcessor->cloneRow('montantreg', 0);
+                $montantReg = 0;
+            } else {
+                $montantReg                   = $factureCalculator->calculerRegularisation($facture->idFacture);
+                $valeurPrevisionnelleNumeric += floatval($montantReg ?? 0);
+                $templateProcessor->setValue('montantreg', number_format($montantReg ?? 0, 2, ',', ' '));
+            }
+
+            // Format values for insertion into the template
+            $valeurPrevisionnelle = number_format($valeurPrevisionnelleNumeric, 2, ',', ' ');
+
+            // récupération de la parité pour la famille
+            $parite = 0;
+
+            $idFamille         = $facture->idFamille;
+            $familleSpecifique = $parent->familles()->where('famille.idFamille', $idFamille)->first();
+            if ($familleSpecifique && isset($familleSpecifique->pivot->parite)) {
+                $parite = $familleSpecifique->pivot->parite;
+            }
+
+            // Apply parite (percentage) to compute final total for this parent
+            $pariteNumeric   = is_numeric($parite) ? floatval($parite) : 0.0;
+            $totalTtcNumeric = $valeurPrevisionnelleNumeric * ($pariteNumeric / 100);
+
+            $templateProcessor->setValue('pariter', $pariteNumeric);
+            $templateProcessor->setValue('totalPrevisionnel', $valeurPrevisionnelle);
+            $templateProcessor->setValue('total', number_format($totalTtcNumeric, 2, ',', ' '));
+
+            $templateProcessor->saveAs($docxPath);
+
+            // convert to PDF
+            $factureConversionService = app()->make('App\Services\FactureConversionService');
+            $factureConversionService->convertFactureToPdf($facture);
+
+        } catch (\Throwable $e) {
+            // If TemplateProcessor fails for any reason, log and return null
+            \Illuminate\Support\Facades\Log::error('FactureExporter: template error', ['err' => $e->getMessage()]);
+            return null;
+        }
+
     }
 
-    $contentType = $this->contentTypeForExt($manualFile['ext']);
-    
-    return response($manualFile['content'], 200)
-        ->header('Content-Type', $contentType)
-        ->header('Content-Disposition', 'attachment; filename="' . $manualFile['filename'] . '"');
-}
-
-/**
- * Handles logic for generating HTML and converting to PDF or DOC.
- */
-public function generateAndServeFacture(array $montants, $facture, bool $returnBinary): Response|string
-{
-    // 1. Prepare Data
-    $htmlInlined = $this->renderHtml([
-        'facture'                    => $montants['facture'],
-        'famille'                    => $montants['famille'],
-        'enfants'                    => $montants['enfants'],
-        'montantcotisation'          => $montants['montantcotisation'] ?? 0,
-        'montantparticipation'       => $montants['montantparticipation'] ?? 0,
-        'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
-        'montangarderie'             => $montants['montangarderie'] ?? 0,
-        'montanttotal'               => $montants['montanttotal'] ?? 0,
-        'totalPrevisionnel'          => $montants['totalPrevisionnel'] ?? 0,
-    ]);
-
-    // 2. Determine Format (Content & Meta)
-    $isPdfState = $facture->getRawOriginal('etat') === 'verifier';
-    
-    if ($isPdfState) {
-        $fileContent = $this->renderPdfFromHtml($htmlInlined);
-        $contentType = 'application/pdf';
-        $extension   = 'pdf';
-    } else {
-        $fileContent = $htmlInlined;
-        $contentType = 'application/vnd.ms-word';
-        $extension   = 'doc';
-    }
-
-    // 3. Early Exit: Binary
-    if ($returnBinary) {
-        return $fileContent;
-    }
-
-    // 4. Default Exit: HTTP Response
-    $filename = sprintf('facture-%s.%s', $facture->idFacture ?? 'unknown', $extension);
-
-    return response($fileContent, 200)
-        ->header('Content-Type', $contentType)
-        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
-}
 }

@@ -26,7 +26,7 @@ class DevCspAllowRecaptcha
         // et les ressources locales / CDN couramment utilisées pendant le dev.
         $csp = "default-src 'self'; "
             . "script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net; "
-            . "frame-src https://www.google.com/recaptcha/ https://www.google.com; "
+            . "frame-src 'self' https://www.google.com/recaptcha/ https://www.google.com; "
             . "connect-src 'self' https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net; "
             . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net; "
             . "font-src 'self' https://fonts.gstatic.com https://fonts.bunny.net data:; "

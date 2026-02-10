@@ -1,18 +1,16 @@
 <?php
 
-use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\DemandeController;
-use App\Http\Controllers\TacheController;
-use App\Http\Controllers\UtilisateurController;
-use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Admin\AccountController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FamilleController;
 use App\Http\Controllers\LierController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\ClasseController;
+use App\Http\Controllers\EnfantController;
+use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\EtiquetteController;
 
 /*
@@ -26,6 +24,8 @@ if (!defined('ROUTE_ADD')) {
     define('ROUTE_EDIT', '/modifier');
     define('ROUTE_VALIDATE', '/valider');
     define('ROUTE_ARCHIVE', '/archiver');
+    define('ROUTE_ID', '/{id}');
+    define('ROUTE_FACTURE', '/facture');
 
     define('ROUTE_CLASSE', '/{classe}');
     define('ROUTE_OBLIGATORY_DOCUMENT', '/{obligatoryDocument}');
@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [DemandeController::class, 'index'])->name('index');
             Route::get('/create', [DemandeController::class, 'create'])->name('create');
             Route::post('/', [DemandeController::class, 'store'])->name('store');
+            Route::get('/export-all-csv', [DemandeController::class, 'exportAllCsv'])->name('export.all.csv');
 
             Route::get(ROUTE_DEMANDE, [DemandeController::class, 'show'])->name('show');
             Route::get(ROUTE_DEMANDE . '/edit', [DemandeController::class, 'edit'])->name('edit');
@@ -62,6 +63,8 @@ Route::middleware('auth')->group(function () {
 
             Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
             Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
+            Route::get(ROUTE_DEMANDE . '/export-csv', [DemandeController::class, 'exportCsv'])->name('export.csv');
+            Route::get(ROUTE_DEMANDE . '/document/{document}', [DemandeController::class, 'showDocument'])->name('document.show');
         });
 
     // ---------------- Routes administrateur (role CA) ----------------
@@ -104,6 +107,18 @@ Route::middleware('auth')->group(function () {
                     Route::get(ROUTE_CLASSE, 'show')->name('show');
                 });
 
+            // ---------------- Enfants ----------------
+            Route::prefix('enfants')->name('enfants.')->controller(\App\Http\Controllers\EnfantController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get(ROUTE_ADD, 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get(ROUTE_ID, 'show')->name('show');
+                    Route::get(ROUTE_ID . ROUTE_EDIT, 'edit')->name('edit');
+                    Route::put(ROUTE_ID, 'update')->name('update');
+                    Route::delete(ROUTE_ID, 'destroy')->name('destroy');
+                });
+
             // ---------------- Documents obligatoires ----------------
             Route::prefix('documents-obligatoires')
                 ->name('obligatory_documents.')
@@ -118,20 +133,21 @@ Route::middleware('auth')->group(function () {
                 });
 
             // ---------------- Factures ----------------
-            Route::resource('/facture', FactureController::class);
+            Route::resource(ROUTE_FACTURE, FactureController::class);
             Route::get('/factures-data', [FactureController::class, 'facturesData'])->name('factures.data');
-            Route::get('/facture/{id}/export', [FactureController::class, 'exportFacture'])->name('facture.export');
-            Route::get('/facture/{id}/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
-            Route::get('/facture/{id}/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
+            Route::get(ROUTE_FACTURE . ROUTE_ID . '/export', [FactureController::class, 'exportFacture'])->name('facture.export');
+            Route::get(ROUTE_FACTURE . ROUTE_ID . '/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
+            Route::get(ROUTE_FACTURE . ROUTE_ID . '/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
 
             // ---------------- Ajout des routes Famille + LierController ----------------
             Route::prefix('familles')->name('familles.')->group(function () {
     Route::get('/', [FamilleController::class, 'index'])->name('index');
     Route::get('/create', [FamilleController::class, 'create'])->name('create');
     Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
-    Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
-    Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
+    Route::get(ROUTE_ID, [FamilleController::class, 'show'])->name('show');
+    Route::get(ROUTE_ID . '/edit', [FamilleController::class, 'edit'])->name('edit');
+    Route::put(ROUTE_ID, [FamilleController::class, 'update'])->name('update');
+    Route::delete(ROUTE_ID, [FamilleController::class, 'delete'])->name('delete');
    
     
     });
@@ -150,29 +166,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
     
 
-    // Taches
-    Route::middleware('can:access-tache')->group(function () {
-        Route::get('/tache', [TacheController::class, 'index'])->name('tache.index');
-        Route::get('/tache/get-datatable', [TacheController::class, 'getDatatable'])->name('tache.get-datatable');
-        Route::get('/tache/{tache}/show', [TacheController::class, 'show'])->name('tache.show');
-        Route::get('/tache/{tache}/historique/create', [TacheController::class, 'createHistorique'])->name('tache.historique.create');
-        Route::post('/tache/{tache}/historique', [TacheController::class, 'storeHistorique'])->name('tache.historique.store');
-        Route::middleware('can:gerer-tache')->group(function () {
-            Route::get('/tache/create', [TacheController::class, 'create'])->name('tache.create');
-            Route::post('/tache/store', [TacheController::class, 'store'])->name('tache.store');
-            Route::get('/tache/{tache}/edit', [TacheController::class, 'edit'])->name('tache.edit');
-            Route::put('/tache/{tache}', [TacheController::class, 'update'])->name('tache.update');
-            Route::delete('/tache/{tache}', [TacheController::class, 'delete'])->name('tache.delete');
-            Route::patch('/taches/{id}/done', [TacheController::class, 'markDone'])->name('tache.markDone');
-        });
-    });
-
-    // Recherche des utilisateurs
-    Route::get('/users/search', [UtilisateurController::class, 'search'])->name('users.search');
-
-    // Recherche des rôles
-    Route::get('/roles/search', [RoleController::class, 'search'])->name('roles.search');
-
     Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
         Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);
         Route::get('/pannel/etiquettes/data', [EtiquetteController::class, 'data'])->name('etiquettes.data');
@@ -182,13 +175,14 @@ Route::middleware('auth')->group(function () {
         Route::resource('actualites', ActualiteController::class)->except(['index', 'show']);
         Route::get('/pannel/actualites/data', [ActualiteController::class, 'data'])->name('actualites.data');
         Route::get('/pannel/actualites', [ActualiteController::class, 'adminIndex'])->name('actualites.index');
+        Route::post('/actualites/{idActualite}/duplicate', [ActualiteController::class, 'duplicate'])->name('actualites.duplicate');
         Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
             ->name('actualites.detachDocument');
     });
 
 });
 
-Route::get('/actualites/{id}', [ActualiteController::class, 'show'])->name('actualites.show');
+Route::get('/actualites' . ROUTE_ID, [ActualiteController::class, 'show'])->name('actualites.show');
 
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['fr', 'eus'])) {

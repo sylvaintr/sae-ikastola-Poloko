@@ -30,6 +30,11 @@
                         'icon' => 'bi-book',
                         'color' => 'warning',
                     ],
+                    'enfants' => [
+                        'route' => 'admin.enfants.index',
+                        'icon' => 'bi-person-badge',
+                        'color' => 'info',
+                    ],
                     'obligatory_documents' => [
                         'route' => 'admin.obligatory_documents.index',
                         'icon' => 'bi-file-earmark-text',

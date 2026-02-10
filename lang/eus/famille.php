@@ -46,6 +46,9 @@ return [
     'financial_split' => 'Banaketa finantzarioa',
     'search_label' => 'Erabiltzaile bat bilatu',
     'success_msg' => 'Egina!',
+    'aine_other_seaska_label' => 'Aîné beste Seaska eskola batean',
+    'aine_other_seaska_help' => 'Aktibatu seme-alaba nagusia beste Seaska eskola batean bada.',
+    'parity_requires_parent' => 'Gehitu gutxienez guraso 1 paritatea zehazteko.',
 
     
     'confirm_delete_title' => 'Familia ezabatu',

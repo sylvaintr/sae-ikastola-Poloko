@@ -46,6 +46,9 @@ return [
     'financial_split' => 'Répartition financière',
     'search_label' => 'Rechercher un utilisateur',
     'success_msg' => 'Succès !',
+    'aine_other_seaska_label' => 'Aîné dans une autre école (Seaska)',
+    'aine_other_seaska_help' => 'Activez si l’aîné est scolarisé dans une autre école Seaska.',
+    'parity_requires_parent' => 'Ajoutez au moins 1 parent pour définir la parité.',
 
    
     'confirm_delete_title' => 'Supprimer la famille',
