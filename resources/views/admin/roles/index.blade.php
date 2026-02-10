@@ -1,11 +1,14 @@
 <x-app-layout>
     <div class="container py-4">
-        <a href="{{ route('admin.index') }}" class="text-decoration-none d-inline-flex align-items-center gap-2 mb-4" style="color: #f39c12;">
-            <i class="bi bi-arrow-left"></i>
-            <span class="fw-bold">{{ __('Retour') }}</span>
-        </a>
+        
+        <div class="mb-4">
+        <h1 class="display-6 fw-bold mb-0" style="color: #333;">{{ Lang::get('admin.gestion_roles', [], 'eus') }}</h1>
 
-        <h1 class="display-6 fw-bold mb-4" style="color: #333;">{{ __('Rôles') }}</h1>
+        @if(Lang::getLocale() == 'fr')
+            <p class="text-muted mb-0">{{ __('admin.gestion_roles') }}</p>
+        @endif
+        </div>
+
 
         <div class="card border-0 shadow-sm" style="border-radius: 10px;">
             <div class="card-body p-0">
@@ -14,12 +17,16 @@
                         <thead style="background-color: #f8f9fa;">
                             <tr>
                                 <th class="ps-4 py-3 text-dark fw-bold" style="border-bottom: 1px solid #eee;">
-                                    {{ __('Nom') }}
-                                    <div class="text-muted small fw-normal">{{ __('Rôle Nom') }}</div>
+                                    {{ Lang::get('admin.role_name', [], 'eus') }}
+                                    @if (Lang::getLocale() == 'fr')
+                                        <div class="text-muted small fw-normal">{{ __('admin.role_name') }}</div>
+                                    @endif
                                 </th>
                                 <th class="pe-4 py-3 text-end text-dark fw-bold" style="border-bottom: 1px solid #eee;">
-                                    {{ __('Ekintzak') }}
-                                    <div class="text-muted small fw-normal text-end">{{ __('Actions') }}</div>
+                                    {{ Lang::get('admin.actions',  [], 'eus') }}
+                                    @if (Lang::getLocale() == 'fr')
+                                        <div class="text-muted small fw-normal text-end">{{ __('admin.actions') }}</div>
+                                    @endif
                                 </th>
                             </tr>
                         </thead>
@@ -41,6 +48,9 @@
                         </tbody>
                     </table>
                 </div>
+                    <div class="mt-3 d-flex justify-content-end">
+                        {{ $roles->links('pagination::bootstrap-5') }}
+                    </div>
             </div>
         </div>
     </div>
