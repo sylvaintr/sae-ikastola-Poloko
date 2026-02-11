@@ -1,21 +1,12 @@
 <?php
 namespace Tests\Unit;
 
+use App\Models\Classe;
 use App\Models\Enfant;
 use App\Models\Famille;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-<<<<<<< HEAD
-<<<<<<< HEAD
-use App\Models\Famille;
-use App\Models\Enfant;
-use App\Models\Classe;
-=======
 use Tests\TestCase;
->>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
-=======
-use Tests\TestCase;
->>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 
 class FamilleControllerUpdateEnfantsTest extends TestCase
 {
@@ -42,37 +33,17 @@ class FamilleControllerUpdateEnfantsTest extends TestCase
         $classe = Classe::factory()->create();
 
         $requestData = [
-<<<<<<< HEAD
-<<<<<<< HEAD
-            'enfants' => [
+            'enfants'      => [
                 // This entry has no idEnfant; current implementation will create it,
                 // so provide required fields for creation.
                 [
-                    'nom' => 'Skipped',
-                    'prenom' => 'NoId',
-                    'dateN' => '2020-01-01',
-                    'sexe' => 'M',
-                    'NNI' => '000',
-                    'idClasse' => $classe->idClasse,
-=======
-            'enfants'      => [
-                // This entry has no idEnfant and should be skipped (branch !isset -> continue)
-                [
-=======
-            'enfants'      => [
-                // This entry has no idEnfant and should be skipped (branch !isset -> continue)
-                [
->>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
                     'nom'      => 'Skipped',
                     'prenom'   => 'NoId',
-                    'dateN'    => '2000-01-01',
+                    'dateN'    => '2020-01-01',
                     'sexe'     => 'M',
-                    'NNI'      => 123456,
-                    'idClasse' => 0,
-<<<<<<< HEAD
->>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
-=======
->>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
+                    'NNI'      => '000',
+                    'idClasse' => $classe->idClasse,
+
                 ],
                 // This entry should be applied to the existing enfant
                 [
@@ -94,15 +65,6 @@ class FamilleControllerUpdateEnfantsTest extends TestCase
         $enfant->refresh();
         $this->assertEquals('After', $enfant->nom);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        // The implementation creates a new enfant when no idEnfant is provided.
-=======
-        // Ensure the enfant entry was created (controller creates new enfants when id missing)
->>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
-=======
-        // Ensure the enfant entry was created (controller creates new enfants when id missing)
->>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
         $this->assertDatabaseHas('enfant', ['nom' => 'Skipped', 'prenom' => 'NoId']);
     }
 }
