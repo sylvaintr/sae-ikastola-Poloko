@@ -117,7 +117,6 @@ class FactureExporter
             $valeurPrevisionnelleNumeric = floatval($montants['totalPrevisionnel'] ?? 0);
             if ($facture->previsionnel) {
                 $templateProcessor->cloneRow('montantreg', 0);
-                $montantReg = 0;
             } else {
                 $montantReg                   = $factureCalculator->calculerRegularisation($facture->idFacture);
                 $valeurPrevisionnelleNumeric += floatval($montantReg ?? 0);

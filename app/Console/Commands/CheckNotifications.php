@@ -1,14 +1,13 @@
 <?php
-
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
+use App\Models\DocumentObligatoire;
+use App\Models\Evenement;
 use App\Models\NotificationSetting;
 use App\Models\Utilisateur;
-use App\Models\Evenement;
-use App\Models\DocumentObligatoire;
 use App\Notifications\SendNotification;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class CheckNotifications extends Command
 {
@@ -67,11 +66,11 @@ class CheckNotifications extends Command
                     }
 
                     $user->notify(new SendNotification([
-                        'title'      => "Rappel : {$event->titre}",
+                        'title' => "Rappel : {$event->titre}",
                         'message'    => "L'événement aura lieu le " . Carbon::parse($event->dateE)->format('d/m/Y'),
                         'action_url' => url('/evenements/' . $event->idEvenement),
                         'event_id'   => $event->idEvenement,
-                        'event_date' => $dateEventFormattee
+                        'event_date' => $dateEventFormattee,
                     ]));
                 }
                 $this->info("    -> Notifications envoyées.");
@@ -88,16 +87,15 @@ class CheckNotifications extends Command
         foreach ($allDocs as $doc) {
             $rolesIds = $doc->roles->pluck('idRole');
 
-            if ($rolesIds->isEmpty()) {
-                continue;
-            }
+            if (! $rolesIds->isEmpty()) {
 
-            $usersCibles = Utilisateur::whereHas('rolesCustom', function ($query) use ($rolesIds) {
-                $query->whereIn('role.idRole', $rolesIds);
-            })->get();
+                $usersCibles = Utilisateur::whereHas('rolesCustom', function ($query) use ($rolesIds) {
+                    $query->whereIn('role.idRole', $rolesIds);
+                })->get();
 
-            foreach ($usersCibles as $user) {
-                $this->checkSingleUserDocument($user, $doc, $rule);
+                foreach ($usersCibles as $user) {
+                    $this->checkSingleUserDocument($user, $doc, $rule);
+                }
             }
         }
     }
@@ -108,15 +106,15 @@ class CheckNotifications extends Command
             ->where('idDocumentObligatoire', $doc->idDocumentObligatoire)
             ->exists();
 
-        if (!$aDepose) {
+        if (! $aDepose) {
             if ($rule->recurrence_days > 0) {
                 $lastNotif = $user->notifications()
                     ->where('data->doc_id', $doc->idDocumentObligatoire)
                     ->latest()
                     ->first();
 
-                if (!$lastNotif) {
-                     $lastNotif = $user->notifications()
+                if (! $lastNotif) {
+                    $lastNotif = $user->notifications()
                         ->where('data->title', "Document manquant : {$doc->nom}")
                         ->latest()
                         ->first();
@@ -132,10 +130,10 @@ class CheckNotifications extends Command
             }
 
             $user->notify(new SendNotification([
-                'title'      => "Document manquant : {$doc->nom}",
-                'message'    => "Merci de déposer le document requis : {$doc->nom}.",
+                'title' => "Document manquant : {$doc->nom}",
+                'message' => "Merci de déposer le document requis : {$doc->nom}.",
                 'action_url' => url('/documents'),
-                'doc_id'     => $doc->idDocumentObligatoire
+                'doc_id'     => $doc->idDocumentObligatoire,
             ]));
 
             $this->info("    -> Alerte envoyée à {$user->nom} pour {$doc->nom}");
