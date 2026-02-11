@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('evenement', function (Blueprint $table) {
-            $table->increments('idEvenement');
+            $table->integer('idEvenement')->primary()->autoIncrement();
             $table->string('titre', 255);
             $table->text('description')->nullable();
             $table->boolean('obligatoire')->default(false);
