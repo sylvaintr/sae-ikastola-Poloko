@@ -13,15 +13,15 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        Permission::create(['name' => 'access-administration']);
-        Permission::create(['name' => 'access-demande']);
-        Permission::create(['name' => 'access-tache']);
-        Permission::create(['name' => 'access-presence']);
-        Permission::create(['name' => 'access-evenement']);
-        Permission::create(['name' => 'access-calendrier']);
-        Permission::create(['name' => 'gerer-presence']);
-        Permission::create(['name' => 'gerer-actualites']);
-        Permission::create(['name' => 'gerer-etiquettes']);
-        Permission::create(['name' => 'gerer-demandes']);
+        Permission::firstOrCreate(['name' => 'access-administration'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'access-demande'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'access-tache'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'access-presence'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'access-evenement'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'access-calendrier'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-presence'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-actualites'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-etiquettes'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-demandes'], ['guard_name' => 'web']);
     }
 }
