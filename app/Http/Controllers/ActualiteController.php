@@ -114,32 +114,7 @@ class ActualiteController extends Controller
      */
     public function store(Request $request)
     {
-        // Support both StoreActualiteRequest and plain Request in tests
-        if (method_exists($request, 'validated')) {
-            $data = $request->validated();
-        } else {
-            // Ensure slashed dates (d/m/Y) are normalized before validation
-            if ($request->has('dateP') && str_contains($request->dateP, '/')) {
-                $d = \DateTime::createFromFormat('d/m/Y', $request->dateP);
-                if ($d) {
-                    $request->merge(['dateP' => $d->format('Y-m-d')]);
-                }
-            }
-            $formRequest = new StoreActualiteRequest();
-            $rules = $this->addWebpSupportToActualiteImageRules($formRequest->rules());
-            $messages = method_exists($formRequest, 'messages') ? $formRequest->messages() : [];
-            $messages = array_merge($messages, [
-                // Message plus compréhensible que "images.0 ..."
-                'images.*.image' => __('actualite.validation.image_format'),
-                'images.*.mimes' => __('actualite.validation.image_format'),
-                'images.*.max'   => __('actualite.validation.image_max'),
-            ]);
-            $attributes = method_exists($formRequest, 'attributes') ? $formRequest->attributes() : [];
-            $attributes = array_merge($attributes, [
-                'images.*' => __('actualite.validation.image_label'),
-            ]);
-            $data = $request->validate($rules, $messages, $attributes);
-        }
+        $data = $this->validateActualiteRequest($request);
         $data['idUtilisateur'] = Auth::id();
 
         $actualite = Actualite::create($data);
@@ -184,30 +159,7 @@ class ActualiteController extends Controller
             return redirect()->back()->with('error', __('actualite.not_found'));
         }
 
-        if (method_exists($request, 'validated')) {
-            $validated = $request->validated();
-        } else {
-            // Normalize slashed date format before validating as StoreActualiteRequest is not executed
-            if ($request->has('dateP') && str_contains($request->dateP, '/')) {
-                $d = \DateTime::createFromFormat('d/m/Y', $request->dateP);
-                if ($d) {
-                    $request->merge(['dateP' => $d->format('Y-m-d')]);
-                }
-            }
-            $formRequest = new StoreActualiteRequest();
-            $rules = $this->addWebpSupportToActualiteImageRules($formRequest->rules());
-            $messages = method_exists($formRequest, 'messages') ? $formRequest->messages() : [];
-            $messages = array_merge($messages, [
-                'images.*.image' => __('actualite.validation.image_format'),
-                'images.*.mimes' => __('actualite.validation.image_format'),
-                'images.*.max'   => __('actualite.validation.image_max'),
-            ]);
-            $attributes = method_exists($formRequest, 'attributes') ? $formRequest->attributes() : [];
-            $attributes = array_merge($attributes, [
-                'images.*' => __('actualite.validation.image_label'),
-            ]);
-            $validated = $request->validate($rules, $messages, $attributes);
-        }
+        $validated = $this->validateActualiteRequest($request);
 
         // update() utilise les données déjà validées et formatées (dateP convertie)
         $actualite->update($validated);
@@ -293,36 +245,8 @@ class ActualiteController extends Controller
         $this->ensureEtiquetteIsPublicColumn();
 
         $query = Actualite::with('etiquettes')->orderBy('dateP', 'desc');
-
-        $filters = [
-            'type'      => $request->get('type', ''),
-            'etat'      => $request->get('etat', ''),
-            'etiquette' => $request->get('etiquette', ''),
-            'search'    => $request->get('search', ''),
-        ];
-
-        if (! empty($filters['type'])) {
-            $query->where('type', $filters['type']);
-        }
-
-        if (! empty($filters['etat'])) {
-            $filters['etat'] === 'active'
-                ? $query->where('archive', false)
-                : $query->where('archive', true);
-        }
-
-        if (! empty($filters['etiquette'])) {
-            $ids = array_map('intval', (array) $filters['etiquette']);
-            $query->whereHas('etiquettes', fn($q) => $q->whereIn('etiquette.idEtiquette', $ids));
-        }
-
-        if (! empty($filters['search'])) {
-            $term = '%' . $filters['search'] . '%';
-            $query->where(function ($q) use ($term) {
-                $q->where('titrefr', 'like', $term)
-                    ->orWhere('titreeus', 'like', $term);
-            });
-        }
+        $filters = $this->extractFilters($request);
+        $this->applyFiltersToQuery($query, $filters);
 
         $actualites = $query->paginate(10)->appends($request->query());
         $etiquettes = Etiquette::all();
@@ -343,6 +267,73 @@ class ActualiteController extends Controller
     }
 
     /**
+     * Valide une requête d'actualité avec normalisation de date et support WebP.
+     *
+     * @param Request $request
+     * @return array
+     */
+    private function validateActualiteRequest(Request $request): array
+    {
+        // Support both StoreActualiteRequest and plain Request in tests
+        if (method_exists($request, 'validated')) {
+            return $request->validated();
+        }
+
+        // Normalize slashed date format before validating
+        $this->normalizeDateP($request);
+
+        $formRequest = new StoreActualiteRequest();
+        $rules = $this->addWebpSupportToActualiteImageRules($formRequest->rules());
+        $messages = $this->getValidationMessages($formRequest);
+        $attributes = $this->getValidationAttributes($formRequest);
+
+        return $request->validate($rules, $messages, $attributes);
+    }
+
+    /**
+     * Normalise le format de date d/m/Y vers Y-m-d si nécessaire.
+     */
+    private function normalizeDateP(Request $request): void
+    {
+        if ($request->has('dateP') && str_contains($request->dateP, '/')) {
+            $d = \DateTime::createFromFormat('d/m/Y', $request->dateP);
+            if ($d) {
+                $request->merge(['dateP' => $d->format('Y-m-d')]);
+            }
+        }
+    }
+
+    /**
+     * Retourne les messages de validation pour les images.
+     *
+     * @param StoreActualiteRequest $formRequest
+     * @return array
+     */
+    private function getValidationMessages(StoreActualiteRequest $formRequest): array
+    {
+        $messages = method_exists($formRequest, 'messages') ? $formRequest->messages() : [];
+        return array_merge($messages, [
+            'images.*.image' => __('actualite.validation.image_format'),
+            'images.*.mimes' => __('actualite.validation.image_format'),
+            'images.*.max'   => __('actualite.validation.image_max'),
+        ]);
+    }
+
+    /**
+     * Retourne les attributs de validation pour les images.
+     *
+     * @param StoreActualiteRequest $formRequest
+     * @return array
+     */
+    private function getValidationAttributes(StoreActualiteRequest $formRequest): array
+    {
+        $attributes = method_exists($formRequest, 'attributes') ? $formRequest->attributes() : [];
+        return array_merge($attributes, [
+            'images.*' => __('actualite.validation.image_label'),
+        ]);
+    }
+
+    /**
      * Ajoute WebP aux règles de validation des images d'actualité,
      * afin d'accepter les fichiers `.webp` même si la liste `mimes:` est restrictive.
      *
@@ -360,56 +351,85 @@ class ActualiteController extends Controller
     }
 
     /**
+     * Ajoute WebP à une règle de validation (string ou array).
+     *
      * @param mixed $rule
      * @return mixed
      */
     private function ensureRuleAllowsWebp($rule)
     {
-        // String rules: "image|mimes:jpeg,png|..."
         if (is_string($rule)) {
-            $parts = explode('|', $rule);
-            $hasMimes = false;
-            foreach ($parts as &$p) {
-                if (str_starts_with($p, 'mimes:')) {
-                    $hasMimes = true;
-                    $list = substr($p, strlen('mimes:'));
-                    $mimes = array_filter(array_map('trim', explode(',', $list)));
-                    if (!in_array('webp', $mimes, true)) {
-                        $mimes[] = 'webp';
-                    }
-                    $p = 'mimes:' . implode(',', $mimes);
-                }
-            }
-            unset($p);
-            if (! $hasMimes) {
-                $parts[] = 'mimes:jpeg,png,jpg,gif,webp';
-            }
-            return implode('|', $parts);
+            return $this->addWebpToStringRule($rule);
         }
 
-        // Array rules: ['image', 'mimes:jpeg,png', ...]
         if (is_array($rule)) {
-            $hasMimes = false;
-            foreach ($rule as $i => $r) {
-                if (!is_string($r)) {
-                    continue;
-                }
-                if (str_starts_with($r, 'mimes:')) {
-                    $hasMimes = true;
-                    $list = substr($r, strlen('mimes:'));
-                    $mimes = array_filter(array_map('trim', explode(',', $list)));
-                    if (!in_array('webp', $mimes, true)) {
-                        $mimes[] = 'webp';
-                    }
-                    $rule[$i] = 'mimes:' . implode(',', $mimes);
-                }
-            }
-            if (! $hasMimes) {
-                $rule[] = 'mimes:jpeg,png,jpg,gif,webp';
-            }
+            return $this->addWebpToArrayRule($rule);
         }
 
         return $rule;
+    }
+
+    /**
+     * Ajoute WebP à une règle de validation sous forme de string.
+     *
+     * @param string $rule
+     * @return string
+     */
+    private function addWebpToStringRule(string $rule): string
+    {
+        $parts = explode('|', $rule);
+        $hasMimes = false;
+        foreach ($parts as &$p) {
+            if (str_starts_with($p, 'mimes:')) {
+                $hasMimes = true;
+                $p = $this->addWebpToMimesString($p);
+            }
+        }
+        unset($p);
+        if (! $hasMimes) {
+            $parts[] = 'mimes:jpeg,png,jpg,gif,webp';
+        }
+        return implode('|', $parts);
+    }
+
+    /**
+     * Ajoute WebP à une règle de validation sous forme de array.
+     *
+     * @param array $rule
+     * @return array
+     */
+    private function addWebpToArrayRule(array $rule): array
+    {
+        $hasMimes = false;
+        foreach ($rule as $i => $r) {
+            if (!is_string($r)) {
+                continue;
+            }
+            if (str_starts_with($r, 'mimes:')) {
+                $hasMimes = true;
+                $rule[$i] = $this->addWebpToMimesString($r);
+            }
+        }
+        if (! $hasMimes) {
+            $rule[] = 'mimes:jpeg,png,jpg,gif,webp';
+        }
+        return $rule;
+    }
+
+    /**
+     * Ajoute WebP à une chaîne mimes: existante.
+     *
+     * @param string $mimesString
+     * @return string
+     */
+    private function addWebpToMimesString(string $mimesString): string
+    {
+        $list = substr($mimesString, strlen('mimes:'));
+        $mimes = array_filter(array_map('trim', explode(',', $list)));
+        if (!in_array('webp', $mimes, true)) {
+            $mimes[] = 'webp';
+        }
+        return 'mimes:' . implode(',', $mimes);
     }
 
     /**
@@ -436,22 +456,8 @@ class ActualiteController extends Controller
     {
         $request = $request ?? request();
         $query   = Actualite::query()->with('etiquettes');
-
-        // Filtres simples
-        if ($request->filled('type')) {
-            $query->where('type', $request->input('type'));
-        }
-        if ($request->filled('etat')) {
-            $request->input('etat') === 'active' ? $query->where('archive', false) : $query->where('archive', true);
-        }
-
-        // Filtre Etiquettes
-        if ($request->filled('etiquette')) {
-            $ids = array_map('intval', (array) $request->input('etiquette'));
-            $query->whereHas('etiquettes', function ($q) use ($ids) {
-                $q->whereIn('etiquette.idEtiquette', $ids);
-            });
-        }
+        $filters = $this->extractFilters($request);
+        $this->applyFiltersToQuery($query, $filters);
 
         return DataTables::of($query)
             ->addColumn('titre', fn($actu) => $actu->titrefr ?? 'Sans titre')
@@ -468,6 +474,53 @@ class ActualiteController extends Controller
             ->filterColumn('etiquettes', [$this, 'filterColumnEtiquettesCallback'])
             ->rawColumns(['actions'])
             ->make(true);
+    }
+
+    /**
+     * Extrait les filtres de la requête.
+     *
+     * @param Request $request
+     * @return array
+     */
+    private function extractFilters(Request $request): array
+    {
+        return [
+            'type'      => $request->get('type', ''),
+            'etat'      => $request->get('etat', ''),
+            'etiquette' => $request->get('etiquette', ''),
+            'search'    => $request->get('search', ''),
+        ];
+    }
+
+    /**
+     * Applique les filtres à la requête.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array $filters
+     * @return void
+     */
+    private function applyFiltersToQuery($query, array $filters): void
+    {
+        if (! empty($filters['type'])) {
+            $query->where('type', $filters['type']);
+        }
+
+        if (! empty($filters['etat'])) {
+            $query->where('archive', $filters['etat'] !== 'active');
+        }
+
+        if (! empty($filters['etiquette'])) {
+            $ids = array_map('intval', (array) $filters['etiquette']);
+            $query->whereHas('etiquettes', fn($q) => $q->whereIn('etiquette.idEtiquette', $ids));
+        }
+
+        if (! empty($filters['search'])) {
+            $term = '%' . $filters['search'] . '%';
+            $query->where(function ($q) use ($term) {
+                $q->where('titrefr', 'like', $term)
+                    ->orWhere('titreeus', 'like', $term);
+            });
+        }
     }
 
     // Delegates unknown helper calls to a dedicated helper class so the
