@@ -121,12 +121,6 @@
                                         <span class="fr">{{ Lang::get('evenements.description') }}</span>
                                     </div>
                                 </th>
-                                <th>
-                                    <div class="demande-header-label">
-                                        <span class="basque">{{ Lang::get('evenements.status', [], 'eus') }}</span>
-                                        <span class="fr">{{ Lang::get('evenements.status') }}</span>
-                                    </div>
-                                </th>
                                 <th class="text-end">
                                     <div class="demande-header-label">
                                         <span class="basque">{{ Lang::get('evenements.actions', [], 'eus') }}</span>
@@ -142,7 +136,6 @@
                                     <td>{{ number_format((float) $recette->prix, 2, ',', ' ') }} &euro;</td>
                                     <td>{{ $recette->quantite }}</td>
                                     <td class="text-muted">{{ $recette->description }}</td>
-                                    <td><span class="text-muted">{{ __('evenements.status_pending') }}</span></td>
                                     <td class="text-end">
                                         <div class="d-flex align-items-center justify-content-end gap-3">
                                             <a href="{{ route('recettes.edit', $recette) }}" class="admin-action-link" title="{{ __('evenements.action_edit') }}">
@@ -160,7 +153,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">{{ __('evenements.no_recettes') }}</td>
+                                    <td colspan="5" class="text-center text-muted py-4">{{ __('evenements.no_recettes') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>
