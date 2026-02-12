@@ -51,19 +51,6 @@
                         </span>
                     @endif
                 </div>
-                <div>
-                    <strong>
-                        <span class="basque">{{ Lang::get('evenements.recurrence', [], 'eus') }}</span>
-                        @if (Lang::getLocale() == 'fr')
-                            <span class="fr">/ {{ Lang::get('evenements.recurrence') }}</span>
-                        @endif
-                        :
-                    </strong>
-                    <span class="basque">{{ Lang::get('evenements.recurrence_annual', [], 'eus') }}</span>
-                    @if (Lang::getLocale() == 'fr')
-                        <span class="fr text-muted">/ {{ Lang::get('evenements.recurrence_annual') }}</span>
-                    @endif
-                </div>
             </div>
         </div>
 
