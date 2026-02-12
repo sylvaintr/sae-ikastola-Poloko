@@ -18,8 +18,7 @@ class RolePermissionControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Création de l'admin CA pour l'accès aux routes
-        \Spatie\Permission\Models\Role::create(['name' => 'CA']);
+        // Création de l'admin CA pour l'accès aux routes (TestCase seeds permissions/roles)
         $this->admin = Utilisateur::factory()->create();
         $this->admin->assignRole('CA');
 

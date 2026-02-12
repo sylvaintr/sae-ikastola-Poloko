@@ -14,7 +14,7 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_index_shows_documents()
     {
-        $role1 = Role::factory()->create(['name' => 'CA']);
+        $role1 = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $role2 = Role::factory()->create();
 
         $doc = DocumentObligatoire::factory()->create(['dateE' => true]);
@@ -31,7 +31,7 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_create_returns_view()
     {
-        Role::factory()->create(['name' => 'CA']);
+        \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
 
@@ -42,7 +42,7 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_store_creates_document_and_syncs_roles()
     {
-        $role1 = Role::factory()->create(['name' => 'CA']);
+        $role1 = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $role2 = Role::factory()->create();
 
         $admin = Utilisateur::factory()->create();
@@ -64,7 +64,7 @@ class ObligatoryDocumentControllerTest extends TestCase
 
     public function test_edit_update_and_destroy_flow()
     {
-        $role1 = Role::factory()->create(['name' => 'CA']);
+        $role1 = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $role2 = Role::factory()->create();
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
