@@ -1,47 +1,53 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreActualiteRequest;
 use App\Models\Actualite;
 use App\Models\Document;
 use App\Models\Etiquette;
-use App\Models\Posseder; // Import de la Request
+use App\Services\ActualiteDataTableService;
+use App\Services\ActualiteEtiquetteService;
+use App\Services\ActualiteFilterService;
+use App\Services\ActualiteImageService;
+use App\Services\ActualiteValidationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\Facades\DataTables;
 
 class ActualiteController extends Controller
 {
+    private ActualiteEtiquetteService $etiquetteService;
+    private ActualiteFilterService $filterService;
+    private ActualiteValidationService $validationService;
+    private ActualiteImageService $imageService;
+    private ActualiteDataTableService $dataTableService;
+
+    public function __construct(
+        ActualiteEtiquetteService $etiquetteService,
+        ActualiteFilterService $filterService,
+        ActualiteValidationService $validationService,
+        ActualiteImageService $imageService,
+        ActualiteDataTableService $dataTableService
+    ) {
+        $this->etiquetteService = $etiquetteService;
+        $this->filterService = $filterService;
+        $this->validationService = $validationService;
+        $this->imageService = $imageService;
+        $this->dataTableService = $dataTableService;
+    }
+
     /**
      * Affiche la liste publique des actualités (Front-end).
      */
     public function index(?Request $request = null)
     {
-        $this->ensureEtiquetteIsPublicColumn();
+        $this->etiquetteService->ensurePublicColumn();
 
         $request = $request ?? request();
-        // 1. Définir les étiquettes autorisées
-        // Étiquettes non liées à un rôle : accessibles à tous
-        $unboundIds = Etiquette::whereNotIn('idEtiquette', Posseder::distinct()->pluck('idEtiquette'))->pluck('idEtiquette')->toArray();
-
-        $hasIsPublic  = Schema::hasColumn('etiquette', 'public');
-        $publicTagIds = $hasIsPublic
-            ? Etiquette::where('public', true)->pluck('idEtiquette')->toArray()
-            : [];
-        $authUser = $request->user() ?? Auth::user();
-        if (! $authUser) {
-            // Invité : seules les étiquettes publiques sont considérées
-            $etiquettes      = Etiquette::whereIn('idEtiquette', $publicTagIds)->get();
-            $allowedIdsArray = $publicTagIds;
-        } else {
-            $roleIds         = $authUser->rolesCustom->pluck('idRole')->toArray();
-            $allowedIds      = Posseder::whereIn('idRole', $roleIds)->pluck('idEtiquette')->toArray();
-            $allowedIdsArray = array_values(array_unique(array_merge($allowedIds, $publicTagIds)));
-            $etiquettes      = Etiquette::whereIn('idEtiquette', $allowedIdsArray)->get();
-        }
+        $etiquetteData = $this->etiquetteService->resolveAllowedEtiquettes($request);
+        $etiquettes = $etiquetteData['etiquettes'];
+        $allowedIdsArray = $etiquetteData['allowedIds'];
+        $publicTagIds = $etiquetteData['publicTagIds'];
+        $unboundIds = $etiquetteData['unboundIds'];
 
         // 2. Construire la requête
         $query = Actualite::with(['etiquettes', 'documents'])
@@ -114,7 +120,7 @@ class ActualiteController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $this->validateActualiteRequest($request);
+        $data = $this->validationService->validateRequest($request);
         $data['idUtilisateur'] = Auth::id();
 
         $actualite = Actualite::create($data);
@@ -124,7 +130,7 @@ class ActualiteController extends Controller
         }
 
         if ($request->hasFile('images')) {
-            $this->uploadImages($request->file('images'), $actualite);
+            $this->imageService->uploadImages($request->file('images'), $actualite);
         }
 
         return redirect()->route('home')->with('success', 'Actualité créée avec succès.');
@@ -159,7 +165,7 @@ class ActualiteController extends Controller
             return redirect()->back()->with('error', __('actualite.not_found'));
         }
 
-        $validated = $this->validateActualiteRequest($request);
+        $validated = $this->validationService->validateRequest($request);
 
         // update() utilise les données déjà validées et formatées (dateP convertie)
         $actualite->update($validated);
@@ -171,7 +177,7 @@ class ActualiteController extends Controller
         }
 
         if ($request->hasFile('images')) {
-            $this->uploadImages($request->file('images'), $actualite);
+            $this->imageService->uploadImages($request->file('images'), $actualite);
         }
 
         return redirect()->route('actualites.show', $id)->with('success', 'Actualité mise à jour.');
@@ -242,11 +248,11 @@ class ActualiteController extends Controller
 
     public function adminIndex(Request $request)
     {
-        $this->ensureEtiquetteIsPublicColumn();
+        $this->etiquetteService->ensurePublicColumn();
 
         $query = Actualite::with('etiquettes')->orderBy('dateP', 'desc');
-        $filters = $this->extractFilters($request);
-        $this->applyFiltersToQuery($query, $filters);
+        $filters = $this->filterService->extractFilters($request);
+        $this->filterService->applyFilters($query, $filters);
 
         $actualites = $query->paginate(10)->appends($request->query());
         $etiquettes = Etiquette::all();
@@ -254,274 +260,19 @@ class ActualiteController extends Controller
         return view('actualites.pannel', compact('actualites', 'etiquettes', 'filters'));
     }
 
-    /**
-     * Ajoute la colonne public sur etiquette si absente (pas de nouvelle migration).
-     */
-    private function ensureEtiquetteIsPublicColumn(): void
-    {
-        if (! Schema::hasColumn('etiquette', 'public')) {
-            Schema::table('etiquette', function ($table) {
-                $table->boolean('public')->default(false)->after('nom');
-            });
-        }
-    }
 
     /**
-     * Valide une requête d'actualité avec normalisation de date et support WebP.
-     *
-     * @param Request $request
-     * @return array
-     */
-    private function validateActualiteRequest(Request $request): array
-    {
-        // Support both StoreActualiteRequest and plain Request in tests
-        if (method_exists($request, 'validated')) {
-            return $request->validated();
-        }
-
-        // Normalize slashed date format before validating
-        $this->normalizeDateP($request);
-
-        $formRequest = new StoreActualiteRequest();
-        $rules = $this->addWebpSupportToActualiteImageRules($formRequest->rules());
-        $messages = $this->getValidationMessages($formRequest);
-        $attributes = $this->getValidationAttributes($formRequest);
-
-        return $request->validate($rules, $messages, $attributes);
-    }
-
-    /**
-     * Normalise le format de date d/m/Y vers Y-m-d si nécessaire.
-     */
-    private function normalizeDateP(Request $request): void
-    {
-        if ($request->has('dateP') && str_contains($request->dateP, '/')) {
-            $d = \DateTime::createFromFormat('d/m/Y', $request->dateP);
-            if ($d) {
-                $request->merge(['dateP' => $d->format('Y-m-d')]);
-            }
-        }
-    }
-
-    /**
-     * Retourne les messages de validation pour les images.
-     *
-     * @param StoreActualiteRequest $formRequest
-     * @return array
-     */
-    private function getValidationMessages(StoreActualiteRequest $formRequest): array
-    {
-        $messages = method_exists($formRequest, 'messages') ? $formRequest->messages() : [];
-        return array_merge($messages, [
-            'images.*.image' => __('actualite.validation.image_format'),
-            'images.*.mimes' => __('actualite.validation.image_format'),
-            'images.*.max'   => __('actualite.validation.image_max'),
-        ]);
-    }
-
-    /**
-     * Retourne les attributs de validation pour les images.
-     *
-     * @param StoreActualiteRequest $formRequest
-     * @return array
-     */
-    private function getValidationAttributes(StoreActualiteRequest $formRequest): array
-    {
-        $attributes = method_exists($formRequest, 'attributes') ? $formRequest->attributes() : [];
-        return array_merge($attributes, [
-            'images.*' => __('actualite.validation.image_label'),
-        ]);
-    }
-
-    /**
-     * Ajoute WebP aux règles de validation des images d'actualité,
-     * afin d'accepter les fichiers `.webp` même si la liste `mimes:` est restrictive.
-     *
-     * @param array<string, mixed> $rules
-     * @return array<string, mixed>
-     */
-    private function addWebpSupportToActualiteImageRules(array $rules): array
-    {
-        if (!array_key_exists('images.*', $rules)) {
-            return $rules;
-        }
-
-        $rules['images.*'] = $this->ensureRuleAllowsWebp($rules['images.*']);
-        return $rules;
-    }
-
-    /**
-     * Ajoute WebP à une règle de validation (string ou array).
-     *
-     * @param mixed $rule
-     * @return mixed
-     */
-    private function ensureRuleAllowsWebp($rule)
-    {
-        if (is_string($rule)) {
-            return $this->addWebpToStringRule($rule);
-        }
-
-        if (is_array($rule)) {
-            return $this->addWebpToArrayRule($rule);
-        }
-
-        return $rule;
-    }
-
-    /**
-     * Ajoute WebP à une règle de validation sous forme de string.
-     *
-     * @param string $rule
-     * @return string
-     */
-    private function addWebpToStringRule(string $rule): string
-    {
-        $parts = explode('|', $rule);
-        $hasMimes = false;
-        foreach ($parts as &$p) {
-            if (str_starts_with($p, 'mimes:')) {
-                $hasMimes = true;
-                $p = $this->addWebpToMimesString($p);
-            }
-        }
-        unset($p);
-        if (! $hasMimes) {
-            $parts[] = 'mimes:jpeg,png,jpg,gif,webp';
-        }
-        return implode('|', $parts);
-    }
-
-    /**
-     * Ajoute WebP à une règle de validation sous forme de array.
-     *
-     * @param array $rule
-     * @return array
-     */
-    private function addWebpToArrayRule(array $rule): array
-    {
-        $hasMimes = false;
-        foreach ($rule as $i => $r) {
-            if (!is_string($r)) {
-                continue;
-            }
-            if (str_starts_with($r, 'mimes:')) {
-                $hasMimes = true;
-                $rule[$i] = $this->addWebpToMimesString($r);
-            }
-        }
-        if (! $hasMimes) {
-            $rule[] = 'mimes:jpeg,png,jpg,gif,webp';
-        }
-        return $rule;
-    }
-
-    /**
-     * Ajoute WebP à une chaîne mimes: existante.
-     *
-     * @param string $mimesString
-     * @return string
-     */
-    private function addWebpToMimesString(string $mimesString): string
-    {
-        $list = substr($mimesString, strlen('mimes:'));
-        $mimes = array_filter(array_map('trim', explode(',', $list)));
-        if (!in_array('webp', $mimes, true)) {
-            $mimes[] = 'webp';
-        }
-        return 'mimes:' . implode(',', $mimes);
-    }
-
-    /**
-     * Méthode privée pour gérer l'upload (évite la duplication de code)
-     */
-    private function uploadImages(array $files, Actualite $actualite)
-    {
-        foreach ($files as $file) {
-            $path     = $file->store('actualites', 'public');
-            $document = Document::create([
-                'nom'    => $file->getClientOriginalName(),
-                'chemin' => $path,
-                'type'   => 'image',
-                'etat'   => 'actif',
-            ]);
-            $actualite->documents()->attach($document->idDocument);
-        }
-    }
-
-    /**
-     * Données pour DataTables (Logique inlined pour réduire le nombre de méthodes)
+     * Données pour DataTables.
      */
     public function data(?Request $request = null)
     {
-        $request = $request ?? request();
-        $query   = Actualite::query()->with('etiquettes');
-        $filters = $this->extractFilters($request);
-        $this->applyFiltersToQuery($query, $filters);
-
-        return DataTables::of($query)
-            ->addColumn('titre', fn($actu) => $actu->titrefr ?? 'Sans titre')
-            ->addColumn('etiquettes', fn($actu) => $actu->etiquettes->pluck('nom')->join(', '))
-            ->addColumn('etat', fn($actu) => $actu->archive ? Lang::get('actualite.archived') : Lang::get('actualite.active'))
-            ->addColumn('actions', fn($actu) => view('actualites.template.colonne-action', ['actualite' => $actu]))
-
-        // Filtre Titre (recherche globale) — use direct callable to improve testability
-            ->filterColumn('titre', [$this, 'filterColumnTitreInline'])
-        // Filtre Etiquettes (recherche textuelle) — use direct callable
-            ->filterColumn('etiquettes', [$this, 'filterColumnEtiquettesInline'])
-        // Register callable wrappers so unit tests can invoke them directly
-            ->filterColumn('titre', [$this, 'filterColumnTitreCallback'])
-            ->filterColumn('etiquettes', [$this, 'filterColumnEtiquettesCallback'])
-            ->rawColumns(['actions'])
-            ->make(true);
+        return $this->dataTableService->buildDataTable(
+            $request,
+            [$this->dataTableService, 'filterColumnTitreInline'],
+            [$this->dataTableService, 'filterColumnEtiquettesInline']
+        );
     }
 
-    /**
-     * Extrait les filtres de la requête.
-     *
-     * @param Request $request
-     * @return array
-     */
-    private function extractFilters(Request $request): array
-    {
-        return [
-            'type'      => $request->get('type', ''),
-            'etat'      => $request->get('etat', ''),
-            'etiquette' => $request->get('etiquette', ''),
-            'search'    => $request->get('search', ''),
-        ];
-    }
-
-    /**
-     * Applique les filtres à la requête.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param array $filters
-     * @return void
-     */
-    private function applyFiltersToQuery($query, array $filters): void
-    {
-        if (! empty($filters['type'])) {
-            $query->where('type', $filters['type']);
-        }
-
-        if (! empty($filters['etat'])) {
-            $query->where('archive', $filters['etat'] !== 'active');
-        }
-
-        if (! empty($filters['etiquette'])) {
-            $ids = array_map('intval', (array) $filters['etiquette']);
-            $query->whereHas('etiquettes', fn($q) => $q->whereIn('etiquette.idEtiquette', $ids));
-        }
-
-        if (! empty($filters['search'])) {
-            $term = '%' . $filters['search'] . '%';
-            $query->where(function ($q) use ($term) {
-                $q->where('titrefr', 'like', $term)
-                    ->orWhere('titreeus', 'like', $term);
-            });
-        }
-    }
 
     // Delegates unknown helper calls to a dedicated helper class so the
     // controller stays small (helps static analyzers enforce method limits).
@@ -545,19 +296,4 @@ class ActualiteController extends Controller
         throw new \BadMethodCallException("Method {$method} does not exist.");
     }
 
-    /**
-     * Inline titre filter extracted to a private method so unit tests can target it.
-     */
-    private function filterColumnTitreInline($q, $keyword)
-    {
-        $q->where(fn($sq) => $sq->where('titrefr', 'like', "%{$keyword}%")->orWhere('titreeus', 'like', "%{$keyword}%"));
-    }
-
-    /**
-     * Inline etiquettes filter extracted to a private method so unit tests can target it.
-     */
-    private function filterColumnEtiquettesInline($q, $keyword)
-    {
-        $q->whereHas('etiquettes', fn($sq) => $sq->where('nom', 'like', "%{$keyword}%"));
-    }
 }
