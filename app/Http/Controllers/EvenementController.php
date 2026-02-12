@@ -69,7 +69,7 @@ class EvenementController extends Controller
             'start_at' => ['required', 'date'],
             'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
 
-            'roles' => ['nullable', 'array', 'max:50'],
+            'roles' => ['required', 'array', 'min:1', 'max:50'],
             'roles.*' => ['integer', 'exists:role,idRole'],
         ]);
 
@@ -125,7 +125,7 @@ class EvenementController extends Controller
             'start_at' => ['required', 'date'],
             'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
 
-            'roles' => ['nullable', 'array', 'max:50'],
+            'roles' => ['required', 'array', 'min:1', 'max:50'],
             'roles.*' => ['integer', 'exists:role,idRole'],
         ]);
 

@@ -29,25 +29,26 @@
                 <h1 class="fw-bold mb-1">{{ $evenement->titre }}</h1>
                 <div class="text-muted small">{{ \Carbon\Carbon::parse($evenement->dateE)->format('d F Y') }}</div>
             </div>
-            <div class="d-flex flex-wrap gap-4 text-muted small">
-                <div>
+            <div class="d-flex flex-wrap gap-4 text-muted small align-items-center">
+                <div class="d-flex align-items-center flex-wrap gap-2">
                     <strong>
-                        <span class="basque">{{ Lang::get('evenements.cible', [], 'eus') }}</span>
+                        <span class="basque">{{ Lang::get('evenements.roles', [], 'eus') }}</span>
                         @if (Lang::getLocale() == 'fr')
-                            <span class="fr">/ {{ Lang::get('evenements.cible') }}</span>
+                            <span class="fr">/ {{ Lang::get('evenements.roles') }}</span>
                         @endif
                         :
                     </strong>
                     @if ($evenement->roles->count())
-                        <span class="basque">{{ Lang::get('evenements.cible_restricted', [], 'eus') }}</span>
-                        @if (Lang::getLocale() == 'fr')
-                            <span class="fr text-muted">/ {{ Lang::get('evenements.cible_restricted') }}</span>
-                        @endif
+                        @foreach ($evenement->roles as $role)
+                            <span class="badge bg-warning-subtle text-warning">{{ ucfirst($role->name) }}</span>
+                        @endforeach
                     @else
-                        <span class="basque">{{ Lang::get('evenements.cible_all', [], 'eus') }}</span>
-                        @if (Lang::getLocale() == 'fr')
-                            <span class="fr text-muted">/ {{ Lang::get('evenements.cible_all') }}</span>
-                        @endif
+                        <span class="badge bg-success-subtle text-success">
+                            <span class="basque">{{ Lang::get('evenements.cible_all', [], 'eus') }}</span>
+                            @if (Lang::getLocale() == 'fr')
+                                <span class="fr">/ {{ Lang::get('evenements.cible_all') }}</span>
+                            @endif
+                        </span>
                     @endif
                 </div>
                 <div>
