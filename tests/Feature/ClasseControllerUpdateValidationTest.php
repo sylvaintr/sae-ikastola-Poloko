@@ -28,6 +28,7 @@ class ClasseControllerUpdateValidationTest extends TestCase
 
         // authenticate as admin and disable role middleware
         $admin = Utilisateur::factory()->create();
+        $admin->assignRole('CA');
         $this->actingAs($admin);
         $this->withoutMiddleware(\Spatie\Permission\Middleware\RoleMiddleware::class);
 

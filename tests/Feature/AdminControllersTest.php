@@ -16,7 +16,7 @@ class AdminControllersTest extends TestCase
     {
         // given
         // Authenticate as CA role so middleware passes
-        $adminRole = Role::factory()->create(['name' => 'CA']);
+        $adminRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
         $adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
         $this->actingAs($adminUser);
@@ -47,7 +47,7 @@ class AdminControllersTest extends TestCase
     {
         // given
         // Authenticate as CA role so middleware passes
-        $adminRole = Role::factory()->create(['name' => 'CA']);
+        $adminRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
         $adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
         $this->actingAs($adminUser);
@@ -82,7 +82,7 @@ class AdminControllersTest extends TestCase
     {
         // given
         // Authenticate as CA role so middleware passes
-        $adminRole = Role::factory()->create(['name' => 'CA']);
+        $adminRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
         $adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
         $this->actingAs($adminUser);
@@ -104,7 +104,7 @@ class AdminControllersTest extends TestCase
     {
         // given
         // Authenticate as CA role so middleware passes
-        $adminRole = Role::factory()->create(['name' => 'CA']);
+        $adminRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
         $adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
         $this->actingAs($adminUser);
@@ -126,7 +126,7 @@ class AdminControllersTest extends TestCase
     {
         // given
         // Authenticate as CA role so middleware passes
-        $adminRole = Role::factory()->create(['name' => 'CA']);
+        $adminRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
         $adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
         $this->actingAs($adminUser);
@@ -163,7 +163,7 @@ class AdminControllersTest extends TestCase
     {
         // given
         // Authenticate as CA role so middleware passes
-        $adminRole = Role::factory()->create(['name' => 'CA']);
+        $adminRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
         $adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
         $this->actingAs($adminUser);
