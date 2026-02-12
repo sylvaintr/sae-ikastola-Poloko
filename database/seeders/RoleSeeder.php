@@ -1,10 +1,8 @@
 <?php
-
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Role;
+use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
@@ -13,7 +11,7 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $role = Role::firstOrCreate(['name' => 'CA']);
+        $role = Role::create(['name' => 'CA']);
         $role->givePermissionTo('access-demande');
         $role->givePermissionTo('access-tache');
         $role->givePermissionTo('access-presence');
@@ -23,36 +21,42 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo('gerer-presence');
         $role->givePermissionTo('gerer-actualites');
         $role->givePermissionTo('gerer-etiquettes');
-        $role->givePermissionTo('gerer-tache');
+        $role->givePermissionTo('gerer-notifications');
+        $role->givePermissionTo('gerer-familles');
+        $role->givePermissionTo('gerer-utilisateurs');
+        $role->givePermissionTo('gerer-roles');
+        $role->givePermissionTo('gerer-enfants');
+        $role->givePermissionTo('gerer-classes');
+        $role->givePermissionTo('gerer-document-obligatoire');
+        $role->givePermissionTo('gerer-factures');
 
-        $role = Role::firstOrCreate(['name' => 'parent']);
+        $role = Role::create(['name' => 'parent']);
         $role->givePermissionTo('access-demande');
         $role->givePermissionTo('access-tache');
         $role->givePermissionTo('access-calendrier');
 
-        $role = Role::firstOrCreate(['name' => 'salarie']);
+        $role = Role::create(['name' => 'salarie']);
         $role->givePermissionTo('access-demande');
-        $role->givePermissionTo('access-tache');
         $role->givePermissionTo('access-presence');
         $role->givePermissionTo('access-calendrier');
         $role->givePermissionTo('gerer-presence');
 
-        Role::firstOrCreate(['name' => 'menage']);
-        Role::firstOrCreate(['name' => 'BIL']);
-        Role::firstOrCreate(['name' => 'Herri Urrats']);
-        Role::firstOrCreate(['name' => 'Integrazio Batzordea']);
-        Role::firstOrCreate(['name' => 'Vivre en euskara']);
-        Role::firstOrCreate(['name' => 'Jardin']);
-        Role::firstOrCreate(['name' => 'Bricolage']);
-        Role::firstOrCreate(['name' => 'Communication']);
-        Role::firstOrCreate(['name' => 'Entretien des batiments']);
-        Role::firstOrCreate(['name' => 'Commission Pedagogique']);
-        Role::firstOrCreate(['name' => 'Conseil des ikastola']);
-        Role::firstOrCreate(['name' => 'ikastolaren besta']);
-        Role::firstOrCreate(['name' => 'traduction']);
-        Role::firstOrCreate(['name' => 'Subventions']);
-        Role::firstOrCreate(['name' => 'Location de l ikastola']);
-        Role::firstOrCreate(['name' => 'commission garderie & remplacement des langile absents']);
-        
+        Role::create(['name' => 'menage']);
+        Role::create(['name' => 'BIL']);
+        Role::create(['name' => 'Herri Urrats']);
+        Role::create(['name' => 'Integrazio Batzordea']);
+        Role::create(['name' => 'Vivre en euskara']);
+        Role::create(['name' => 'Jardin']);
+        Role::create(['name' => 'Bricolage']);
+        Role::create(['name' => 'Communication']);
+        Role::create(['name' => 'Entretien des batiments']);
+        Role::create(['name' => 'Commission Pedagogique']);
+        Role::create(['name' => 'Conseil des ikastola']);
+        Role::create(['name' => 'ikastolaren besta']);
+        Role::create(['name' => 'traduction']);
+        Role::create(['name' => 'Subventions']);
+        Role::create(['name' => 'Location de l ikastola']);
+        Role::create(['name' => 'commission garderie & remplacement des langile absents']);
+
     }
 }
