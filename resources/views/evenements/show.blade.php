@@ -1,9 +1,9 @@
 <x-app-layout>
     @php
         $recettes = $evenement->recettes ?? collect();
-        $totalRecettes = $recettes->where('type', 'recette')->sum('prix');
-        $totalDepensesPrev = $recettes->where('type', 'depense_previsionnelle')->sum('prix');
-        $totalDepenses = $recettes->where('type', 'depense')->sum('prix');
+        $totalRecettes = $recettes->where('type', 'recette')->sum(fn($r) => $r->prix * ($r->quantite ?? 1));
+        $totalDepensesPrev = $recettes->where('type', 'depense_previsionnelle')->sum(fn($r) => $r->prix * ($r->quantite ?? 1));
+        $totalDepenses = $recettes->where('type', 'depense')->sum(fn($r) => $r->prix * ($r->quantite ?? 1));
 
         $typeLabels = [
             'recette' => __('evenements.type_recette'),
