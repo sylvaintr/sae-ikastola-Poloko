@@ -77,4 +77,11 @@ return [
 
 
     'download_images_zip' => 'Irudiak deskargatu (ZIP)',
+    'pieces_jointes' => 'Eranskinak',
+    'images_formats_help' => 'Onartutako formatuak: JPG, PNG, GIF edo WebP (2 Mo gehienez irudi bakoitzeko).',
+    'validation' => [
+        'image_format' => 'Formatua ez da onartzen. Onartutakoak: JPG, PNG, GIF edo WebP.',
+        'image_max' => 'Irudi bakoitzak gehienez 2 Mo izan behar ditu.',
+        'image_label' => 'irudia',
+    ],
 ];

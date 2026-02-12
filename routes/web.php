@@ -57,13 +57,17 @@ Route::middleware('auth')->group(function () {
             Route::get('/export-all-csv', [DemandeController::class, 'exportAllCsv'])->name('export.all.csv');
 
             Route::get(ROUTE_DEMANDE, [DemandeController::class, 'show'])->name('show');
-            Route::get(ROUTE_DEMANDE . '/edit', [DemandeController::class, 'edit'])->name('edit');
-            Route::put(ROUTE_DEMANDE, [DemandeController::class, 'update'])->name('update');
-            Route::patch(ROUTE_DEMANDE . '/valider', [DemandeController::class, 'validateDemande'])->name('validate');
-            Route::delete(ROUTE_DEMANDE, [DemandeController::class, 'destroy'])->name('destroy');
+            
+            // Routes protégées : seuls les utilisateurs avec 'gerer-demandes' peuvent modifier, valider, supprimer ou ajouter des avancements
+            Route::middleware('can:gerer-demandes')->group(function () {
+                Route::get(ROUTE_DEMANDE . '/edit', [DemandeController::class, 'edit'])->name('edit');
+                Route::put(ROUTE_DEMANDE, [DemandeController::class, 'update'])->name('update');
+                Route::patch(ROUTE_DEMANDE . '/valider', [DemandeController::class, 'validateDemande'])->name('validate');
+                Route::delete(ROUTE_DEMANDE, [DemandeController::class, 'destroy'])->name('destroy');
+                Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
+                Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
+            });
 
-            Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
-            Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
             Route::get(ROUTE_DEMANDE . '/export-csv', [DemandeController::class, 'exportCsv'])->name('export.csv');
             Route::get(ROUTE_DEMANDE . '/document/{document}', [DemandeController::class, 'showDocument'])->name('document.show');
         });
@@ -190,6 +194,9 @@ Route::get('/actualites/{actualite}/images.zip', [ActualiteMediaController::clas
 Route::get('/actualites/{actualite}/documents/{document}', [ActualiteMediaController::class, 'showDocument'])
     ->middleware('can:view,actualite')
     ->name('actualites.document.show');
+Route::get('/actualites/{actualite}/documents/{document}/download', [ActualiteMediaController::class, 'downloadDocument'])
+    ->middleware('can:view,actualite')
+    ->name('actualites.document.download');
 
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['fr', 'eus'])) {

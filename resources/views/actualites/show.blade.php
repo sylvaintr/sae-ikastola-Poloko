@@ -121,6 +121,30 @@
                     </div>
                 @endif
 
+                {{-- Pièces jointes (hors images) --}}
+                @php
+                    $attachments = $actualite->documents->where('type', '!=', 'image');
+                @endphp
+                @if ($attachments->count() > 0)
+                    <div class="mb-4">
+                        <h5 class="fw-bold mb-2">
+                            {{ Lang::get('actualite.pieces_jointes', [], 'eus') }}
+                            @if (Lang::getLocale() == 'fr')
+                                / {{ __('actualite.pieces_jointes') }}
+                            @endif
+                        </h5>
+                        <div class="d-flex flex-column gap-2">
+                            @foreach ($attachments as $doc)
+                                <a href="{{ route('actualites.document.download', ['actualite' => $actualite, 'document' => $doc]) }}"
+                                    class="btn btn-outline-dark text-start">
+                                    <i class="bi bi-download me-2"></i>
+                                    {{ $doc->nom ?? basename($doc->chemin) }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Contenu Basque --}}
                 <div class="actu-body-primary" id="contenu-basque">
 

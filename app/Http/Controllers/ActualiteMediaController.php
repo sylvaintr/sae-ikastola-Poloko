@@ -55,6 +55,28 @@ class ActualiteMediaController extends Controller
         ]);
     }
 
+    /**
+     * Télécharge un document d'une actualité (pièce jointe).
+     * Utilise une URL relative (route Laravel), sans dépendre de `public/storage`.
+     */
+    public function downloadDocument(Actualite $actualite, Document $document): BinaryFileResponse
+    {
+        if (! $this->documentIsAttachedToActualite($actualite, $document)) {
+            abort(404);
+        }
+
+        $path = $this->resolvePublicPathFromDocument($document);
+        $absolutePath = Storage::disk('public')->path($path);
+        $mime = Storage::disk('public')->mimeType($path) ?: 'application/octet-stream';
+
+        // Utilise le nom original si possible, sinon fallback sur le basename du chemin
+        $downloadName = is_string($document->nom) && $document->nom !== '' ? $document->nom : basename($path);
+
+        return response()->download($absolutePath, $downloadName, [
+            'Content-Type' => $mime,
+        ]);
+    }
+
     private function getActualiteImages(Actualite $actualite)
     {
         $actualite->loadMissing('documents');

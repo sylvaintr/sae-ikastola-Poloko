@@ -77,4 +77,11 @@ return [
 
 
     'download_images_zip' => 'Télécharger les images (ZIP)',
+    'pieces_jointes' => 'Pièces jointes',
+    'images_formats_help' => 'Formats acceptés : JPG, PNG, GIF ou WebP (2 Mo max par image).',
+    'validation' => [
+        'image_format' => 'Format non pris en charge. Formats acceptés : JPG, PNG, GIF ou WebP.',
+        'image_max' => 'Chaque image ne doit pas dépasser 2 Mo.',
+        'image_label' => 'image',
+    ],
 ];

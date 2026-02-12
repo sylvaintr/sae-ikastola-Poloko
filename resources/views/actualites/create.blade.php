@@ -299,6 +299,12 @@
                                 <label for="images" class="form-label fw-bold">{{ __('actualite.images') }}</label>
                                 <input type="file" id="images" name="images[]" class="form-control mb-2"
                                     multiple accept="image/*">
+                                <div class="form-text">
+                                    {{ Lang::get('actualite.images_formats_help', [], 'eus') }}
+                                    @if (Lang::getLocale() == 'fr')
+                                        / {{ __('actualite.images_formats_help') }}
+                                    @endif
+                                </div>
 
                                 {{-- Message d'erreur serveur pour images trop lourdes ou autres erreurs de validation --}}
                                 @if ($errors->has('images') || $errors->has('images.*'))
@@ -306,8 +312,11 @@
                                         @foreach ($errors->get('images') as $err)
                                             <div>{{ $err }}</div>
                                         @endforeach
-                                        @foreach ($errors->get('images.*') as $err)
-                                            <div>{{ $err }}</div>
+                                        {{-- $errors->get('images.*') renvoie un tableau de tableaux (par index de fichier) --}}
+                                        @foreach ($errors->get('images.*') as $errs)
+                                            @foreach ((array) $errs as $err)
+                                                <div>{{ $err }}</div>
+                                            @endforeach
                                         @endforeach
                                     </div>
                                 @endif

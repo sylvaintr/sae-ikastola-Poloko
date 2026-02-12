@@ -125,7 +125,20 @@ class ActualiteController extends Controller
                     $request->merge(['dateP' => $d->format('Y-m-d')]);
                 }
             }
-            $data = $request->validate((new StoreActualiteRequest())->rules());
+            $formRequest = new StoreActualiteRequest();
+            $rules = $this->addWebpSupportToActualiteImageRules($formRequest->rules());
+            $messages = method_exists($formRequest, 'messages') ? $formRequest->messages() : [];
+            $messages = array_merge($messages, [
+                // Message plus compréhensible que "images.0 ..."
+                'images.*.image' => __('actualite.validation.image_format'),
+                'images.*.mimes' => __('actualite.validation.image_format'),
+                'images.*.max'   => __('actualite.validation.image_max'),
+            ]);
+            $attributes = method_exists($formRequest, 'attributes') ? $formRequest->attributes() : [];
+            $attributes = array_merge($attributes, [
+                'images.*' => __('actualite.validation.image_label'),
+            ]);
+            $data = $request->validate($rules, $messages, $attributes);
         }
         $data['idUtilisateur'] = Auth::id();
 
@@ -181,7 +194,19 @@ class ActualiteController extends Controller
                     $request->merge(['dateP' => $d->format('Y-m-d')]);
                 }
             }
-            $validated = $request->validate((new StoreActualiteRequest())->rules());
+            $formRequest = new StoreActualiteRequest();
+            $rules = $this->addWebpSupportToActualiteImageRules($formRequest->rules());
+            $messages = method_exists($formRequest, 'messages') ? $formRequest->messages() : [];
+            $messages = array_merge($messages, [
+                'images.*.image' => __('actualite.validation.image_format'),
+                'images.*.mimes' => __('actualite.validation.image_format'),
+                'images.*.max'   => __('actualite.validation.image_max'),
+            ]);
+            $attributes = method_exists($formRequest, 'attributes') ? $formRequest->attributes() : [];
+            $attributes = array_merge($attributes, [
+                'images.*' => __('actualite.validation.image_label'),
+            ]);
+            $validated = $request->validate($rules, $messages, $attributes);
         }
 
         // update() utilise les données déjà validées et formatées (dateP convertie)
@@ -315,6 +340,76 @@ class ActualiteController extends Controller
                 $table->boolean('public')->default(false)->after('nom');
             });
         }
+    }
+
+    /**
+     * Ajoute WebP aux règles de validation des images d'actualité,
+     * afin d'accepter les fichiers `.webp` même si la liste `mimes:` est restrictive.
+     *
+     * @param array<string, mixed> $rules
+     * @return array<string, mixed>
+     */
+    private function addWebpSupportToActualiteImageRules(array $rules): array
+    {
+        if (!array_key_exists('images.*', $rules)) {
+            return $rules;
+        }
+
+        $rules['images.*'] = $this->ensureRuleAllowsWebp($rules['images.*']);
+        return $rules;
+    }
+
+    /**
+     * @param mixed $rule
+     * @return mixed
+     */
+    private function ensureRuleAllowsWebp($rule)
+    {
+        // String rules: "image|mimes:jpeg,png|..."
+        if (is_string($rule)) {
+            $parts = explode('|', $rule);
+            $hasMimes = false;
+            foreach ($parts as &$p) {
+                if (str_starts_with($p, 'mimes:')) {
+                    $hasMimes = true;
+                    $list = substr($p, strlen('mimes:'));
+                    $mimes = array_filter(array_map('trim', explode(',', $list)));
+                    if (!in_array('webp', $mimes, true)) {
+                        $mimes[] = 'webp';
+                    }
+                    $p = 'mimes:' . implode(',', $mimes);
+                }
+            }
+            unset($p);
+            if (! $hasMimes) {
+                $parts[] = 'mimes:jpeg,png,jpg,gif,webp';
+            }
+            return implode('|', $parts);
+        }
+
+        // Array rules: ['image', 'mimes:jpeg,png', ...]
+        if (is_array($rule)) {
+            $hasMimes = false;
+            foreach ($rule as $i => $r) {
+                if (!is_string($r)) {
+                    continue;
+                }
+                if (str_starts_with($r, 'mimes:')) {
+                    $hasMimes = true;
+                    $list = substr($r, strlen('mimes:'));
+                    $mimes = array_filter(array_map('trim', explode(',', $list)));
+                    if (!in_array('webp', $mimes, true)) {
+                        $mimes[] = 'webp';
+                    }
+                    $rule[$i] = 'mimes:' . implode(',', $mimes);
+                }
+            }
+            if (! $hasMimes) {
+                $rule[] = 'mimes:jpeg,png,jpg,gif,webp';
+            }
+        }
+
+        return $rule;
     }
 
     /**
