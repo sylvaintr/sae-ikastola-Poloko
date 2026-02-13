@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
             Route::get(ROUTE_DEMANDE . '/edit', [DemandeController::class, 'edit'])->name('edit');
             Route::put(ROUTE_DEMANDE, [DemandeController::class, 'update'])->name('update');
             Route::patch(ROUTE_DEMANDE . '/valider', [DemandeController::class, 'validateDemande'])->name('validate');
+            Route::get(ROUTE_DEMANDE . '/documents/{document}', [DemandeController::class, 'showDocument'])->name('document.show');
             Route::delete(ROUTE_DEMANDE, [DemandeController::class, 'destroy'])->name('destroy');
 
             Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
