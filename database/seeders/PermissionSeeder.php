@@ -1,8 +1,6 @@
 <?php
-
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 
@@ -23,5 +21,13 @@ class PermissionSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'gerer-actualites'], ['guard_name' => 'web']);
         Permission::firstOrCreate(['name' => 'gerer-etiquettes'], ['guard_name' => 'web']);
         Permission::firstOrCreate(['name' => 'gerer-demandes'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-notifications'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-familles'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-utilisateurs'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-roles'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-enfants'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-classes'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-document-obligatoire'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-factures'], ['guard_name' => 'web']);
     }
 }

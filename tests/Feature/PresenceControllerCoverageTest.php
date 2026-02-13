@@ -36,7 +36,7 @@ class PresenceControllerCoverageTest extends TestCase
         $enfant1 = Enfant::factory()->create(['idClasse' => $classe->idClasse, 'idEnfant' => random_int(10000, 99999)]);
         $enfant2 = Enfant::factory()->create(['idClasse' => $classe->idClasse, 'idEnfant' => random_int(10000, 99999)]);
 
-        Role::factory()->create(['name' => 'CA']);
+        \App\Models\Role::firstOrCreate(['name' => 'CA']);
         /** @var \App\Models\Utilisateur&\Illuminate\Contracts\Auth\Authenticatable $admin */
         $admin = \App\Models\Utilisateur::factory()->create();
         $admin->assignRole('CA');
@@ -85,7 +85,7 @@ class PresenceControllerCoverageTest extends TestCase
         Enfant::factory()->create(['idClasse' => $classeA->idClasse]);
         Enfant::factory()->create(['idClasse' => $classeB->idClasse]);
 
-        Role::factory()->create(['name' => 'CA']);
+        \App\Models\Role::firstOrCreate(['name' => 'CA']);
         /** @var \App\Models\Utilisateur&\Illuminate\Contracts\Auth\Authenticatable $admin */
         $admin = \App\Models\Utilisateur::factory()->create();
         $admin->assignRole('CA');

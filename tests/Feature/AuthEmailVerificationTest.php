@@ -18,8 +18,7 @@ class AuthEmailVerificationTest extends TestCase
     public function test_prompt_shows_view_when_not_verified()
     {
         // given
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(false);
+        $user = Utilisateur::factory()->unverified()->create();
 
         // when
         $response = $this->actingAs($user)->get(route('verification.notice'));
@@ -31,8 +30,7 @@ class AuthEmailVerificationTest extends TestCase
     public function test_prompt_redirects_when_verified()
     {
         // given
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(true);
+        $user = Utilisateur::factory()->create();
 
         // when
         $response = $this->actingAs($user)->get(route('verification.notice'));
@@ -44,9 +42,7 @@ class AuthEmailVerificationTest extends TestCase
     public function test_notification_sends_when_not_verified()
     {
         // given
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(false);
-        $user->shouldReceive('sendEmailVerificationNotification')->once();
+        $user = Utilisateur::factory()->unverified()->create();
 
         // when
         $response = $this->actingAs($user)->post(route('verification.send'));
@@ -58,8 +54,7 @@ class AuthEmailVerificationTest extends TestCase
     public function test_notification_redirects_when_verified()
     {
         // given
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(true);
+        $user = Utilisateur::factory()->create();
 
         // when
         $response = $this->actingAs($user)->post(route('verification.send'));
@@ -75,9 +70,7 @@ class AuthEmailVerificationTest extends TestCase
 
         $mockRequest = Mockery::mock(EmailVerificationRequest::class)->makePartial();
 
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(false);
-        $user->shouldReceive('markEmailAsVerified')->andReturn(true);
+        $user = Utilisateur::factory()->unverified()->create();
 
         $mockRequest->shouldReceive('user')->andReturn($user);
 
@@ -98,8 +91,7 @@ class AuthEmailVerificationTest extends TestCase
 
         $mockRequest = Mockery::mock(EmailVerificationRequest::class)->makePartial();
 
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(true);
+        $user = Utilisateur::factory()->create();
 
         $mockRequest->shouldReceive('user')->andReturn($user);
 
