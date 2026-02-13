@@ -14,6 +14,10 @@ class FactureExporterGenerateTest extends TestCase
 
     public function test_generateFactureToWord_creates_docx_and_calls_conversion()
     {
+        if (! class_exists('ZipArchive')) {
+            $this->markTestSkipped('ZipArchive not available.');
+        }
+
         Storage::fake('public');
 
         // create a minimal, valid DOCX (zip) template so TemplateProcessor can open it

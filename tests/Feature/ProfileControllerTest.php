@@ -355,6 +355,10 @@ class ProfileControllerTest extends TestCase
     
     public function test_upload_docx_sans_dossier_word_retourne_erreur()
     {
+        if (! class_exists('ZipArchive')) {
+            $this->markTestSkipped('ZipArchive not available.');
+        }
+
         // given
         Storage::fake('public');
 
@@ -476,6 +480,10 @@ class ProfileControllerTest extends TestCase
     /** @test */
     public function it_calls_validate_docx_zip_when_conditions_are_met_and_zip_archive_exists()
     {
+        if (! class_exists('ZipArchive')) {
+            $this->markTestSkipped('ZipArchive not available.');
+        }
+
         // GIVEN 
         $validator = new FileValidator();
 
@@ -535,6 +543,10 @@ class ProfileControllerTest extends TestCase
 
     public function test_profilecontroller_validateDocxIfNeeded_calls_validateDocxZip_when_ziparchive_exists_and_returns_false_for_missing_word_folder()
     {
+        if (! class_exists('ZipArchive')) {
+            $this->markTestSkipped('ZipArchive not available.');
+        }
+
         // GIVEN
         $controller = new \App\Http\Controllers\ProfileController();
 
@@ -562,6 +574,10 @@ class ProfileControllerTest extends TestCase
 
     public function test_profilecontroller_validateDocxIfNeeded_returns_true_when_zip_contains_word_folder()
     {
+        if (! class_exists('ZipArchive')) {
+            $this->markTestSkipped('ZipArchive not available.');
+        }
+
         // GIVEN
         $controller = new \App\Http\Controllers\ProfileController();
 
