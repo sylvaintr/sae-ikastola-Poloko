@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="container py-5 demande-history-create">
         <div class="mb-4">
-            <a href="{{ route('demandes.show', $demande) }}" class="text-decoration-none text-muted small">
+            <a href="{{ route('demandes.show', $demande) }}" class="text-decoration-none demande-link-primary small">
                 {{ __('demandes.history_form.link', ['id' => '#' . $demande->idTache]) }}
             </a>
         </div>

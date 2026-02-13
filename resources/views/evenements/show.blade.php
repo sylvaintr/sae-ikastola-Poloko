@@ -15,7 +15,7 @@
     <div class="container py-4 demande-page">
         {{-- Retour --}}
         <a href="{{ route('evenements.index') }}"
-           class="text-decoration-none d-inline-flex align-items-center gap-2 mb-3">
+           class="text-decoration-none d-inline-flex align-items-center gap-2 mb-3 demande-link-primary">
             <i class="bi bi-arrow-left"></i>
             <span class="basque">{{ Lang::get('evenements.back_to_list', [], 'eus') }}</span>
             @if (Lang::getLocale() == 'fr')
