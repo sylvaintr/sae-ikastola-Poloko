@@ -88,6 +88,13 @@
                     <span class="fr">/ {{ Lang::get('evenements.export_btn') }}</span>
                 @endif
             </a>
+            <a href="{{ route('demandes.index', ['evenement' => $evenement->idEvenement]) }}" class="btn demande-btn-outline">
+                <i class="bi bi-list-task"></i>
+                <span class="basque">{{ Lang::get('evenements.view_demandes', [], 'eus') }}</span>
+                @if (Lang::getLocale() == 'fr')
+                    <span class="fr">/ {{ Lang::get('evenements.view_demandes') }}</span>
+                @endif
+            </a>
         </div>
 
         {{-- Comptabilité / Recettes --}}

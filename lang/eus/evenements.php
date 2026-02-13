@@ -87,6 +87,7 @@ return [
     'no_description_provided' => 'Ez da deskribapenik eman.',
     'edit_event' => 'Gertaera aldatu',
     'add_recette' => 'Diru-sarrera gehitu',
+    'view_demandes' => 'Eskaerak ikusi',
 
     // Comptabilité
     'accounting' => 'Kontabilitatea',

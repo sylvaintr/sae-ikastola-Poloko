@@ -85,6 +85,21 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="mb-3">
+                                <label for="filter-evenement"
+                                    class="form-label small text-muted">{{ __('demandes.filters.evenement.eu') }} <small
+                                        class="d-block text-muted">{{ __('demandes.filters.evenement.fr') }}</small></label>
+                                <select id="filter-evenement" class="form-select" name="evenement">
+                                    <option value="all" @selected($filters['evenement'] === 'all')>
+                                        {{ __('demandes.filters.options.all_evenements') }}</option>
+                                    <option value="none" @selected($filters['evenement'] === 'none')>
+                                        {{ __('demandes.filters.options.no_evenement') }}</option>
+                                    @foreach ($evenements as $evenement)
+                                        <option value="{{ $evenement->idEvenement }}" @selected($filters['evenement'] == $evenement->idEvenement)>
+                                            {{ $evenement->titre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="row g-2">
                                 <div class="col-6">
                                     <label for="filter-date-from" class="form-label small text-muted">{{ __('demandes.filters.date_min.eu') }} <small class="d-block text-muted">{{ __('demandes.filters.date_min.fr') }}</small></label>

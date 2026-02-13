@@ -53,12 +53,18 @@ return [
             'eu' => 'Data max',
             'fr' => 'Date max',
         ],
+        'evenement' => [
+            'eu' => 'Gertaera',
+            'fr' => 'Événement',
+        ],
         'reset' => 'Réinitialiser',
         'submit' => 'Filtrer',
         'options' => [
             'all_status' => 'Tous les statuts',
             'all_types' => 'Tous les types',
             'all_urgencies' => 'Toutes les urgences',
+            'all_evenements' => 'Tous les événements',
+            'no_evenement' => 'Sans événement',
         ],
     ],
     'table' => [

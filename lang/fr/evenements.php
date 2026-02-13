@@ -87,6 +87,7 @@ return [
     'no_description_provided' => 'Aucune description fournie.',
     'edit_event' => 'Modifier l\'événement',
     'add_recette' => 'Ajouter une recette',
+    'view_demandes' => 'Voir les demandes',
 
     // Comptabilité
     'accounting' => 'Comptabilité',

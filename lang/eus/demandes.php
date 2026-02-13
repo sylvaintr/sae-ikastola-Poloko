@@ -59,12 +59,18 @@ return [
             'eu' => 'Data max',
             'fr' => 'Date max',
         ],
+        'evenement' => [
+            'eu' => 'Gertaera',
+            'fr' => 'Événement',
+        ],
         'reset' => 'Berrezarri',
         'submit' => 'Iragazi',
         'options' => [
             'all_status' => 'Egoera guztiak',
             'all_types' => 'Mota guztiak',
             'all_urgencies' => 'Larrialdi guztiak',
+            'all_evenements' => 'Gertaera guztiak',
+            'no_evenement' => 'Gertaerarik gabe',
         ],
     ],
     'table' => [
