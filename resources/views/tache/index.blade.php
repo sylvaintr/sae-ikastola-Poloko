@@ -67,7 +67,7 @@
 
                         {{-- STATUT --}}
                         <div class="mb-3">
-                            <label class="form-label small">
+                            <label for="filter-etat" class="form-label small">
                                 Egoera
                                 <small class="d-block text-muted">Statut</small>
                             </label>
@@ -81,7 +81,7 @@
 
                         {{-- URGENCE --}}
                         <div class="mb-3">
-                            <label class="form-label small">
+                            <label for="filter-urgence" class="form-label small">
                                 Larrialdia
                                 <small class="d-block text-muted">Urgence</small>
                             </label>
@@ -96,7 +96,7 @@
                         {{-- DATES --}}
                         <div class="row g-2 mb-4">
                             <div class="col-6">
-                                <label class="form-label small">
+                                <label for="filter-date-min" class="form-label small">
                                     Data min
                                     <small class="d-block text-muted">Date min</small>
                                 </label>
@@ -104,7 +104,7 @@
                             </div>
 
                             <div class="col-6">
-                                <label class="form-label small">
+                                <label for="filter-date-max" class="form-label small">
                                     Data max
                                     <small class="d-block text-muted">Date max</small>
                                 </label>

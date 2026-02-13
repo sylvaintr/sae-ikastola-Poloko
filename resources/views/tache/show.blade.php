@@ -233,7 +233,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <h5 class="fw-bold mb-3" id="modal-titre"></h5>
+                    <h5 class="fw-bold mb-3" id="modal-titre">Titre de l'avancement</h5>
                     <div id="modal-description"></div>
                 </div>
 
