@@ -68,7 +68,7 @@
                     <div class="col-md-6">
                         <span id="selected-users-label" class="form-label small mb-2 d-block">Hautatutako erabiltzaileak <span class="text-danger">*</span></span>
                         <p class="text-muted mt-0 admin-button-subtitle small">Utilisateurs sélectionnés</p>
-                        <div id="selected-users" class="role-list mt-2" role="listbox" aria-labelledby="selected-users-label">
+                        <div id="selected-users" class="role-list mt-2" aria-labelledby="selected-users-label">
                             <div class="role-list-empty-message">Aucun utilisateur n'a été sélectionné</div>
                         </div>
                         <div id="users-error" class="invalid-feedback d-none mt-2">Au moins un utilisateur doit être sélectionné.</div>

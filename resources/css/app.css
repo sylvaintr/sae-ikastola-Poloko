@@ -2220,7 +2220,7 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 input[type="date"]::-webkit-datetime-edit-month-field:focus,
 input[type="date"]::-webkit-datetime-edit-day-field:focus,
 input[type="date"]::-webkit-datetime-edit-year-field:focus {
-    color: #f29201;
+    color: #8c4a01;
     background-color: rgba(242, 146, 1, 0.1);
     border-radius: 2px;
     outline: none;
