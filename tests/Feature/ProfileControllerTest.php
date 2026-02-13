@@ -20,15 +20,18 @@ class ProfileControllerTest extends TestCase
     public function test_mise_a_jour_reinitialise_verif_email_et_redirige()
     {
         // given
+        $uniqueOldEmail = 'old_' . uniqid() . '@example.com';
+        $uniqueNewEmail = 'new_' . uniqid() . '@example.com';
+
         $user = Utilisateur::factory()->create([
-            'email' => 'old@example.com',
+            'email' => $uniqueOldEmail,
             'email_verified_at' => now(),
         ]);
 
         // when
         $response = $this->actingAs($user)
             ->patch(route('profile.update'), [
-                'email' => 'new@example.com',
+                'email' => $uniqueNewEmail,
                 'nom' => $user->nom,
                 'prenom' => $user->prenom,
             ]);
@@ -39,7 +42,7 @@ class ProfileControllerTest extends TestCase
 
         $this->assertDatabaseHas('utilisateur', [
             'idUtilisateur' => $user->idUtilisateur,
-            'email' => 'new@example.com',
+            'email' => $uniqueNewEmail,
             'email_verified_at' => null,
         ]);
     }
@@ -185,10 +188,12 @@ class ProfileControllerTest extends TestCase
         // given
         Storage::fake('public');
 
-        $role = Role::create(['name' => 'ROLE_TEST', 'guard_name' => 'web']);
+        $role = Role::create(['name' => 'ROLE_TEST_' . uniqid(), 'guard_name' => 'web']);
 
+        // Utiliser un ID unique pour éviter les conflits
+        $uniqueId = (DocumentObligatoire::max('idDocumentObligatoire') ?? 0) + 1000 + rand(1, 1000);
         $docOblig = new DocumentObligatoire();
-        $docOblig->idDocumentObligatoire = 1;
+        $docOblig->idDocumentObligatoire = $uniqueId;
         $docOblig->nom = 'Contrat';
         $docOblig->save();
         $docOblig->roles()->attach($role->idRole);
@@ -223,9 +228,10 @@ class ProfileControllerTest extends TestCase
         // given
         Storage::fake('public');
 
-        $role = Role::create(['name' => 'ROLE_TEST2', 'guard_name' => 'web']);
+        $role = Role::create(['name' => 'ROLE_TEST2_' . uniqid(), 'guard_name' => 'web']);
+        $uniqueId = (DocumentObligatoire::max('idDocumentObligatoire') ?? 0) + 2000 + rand(1, 1000);
         $docOblig = new DocumentObligatoire();
-        $docOblig->idDocumentObligatoire = 2;
+        $docOblig->idDocumentObligatoire = $uniqueId;
         $docOblig->nom = 'Contrat2';
         $docOblig->save();
         $docOblig->roles()->attach($role->idRole);
@@ -259,9 +265,10 @@ class ProfileControllerTest extends TestCase
         // given
         Storage::fake('public');
 
-        $role = Role::create(['name' => 'ROLE_TEST3', 'guard_name' => 'web']);
+        $role = Role::create(['name' => 'ROLE_TEST3_' . uniqid(), 'guard_name' => 'web']);
+        $uniqueId = (DocumentObligatoire::max('idDocumentObligatoire') ?? 0) + 3000 + rand(1, 1000);
         $docOblig = new DocumentObligatoire();
-        $docOblig->idDocumentObligatoire = 3;
+        $docOblig->idDocumentObligatoire = $uniqueId;
         $docOblig->nom = 'Contrat3';
         $docOblig->save();
         $docOblig->roles()->attach($role->idRole);

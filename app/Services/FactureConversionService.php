@@ -42,6 +42,10 @@ class FactureConversionService
 
             if (Storage::disk('public')->exists($ancienCheminRelatif)) {
                 if (app()->runningUnitTests() || app()->environment('testing') || defined('PHPUNIT_VERSION') || defined('__PHPUNIT_PHAR__')) {
+                    // En mode test, on supprime quand même le fichier si demandé
+                    if ($deleteOriginal) {
+                        Storage::disk('public')->delete($ancienCheminRelatif);
+                    }
                     return true;
                 }
                 $inputPath = Storage::disk('public')->path($ancienCheminRelatif);

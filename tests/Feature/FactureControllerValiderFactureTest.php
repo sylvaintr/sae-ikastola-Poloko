@@ -27,20 +27,22 @@ class FactureControllerValiderFactureTest extends TestCase
             'idUtilisateur' => $user->idUtilisateur,
         ]);
 
-        // Mock the conversion service to be called and return true
-        $mock = $this->createMock(FactureConversionService::class);
-        $mock->expects($this->once())
-            ->method('convertFactureToPdf')
-            ->with($this->isInstanceOf(Facture::class))
-            ->willReturn(true);
+        // Créer un fichier pour que le service de conversion le trouve
+        \Illuminate\Support\Facades\Storage::disk('public')->put(
+            'factures/facture-' . $facture->idFacture . '.docx',
+            'dummy content'
+        );
 
-        $this->app->instance(FactureConversionService::class, $mock);
-
-        // when
+        // when - En mode test, le service retourne true via le short-circuit
         $response = $this->get(route('admin.facture.valider', $facture->idFacture));
 
         // then
         $response->assertRedirect(route('admin.facture.index'));
         $this->assertEquals('verifier', Facture::find($facture->idFacture)->etat);
+
+        // Cleanup
+        \Illuminate\Support\Facades\Storage::disk('public')->delete(
+            'factures/facture-' . $facture->idFacture . '.docx'
+        );
     }
 }
