@@ -116,6 +116,28 @@ return [
     'legend_demande_medium' => 'Demande moyenne',
     'legend_demande_low' => 'Demande faible',
 
+    // Export CSV
+    'export_btn' => 'Exporter CSV',
+    'export' => [
+        'evenement_title' => 'Événement',
+        'comptabilite_title' => 'Comptabilité',
+        'id' => 'ID',
+        'titre' => 'Titre',
+        'description' => 'Description',
+        'start_at' => 'Date de début',
+        'end_at' => 'Date de fin',
+        'obligatoire' => 'Obligatoire',
+        'roles' => 'Rôles',
+        'type_col' => 'Type',
+        'description_col' => 'Description',
+        'prix' => 'Prix',
+        'quantite' => 'Quantité',
+        'total' => 'Total',
+        'total_recettes' => 'Total des recettes',
+        'total_depenses_prev' => 'Total des dépenses prévisionnelles',
+        'total_depenses' => 'Total des dépenses',
+    ],
+
     // Synchronisation calendrier
     'sync_button' => 'Synchroniser',
     'sync_title' => 'Synchroniser le calendrier',

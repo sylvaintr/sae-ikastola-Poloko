@@ -21,6 +21,15 @@
             </div>
             <div class="d-flex flex-nowrap gap-3 align-items-start">
                 <div class="d-flex flex-column align-items-center">
+                    <button type="button" id="export-csv-btn" class="btn demande-btn-outline"
+                        data-export-url="{{ route('evenements.export', request()->query()) }}">
+                        {{ Lang::get('evenements.export_btn', [], 'eus') }}
+                    </button>
+                    @if (Lang::getLocale() == 'fr')
+                        <small class="text-muted mt-1">{{ Lang::get('evenements.export_btn') }}</small>
+                    @endif
+                </div>
+                <div class="d-flex flex-column align-items-center">
                     <a href="{{ route('evenements.create') }}" class="btn demande-btn-primary text-white">
                         {{ Lang::get('evenements.add', [], 'eus') }}
                     </a>
@@ -224,6 +233,19 @@
                 currentForm.submit();
                 bootstrapModal.hide();
                 currentForm = null;
+            }
+        });
+    })();
+
+    // Export CSV
+    (function () {
+        const exportBtn = document.getElementById('export-csv-btn');
+        if (!exportBtn) { return; }
+
+        exportBtn.addEventListener('click', function () {
+            const url = this.getAttribute('data-export-url');
+            if (url) {
+                window.location.href = url;
             }
         });
     })();

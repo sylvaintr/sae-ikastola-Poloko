@@ -116,6 +116,28 @@ return [
     'legend_demande_medium' => 'Eskaera ertaina',
     'legend_demande_low' => 'Eskaera txikia',
 
+    // Export CSV
+    'export_btn' => 'CSV esportatu',
+    'export' => [
+        'evenement_title' => 'Gertaera',
+        'comptabilite_title' => 'Kontabilitatea',
+        'id' => 'ID',
+        'titre' => 'Izenburua',
+        'description' => 'Deskribapena',
+        'start_at' => 'Hasiera data',
+        'end_at' => 'Amaiera data',
+        'obligatoire' => 'Derrigorrezkoa',
+        'roles' => 'Rolak',
+        'type_col' => 'Mota',
+        'description_col' => 'Deskribapena',
+        'prix' => 'Prezioa',
+        'quantite' => 'Kantitatea',
+        'total' => 'Guztira',
+        'total_recettes' => 'Diru-sarreren guztira',
+        'total_depenses_prev' => 'Aurreikusitako gastuen guztira',
+        'total_depenses' => 'Gastuen guztira',
+    ],
+
     // Synchronisation calendrier
     'sync_button' => 'Sinkronizatu',
     'sync_title' => 'Egutegia sinkronizatu',

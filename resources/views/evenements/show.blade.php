@@ -81,6 +81,13 @@
                     <span class="fr">/ {{ Lang::get('evenements.add_recette') }}</span>
                 @endif
             </button>
+            <a href="{{ route('evenements.export.csv', $evenement) }}" class="btn demande-btn-outline">
+                <i class="bi bi-download"></i>
+                <span class="basque">{{ Lang::get('evenements.export_btn', [], 'eus') }}</span>
+                @if (Lang::getLocale() == 'fr')
+                    <span class="fr">/ {{ Lang::get('evenements.export_btn') }}</span>
+                @endif
+            </a>
         </div>
 
         {{-- Comptabilité / Recettes --}}
