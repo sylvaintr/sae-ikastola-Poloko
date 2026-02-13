@@ -13,6 +13,18 @@ use Yajra\DataTables\Facades\DataTables;
 
 class TacheController extends Controller
 {
+    private const ETATS = [
+        'todo' => 'En attente',
+        'doing' => 'En cours',
+        'done' => 'Terminé',
+    ];
+
+    private const URGENCES = [
+        'low' => 'Faible',
+        'medium' => 'Moyenne',
+        'high' => 'Élevée',
+    ];
+
     /**
      * Display a listing of the resource.
      */
@@ -32,16 +44,7 @@ class TacheController extends Controller
 
         if ($filters['search']) {
             $search = Str::of($filters['search'])->lower()->ascii();
-            $query->where(function ($q) use ($search) {
-                $q->where('idTache', 'like', "%{$search}%")
-                    ->orWhere('titre', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%")
-                    ->orWhereHas('realisateurs', function ($qr) use ($search) {
-                        $qr->where('prenom', 'like', "%{$search}%")
-                            ->orWhere('nom', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%");
-                    });
-            });
+            $this->applySearchFilter($query, $search);
         }
 
         if ($filters['etat'] && $filters['etat'] !== 'all') {
@@ -89,17 +92,8 @@ class TacheController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $etats = [
-            'todo' => 'En attente',
-            'doing' => 'En cours',
-            'done' => 'Terminé',
-        ];
-
-        $urgences = [
-            'low' => 'Faible',
-            'medium' => 'Moyenne',
-            'high' => 'Élevée',
-        ];
+        $etats = self::ETATS;
+        $urgences = self::URGENCES;
 
         return view('tache.index', compact('taches', 'filters', 'etats', 'urgences'));
     }
@@ -123,21 +117,11 @@ class TacheController extends Controller
         ->make(true);
 }
 
-private function applyFilters($query, Request $request)
+private function applyFilters($query, Request $request): void
 {
     if ($request->filled('search_global')) {
         $search = Str::of($request->search_global)->lower()->ascii();
-
-        $query->where(function ($q) use ($search) {
-            $q->where('idTache', 'like', "%{$search}%")
-              ->orWhere('titre', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%")
-              ->orWhereHas('realisateurs', function ($qr) use ($search) {
-                  $qr->where('prenom', 'like', "%{$search}%")
-                     ->orWhere('nom', 'like', "%{$search}%")
-                     ->orWhere('email', 'like', "%{$search}%");
-              });
-        });
+        $this->applySearchFilter($query, $search);
     }
 
     if ($request->filled('etat')) {
@@ -157,27 +141,33 @@ private function applyFilters($query, Request $request)
     }
 }
 
+private function applySearchFilter($query, $search): void
+{
+    $query->where(function ($q) use ($search) {
+        $q->where('idTache', 'like', "%{$search}%")
+            ->orWhere('titre', 'like', "%{$search}%")
+            ->orWhere('description', 'like', "%{$search}%")
+            ->orWhereHas('realisateurs', function ($qr) use ($search) {
+                $qr->where('prenom', 'like', "%{$search}%")
+                    ->orWhere('nom', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+    });
+}
+
 private function formatDate($row)
 {
     return \Carbon\Carbon::parse($row->dateD)->format('d/m/Y');
 }
 
-private function formatEtat($etat)
+private function formatEtat($etat): string
 {
-    return match ($etat) {
-        'done' => 'Terminé',
-        'doing' => 'En cours',
-        default => 'En attente',
-    };
+    return self::ETATS[$etat] ?? self::ETATS['todo'];
 }
 
-private function formatUrgence($type)
+private function formatUrgence($type): string
 {
-    return match ($type) {
-        'low' => 'Faible',
-        'medium' => 'Moyenne',
-        default => 'Élevée',
-    };
+    return self::URGENCES[$type] ?? self::URGENCES['high'];
 }
 
 private function formatAssignation($tache)
@@ -339,18 +329,9 @@ private function formatAssignation($tache)
 
     public function createHistorique(Tache $tache)
     {
-        if ($tache->etat === 'done') {
-            return to_route('tache.show', $tache)
-                ->with('status', __('taches.messages.history_locked'));
-        }
-
-        // Accès réservé au CA ET aux utilisateurs assignés à la tâche
-        if (
-            !$tache->realisateurs->contains('idUtilisateur', auth()->user()->idUtilisateur)
-            && !auth()->user()->can('gerer-tache')
-        ) {
-            return to_route('tache.show', $tache)
-                ->with('status', __('taches.messages.history_not_allowed'));
+        $accessDenied = $this->checkHistoriqueAccess($tache);
+        if ($accessDenied) {
+            return $accessDenied;
         }
 
         return view('tache.historique.create', compact('tache'));
@@ -359,17 +340,9 @@ private function formatAssignation($tache)
 
     public function storeHistorique(Request $request, Tache $tache)
     {
-        if ($tache->etat === "done") {
-            return to_route('tache.show', $tache)->with('status', __('taches.messages.history_locked'));
-        }
-
-        // Accès réservé au CA ET aux utilisateurs assignés à la tâche
-        if (
-            !$tache->realisateurs->contains('idUtilisateur', auth()->user()->idUtilisateur)
-            && !auth()->user()->can('gerer-tache')
-        ) {
-            return to_route('tache.show', $tache)
-                ->with('status', __('taches.messages.history_not_allowed'));
+        $accessDenied = $this->checkHistoriqueAccess($tache);
+        if ($accessDenied) {
+            return $accessDenied;
         }
 
         $validated = $request->validate([
@@ -392,5 +365,26 @@ private function formatAssignation($tache)
         }
 
         return to_route('tache.show', $tache)->with('status', __('taches.messages.history_added'));
+    }
+
+    /**
+     * Vérifie l'accès à l'historique d'une tâche.
+     * Retourne une redirection si l'accès est refusé, null sinon.
+     */
+    private function checkHistoriqueAccess(Tache $tache)
+    {
+        if ($tache->etat === 'done') {
+            return to_route('tache.show', $tache)
+                ->with('status', __('taches.messages.history_locked'));
+        }
+
+        // Accès réservé au CA ET aux utilisateurs assignés à la tâche
+        $isAssigned = $tache->realisateurs->contains('idUtilisateur', auth()->user()->idUtilisateur);
+        if (!$isAssigned && !auth()->user()->can('gerer-tache')) {
+            return to_route('tache.show', $tache)
+                ->with('status', __('taches.messages.history_not_allowed'));
+        }
+
+        return null;
     }
 }
