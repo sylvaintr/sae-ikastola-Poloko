@@ -358,8 +358,8 @@ class AccountController extends Controller
                 // Vérifier d'abord si le document est utilisé ailleurs (avant détachement)
                 $totalUsersCount = $document->utilisateurs()->count();
                 $hasOtherUsers = $totalUsersCount > 1;
-                $isUsedElsewhere = $hasOtherUsers 
-                    || $document->actualites()->count() > 0 
+                $isUsedElsewhere = $hasOtherUsers
+                    || $document->actualites()->count() > 0
                     || $document->idTache !== null;
                 
                 // Supprimer le fichier physique (RGPD : suppression des données personnelles)
