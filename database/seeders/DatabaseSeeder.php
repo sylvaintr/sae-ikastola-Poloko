@@ -16,13 +16,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Enfant::factory()->count(10)->create();
 
         $this->call([
             PermissionSeeder::class,
             RoleSeeder::class,
             UserSeeder::class,
-            ActualiteSeeder::class,
         ]);
+
+
+        if (!app()->environment('production')) {
+            Enfant::factory()->count(10)->create();
+            $this->call([ActualiteSeeder::class]);
+        }
+
     }
 }
