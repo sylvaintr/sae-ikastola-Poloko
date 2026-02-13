@@ -32,7 +32,7 @@ class EtiquetteControllerIndexFiltersTest extends TestCase
     public function test_index_applies_role_filter()
     {
         // given
-        $role = Role::create(['name' => 'R1']);
+        $role = Role::firstOrCreate(['name' => 'R1']);
 
         $e1 = Etiquette::create(['nom' => 'WithRole']);
         $e2 = Etiquette::create(['nom' => 'WithoutRole']);

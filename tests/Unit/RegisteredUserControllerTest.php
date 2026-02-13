@@ -122,7 +122,7 @@ class RegisteredUserControllerTest extends TestCase
     public function test_store_attribue_role_parent_si_present()
     {
         // given
-        \App\Models\Role::create(['name' => 'parent']);
+        \App\Models\Role::firstOrCreate(['name' => 'parent']);
         config(['services.recaptcha.enabled' => false]);
 
         $data = [

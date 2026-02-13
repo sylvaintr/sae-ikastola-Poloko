@@ -125,11 +125,12 @@ Route::middleware('auth')->group(function () {
                 });
 
             // ---------------- Factures ----------------
-            Route::resource('/facture', FactureController::class);
+            // Custom routes must be defined BEFORE the resource route to avoid being matched by {facture}
             Route::get('/factures-data', [FactureController::class, 'facturesData'])->name('factures.data');
             Route::get('/facture' . ROUTE_ID . 'export', [FactureController::class, 'exportFacture'])->name('facture.export');
             Route::get('/facture' . ROUTE_ID . 'envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
             Route::get('/facture' . ROUTE_ID . 'verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
+            Route::resource('/facture', FactureController::class);
 
             // ---------------- Ajout des routes Famille + LierController ----------------
             Route::prefix('familles')->name('familles.')->group(function () {
