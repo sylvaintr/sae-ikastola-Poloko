@@ -22,7 +22,7 @@ class FamilleControllerTest extends TestCase
         $classe = Classe::factory()->create();
 
         // create an enfant first (controller expects existing idEnfant when auto-increment disabled)
-        $existingEnfant = Enfant::factory()->create(['idFamille' => 0, 'idClasse' => $classe->idClasse, 'idEnfant' => 3000]);
+        $existingEnfant = Enfant::factory()->create(['idFamille' => 0, 'idClasse' => $classe->idClasse]);
 
         $payload = [
             'enfants' => [
@@ -185,7 +185,7 @@ class FamilleControllerTest extends TestCase
         // then
         // prepare some available utilisateurs and enfants
         $user = Utilisateur::factory()->create();
-        $enfant = Enfant::factory()->create(['idFamille' => 0, 'idEnfant' => 2000]);
+        $enfant = Enfant::factory()->create(['idFamille' => 0, 'idEnfant' => 102000]);
 
         $ctrl = new FamilleController();
         $view = $ctrl->create();
@@ -215,7 +215,7 @@ class FamilleControllerTest extends TestCase
 
         // then
         $famille = Famille::factory()->create();
-        $enfant = Enfant::factory()->create(['idFamille' => $famille->idFamille, 'idEnfant' => 1000]);
+        $enfant = Enfant::factory()->create(['idFamille' => $famille->idFamille, 'idEnfant' => 101000]);
         $user = Utilisateur::factory()->create();
         $famille->utilisateurs()->attach($user->idUtilisateur);
 
@@ -251,7 +251,7 @@ class FamilleControllerTest extends TestCase
 
         // then
         $famille = Famille::factory()->create();
-        $enfant = Enfant::factory()->create(['idFamille' => $famille->idFamille, 'idEnfant' => 1001]);
+        $enfant = Enfant::factory()->create(['idFamille' => $famille->idFamille, 'idEnfant' => 101001]);
         $user = Utilisateur::factory()->create();
         $famille->utilisateurs()->attach($user->idUtilisateur);
 

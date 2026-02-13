@@ -24,7 +24,7 @@ class FamilleControllerUpdateEnfantsTest extends TestCase
 
         // Create an enfant that should be updated
         $enfant = Enfant::factory()->create([
-            'idEnfant' => 999,
+            'idEnfant' => 100999,
             'idFamille' => $famille->idFamille,
             'nom' => 'Before',
             'prenom' => 'Child',

@@ -24,7 +24,7 @@ class FamilleControllerUpdateUtilisateursTest extends TestCase
 
         // existing utilisateur that should be updated
         $user = Utilisateur::factory()->create([
-            'idUtilisateur' => 777,
+            'idUtilisateur' => 100777,
             'languePref' => 'fr',
         ]);
 

@@ -125,11 +125,11 @@ class ObligatoryDocumentControllerTest extends TestCase
         DocumentObligatoire::query()->delete();
 
         $d1 = new DocumentObligatoire();
-        $d1->idDocumentObligatoire = 1;
+        $d1->idDocumentObligatoire = 100001;
         $d1->save();
 
         $d2 = new DocumentObligatoire();
-        $d2->idDocumentObligatoire = 2;
+        $d2->idDocumentObligatoire = 100002;
         $d2->save();
 
         $d4 = new DocumentObligatoire();

@@ -212,6 +212,9 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/actualites' . ROUTE_ID, [ActualiteController::class, 'show'])->name('actualites.show');
 
+Route::get('/demande/{demande}/documents/{document}', [DemandeController::class, 'showDocument'])
+    ->name('demandes.document.show');
+
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['fr', 'eus'])) {
         session(['locale' => $locale]);

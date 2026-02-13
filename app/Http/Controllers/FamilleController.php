@@ -204,6 +204,10 @@ class FamilleController extends Controller
         $query = $request->input('q', '');
         $familleId = $request->input('famille_id');
 
+        if (trim((string) $query) === '') {
+            return response()->json([]);
+        }
+
         // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
         $roleParent = Role::where('name', 'parent')->first();
 
