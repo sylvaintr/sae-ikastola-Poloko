@@ -8,6 +8,10 @@ class FactureExporterCloneRowAndAbortTest extends TestCase
 {
     public function test_generateFactureToWord_cloneRow_succeeds_with_template_variable()
     {
+        if (! class_exists('ZipArchive')) {
+            $this->markTestSkipped('ZipArchive not available.');
+        }
+
         $templatePath = storage_path('app/templates/facture_template.docx');
         @mkdir(dirname($templatePath), 0755, true);
 
@@ -55,6 +59,10 @@ class FactureExporterCloneRowAndAbortTest extends TestCase
 
     public function test_generateFactureToWord_aborts_when_template_missing()
     {
+        if (! class_exists('ZipArchive')) {
+            $this->markTestSkipped('ZipArchive not available.');
+        }
+
         $templatePath = storage_path('app/templates/facture_template.docx');
         if (file_exists($templatePath)) {
             unlink($templatePath);
