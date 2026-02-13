@@ -210,6 +210,7 @@ private function formatAssignation($tache)
         ]);
 
         $tache = Tache::create([
+            'idTache' => (Tache::max('idTache') ?? 0) + 1,
             'titre' => $validated['titre'],
             'description' => $validated['description'],
             'type' => $validated['type'],
