@@ -228,6 +228,9 @@ class FamilleControllerTest extends TestCase
     {
         // given
         $user = Utilisateur::factory()->create(['nom' => 'UserFind']);
+        // Ensure the 'parent' role exists and is attached so API search returns the user
+        $role = Role::firstOrCreate(['name' => 'parent']);
+        $user->rolesCustom()->attach($role->idRole, ['model_type' => Utilisateur::class]);
         
         // This route is defined in web.php and requires Auth
         // when

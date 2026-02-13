@@ -18,7 +18,7 @@ class AccountUpdateDebugTest extends TestCase
     {
         parent::setUp();
 
-        $adminRole = Role::factory()->create(['name' => 'CA']);
+        $adminRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $this->adminUser = Utilisateur::factory()->create();
         $this->adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
         $this->actingAs($this->adminUser);
