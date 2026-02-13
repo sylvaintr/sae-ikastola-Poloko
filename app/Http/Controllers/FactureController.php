@@ -236,32 +236,68 @@ class FactureController extends Controller
      */
     public function createFacture(): void
     {
-        $mois = Carbon::now()->month;
+        $previsionnel = $this->isPrevisionnel();
 
-        $previsionnel = ! in_array($mois, [2, 8], true);
         Famille::chunk(100, function ($familles) use ($previsionnel) {
             foreach ($familles as $famille) {
-                $parents = $famille->utilisateurs()->get();
-                foreach ($parents as $parent) {
-                    if (($parent->pivot->parite ?? 0) > 0) {
-                        $facture                = new Facture();
-                        $facture->idFamille     = $famille->idFamille;
-                        $facture->idUtilisateur = $parent->idUtilisateur;
-                        $facture->previsionnel  = $previsionnel;
-                        $facture->dateC         = now();
-                        $facture->etat          = 'brouillon';
-                        $facture->save();
-                        app(FactureExporter::class)->generateFactureToWord($facture);
-                        if (app()->environment('testing')) {
-                            $docxPath = storage_path('app/public/factures/facture-' . $facture->idFacture . '.docx');
-                            if (! file_exists($docxPath)) {
-                                @file_put_contents($docxPath, 'DUMMY_DOCX');
-                            }
-                        }
-                    }
-                }
+                $this->createFacturesForFamille($famille, $previsionnel);
             }
         });
+    }
+
+    /**
+     * Détermine si les factures du mois courant sont prévisionnelles
+     */
+    private function isPrevisionnel(): bool
+    {
+        $mois = Carbon::now()->month;
+        return ! in_array($mois, [2, 8], true);
+    }
+
+    /**
+     * Crée les factures pour une famille donnée
+     */
+    private function createFacturesForFamille(Famille $famille, bool $previsionnel): void
+    {
+        $parents = $famille->utilisateurs()->get();
+
+        foreach ($parents as $parent) {
+            if (($parent->pivot->parite ?? 0) > 0) {
+                $this->createFactureForParent($famille, $parent, $previsionnel);
+            }
+        }
+    }
+
+    /**
+     * Crée une facture pour un parent spécifique
+     */
+    private function createFactureForParent(Famille $famille, $parent, bool $previsionnel): void
+    {
+        $facture                = new Facture();
+        $facture->idFamille     = $famille->idFamille;
+        $facture->idUtilisateur = $parent->idUtilisateur;
+        $facture->previsionnel  = $previsionnel;
+        $facture->dateC         = now();
+        $facture->etat          = 'brouillon';
+        $facture->save();
+
+        app(FactureExporter::class)->generateFactureToWord($facture);
+        $this->createDummyDocxForTesting($facture);
+    }
+
+    /**
+     * Crée un fichier DOCX factice en environnement de test
+     */
+    private function createDummyDocxForTesting(Facture $facture): void
+    {
+        if (! app()->environment('testing')) {
+            return;
+        }
+
+        $docxPath = storage_path('app/public/factures/facture-' . $facture->idFacture . '.docx');
+        if (! file_exists($docxPath)) {
+            @file_put_contents($docxPath, 'DUMMY_DOCX');
+        }
     }
 
 }
