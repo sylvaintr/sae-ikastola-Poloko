@@ -1,22 +1,23 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Classe;
-use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
 use App\Models\Enfant;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\View\View;
+use Yajra\DataTables\Facades\DataTables;
 
 class ClasseController extends Controller
 {
     /**
-     * Affiche la page listant toutes les classes.
-     *
-     * @return \Illuminate\View\View
+     * Méthode d'affichage de la liste des classes avec filtres de recherche et pagination.
+     * @param Request $request Requête HTTP contenant les paramètres de filtre
+     * @return View Vue de la liste des classes avec les données filtrées et paginées
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $filters = [
             'search' => $request->get('search', ''),
@@ -34,15 +35,14 @@ class ClasseController extends Controller
         }
 
         $classes = $query->orderBy('nom')->paginate(10)->appends($request->query());
-        $levels = Classe::select('niveau')->distinct()->orderBy('niveau')->pluck('niveau');
+        $levels  = Classe::select('niveau')->distinct()->orderBy('niveau')->pluck('niveau');
 
         return view('admin.classes.index', compact('classes', 'filters', 'levels'));
     }
 
     /**
-     * Retourne les données des classes au format DataTables (AJAX).
-     *
-     * @return \Yajra\DataTables\DataTableAbstract
+     * Méthode pour fournir les données des classes au format JSON pour DataTables.
+     * @return \Yajra\DataTables\DataTableAbstract Données des classes formatées pour DataTables
      */
     public function data()
     {
@@ -57,12 +57,11 @@ class ClasseController extends Controller
     }
 
     /**
-     * Affiche la fiche d'une classe avec la liste de ses élèves.
-     *
+     * Méthode pour afficher la fiche d'une classe avec la liste de ses élèves.
      * @param Classe $classe Classe à afficher
-     * @return \Illuminate\View\View
+     * @return View Vue de la fiche de la classe avec la liste des élèves
      */
-    public function show(Classe $classe)
+    public function show(Classe $classe): View
     {
         $classe->load(['enfants' => function ($q) {
             $q->orderBy('prenom')->orderBy('nom');
@@ -72,11 +71,10 @@ class ClasseController extends Controller
     }
 
     /**
-     * Affiche le formulaire de création d'une nouvelle classe.
-     *
-     * @return \Illuminate\View\View
+     * Méthode pour afficher le formulaire de création d'une nouvelle classe avec la liste des enfants disponibles et les niveaux existants.
+     * @return View Vue du formulaire de création de classe avec les données nécessaires
      */
-    public function create()
+    public function create(): View
     {
         $children = Enfant::whereNull('idClasse')
             ->orderBy('prenom')
@@ -92,17 +90,16 @@ class ClasseController extends Controller
     }
 
     /**
-     * Enregistre une nouvelle classe et attribue les enfants sélectionnés.
-     *
-     * @param Request $request Données du formulaire
-     * @return \Illuminate\Http\RedirectResponse
+     * Méthode pour stocker une nouvelle classe dans la base de données et associer les enfants sélectionnés.
+     * @param Request $request Requête HTTP contenant les données de la nouvelle classe et les enfants associés
+     * @return RedirectResponse Redirection vers la liste des classes avec un message de succès ou d'erreur
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'nom'      => 'required|string|max:255',
-            'niveau'   => 'required|string|max:50',
-            'children' => 'required|array',
+            'nom'        => 'required|string|max:255',
+            'niveau'     => 'required|string|max:50',
+            'children'   => 'required|array',
             'children.*' => [
                 'required',
                 Rule::exists('enfant', 'idEnfant')->whereNull('idClasse'),
@@ -120,12 +117,11 @@ class ClasseController extends Controller
     }
 
     /**
-     * Affiche le formulaire d’édition d’une classe existante.
-     *
-     * @param Classe $classe Classe à modifier
-     * @return \Illuminate\View\View
+     * Méthode pour afficher le formulaire d'édition d'une classe existante avec la liste des enfants disponibles, les niveaux existants et les enfants déjà associés.
+     * @param Classe $classe Classe à éditer
+     * @return View Vue du formulaire d'édition de classe avec les données nécessaires
      */
-    public function edit(Classe $classe)
+    public function edit(Classe $classe): View
     {
         $children = Enfant::whereNull('idClasse')
             ->orWhere('idClasse', $classe->idClasse)
@@ -144,18 +140,17 @@ class ClasseController extends Controller
     }
 
     /**
-     * Met à jour une classe et synchronise les enfants associés.
-     *
-     * @param Request $request Données modifiées
-     * @param Classe  $classe  Classe à mettre à jour
-     * @return \Illuminate\Http\RedirectResponse
+     * Méthode pour mettre à jour une classe existante dans la base de données et synchroniser les enfants associés.
+     * @param Request $request Requête HTTP contenant les données mises à jour de la classe et les enfants associés
+     * @param Classe $classe Classe à mettre à jour
+     * @return RedirectResponse Redirection vers la liste des classes avec un message de succès ou d'erreur
      */
-    public function update(Request $request, Classe $classe)
+    public function update(Request $request, Classe $classe): RedirectResponse
     {
         $request->validate([
-            'nom'      => 'required|string|max:255',
-            'niveau'   => 'required|string|max:50',
-            'children' => 'required|array',
+            'nom'        => 'required|string|max:255',
+            'niveau'     => 'required|string|max:50',
+            'children'   => 'required|array',
             'children.*' => [
                 'required',
                 Rule::exists('enfant', 'idEnfant')->where(function ($query) use ($classe) {
@@ -176,11 +171,11 @@ class ClasseController extends Controller
 
             $toAttach = array_diff($selectedIds, $currentIds);
 
-            if (!empty($toDetach)) {
+            if (! empty($toDetach)) {
                 Enfant::whereIn('idEnfant', $toDetach)->update(['idClasse' => null]);
             }
 
-            if (!empty($toAttach)) {
+            if (! empty($toAttach)) {
                 Enfant::whereIn('idEnfant', $toAttach)->update(['idClasse' => $classe->idClasse]);
             }
         });
