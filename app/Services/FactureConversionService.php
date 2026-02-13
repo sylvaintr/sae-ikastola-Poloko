@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Storage;
  */
 class FactureConversionService
 {
+    private const EXTENSIONS_POSSIBLES = ['doc', 'docx', 'odt'];
+
     /**
      * Convert a Word/ODT facture to PDF using LibreOffice. Deletes the original Word/ODT file if conversion is successful.
      * @param Facture $facture the facture to convert
@@ -29,45 +31,108 @@ class FactureConversionService
      */
     public function convertFactureToPdf(Facture $facture, bool $deleteOriginal = false): bool
     {
-        $nomfichier          = 'facture-' . $facture->idFacture;
-        $extensionsPossibles = ['doc', 'docx', 'odt'];
-        $outputDir           = storage_path('app/public/factures/');
+        $this->ensureOutputDirExists();
 
+        $sourceFile = $this->findSourceFile($facture);
+        if ($sourceFile === null) {
+            Log::warning('FactureConversionService: aucun fichier source trouvé', ['id' => $facture->idFacture]);
+            return false;
+        }
+
+        if ($this->isTestEnvironment()) {
+            return $this->handleTestConversion($sourceFile, $deleteOriginal);
+        }
+
+        return $this->performConversion($facture, $sourceFile, $deleteOriginal);
+    }
+
+    /**
+     * Vérifie si on est en environnement de test
+     */
+    private function isTestEnvironment(): bool
+    {
+        return app()->runningUnitTests()
+            || app()->environment('testing')
+            || defined('PHPUNIT_VERSION')
+            || defined('__PHPUNIT_PHAR__');
+    }
+
+    /**
+     * Crée le répertoire de sortie s'il n'existe pas
+     */
+    private function ensureOutputDirExists(): void
+    {
+        $outputDir = storage_path('app/public/factures/');
         if (! file_exists($outputDir)) {
             @mkdir($outputDir, 0755, true);
         }
+    }
 
-        foreach ($extensionsPossibles as $ext) {
-            $ancienCheminRelatif = 'factures/' . $nomfichier . '.' . $ext;
+    /**
+     * Recherche le fichier source parmi les extensions possibles
+     */
+    private function findSourceFile(Facture $facture): ?string
+    {
+        $nomfichier = 'facture-' . $facture->idFacture;
 
-            if (Storage::disk('public')->exists($ancienCheminRelatif)) {
-                if (app()->runningUnitTests() || app()->environment('testing') || defined('PHPUNIT_VERSION') || defined('__PHPUNIT_PHAR__')) {
-                    // En mode test, on supprime quand même le fichier si demandé
-                    if ($deleteOriginal) {
-                        Storage::disk('public')->delete($ancienCheminRelatif);
-                    }
-                    return true;
-                }
-                $inputPath = Storage::disk('public')->path($ancienCheminRelatif);
-                $pdfCible  = $outputDir . $nomfichier . '.pdf';
-
-                $result  = $this->convertirWordToPdf($inputPath, $pdfCible);
-                $success = $result['success'] ?? false;
-
-                if ($success) {
-                    if ($deleteOriginal) {
-                        Storage::disk('public')->delete($ancienCheminRelatif);
-                    }
-                    Log::info('FactureConversionService: conversion réussie', ['id' => $facture->idFacture, 'cmd_output' => $result['output'] ?? []]);
-                    return true;
-                }
-
-                Log::error('FactureConversionService: échec conversion', ['id' => $facture->idFacture, 'cmd_output' => $result['output'] ?? [], 'return' => $result['return'] ?? null]);
+        foreach (self::EXTENSIONS_POSSIBLES as $ext) {
+            $cheminRelatif = 'factures/' . $nomfichier . '.' . $ext;
+            if (Storage::disk('public')->exists($cheminRelatif)) {
+                return $cheminRelatif;
             }
         }
 
-        Log::warning('FactureConversionService: aucun fichier source trouvé', ['id' => $facture->idFacture]);
+        return null;
+    }
+
+    /**
+     * Gère la conversion en environnement de test
+     */
+    private function handleTestConversion(string $sourceFile, bool $deleteOriginal): bool
+    {
+        if ($deleteOriginal) {
+            Storage::disk('public')->delete($sourceFile);
+        }
+        return true;
+    }
+
+    /**
+     * Effectue la conversion réelle du fichier
+     */
+    private function performConversion(Facture $facture, string $sourceFile, bool $deleteOriginal): bool
+    {
+        $inputPath = Storage::disk('public')->path($sourceFile);
+        $pdfCible  = storage_path('app/public/factures/facture-' . $facture->idFacture . '.pdf');
+
+        $result  = $this->convertirWordToPdf($inputPath, $pdfCible);
+        $success = $result['success'] ?? false;
+
+        if ($success) {
+            $this->handleSuccessfulConversion($facture, $sourceFile, $deleteOriginal, $result);
+            return true;
+        }
+
+        Log::error('FactureConversionService: échec conversion', [
+            'id' => $facture->idFacture,
+            'cmd_output' => $result['output'] ?? [],
+            'return' => $result['return'] ?? null
+        ]);
+
         return false;
+    }
+
+    /**
+     * Gère les actions post-conversion réussie
+     */
+    private function handleSuccessfulConversion(Facture $facture, string $sourceFile, bool $deleteOriginal, array $result): void
+    {
+        if ($deleteOriginal) {
+            Storage::disk('public')->delete($sourceFile);
+        }
+        Log::info('FactureConversionService: conversion réussie', [
+            'id' => $facture->idFacture,
+            'cmd_output' => $result['output'] ?? []
+        ]);
     }
 
     /**
