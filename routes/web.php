@@ -164,7 +164,7 @@ Route::middleware('auth')->group(function () {
         Route::middleware('can:gerer-tache')->group(function () {
             Route::get('/tache/create', [TacheController::class, 'create'])->name('tache.create');
             Route::post('/tache/store', [TacheController::class, 'store'])->name('tache.store');
-            Route::get('/tache/{tache}/edit', [TacheController::class, 'edit'])->name('tache.edit');
+            Route::get('/tache/{tache}' . EDIT_PATH, [TacheController::class, 'edit'])->name('tache.edit');
             Route::put('/tache/{tache}', [TacheController::class, 'update'])->name('tache.update');
             Route::delete('/tache/{tache}', [TacheController::class, 'delete'])->name('tache.delete');
             Route::patch('/taches' . ROUTE_ID . '/done', [TacheController::class, 'markDone'])->name('tache.markDone');
