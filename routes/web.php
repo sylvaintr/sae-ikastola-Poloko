@@ -27,6 +27,7 @@ if (!defined('ROUTE_ADD')) {
     define('ROUTE_EDIT', '/modifier');
     define('ROUTE_VALIDATE', '/valider');
     define('ROUTE_ARCHIVE', '/archiver');
+    define('EDIT_PATH', '/edit');
 
     define('ROUTE_ID', '/{id}');
 
@@ -59,7 +60,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/', [DemandeController::class, 'store'])->name('store');
 
             Route::get(ROUTE_DEMANDE, [DemandeController::class, 'show'])->name('show');
-            Route::get(ROUTE_DEMANDE . '/edit', [DemandeController::class, 'edit'])->name('edit');
+            Route::get(ROUTE_DEMANDE . EDIT_PATH, [DemandeController::class, 'edit'])->name('edit');
             Route::put(ROUTE_DEMANDE, [DemandeController::class, 'update'])->name('update');
             Route::patch(ROUTE_DEMANDE . '/valider', [DemandeController::class, 'validateDemande'])->name('validate');
             Route::get(ROUTE_DEMANDE . '/documents/{document}', [DemandeController::class, 'showDocument'])->name('document.show');
@@ -135,7 +136,7 @@ Route::middleware('auth')->group(function () {
                 Route::get('/create', [FamilleController::class, 'create'])->name('create');
                 Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
                 Route::get(ROUTE_ID, [FamilleController::class, 'show'])->name('show');
-                Route::get(ROUTE_ID . '/edit', [FamilleController::class, 'edit'])->name('edit');
+                Route::get(ROUTE_ID . EDIT_PATH, [FamilleController::class, 'edit'])->name('edit');
                 Route::put(ROUTE_ID, [FamilleController::class, 'update'])->name('update');
                 Route::delete(ROUTE_ID, [FamilleController::class, 'delete'])->name('delete');
             });
@@ -202,7 +203,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/notifications', [NotificationController::class, 'store'])
          ->name('admin.notifications.store');
 
-    Route::get('/admin/notifications' . ROUTE_ID . '/edit', [NotificationController::class, 'edit'])
+    Route::get('/admin/notifications' . ROUTE_ID . EDIT_PATH, [NotificationController::class, 'edit'])
          ->name('admin.notifications.edit');
 
     Route::put('/admin/notifications/'. ROUTE_ID, [NotificationController::class, 'update'])

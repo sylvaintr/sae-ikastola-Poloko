@@ -139,30 +139,38 @@ class FactureController extends Controller
         if ($facture === null) {
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
-        $client = $facture->utilisateur()->first();
-        if ($facture->etat === 'verifier') {
 
-            $mail = new FactureMail($facture, $client);
-
-            // Déterminer la langue préférée du destinataire et l'appliquer au Mailable
-            $langueDestinataire = $client->languePref ?? config('app.locale', 'fr');
-            if (method_exists($mail, 'locale')) {
-                $mail->locale($langueDestinataire);
-            } else {
-                app()->setLocale($langueDestinataire);
-            }
-
-            $piecejointe = $this->exportFacture($id, true);
-
-            $mail->attachData($piecejointe, 'facture-' . $facture->idFacture . '.pdf', [
-                'mime' => 'application/pdf',
-            ]);
-
-            Mail::to($client->email)->send($mail);
-            return redirect()->route('admin.facture.index')->with('success', 'facture.envoiersuccess');
-        } else {
+        if ($facture->etat !== 'verifier') {
             return redirect()->route('admin.facture.index')->with('error', 'facture.envoiererror');
         }
+
+        $client = $facture->utilisateur()->first();
+        $mail = $this->prepareFactureMail($facture, $client);
+        
+        $piecejointe = $this->exportFacture($id, true);
+        $mail->attachData($piecejointe, 'facture-' . $facture->idFacture . '.pdf', [
+            'mime' => 'application/pdf',
+        ]);
+
+        Mail::to($client->email)->send($mail);
+        return redirect()->route('admin.facture.index')->with('success', 'facture.envoiersuccess');
+    }
+
+    /**
+     * Prepare the mail with the correct locale
+     */
+    private function prepareFactureMail($facture, $client)
+    {
+        $mail = new FactureMail($facture, $client);
+        $langueDestinataire = $client->languePref ?? config('app.locale', 'fr');
+        
+        if (method_exists($mail, 'locale')) {
+            $mail->locale($langueDestinataire);
+        } else {
+            app()->setLocale($langueDestinataire);
+        }
+
+        return $mail;
     }
 
     public function validerFacture(string $id): ?RedirectResponse
