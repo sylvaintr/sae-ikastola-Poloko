@@ -1,26 +1,33 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Contracts\View\View;
-use App\Models\Famille;
-use App\Models\Enfant;
-use App\Models\Utilisateur;
-use App\Models\Role;
 use App\Http\Controllers\Traits\FamilleSynchronizationTrait;
+use App\Models\Enfant;
+use App\Models\Famille;
+use App\Models\Role;
+use App\Models\Utilisateur;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class FamilleController extends Controller
 {
     use FamilleSynchronizationTrait;
+    /**
+     * Constante pour le message d'erreur lorsque la famille n'est pas trouvée
+     */
     private const FAMILLE_NOT_FOUND = 'Famille non trouvée';
 
+    /**
+     * Methode pour ajouter une nouvelle famille avec ses enfants et utilisateurs associés
+     * @param Request $request la requête HTTP contenant les données de la famille à ajouter
+     * @return JsonResponse la réponse JSON indiquant le résultat de l'opération d'ajout de la famille
+     */
     public function ajouter(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'enfants' => 'array',
-            'utilisateurs' => 'array',
+            'enfants'             => 'array',
+            'utilisateurs'        => 'array',
             'aineDansAutreSeaska' => 'nullable|boolean',
         ]);
 
@@ -39,7 +46,12 @@ class FamilleController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    /**
+     * Methode pour afficher les détails d'une famille spécifique
+     * @param string $id Identifiant de la famille à afficher
+     * @return View|RedirectResponse la vue affichant les détails de la famille ou une redirection vers la liste des familles si la famille n'est pas trouvée
+     */
+    public function show($id): View | RedirectResponse
     {
         $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
 
@@ -49,13 +61,17 @@ class FamilleController extends Controller
                 : response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
 
-        if (!$famille) {
+        if (! $famille) {
             return redirect()->route('admin.familles.index');
         }
 
         return view('admin.familles.show', compact('famille'));
     }
 
+/**
+ * Methode pour afficher le formulaire de création d'une famille
+ * @return View la vue affichant le formulaire de création d'une famille
+ */
     public function create(): View
     {
         // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
@@ -72,7 +88,7 @@ class FamilleController extends Controller
 
         $tousEnfants = Enfant::where(function ($query) {
             $query->whereNull('idFamille')
-                  ->orWhere('idFamille', 0);
+                ->orWhere('idFamille', 0);
         })->get();
 
         return view('admin.familles.create', compact('tousUtilisateurs', 'tousEnfants'));
@@ -82,13 +98,13 @@ class FamilleController extends Controller
     {
         $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
 
-        if (!$famille) {
+        if (! $famille) {
             return redirect()->route('admin.familles.index');
         }
 
         // Charger aussi les utilisateurs et enfants disponibles pour pouvoir en ajouter
         $idsUtilisateursFamille = $famille->utilisateurs->pluck('idUtilisateur')->toArray();
-        $idsEnfantsFamille = $famille->enfants->pluck('idEnfant')->toArray();
+        $idsEnfantsFamille      = $famille->enfants->pluck('idEnfant')->toArray();
 
         // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
         $roleParent = Role::where('name', 'parent')->first();
@@ -102,7 +118,7 @@ class FamilleController extends Controller
                 }
             });
 
-            if (!empty($idsUtilisateursFamille)) {
+            if (! empty($idsUtilisateursFamille)) {
                 $query->orWhereIn('idUtilisateur', $idsUtilisateursFamille);
             }
         })
@@ -114,9 +130,9 @@ class FamilleController extends Controller
         $tousEnfants = Enfant::where(function ($query) use ($idsEnfantsFamille) {
             $query->where(function ($q) {
                 $q->whereNull('idFamille')
-                  ->orWhere('idFamille', 0);
+                    ->orWhere('idFamille', 0);
             })
-            ->orWhereIn('idEnfant', $idsEnfantsFamille);
+                ->orWhereIn('idEnfant', $idsEnfantsFamille);
         })
             ->orderBy('nom')
             ->orderBy('prenom')
@@ -140,27 +156,27 @@ class FamilleController extends Controller
     {
         $famille = Famille::find($id);
 
-        if (!$famille) {
+        if (! $famille) {
             return response()->json(['message' => self::FAMILLE_NOT_FOUND], 404);
         }
 
         // Vérifier s'il y a des factures associées
         $hasFactures = $famille->factures()->exists();
-        
+
         if ($hasFactures) {
             return response()->json([
                 'message' => 'Impossible de supprimer la famille : des factures sont associées',
-                'error' => 'HAS_FACTURES'
+                'error'   => 'HAS_FACTURES',
             ], 422);
         }
 
         // Détacher les enfants plutôt que de les supprimer (mettre idFamille à null)
         // Cela préserve les données des enfants pour d'éventuelles réassignations
         $famille->enfants()->update(['idFamille' => null]);
-        
+
         // Détacher les utilisateurs de la famille
         $famille->utilisateurs()->detach();
-        
+
         // Supprimer la famille
         $famille->delete();
 
@@ -175,14 +191,14 @@ class FamilleController extends Controller
 
         $query = $request->input('q');
 
-        if (!$query || strlen($query) < 2) {
+        if (! $query || strlen($query) < 2) {
             return response()->json([]);
         }
 
         $familles = Famille::with(['utilisateurs', 'enfants'])
             ->whereHas('utilisateurs', function ($q2) use ($query) {
                 $q2->where('nom', 'like', "%{$query}%")
-                   ->orWhere('prenom', 'like', "%{$query}%");
+                    ->orWhere('prenom', 'like', "%{$query}%");
             })
             ->limit(50)
             ->get();
@@ -197,18 +213,18 @@ class FamilleController extends Controller
     public function searchUsers(Request $request): JsonResponse
     {
         $request->validate([
-            'q' => 'nullable|string|min:0|max:50',
+            'q'          => 'nullable|string|min:0|max:50',
             'famille_id' => 'nullable|integer',
         ]);
 
-        $query = $request->input('q', '');
+        $query     = $request->input('q', '');
         $familleId = $request->input('famille_id');
 
         // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
         $roleParent = Role::where('name', 'parent')->first();
 
         $idsUtilisateursFamille = [];
-        if (!empty($familleId)) {
+        if (! empty($familleId)) {
             $famille = Famille::with('utilisateurs')->find($familleId);
             if ($famille) {
                 $idsUtilisateursFamille = $famille->utilisateurs->pluck('idUtilisateur')->toArray();
@@ -224,14 +240,14 @@ class FamilleController extends Controller
                 }
             });
 
-            if (!empty($idsUtilisateursFamille)) {
+            if (! empty($idsUtilisateursFamille)) {
                 $q->orWhereIn('idUtilisateur', $idsUtilisateursFamille);
             }
         })
             ->when($query, function ($q) use ($query) {
                 $q->where(function ($subQ) use ($query) {
                     $subQ->where('nom', 'like', "%{$query}%")
-                         ->orWhere('prenom', 'like', "%{$query}%");
+                        ->orWhere('prenom', 'like', "%{$query}%");
                 });
             })
             ->orderBy('nom')
@@ -241,8 +257,8 @@ class FamilleController extends Controller
             ->map(function ($user) {
                 return [
                     'idUtilisateur' => $user->idUtilisateur,
-                    'nom' => $user->nom,
-                    'prenom' => $user->prenom,
+                    'nom'           => $user->nom,
+                    'prenom'        => $user->prenom,
                 ];
             });
 
@@ -258,8 +274,8 @@ class FamilleController extends Controller
         }
 
         $data = $request->validate([
-            'enfants' => 'array',
-            'utilisateurs' => 'array',
+            'enfants'             => 'array',
+            'utilisateurs'        => 'array',
             'aineDansAutreSeaska' => 'boolean',
         ]);
 
@@ -295,12 +311,12 @@ class FamilleController extends Controller
                     ->update(['idFamille' => $familleId]);
             } else {
                 Enfant::create([
-                    'nom' => $enfantData['nom'],
-                    'prenom' => $enfantData['prenom'],
-                    'dateN' => $enfantData['dateN'],
-                    'sexe' => $enfantData['sexe'],
-                    'NNI' => $enfantData['NNI'],
-                    'idClasse' => $enfantData['idClasse'],
+                    'nom'       => $enfantData['nom'],
+                    'prenom'    => $enfantData['prenom'],
+                    'dateN'     => $enfantData['dateN'],
+                    'sexe'      => $enfantData['sexe'],
+                    'NNI'       => $enfantData['NNI'],
+                    'idClasse'  => $enfantData['idClasse'],
                     'idFamille' => $familleId,
                 ]);
             }
@@ -317,16 +333,16 @@ class FamilleController extends Controller
             } else {
                 // Générer un mot de passe aléatoire sécurisé si non fourni
                 $password = $userData['mdp'] ?? null;
-                if (!$password) {
+                if (! $password) {
                     $password = \Illuminate\Support\Str::random(12);
                 }
 
                 $newUser = Utilisateur::create([
-                    'nom' => $userData['nom'],
-                    'prenom' => $userData['prenom'],
-                    'mdp' => bcrypt($password),
+                    'nom'        => $userData['nom'],
+                    'prenom'     => $userData['prenom'],
+                    'mdp'        => bcrypt($password),
                     'languePref' => $userData['languePref'] ?? 'fr',
-                    'email' => $userData['email'] ?? null,
+                    'email'      => $userData['email'] ?? null,
                 ]);
 
                 $famille->utilisateurs()->attach($newUser->idUtilisateur, [
@@ -336,6 +352,4 @@ class FamilleController extends Controller
         }
     }
 
-
 }
-
