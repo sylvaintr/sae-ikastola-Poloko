@@ -13,7 +13,7 @@ sudo apt install -y php8.4-fpm php8.4-mysql php8.4-gd php8.4-intl php8.4-zip php
 echo "--- 🌐 3. Nginx ---"
 sudo apt install -y nginx
 # On copie la config nginx fournie vers le dossier de destination
-sudo cp ./ngix_prod.conf /etc/nginx/sites-available/default
+sudo cp ./nginx_prod.conf /etc/nginx/sites-available/default
 sudo systemctl restart nginx
 
 echo "--- 📜 4. Composer & Node ---"
