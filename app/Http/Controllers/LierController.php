@@ -1,13 +1,19 @@
 <?php
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class LierController extends Controller
 {
 
-    public function updateParite(Request $request)
+    /**
+     * Methode pour mettre à jour la parité d'un lien entre un parent et une famille
+     * @param Request $request la requête HTTP contenant les données de mise à jour de la parité
+     * @return JsonResponse la réponse JSON indiquant le résultat de l'opération
+     */
+    public function updateParite(Request $request): JsonResponse
     {
         $request->validate([
             'idFamille'     => 'required|integer|exists:famille,idFamille',
@@ -34,8 +40,12 @@ class LierController extends Controller
 
     /**
      * Valide la requête de mise à jour de parité.
+     * @param int $idFamille l'identifiant de la famille pour laquelle la parité est mise à jour
+     * @param int $idParent1 l'identifiant du parent pour lequel la parité est mise à jour
+     * @param float $nouvelleParite la nouvelle parité pour le parent spécifié
+     * @return JsonResponse|null la réponse JSON indiquant l'erreur si la validation échoue, ou null si la validation réussit
      */
-    private function validatePariteRequest(int $idFamille, int $idParent1, float $nouvelleParite)
+    private function validatePariteRequest(int $idFamille, int $idParent1, float $nouvelleParite): ?JsonResponse
     {
         $linkError = $this->validateLinkExists($idFamille, $idParent1);
         if ($linkError) {
@@ -52,8 +62,11 @@ class LierController extends Controller
 
     /**
      * Valide que le lien existe.
+     * @param int $idFamille l'identifiant de la famille pour laquelle le lien est vérifié
+     * @param int $idParent1 l'identifiant du parent pour lequel le lien est vérifié
+     * @return JsonResponse|null la réponse JSON indiquant l'erreur si le lien n'existe pas, ou null si le lien existe
      */
-    private function validateLinkExists(int $idFamille, int $idParent1)
+    private function validateLinkExists(int $idFamille, int $idParent1): ?JsonResponse
     {
         $exists = DB::table('lier')
             ->where('idFamille', $idFamille)
@@ -69,8 +82,11 @@ class LierController extends Controller
 
     /**
      * Valide le nombre de parents et la parité pour un seul parent.
+     * @param int $idFamille l'identifiant de la famille pour laquelle le nombre de parents est vérifié
+     * @param float $nouvelleParite la nouvelle parité pour le parent spécifié
+     * @return JsonResponse|null la réponse JSON indiquant l'erreur si la validation échoue, ou null si la validation réussit
      */
-    private function validateParentsCount(int $idFamille, float $nouvelleParite)
+    private function validateParentsCount(int $idFamille, float $nouvelleParite): ?JsonResponse
     {
         $nombreParents = $this->getNombreParents($idFamille);
         if ($nombreParents === 0) {
@@ -89,8 +105,10 @@ class LierController extends Controller
 
     /**
      * Valide la valeur de la parité.
+     * @param float $nouvelleParite la nouvelle parité pour le parent spécifié
+     * @return JsonResponse|null la réponse JSON indiquant l'erreur si la parité est invalide, ou null si la parité est valide
      */
-    private function validatePariteValue(float $nouvelleParite)
+    private function validatePariteValue(float $nouvelleParite): ?JsonResponse
     {
         $reste = 100 - $nouvelleParite;
         if ($reste < 0) {
@@ -105,6 +123,8 @@ class LierController extends Controller
 
     /**
      * Récupère le nombre de parents d'une famille.
+     * @param int $idFamille l'identifiant de la famille pour laquelle le nombre de parents est récupéré
+     * @return int le nombre de parents dans la famille spécifiée
      */
     private function getNombreParents(int $idFamille): int
     {
@@ -115,8 +135,11 @@ class LierController extends Controller
 
     /**
      * Gère la mise à jour de parité pour un seul parent.
+     * @param int $idFamille l'identifiant de la famille pour laquelle la parité est mise à jour
+     * @param int $idParent1 l'identifiant du parent pour lequel la parité est mise à jour
+     * @return JsonResponse la réponse JSON contenant le message de succès après la mise à jour de la parité
      */
-    private function handleSingleParent(int $idFamille, int $idParent1)
+    private function handleSingleParent(int $idFamille, int $idParent1): JsonResponse
     {
         DB::table('lier')
             ->where('idFamille', $idFamille)
@@ -128,8 +151,13 @@ class LierController extends Controller
 
     /**
      * Gère la mise à jour de parité pour plusieurs parents.
+     * @param int $idFamille l'identifiant de la famille pour laquelle les parités sont mises à jour
+     * @param int $idParent1 l'identifiant du parent pour lequel la parité est mise à jour
+     * @param float $nouvelleParite la nouvelle parité pour le parent spécifié
+     * @param int $nombreParents le nombre total de parents dans la famille
+     * @return JsonResponse la réponse JSON contenant le message de succès et les parités finales après la mise à jour
      */
-    private function handleMultipleParents(int $idFamille, int $idParent1, float $nouvelleParite, int $nombreParents)
+    private function handleMultipleParents(int $idFamille, int $idParent1, float $nouvelleParite, int $nombreParents): JsonResponse
     {
         DB::table('lier')
             ->where('idFamille', $idFamille)
@@ -178,8 +206,10 @@ class LierController extends Controller
 
     /**
      * Construit la réponse de succès avec les parités finales.
+     * @param int $idFamille l'identifiant de la famille pour laquelle les parités ont été mises à jour
+     * @return JsonResponse la réponse JSON contenant le message de succès et les parités finales
      */
-    private function buildSuccessResponse(int $idFamille)
+    private function buildSuccessResponse(int $idFamille): JsonResponse
     {
         $paritesFinales = DB::table('lier')
             ->where('idFamille', $idFamille)

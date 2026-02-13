@@ -1,27 +1,32 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Etiquette;
 use App\Models\Role;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Schema;
-
+use Illuminate\View\View;
+use Yajra\DataTables\Facades\DataTables;
 
 class EtiquetteController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     *  Methode pour afficher la liste des etiquettes avec possibilité de filtrer par nom et par rôle
+     *  les filtres sont appliqués via des requêtes AJAX depuis la vue index des etiquettes, et la méthode data() fournit les données filtrées pour DataTables en mode serveur
+     *  la méthode ensureEtiquetteIsPublicColumn() est appelée pour ajouter la colonne 'public' à la table 'etiquette' si elle n'existe pas déjà, afin de éviter les erreurs lors de la création ou de la mise à jour d'une étiquette qui utilise cette colonne
+     * @param Request|null $request la requête HTTP contenant les paramètres de filtrage (optionnel, si null la méthode utilisera la requête globale)
+     * @return View la vue affichant la liste des etiquettes avec les filtres appliqués
      */
-    public function index(?Request $request = null)
+    public function index(?Request $request = null): View
     {
         $request = $request ?? request();
         $this->ensureEtiquetteIsPublicColumn();
 
         $filters = [
             'search' => $request->get('search', ''),
-            'role' => $request->get('role', ''),
+            'role'   => $request->get('role', ''),
         ];
 
         $query = Etiquette::with('roles');
@@ -38,15 +43,17 @@ class EtiquetteController extends Controller
         }
 
         $etiquettes = $query->orderBy('nom')->paginate(10)->appends($request->query());
-        $roles = Role::all();
+        $roles      = Role::all();
 
         return view('etiquettes.index', compact('etiquettes', 'filters', 'roles'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Methode pour afficher le formulaire de création d'une nouvelle étiquette
+     * la méthode ensureEtiquetteIsPublicColumn() est appelée pour ajouter la colonne 'public' à la table 'etiquette' si elle n'existe pas déjà, afin de éviter les erreurs lors de la création d'une étiquette qui utilise cette colonne
+     * @return View la vue affichant le formulaire de création d'une nouvelle étiquette avec la liste des rôles disponibles
      */
-    public function create()
+    public function create(): View
     {
         $this->ensureEtiquetteIsPublicColumn();
         $roles = Role::all();
@@ -54,17 +61,21 @@ class EtiquetteController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Methode pour stocker une nouvelle étiquette dans la base de données
+     * la méthode ensureEtiquetteIsPublicColumn() est appelée pour ajouter la colonne 'public' à la table 'etiquette' si elle n'existe pas déjà, afin de éviter les erreurs lors de la création d'une étiquette qui utilise cette colonne
+     * les rôles associés à l'étiquette sont synchronisés après la création de l'étiquette, en utilisant la méthode sync() de la relation roles() de l'étiquette
+     * @param Request $request la requête HTTP contenant les données du formulaire de création d'une nouvelle étiquette, y compris le nom de l'étiquette, sa visibilité publique (optionnelle) et les rôles associés (optionnels)
+     * @return RedirectResponse la réponse de redirection vers la liste des étiquettes avec un message de succès ou d'erreur selon le résultat de la création de l'étiquette
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $this->ensureEtiquetteIsPublicColumn();
 
         $validated = $request->validate(
             [
-                'nom' => 'required|string|max:50',
-                'public' => ['nullable', 'boolean'],
-                'roles' => ['nullable', 'array'],
+                'nom'     => 'required|string|max:50',
+                'public'  => ['nullable', 'boolean'],
+                'roles'   => ['nullable', 'array'],
                 'roles.*' => ['exists:role,idRole'],
             ]
         );
@@ -74,22 +85,24 @@ class EtiquetteController extends Controller
             $payload['public'] = (bool) ($validated['public'] ?? false);
         }
 
-        $etiquette = Etiquette::create($payload);
+        $etiquette   = Etiquette::create($payload);
         $rolesToSync = [];
-        $roles = $validated['roles'] ?? [];
+        $roles       = $validated['roles'] ?? [];
         foreach ($roles as $roleId) {
             $rolesToSync[$roleId] = [];
         }
         $etiquette->roles()->sync($rolesToSync);
 
-
         return redirect()->route('admin.etiquettes.index')->with('success', __('etiquette.successEtiquetteCreee'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Methode pour afficher le formulaire de modification d'une étiquette existante
+     * la méthode ensureEtiquetteIsPublicColumn() est appelée pour ajouter la colonne 'public' à la table 'etiquette' si elle n'existe pas déjà, afin de éviter les erreurs lors de la modification d'une étiquette qui utilise cette colonne
+     * @param string $idEtiquette l'identifiant de l'étiquette à modifier
+     * @return View|RedirectResponse la vue affichant le formulaire de modification de l'étiquette avec les données de l'étiquette pré-remplies et la liste des rôles disponibles, ou une réponse de redirection vers la liste des étiquettes avec un message d'erreur si l'étiquette n'existe pas
      */
-    public function edit(string $idEtiquette)
+    public function edit(string $idEtiquette): View | RedirectResponse
     {
         $this->ensureEtiquetteIsPublicColumn();
         try {
@@ -104,23 +117,23 @@ class EtiquetteController extends Controller
 
     /**
      * methode pour mettre a jour une etiquette
-     * @param Request $request parameters du formulaire
+     * @param Request $request parameters du formulaire (nom de l'étiquette, visibilité publique, rôles associés)
      * @param Etiquette $etiquette etiquette a mettre a jour
-     * @return \Illuminate\Http\RedirectResponse redirection vers la liste des etiquettes avec un message de succes ou d'erreur
+     * @return RedirectResponse redirection vers la liste des etiquettes avec un message de succes ou d'erreur
      */
-    public function update(Request $request, Etiquette $etiquette)
+    public function update(Request $request, Etiquette $etiquette): RedirectResponse
     {
         $this->ensureEtiquetteIsPublicColumn();
 
         $validated = $request->validate([
-            'nom' => 'required|string|max:50',
-            'public' => ['nullable', 'boolean'],
-            'roles' => ['nullable', 'array'],
+            'nom'     => 'required|string|max:50',
+            'public'  => ['nullable', 'boolean'],
+            'roles'   => ['nullable', 'array'],
             'roles.*' => ['exists:role,idRole'],
         ]);
 
         $rolesToSync = [];
-        $roles = $validated['roles'] ?? [];
+        $roles       = $validated['roles'] ?? [];
         foreach ($roles as $roleId) {
             $rolesToSync[$roleId] = [];
         }
@@ -138,20 +151,23 @@ class EtiquetteController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Methode pour supprimer une étiquette de la base de données
+     * @param Etiquette $etiquette l'étiquette à supprimer
+     * @return RedirectResponse la réponse de redirection vers la liste des étiquettes avec un message de succès ou d'erreur selon le résultat de la suppression de l'étiquette
      */
-    public function destroy(Etiquette $etiquette)
+    public function destroy(Etiquette $etiquette): RedirectResponse
     {
         $etiquette->delete();
         return redirect()->route('admin.etiquettes.index')->with('success', __('etiquette.successEtiquetteSupprimee'));
     }
 
     /**
-     * Ajoute la colonne public sur etiquette si absente (pas de nouvelle migration).
+     * Methode pour ajouter la colonne 'public' à la table 'etiquette' si elle n'existe pas déjà
+     * @return void
      */
     private function ensureEtiquetteIsPublicColumn(): void
     {
-        if (!Schema::hasColumn('etiquette', 'public')) {
+        if (! Schema::hasColumn('etiquette', 'public')) {
             Schema::table('etiquette', function ($table) {
                 $table->boolean('public')->default(false)->after('nom');
             });
@@ -159,19 +175,23 @@ class EtiquetteController extends Controller
     }
 
     /**
-     * Fournit les données pour DataTables en mode serveur.
+     * Methode pour fournir les données des étiquettes filtrées pour DataTables en mode serveur
+     * les filtres sont appliqués via des requêtes AJAX depuis la vue index des etiquettes, et la méthode data() fournit les données filtrées pour DataTables en mode serveur
+     * la méthode ensureEtiquetteIsPublicColumn() est appelée pour ajouter la colonne 'public' à la table 'etiquette' si elle n'existe pas déjà, afin de éviter les erreurs lors de la création ou de la mise à jour d'une étiquette qui utilise cette colonne
+     * @param Request|null $request la requête HTTP contenant les paramètres de filtrage (optionnel, si null la méthode utilisera la requête globale)
+     * @return Response la réponse HTTP contenant les données des étiquettes filtrées au format JSON pour DataTables en mode serveur
      */
-    public function data(Request $request = null)
+    public function data(Request $request = null): Response
     {
         // accept filters from DataTable (name, role)
         $request = $request ?? request();
-        $query = Etiquette::with('roles');
+        $query   = Etiquette::with('roles');
         if ($request->filled('name')) {
             $like = "%{$request->input('name')}%";
             $query->where('nom', 'like', $like);
         }
         if ($request->filled('role')) {
-            $roleId = (int)$request->input('role');
+            $roleId = (int) $request->input('role');
             if ($roleId) {
                 $query->whereHas('roles', function ($q) use ($roleId) {
                     $this->applyRoleWhereHas($q, $roleId);
@@ -192,24 +212,33 @@ class EtiquetteController extends Controller
             ->addColumn('actions', function ($etiquette) {
                 return $this->columnActionsHtml($etiquette);
             })
-            // Allow searching on the virtual 'roles' column by relation
+        // Allow searching on the virtual 'roles' column by relation
             ->filterColumn('roles', [$this, 'filterColumnRolesCallback'])
             ->rawColumns(['actions'])
             ->make(true);
     }
 
     /**
-     * Apply a where condition on the related roles query by idRole.
-     * Made public so we can unit test the logic used inside closures.
+     * Methode pour appliquer le filtre de rôle dans la requête de DataTables en mode serveur
+     * utilisée par la méthode data() pour filtrer les étiquettes par rôle lorsque le filtre de rôle est appliqué depuis la vue index des étiquettes
+     * la méthode ensureEtiquetteIsPublicColumn() est appelée pour ajouter la colonne 'public' à la table 'etiquette' si elle n'existe pas déjà, afin de éviter les erreurs lors de la création ou de la mise à jour d'une étiquette qui utilise cette colonne
+     * @param \Illuminate\Database\Eloquent\Builder $q la requête Eloquent sur laquelle appliquer le filtre de rôle
+     * @param int $roleId l'identifiant du rôle à filtrer, obtenu à partir du paramètre de filtrage de rôle envoyé depuis la vue index des étiquettes
+     * @return void
      */
-    public function applyRoleWhereHas($q, int $roleId)
+    public function applyRoleWhereHas($q, int $roleId): void
     {
         $table = $q->getModel()->getTable();
         $q->where($table . '.idRole', $roleId);
     }
 
     /**
-     * Extracted logic for filtering the virtual 'roles' column by keyword.
+     * Methode pour filtrer la colonne 'roles' de DataTables en mode serveur en fonction d'un mot-clé de recherche
+     * utilisée par la méthode data() pour permettre la recherche sur la colonne 'roles' de DataTables en mode serveur, en filtrant les étiquettes par les rôles associés dont le nom ou le display_name correspond au mot-clé de recherche
+     * la méthode ensureEtiquetteIsPublicColumn() est appelée pour ajouter la colonne 'public' à la table 'etiquette' si elle n'existe pas déjà, afin de éviter les erreurs lors de la création ou de la mise à jour d'une étiquette qui utilise cette colonne
+     * @param \Illuminate\Database\Eloquent\Builder $query la requête Eloquent sur laquelle appliquer le filtre de recherche sur la colonne 'roles'
+     * @param string $keyword le mot-clé de recherche saisi dans le champ de recherche de la colonne 'roles' de DataTables, utilisé pour filtrer les étiquettes par les rôles associés dont le nom ou le display_name correspond à ce mot-clé
+     * @return void
      */
     public function filterRolesColumnByKeyword($query, string $keyword)
     {
@@ -220,29 +249,55 @@ class EtiquetteController extends Controller
     }
 
     /**
-     * Column extractors — separated from closures so unit tests can call them directly.
+     * Methode pour obtenir la valeur de la colonne 'idEtiquette' pour une étiquette donnée, utilisée par la méthode data() pour fournir les données de la colonne 'idEtiquette' de DataTables en mode serveur
+     * @param Etiquette $etiquette l'étiquette pour laquelle obtenir la valeur de la colonne 'idEtiquette'
+     * @return int la valeur de la colonne 'idEtiquette' pour l'étiquette donnée
      */
-    public function columnIdEtiquette($etiquette)
+    public function columnIdEtiquette(Etiquette $etiquette): int
     {
         return $etiquette->idEtiquette;
     }
 
-    public function columnNom($etiquette)
+    /**
+     * Methode pour obtenir la valeur de la colonne 'nom' pour une étiquette donnée, utilisée par la méthode data() pour fournir les données de la colonne 'nom' de DataTables en mode serveur
+     * @param Etiquette $etiquette l'étiquette pour laquelle obtenir la valeur de la colonne 'nom'
+     * @return string la valeur de la colonne 'nom' pour l'étiquette donnée
+     */
+    public function columnNom(Etiquette $etiquette): string
     {
         return $etiquette->nom;
     }
 
-    public function columnRolesText($etiquette)
+    /**
+     * Methode pour obtenir la valeur de la colonne 'roles' au format texte pour une étiquette donnée, utilisée par la méthode data() pour fournir les données de la colonne 'roles' de DataTables en mode serveur
+     * la valeur de la colonne 'roles' est obtenue en récupérant les rôles associés à l'étiquette via la relation roles(), puis en extrayant le nom de chaque rôle et en les joignant avec une virgule pour former une chaîne de caractères représentant les rôles associés à l'étiquette
+     * @param Etiquette $etiquette l'étiquette pour laquelle obtenir la valeur de la colonne 'roles'
+     * @return string une chaîne de caractères représentant les rôles associés à l'étiquette donnée, obtenue en joignant les noms des rôles associés avec une virgule
+     */
+    public function columnRolesText(Etiquette $etiquette): string
     {
         return $etiquette->roles->pluck('name')->join(', ');
     }
 
-    public function columnActionsHtml($etiquette)
+    /**
+     * Methode pour obtenir le code HTML de la colonne d'actions pour une étiquette donnée, utilisée par la méthode data() pour fournir les données de la colonne 'actions' de DataTables en mode serveur
+     * le code HTML de la colonne d'actions est généré en rendant une vue Blade spécifique (etiquettes.template.colonne-action) qui contient les boutons d'action (modifier, supprimer) pour l'étiquette donnée, en passant l'étiquette à la vue pour qu'elle puisse générer les liens d'action appropriés
+     * @param Etiquette $etiquette l'étiquette pour laquelle obtenir le code HTML de la colonne d'actions
+     * @return string le code HTML de la colonne d'actions pour l'étiquette donnée, généré en rendant la vue Blade 'etiquettes.template.colonne-action' avec l'étiquette passée en paramètre
+     */
+    public function columnActionsHtml(Etiquette $etiquette): string
     {
         return view('etiquettes.template.colonne-action', compact('etiquette'));
     }
 
-    /** Callable used by DataTables filter registration so it can be unit-tested. */
+    /**
+     * Methode pour filtrer la colonne 'roles' de DataTables en mode serveur en fonction d'un mot-clé de recherche
+     * utilisée par la méthode data() pour permettre la recherche sur la colonne 'roles' de DataTables en mode serveur, en filtrant les étiquettes par les rôles associés dont le nom ou le display_name correspond au mot-clé de recherche
+     * la méthode ensureEtiquetteIsPublicColumn() est appelée pour ajouter la colonne 'public' à la table 'etiquette' si elle n'existe pas déjà, afin de éviter les erreurs lors de la création ou de la mise à jour d'une étiquette qui utilise cette colonne
+     * @param \Illuminate\Database\Eloquent\Builder $query la requête Eloquent sur laquelle appliquer le filtre de recherche sur la colonne 'roles'
+     * @param string $keyword le mot-clé de recherche saisi dans le champ de recherche de la colonne 'roles' de DataTables, utilisé pour filtrer les étiquettes par les rôles associés dont le nom ou le display_name correspond à ce mot-clé
+     * @return void
+     */
     public function filterColumnRolesCallback($query, string $keyword)
     {
         $this->filterRolesColumnByKeyword($query, $keyword);

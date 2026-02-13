@@ -1,35 +1,49 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\NotificationSetting;
-use App\Models\Evenement;
 use App\Models\DocumentObligatoire;
+use App\Models\Evenement;
+use App\Models\NotificationSetting;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class NotificationController extends Controller
 {
-    public function index()
+    /**
+     * Methode pour afficher la liste des paramètres de notification
+     * @return View la vue affichant la liste des paramètres de notification
+     */
+    public function index(): View
     {
         $settings = NotificationSetting::with('target')->latest()->get();
         return view('admin.notifications.index', compact('settings'));
     }
 
-    public function create()
+    /**
+     * Methode pour afficher le formulaire de création d'un paramètre de notification
+     * @return View la vue affichant le formulaire de création d'un paramètre de notification
+     */
+    public function create(): View
     {
         return view('admin.notifications.create');
     }
 
-    public function store(Request $request)
+    /**
+     * Methode pour stocker un nouveau paramètre de notification dans la base de données
+     * @param Request $request la requête HTTP contenant les données du formulaire de création d'un paramètre de notification
+     * @return RedirectResponse la réponse de redirection vers la liste des paramètres de notification avec un message de succès
+     */
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'module_id' => 'required|integer',
-            'module_type' => 'required|in:Document,Evènement',
+            'title'           => 'required|string|max:255',
+            'module_id'       => 'required|integer',
+            'module_type'     => 'required|in:Document,Evènement',
             'recurrence_days' => 'nullable|integer',
-            'reminder_days' => 'nullable|integer',
-            'description' => 'nullable|string',
-            'is_active' => 'nullable',
+            'reminder_days'   => 'nullable|integer',
+            'description'     => 'nullable|string',
+            'is_active'       => 'nullable',
         ]);
 
         $targetClass = null;
@@ -41,37 +55,47 @@ class NotificationController extends Controller
         }
 
         NotificationSetting::create([
-            'title' => $request->title,
-            'description' => $request->description,
+            'title'           => $request->title,
+            'description'     => $request->description,
             'recurrence_days' => $request->recurrence_days,
-            'reminder_days' => $request->reminder_days,
-            'is_active' => $request->has('is_active'),
-            'target_id' => $request->module_id,
-            'target_type' => $targetClass,
+            'reminder_days'   => $request->reminder_days,
+            'is_active'       => $request->has('is_active'),
+            'target_id'       => $request->module_id,
+            'target_type'     => $targetClass,
         ]);
 
         return redirect()->route('admin.notifications.index')
-                         ->with('success', 'Notification ajoutée avec succès !');
+            ->with('success', 'Notification ajoutée avec succès !');
     }
 
-    public function edit($id)
+    /**
+     * Methode pour afficher le formulaire d'édition d'un paramètre de notification
+     * @param int $id l'identifiant du paramètre de notification à éditer
+     * @return View la vue affichant le formulaire d'édition du paramètre de notification
+     */
+    public function edit($id): View
     {
         $setting = NotificationSetting::findOrFail($id);
         return view('admin.notifications.edit', compact('setting'));
     }
-
-    public function update(Request $request, $id)
+/**
+ * Methode pour mettre à jour un paramètre de notification dans la base de données
+ * @param Request $request la requête HTTP contenant les données du formulaire d'édition d'un paramètre de notification
+ * @param int $id l'identifiant du paramètre de notification à mettre à jour
+ * @return RedirectResponse la réponse de redirection vers la liste des paramètres de notification
+ */
+    public function update(Request $request, $id): RedirectResponse
     {
         $setting = NotificationSetting::findOrFail($id);
 
         $request->validate([
-            'title' => 'required|string|max:255',
-            'module_id' => 'required|integer',
-            'module_type' => 'required|in:Document,Evènement',
+            'title'           => 'required|string|max:255',
+            'module_id'       => 'required|integer',
+            'module_type'     => 'required|in:Document,Evènement',
             'recurrence_days' => 'nullable|integer',
-            'reminder_days' => 'nullable|integer',
-            'description' => 'nullable|string',
-            'is_active' => 'nullable',
+            'reminder_days'   => 'nullable|integer',
+            'description'     => 'nullable|string',
+            'is_active'       => 'nullable',
         ]);
 
         $targetClass = null;
@@ -83,19 +107,24 @@ class NotificationController extends Controller
         }
 
         $setting->update([
-            'title' => $request->title,
-            'description' => $request->description,
+            'title'           => $request->title,
+            'description'     => $request->description,
             'recurrence_days' => $request->recurrence_days,
-            'reminder_days' => $request->reminder_days,
-            'is_active' => $request->has('is_active'),
-            'target_type' => $targetClass,
-            'target_id' => $request->module_id,
+            'reminder_days'   => $request->reminder_days,
+            'is_active'       => $request->has('is_active'),
+            'target_type'     => $targetClass,
+            'target_id'       => $request->module_id,
         ]);
 
-       return redirect()->route('admin.notifications.index');
+        return redirect()->route('admin.notifications.index');
     }
 
-    public function markAsRead($id)
+    /**
+     * Methode pour marquer une notification comme lue pour l'utilisateur connecté
+     * @param string $id l'identifiant de la notification à marquer comme lue
+     * @return RedirectResponse la réponse de redirection vers la page précédente
+     */
+    public function markAsRead($id): RedirectResponse
     {
         $notification = auth()->user()->notifications()->where('id', $id)->first();
 

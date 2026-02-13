@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Classe;
 use App\Models\Enfant;
 use App\Models\Pratiquer;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -11,9 +12,9 @@ class PresenceController extends Controller
 {
     /**
      * Methode pour obtenir la liste des classes
-     * @return \Illuminate\Http\JsonResponse la réponse JSON contenant la liste des classes
+     * @return JsonResponse la réponse JSON contenant la liste des classes
      */
-    public function classes()
+    public function classes(): JsonResponse
     {
         $classes = Classe::query()
             ->orderBy('nom')
@@ -25,9 +26,9 @@ class PresenceController extends Controller
     /**
      * Methode pour obtenir la liste des élèves pour une classe donnée
      * @param Request $request la requête HTTP contenant le paramètre 'classe_id'
-     * @return \Illuminate\Http\JsonResponse la réponse JSON contenant la liste des élèves
+     * @return JsonResponse la réponse JSON contenant la liste des élèves
      */
-    public function students(Request $request)
+    public function students(Request $request): JsonResponse
     {
         $classIds = $this->extractClassIds($request);
         if (empty($classIds)) {
@@ -54,9 +55,9 @@ class PresenceController extends Controller
     /**
      * Methode pour obtenir la liste des identifiants des élèves présents pour une date/activité et une classe données
      * @param Request $request la requête HTTP contenant les paramètres 'classe_id', 'date' et 'activite'
-     * @return \Illuminate\Http\JsonResponse la réponse JSON contenant la liste des identifiants des élèves présents
+     * @return JsonResponse la réponse JSON contenant la liste des identifiants des élèves présents
      */
-    public function status(Request $request)
+    public function status(Request $request): JsonResponse
     {
         $classIds = $this->extractClassIds($request);
         $date     = $request->query('date');
@@ -79,9 +80,9 @@ class PresenceController extends Controller
     /**
      * Methode pour enregistrer en masse le statut de présence pour une date/activité donnée
      * @param Request $request la requête HTTP contenant les données de présence
-     * @return \Illuminate\Http\JsonResponse la réponse JSON indiquant le statut de l'opération
+     * @return JsonResponse la réponse JSON indiquant le statut de l'opération
      */
-    public function save(Request $request)
+    public function save(Request $request): JsonResponse
     {
         $data = $request->validate([
             'date'             => ['required', 'date'],
