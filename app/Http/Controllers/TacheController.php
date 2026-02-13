@@ -289,7 +289,7 @@ private function formatAssignation($tache)
         return redirect()->route('tache.index')->with('status', __('taches.messages.updated'));
     }
 
-    public function delete(Request $request, Tache $tache)
+    public function delete(Tache $tache)
     {
         try {
             $tache->delete();

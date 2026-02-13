@@ -16,15 +16,15 @@
 
             <div class="row mb-3">
                 <div class="col-md-8">
-                    <label class="form-label fw-bold mb-0">Izenburua <span class="text-danger">*</span></label>
+                    <label for="titre" class="form-label fw-bold mb-0">Izenburua <span class="text-danger">*</span></label>
                     <p class="text-muted mt-0 admin-button-subtitle">Titre</p>
-                    <input type="text" name="titre" class="form-control"
+                    <input type="text" id="titre" name="titre" class="form-control"
                            value="{{ old('titre', $tache->titre ?? '') }}" maxlength="255" required>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-bold mb-0">Larrialdia <span class="text-danger">*</span></label>
+                    <label for="type" class="form-label fw-bold mb-0">Larrialdia <span class="text-danger">*</span></label>
                     <p class="text-muted mt-0 admin-button-subtitle">Urgence</p>
-                    <select name="type" class="form-select">
+                    <select id="type" name="type" class="form-select">
                         <option value="low" {{ old('type', $tache->type ?? '') == 'low' ? 'selected' : '' }}>Faible</option>
                         <option value="medium" {{ old('type', $tache->type ?? '') == 'medium' ? 'selected' : '' }}>Moyenne</option>
                         <option value="high" {{ old('type', $tache->type ?? '') == 'high' ? 'selected' : '' }}>Élevée</option>
@@ -34,7 +34,7 @@
 
             <div class="row mb-4">
                   <div class="col-md-6">
-                      <label class="form-label fw-bold mb-0">Hasiera data <span class="text-danger">*</span></label>
+                      <label for="dateD_display" class="form-label fw-bold mb-0">Hasiera data <span class="text-danger">*</span></label>
                       <p class="text-muted mt-0 admin-button-subtitle">Date de début de la tâche</p>
                       <input type="text" id="dateD_display" class="form-control" inputmode="numeric"
                           placeholder="jj/mm/aaaa" pattern="\d{2}/\d{2}/\d{4}"
@@ -45,9 +45,9 @@
             </div>
 
             <div class="mb-4">
-                <label class="form-label fw-bold mb-0">Deskribapena <span class="text-danger">*</span></label>
+                <label for="description" class="form-label fw-bold mb-0">Deskribapena <span class="text-danger">*</span></label>
                 <p class="text-muted mt-0 admin-button-subtitle">Description</p>
-                <textarea name="description" class="form-control" rows="6" required>{{ old('description', $tache->description ?? '') }}</textarea>
+                <textarea id="description" name="description" class="form-control" rows="6" required>{{ old('description', $tache->description ?? '') }}</textarea>
             </div>
 
             <hr>
@@ -66,9 +66,9 @@
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-label small mb-2">Hautatutako erabiltzaileak <span class="text-danger">*</span></div>
+                        <span id="selected-users-label" class="form-label small mb-2 d-block">Hautatutako erabiltzaileak <span class="text-danger">*</span></span>
                         <p class="text-muted mt-0 admin-button-subtitle small">Utilisateurs sélectionnés</p>
-                        <div id="selected-users" class="role-list mt-2">
+                        <div id="selected-users" class="role-list mt-2" role="listbox" aria-labelledby="selected-users-label">
                             <div class="role-list-empty-message">Aucun utilisateur n'a été sélectionné</div>
                         </div>
                         <div id="users-error" class="invalid-feedback d-none mt-2">Au moins un utilisateur doit être sélectionné.</div>

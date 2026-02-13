@@ -119,13 +119,9 @@ class FactureController extends Controller
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
 
-        $manualResponse = app(FactureExporter::class)->serveManualFile($facture, $returnBinary);
-        if ($manualResponse !== null) {
-            return $manualResponse;
-        }
+        $response = app(FactureExporter::class)->serveManualFile($facture, $returnBinary);
 
-        return redirect()->route('admin.facture.index')->with('error', 'facture.fichierpdfintrouvable');
-
+        return $response ?? redirect()->route('admin.facture.index')->with('error', 'facture.fichierpdfintrouvable');
     }
 
     /**
