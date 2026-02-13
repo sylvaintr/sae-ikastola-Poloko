@@ -168,7 +168,7 @@ class ActualiteController extends Controller
     /**
      * Méthode pour afficher le formulaire d'édition d'une actualité existante, en chargeant les relations avec les étiquettes et les documents associés. Si l'actualité n'est pas trouvée, une redirection est effectuée vers la liste des actualités avec un message d'erreur. Les étiquettes disponibles sont également chargées pour permettre la modification des associations d'étiquettes lors de l'édition de l'actualité.
      * @param int $id Identifiant de l'actualité à éditer
-     * @return View Vue du formulaire d'édition avec les données de l'actualité et les étiquettes disponibles
+     * @return View|RedirectResponse Vue du formulaire d'édition avec les données de l'actualité et les étiquettes disponibles ou redirection vers la liste des actualités avec un message d'erreur si l'actualité n'est pas trouvée
      */
     public function edit($id): View | RedirectResponse
     {
