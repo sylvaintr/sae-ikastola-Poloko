@@ -218,11 +218,11 @@ class FamilleController extends Controller
         // Un parent peut appartenir à plusieurs familles => recherche sur tous les parents.
         // On garde en plus ceux déjà liés à la famille (au cas où un utilisateur lié n'aurait pas le rôle parent).
         $users = Utilisateur::where(function ($q) use ($roleParent, $idsUtilisateursFamille) {
-            $q->whereHas('rolesCustom', function ($q3) use ($roleParent) {
-                if ($roleParent) {
+            if ($roleParent) {
+                $q->whereHas('rolesCustom', function ($q3) use ($roleParent) {
                     $q3->where('role.idRole', $roleParent->idRole);
-                }
-            });
+                });
+            }
 
             if (!empty($idsUtilisateursFamille)) {
                 $q->orWhereIn('idUtilisateur', $idsUtilisateursFamille);

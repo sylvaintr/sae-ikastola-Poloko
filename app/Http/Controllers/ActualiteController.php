@@ -375,10 +375,28 @@ class ActualiteController extends Controller
         }
 
         // Fallback for minimal DataTables-like requests (ex: unit tests)
+        if (! $request->has('start') && ! $request->has('length') && empty($columns)) {
+            $rows = $query->get()->map(function ($actu) {
+                return [
+                    'titre' => $actu->titrefr ?? 'Sans titre',
+                    'type' => $actu->type,
+                    'etiquettes' => $actu->etiquettes->pluck('nom')->join(', '),
+                ];
+            })->values();
+
+            return response()->json([
+                'draw' => (int) $request->input('draw', 0),
+                'recordsTotal' => $rows->count(),
+                'recordsFiltered' => $rows->count(),
+                'data' => $rows,
+            ]);
+        }
+
         if (! $request->has('start') && ! $request->has('length') && ! empty($columns)) {
             $rows = $query->get()->map(function ($actu) {
                 return [
                     'titre' => $actu->titrefr ?? 'Sans titre',
+                    'type' => $actu->type,
                     'etiquettes' => $actu->etiquettes->pluck('nom')->join(', '),
                 ];
             })->values();
