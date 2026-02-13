@@ -28,6 +28,8 @@ if (!defined('ROUTE_ADD')) {
     define('ROUTE_VALIDATE', '/valider');
     define('ROUTE_ARCHIVE', '/archiver');
 
+    define('ROUTE_ID', '/{id}');
+
     define('ROUTE_CLASSE', '/{classe}');
     define('ROUTE_OBLIGATORY_DOCUMENT', '/{obligatoryDocument}');
     define('ROUTE_DEMANDE', '/{demande}');
@@ -45,7 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/document', [ProfileController::class, 'uploadDocument'])->name('profile.document.upload');
     Route::get('/profile/document/{document}/download', [ProfileController::class, 'downloadDocument'])->name('profile.document.download');
     Route::delete('/profile/document/{document}', [ProfileController::class, 'deleteDocument'])->name('profile.document.delete');
-    Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/notifications/' . ROUTE_ID . '/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
     // ---------------- Gestion Demandes ----------------
     Route::middleware('can:access-demande')
@@ -122,19 +124,19 @@ Route::middleware('auth')->group(function () {
             // ---------------- Factures ----------------
             Route::resource('/facture', FactureController::class);
             Route::get('/factures-data', [FactureController::class, 'facturesData'])->name('factures.data');
-            Route::get('/facture/{id}/export', [FactureController::class, 'exportFacture'])->name('facture.export');
-            Route::get('/facture/{id}/envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
-            Route::get('/facture/{id}/verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
+            Route::get('/facture' . ROUTE_ID . 'export', [FactureController::class, 'exportFacture'])->name('facture.export');
+            Route::get('/facture' . ROUTE_ID . 'envoyer', [FactureController::class, 'envoyerFacture'])->name('facture.envoyer');
+            Route::get('/facture' . ROUTE_ID . 'verifier', [FactureController::class, 'validerFacture'])->name('facture.valider');
 
             // ---------------- Ajout des routes Famille + LierController ----------------
             Route::prefix('familles')->name('familles.')->group(function () {
                 Route::get('/', [FamilleController::class, 'index'])->name('index');
                 Route::get('/create', [FamilleController::class, 'create'])->name('create');
                 Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
-                Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
-                Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
-                Route::put('/{id}', [FamilleController::class, 'update'])->name('update');
-                Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
+                Route::get(ROUTE_ID, [FamilleController::class, 'show'])->name('show');
+                Route::get(ROUTE_ID . '/edit', [FamilleController::class, 'edit'])->name('edit');
+                Route::put(ROUTE_ID, [FamilleController::class, 'update'])->name('update');
+                Route::delete(ROUTE_ID, [FamilleController::class, 'delete'])->name('delete');
             });
         });
     });
@@ -163,7 +165,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/tache/{tache}/edit', [TacheController::class, 'edit'])->name('tache.edit');
             Route::put('/tache/{tache}', [TacheController::class, 'update'])->name('tache.update');
             Route::delete('/tache/{tache}', [TacheController::class, 'delete'])->name('tache.delete');
-            Route::patch('/taches/{id}/done', [TacheController::class, 'markDone'])->name('tache.markDone');
+            Route::patch('/taches' . ROUTE_ID . '/done', [TacheController::class, 'markDone'])->name('tache.markDone');
         });
     });
 
@@ -199,10 +201,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/notifications', [NotificationController::class, 'store'])
          ->name('admin.notifications.store');
 
-    Route::get('/admin/notifications/{id}/edit', [NotificationController::class, 'edit'])
+    Route::get('/admin/notifications' . ROUTE_ID . '/edit', [NotificationController::class, 'edit'])
          ->name('admin.notifications.edit');
 
-    Route::put('/admin/notifications/{id}', [NotificationController::class, 'update'])
+    Route::put('/admin/notifications/'. ROUTE_ID, [NotificationController::class, 'update'])
          ->name('admin.notifications.update');
 
 });
