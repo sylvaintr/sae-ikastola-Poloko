@@ -348,6 +348,35 @@ class AccountController extends Controller
             return $redirect;
         }
 
+        // Charger les documents de l'utilisateur avant suppression
+        $account->load('documents');
+        
+        // Supprimer les documents obligatoires associés à l'utilisateur (RGPD)
+        foreach ($account->documents as $document) {
+            // Vérifier si c'est un document obligatoire (lié à un document obligatoire)
+            if ($document->idDocumentObligatoire !== null) {
+                // Vérifier d'abord si le document est utilisé ailleurs (avant détachement)
+                $totalUsersCount = $document->utilisateurs()->count();
+                $hasOtherUsers = $totalUsersCount > 1;
+                $isUsedElsewhere = $hasOtherUsers 
+                    || $document->actualites()->count() > 0 
+                    || $document->idTache !== null;
+                
+                // Supprimer le fichier physique (RGPD : suppression des données personnelles)
+                if ($document->chemin && Storage::disk('public')->exists($document->chemin)) {
+                    Storage::disk('public')->delete($document->chemin);
+                }
+                
+                // Détacher le document de l'utilisateur
+                $account->documents()->detach($document->idDocument);
+                
+                // Supprimer le document de la base de données s'il n'est plus utilisé ailleurs
+                if (!$isUsedElsewhere) {
+                    $document->delete();
+                }
+            }
+        }
+
         $account->delete();
 
         return redirect()

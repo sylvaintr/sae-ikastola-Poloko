@@ -196,13 +196,10 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/actualites' . ROUTE_ID, [ActualiteController::class, 'show'])->name('actualites.show');
 Route::get('/actualites/{actualite}/images.zip', [ActualiteMediaController::class, 'downloadImagesZip'])
-    ->middleware('can:view,actualite')
     ->name('actualites.images.zip');
 Route::get('/actualites/{actualite}/documents/{document}', [ActualiteMediaController::class, 'showDocument'])
-    ->middleware('can:view,actualite')
     ->name('actualites.document.show');
 Route::get('/actualites/{actualite}/documents/{document}/download', [ActualiteMediaController::class, 'downloadDocument'])
-    ->middleware('can:view,actualite')
     ->name('actualites.document.download');
 
 Route::get('/lang/{locale}', function ($locale) {
