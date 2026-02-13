@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Etiquette;
 use App\Models\Role;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -179,9 +180,9 @@ class EtiquetteController extends Controller
      * les filtres sont appliqués via des requêtes AJAX depuis la vue index des etiquettes, et la méthode data() fournit les données filtrées pour DataTables en mode serveur
      * la méthode ensureEtiquetteIsPublicColumn() est appelée pour ajouter la colonne 'public' à la table 'etiquette' si elle n'existe pas déjà, afin de éviter les erreurs lors de la création ou de la mise à jour d'une étiquette qui utilise cette colonne
      * @param Request|null $request la requête HTTP contenant les paramètres de filtrage (optionnel, si null la méthode utilisera la requête globale)
-     * @return Response la réponse HTTP contenant les données des étiquettes filtrées au format JSON pour DataTables en mode serveur
+     * @return Response|JsonResponse la réponse HTTP contenant les données des étiquettes filtrées au format JSON pour DataTables en mode serveur ou une réponse de redirection vers la liste des étiquettes avec un message d'erreur si une erreur survient lors de la récupération des données
      */
-    public function data(Request $request = null): Response
+    public function data(Request $request = null): Response | JsonResponse
     {
         // accept filters from DataTable (name, role)
         $request = $request ?? request();
@@ -283,9 +284,9 @@ class EtiquetteController extends Controller
      * Methode pour obtenir le code HTML de la colonne d'actions pour une étiquette donnée, utilisée par la méthode data() pour fournir les données de la colonne 'actions' de DataTables en mode serveur
      * le code HTML de la colonne d'actions est généré en rendant une vue Blade spécifique (etiquettes.template.colonne-action) qui contient les boutons d'action (modifier, supprimer) pour l'étiquette donnée, en passant l'étiquette à la vue pour qu'elle puisse générer les liens d'action appropriés
      * @param Etiquette $etiquette l'étiquette pour laquelle obtenir le code HTML de la colonne d'actions
-     * @return string le code HTML de la colonne d'actions pour l'étiquette donnée, généré en rendant la vue Blade 'etiquettes.template.colonne-action' avec l'étiquette passée en paramètre
+     * @return View le code HTML de la colonne d'actions pour l'étiquette donnée, généré en rendant la vue Blade 'etiquettes.template.colonne-action' avec l'étiquette passée en paramètre
      */
-    public function columnActionsHtml(Etiquette $etiquette): string
+    public function columnActionsHtml(Etiquette $etiquette): View
     {
         return view('etiquettes.template.colonne-action', compact('etiquette'));
     }
