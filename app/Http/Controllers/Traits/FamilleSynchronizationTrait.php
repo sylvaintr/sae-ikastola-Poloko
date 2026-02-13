@@ -157,10 +157,8 @@ trait FamilleSynchronizationTrait
         foreach ($usersData as $userData) {
             if (isset($userData['idUtilisateur'])) {
                 $this->updateExistingUtilisateur($userData, $famille);
-            } else {
-                // En update, ignorer les entrées sans idUtilisateur
-                continue;
             }
+            // En update, les entrées sans idUtilisateur sont ignorées
         }
     }
 
