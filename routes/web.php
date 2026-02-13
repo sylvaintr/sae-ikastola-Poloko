@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 if (! defined('ROUTE_ADD')) {
     define('ROUTE_ADD', '/ajouter');
     define('ROUTE_EDIT', '/modifier');
+    define('ROUTE_CREATE', '/create');
     define('ROUTE_VALIDATE', '/valider');
     define('ROUTE_ARCHIVE', '/archiver');
     define('ROUTE_ID', '/{id}');
@@ -52,7 +53,7 @@ Route::middleware('auth')->group(function () {
         ->name('demandes.')
         ->group(function () {
             Route::get('/', [DemandeController::class, 'index'])->name('index');
-            Route::get('/create', [DemandeController::class, 'create'])->name('create');
+            Route::get(ROUTE_CREATE, [DemandeController::class, 'create'])->name('create');
             Route::post('/', [DemandeController::class, 'store'])->name('store');
             Route::get('/export-all-csv', [DemandeController::class, 'exportAllCsv'])->name('export.all.csv');
 
@@ -142,7 +143,7 @@ Route::middleware('auth')->group(function () {
             // Familles
             Route::middleware(['permission:gerer-familles'])->prefix('familles')->name('familles.')->group(function () {
                 Route::get('/', [FamilleController::class, 'index'])->name('index');
-                Route::get('/create', [FamilleController::class, 'create'])->name('create');
+                Route::get(ROUTE_CREATE, [FamilleController::class, 'create'])->name('create');
                 Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
                 Route::get(ROUTE_ID, [FamilleController::class, 'show'])->name('show');
                 Route::get(ROUTE_ID . '/edit', [FamilleController::class, 'edit'])->name('edit');
@@ -153,7 +154,7 @@ Route::middleware('auth')->group(function () {
             // Notifications (Admin)
             Route::middleware(['permission:gerer-notifications'])->name('notifications.')->prefix('notifications')->group(function () {
                 Route::get('/', [NotificationController::class, 'index'])->name('index');
-                Route::get('/create', [NotificationController::class, 'create'])->name('create');
+                Route::get(ROUTE_CREATE, [NotificationController::class, 'create'])->name('create');
                 Route::post('/', [NotificationController::class, 'store'])->name('store');
                 Route::get('/{id}/edit', [NotificationController::class, 'edit'])->name('edit');
                 Route::put('/{id}', [NotificationController::class, 'update'])->name('update');
