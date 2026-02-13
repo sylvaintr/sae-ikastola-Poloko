@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\Utilisateur;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class FamilleController extends Controller
@@ -49,9 +50,9 @@ class FamilleController extends Controller
     /**
      * Methode pour afficher les détails d'une famille spécifique
      * @param string $id Identifiant de la famille à afficher
-     * @return View|RedirectResponse la vue affichant les détails de la famille ou une redirection vers la liste des familles si la famille n'est pas trouvée
+     * @return View|RedirectResponse|JsonResponse la vue affichant les détails de la famille ou une redirection vers la liste des familles si la famille n'est pas trouvée ou une réponse JSON si la requête attend du JSON
      */
-    public function show($id): View | RedirectResponse
+    public function show($id): View | RedirectResponse | JsonResponse
     {
         $famille = Famille::with(['enfants', 'utilisateurs'])->find($id);
 

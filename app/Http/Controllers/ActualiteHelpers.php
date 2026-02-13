@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Actualite;
+use Illuminate\View\View;
 
 /**
  * Classe d'aide pour les opérations liées aux actualités, notamment pour les filtres et les colonnes personnalisées dans les vues. Elle fournit des méthodes pour appliquer des filtres sur les titres et les étiquettes, ainsi que pour générer le contenu des colonnes dans les tableaux d'affichage des actualités.
@@ -89,9 +90,9 @@ class ActualiteHelpers
     /**
      * Méthode pour générer le contenu de la colonne "Actions" dans les tableaux d'affichage des actualités, en affichant les boutons d'action correspondants à l'actualité.
      * @param Actualite $actu Actualité pour laquelle générer le contenu de la colonne
-     * @return string Contenu de la colonne "Actions" à afficher (HTML des boutons d'action)
+     * @return View Contenu de la colonne "Actions" à afficher (HTML des boutons d'action)
      */
-    public function columnActionsHtml($actu): string
+    public function columnActionsHtml($actu): View
     {
         return view('actualites.template.colonne-action', ['actualite' => $actu]);
     }

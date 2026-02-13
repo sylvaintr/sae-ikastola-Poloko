@@ -170,7 +170,7 @@ class ActualiteController extends Controller
      * @param int $id Identifiant de l'actualité à éditer
      * @return View Vue du formulaire d'édition avec les données de l'actualité et les étiquettes disponibles
      */
-    public function edit($id): View
+    public function edit($id): View | RedirectResponse
     {
         try {
             $actualite = Actualite::with(['etiquettes', 'documents'])->findOrFail($id);
