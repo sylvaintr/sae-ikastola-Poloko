@@ -109,19 +109,22 @@ class FactureController extends Controller
      */
     public function exportFacture(string $id, bool $returnBinary = false): Response | RedirectResponse | string | null
     {
+        $facture = Facture::find($id ?? null);
+        if ($facture === null) {
+            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
+        }
 
-        $montants = $this->factureCalculator->calculerMontantFacture($id);
+        $manualResponse = app(FactureExporter::class)->serveManualFile($facture, $returnBinary);
+        if ($manualResponse !== null) {
+            return $manualResponse;
+        }
 
+        $montants = app(FactureCalculator::class)->calculerMontantFacture($id);
         if ($montants instanceof RedirectResponse) {
             return $montants;
         }
 
-        $facture = $montants['facture'];
-
-        $manualResponse = $this->factureExporter->serveManualFile($facture, $returnBinary);
-        if ($manualResponse) {
-            return $manualResponse;
-        }
+        return redirect()->route('admin.facture.index')->with('error', 'facture.fichierpdfintrouvable');
 
     }
 
@@ -173,7 +176,7 @@ class FactureController extends Controller
             // On ne traite que si l'état n'est pas déjà validé
             if ($facture->etat != 'verifier') {
                 // Use the conversion service synchronously (dependency-injected)
-                $ok = $this->factureConversionService->convertFactureToPdf($facture);
+                $ok = app(FactureConversionService::class)->convertFactureToPdf($facture);
 
                 if ($ok) {
                     // passer l'état à 'verifier'
@@ -202,7 +205,7 @@ class FactureController extends Controller
             'facture' => 'nullable|file|mimes:doc,docx,odt|max:2048',
         ]);
 
-        $response = $this->factureFileService->processUploadedFile($request, $facture);
+        $response = app(FactureFileService::class)->processUploadedFile($request, $facture);
 
         if ($response === null) {
             $facture->etat = 'manuel';
@@ -240,7 +243,7 @@ class FactureController extends Controller
                         $facture->dateC         = now();
                         $facture->etat          = 'brouillon';
                         $facture->save();
-                        $this->factureExporter->generateFactureToWord($facture);
+                        app(FactureExporter::class)->generateFactureToWord($facture);
                     }
                 }
             }
