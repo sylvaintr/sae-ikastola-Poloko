@@ -61,7 +61,7 @@ class FactureExporterCloneRowAndAbortTest extends TestCase
         $this->assertDirectoryExists($outdir);
     }
 
-    public function test_generateFactureToWord_aborts_when_template_missing()
+    public function test_generateFactureToWord_handles_missing_template_gracefully()
     {
         if (! class_exists('ZipArchive')) {
             $this->markTestSkipped('ZipArchive not available.');
@@ -88,19 +88,10 @@ class FactureExporterCloneRowAndAbortTest extends TestCase
         $facture->etat         = 'draft';
         $facture->dateC        = new \DateTime();
 
-        // On doit attraper l'exception manuellement car abort() peut ne pas lever
-        // l'exception de la même manière en mode test
-        $exceptionThrown = false;
-        try {
-            $svc = app()->make('App\\Services\\FactureExporter');
-            $svc->generateFactureToWord($facture);
-        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
-            $exceptionThrown = true;
-            $this->assertEquals(500, $e->getStatusCode());
-        } catch (\Throwable $e) {
-            // En mode test, abort() peut être intercepté différemment
-            $exceptionThrown = true;
-        }
+        // Le service gère l'erreur gracieusement via handleTemplateError()
+        // et retourne null au lieu de laisser l'exception remonter
+        $svc = app()->make('App\\Services\\FactureExporter');
+        $result = $svc->generateFactureToWord($facture);
 
         // Restaurer le template pour les autres tests
         if (! file_exists($templatePath)) {
@@ -114,6 +105,7 @@ class FactureExporterCloneRowAndAbortTest extends TestCase
             }
         }
 
-        $this->assertTrue($exceptionThrown, 'Une exception devrait être levée quand le template est manquant');
+        // La méthode gère l'erreur en interne et retourne null
+        $this->assertNull($result, 'La méthode devrait retourner null quand le template est manquant');
     }
 }
