@@ -139,7 +139,7 @@
                                 @php
                                     $altTitle = Lang::getLocale() == 'fr' ? $actualite->titrefr : $actualite->titreeus;
                                 @endphp
-                                <img src="{{ asset('storage/' . $image->chemin) }}" alt="{{ $altTitle }}">
+                                <img src="{{ route('actualites.document.show', ['actualite' => $actualite, 'document' => $image]) }}" alt="{{ $altTitle }}">
                             @else
                                 <div class="bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center rounded-4"
                                     style="height: 250px; border-radius: 15px;">

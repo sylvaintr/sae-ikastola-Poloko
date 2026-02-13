@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Models\Permission;
+use App\Models\Role;
 
 return new class extends Migration {
     /**
@@ -130,6 +132,18 @@ return new class extends Migration {
         app('cache')
             ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)
             ->forget(config('permission.cache.key'));
+
+        // Créer la permission gerer-demandes
+        Permission::firstOrCreate(
+            ['name' => 'gerer-demandes'],
+            ['guard_name' => 'web']
+        );
+
+        // Attribuer la permission au rôle CA si le rôle existe
+        $roleCA = Role::where('name', 'CA')->first();
+        if ($roleCA && !$roleCA->hasPermissionTo('gerer-demandes')) {
+            $roleCA->givePermissionTo('gerer-demandes');
+        }
     }
 
     /**
