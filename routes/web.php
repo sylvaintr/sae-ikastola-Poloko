@@ -128,26 +128,15 @@ Route::middleware('auth')->group(function () {
 
             // ---------------- Ajout des routes Famille + LierController ----------------
             Route::prefix('familles')->name('familles.')->group(function () {
-<<<<<<< HEAD
-    Route::get('/', [FamilleController::class, 'index'])->name('index');
-    Route::get('/create', [FamilleController::class, 'create'])->name('create');
-    Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
-    Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
-    Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
-    Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
-   
-    
-=======
                 Route::get('/', [FamilleController::class, 'index'])->name('index');
                 Route::get('/create', [FamilleController::class, 'create'])->name('create');
                 Route::post('/', [FamilleController::class, 'ajouter'])->name('store');
-                Route::get(ROUTE_ID, [FamilleController::class, 'show'])->name('show');
-                Route::get(ROUTE_ID . '/edit', [FamilleController::class, 'edit'])->name('edit');
-                Route::put(ROUTE_ID, [FamilleController::class, 'update'])->name('update');
-                Route::delete(ROUTE_ID, [FamilleController::class, 'delete'])->name('delete');
+                Route::get('/{id}', [FamilleController::class, 'show'])->name('show');
+                Route::get('/{id}/edit', [FamilleController::class, 'edit'])->name('edit');
+                Route::put('/{id}', [FamilleController::class, 'update'])->name('update');
+                Route::delete('/{id}', [FamilleController::class, 'delete'])->name('delete');
             });
         });
->>>>>>> 6c47355c374724eb74b94dc1c8ff67d21abc6351
     });
     
     Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
@@ -199,9 +188,6 @@ Route::middleware('auth')->group(function () {
 
 });
 
-<<<<<<< HEAD
-Route::get('/actualites/{id}', [ActualiteController::class, 'show'])->name('actualites.show');
-=======
 Route::middleware(['auth'])->group(function () {
     
     Route::get('/admin/notifications', [NotificationController::class, 'index'])
@@ -222,7 +208,6 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/actualites' . ROUTE_ID, [ActualiteController::class, 'show'])->name('actualites.show');
->>>>>>> 6c47355c374724eb74b94dc1c8ff67d21abc6351
 
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['fr', 'eus'])) {
