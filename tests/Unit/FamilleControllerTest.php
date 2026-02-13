@@ -6,6 +6,7 @@ use App\Http\Controllers\FamilleController;
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Utilisateur;
+use App\Models\Role;
 use App\Models\Classe;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
@@ -230,6 +231,10 @@ class FamilleControllerTest extends TestCase
     {
         // given: a user without famille matching query
         $user = Utilisateur::factory()->create(['nom' => 'Smith', 'prenom' => 'John']);
+
+        // Ensure role 'parent' exists and attach it to the user so searchUsers returns it
+        $role = Role::firstOrCreate(['name' => 'parent']);
+        $user->rolesCustom()->attach($role->idRole, ['model_type' => Utilisateur::class]);
 
         $req = Request::create('/', 'GET', ['q' => 'Sm']);
         $this->app->instance('request', $req);

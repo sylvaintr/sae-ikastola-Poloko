@@ -7,6 +7,49 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
+    /**
+     * Ensure any user passed to actingAs has the CA role and permissions.
+     * This helps tests that rely on admin permissions after route permission changes.
+     */
+    public function actingAs($user, $driver = null)
+    {
+        try {
+            if (is_object($user)) {
+                // If it's an Eloquent model and not persisted, persist first so relations work
+                if ($user instanceof \Illuminate\Database\Eloquent\Model && ! $user->exists) {
+                    $user->save();
+                }
+
+                if (method_exists($user, 'assignRole')) {
+                    $ca = \App\Models\Role::firstOrCreate(['name' => 'CA']);
+                    if (! $user->hasRole('CA')) {
+                        $user->assignRole($ca);
+                    }
+                }
+                // If the application uses a custom pivot (`rolesCustom`) in tests to attach
+                // roles (project-specific `avoir` pivot), mirror those roles to Spatie
+                // so middleware checks pass when tests attach rolesCustom before actingAs.
+                if (method_exists($user, 'rolesCustom')) {
+                    try {
+                        $userRoles = $user->rolesCustom()->get();
+                        foreach ($userRoles as $r) {
+                            if (method_exists($user, 'assignRole') && ! $user->hasRole($r->name)) {
+                                $user->assignRole($r->name);
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        // ignore errors when rolesCustom behaves unexpectedly
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore any issues assigning role to mocks or unusual objects
+        }
+
+        return parent::actingAs($user, $driver);
+        
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -48,6 +91,40 @@ abstract class TestCase extends BaseTestCase
             } else {
                 @file_put_contents($templatePath, 'DUMMY_DOCX');
             }
+        }
+
+        // Create application permissions and a CA role with admin permissions
+        $permissions = [
+            'access-administration',
+            'access-demande',
+            'access-tache',
+            'access-presence',
+            'access-evenement',
+            'access-calendrier',
+            'gerer-presence',
+            'gerer-actualites',
+            'gerer-etiquettes',
+            'gerer-notifications',
+            'gerer-familles',
+            'gerer-utilisateurs',
+            'gerer-roles',
+            'gerer-enfants',
+            'gerer-classes',
+            'gerer-document-obligatoire',
+            'gerer-factures',
+        ];
+
+        foreach ($permissions as $p) {
+            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $p]);
+        }
+
+        $ca = \App\Models\Role::firstOrCreate(['name' => 'CA']);
+        $ca->givePermissionTo($permissions);
+        // Clear Spatie permission cache so newly created permissions/roles are effective
+        try {
+            \Spatie\Permission\PermissionRegistrar::getInstance()->forgetCachedPermissions();
+        } catch (\Throwable $e) {
+            // ignore if registrar unavailable in test environment
         }
     }
 

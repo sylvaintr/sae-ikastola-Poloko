@@ -22,6 +22,7 @@ class ClasseControllerTest extends TestCase
 
         // 1. Création de l'utilisateur
         $this->admin = Utilisateur::factory()->create();
+        $this->admin->assignRole('CA');
 
         // 2. On injecte le sac d'erreurs pour éviter l'erreur 500 dans les vues
         View::share('errors', new \Illuminate\Support\ViewErrorBag);

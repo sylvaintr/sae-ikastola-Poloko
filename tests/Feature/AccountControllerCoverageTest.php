@@ -16,7 +16,8 @@ class AccountControllerCoverageTest extends TestCase
     {
         // given
         // Create an admin with CA role to pass middleware
-        Role::factory()->create(['name' => 'CA']);
+        $caRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
+        $caRole->givePermissionTo('access-administration');
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
 
@@ -54,7 +55,8 @@ class AccountControllerCoverageTest extends TestCase
     public function test_update_modifies_account_and_syncs_roles()
     {
         // given
-        Role::factory()->create(['name' => 'CA']);
+        $caRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
+        $caRole->givePermissionTo('access-administration');
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
 
@@ -95,7 +97,8 @@ class AccountControllerCoverageTest extends TestCase
     public function test_destroy_removes_account()
     {
         // given
-        Role::factory()->create(['name' => 'CA']);
+        $caRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
+        $caRole->givePermissionTo('access-administration');
         $admin = Utilisateur::factory()->create();
         $admin->assignRole('CA');
 

@@ -1,10 +1,8 @@
 <?php
-
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Role;
+use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
@@ -24,6 +22,14 @@ class RoleSeeder extends Seeder
         $role->givePermissionTo('gerer-actualites');
         $role->givePermissionTo('gerer-etiquettes');
         $role->givePermissionTo('gerer-tache');
+        $role->givePermissionTo('gerer-notifications');
+        $role->givePermissionTo('gerer-familles');
+        $role->givePermissionTo('gerer-utilisateurs');
+        $role->givePermissionTo('gerer-roles');
+        $role->givePermissionTo('gerer-enfants');
+        $role->givePermissionTo('gerer-classes');
+        $role->givePermissionTo('gerer-document-obligatoire');
+        $role->givePermissionTo('gerer-factures');
 
         $role = Role::firstOrCreate(['name' => 'parent']);
         $role->givePermissionTo('access-demande');
@@ -53,6 +59,5 @@ class RoleSeeder extends Seeder
         Role::firstOrCreate(['name' => 'Subventions']);
         Role::firstOrCreate(['name' => 'Location de l ikastola']);
         Role::firstOrCreate(['name' => 'commission garderie & remplacement des langile absents']);
-        
     }
 }
