@@ -240,7 +240,7 @@ class FactureController extends Controller
     {
         $mois = Carbon::now()->month;
 
-        $previsionnel = ! in_array($mois, config('facture.MONTHS_REGULATING'), true);
+        $previsionnel = ! in_array($mois, config('facture.MONTHS_REGULATING', [2, 8]), true);
         Famille::chunk(100, function ($familles) use ($previsionnel) {
             foreach ($familles as $famille) {
                 $parents = $famille->utilisateurs()->get();
