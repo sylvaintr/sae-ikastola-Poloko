@@ -35,7 +35,7 @@ class UtilisateurController extends Controller
     {
         $search = $request->get('q', '');
 
-        $query = Utilisateur::query();
+        $query = Utilisateur::role('parent');
 
         if (strlen($search) >= 2) {
             $query->where(function ($q) use ($search) {
@@ -47,7 +47,6 @@ class UtilisateurController extends Controller
 
         $users = $query
             ->orderBy('prenom')
-            ->limit(4)
             ->get(['idUtilisateur', 'nom', 'prenom', 'email']);
 
         return response()->json($users);

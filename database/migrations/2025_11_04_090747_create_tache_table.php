@@ -14,8 +14,8 @@ return new class extends Migration
         if (! Schema::hasTable('tache')) {
             Schema::create('tache', function (Blueprint $table) {
                 $table->integer('idTache')->primary();
-                $table->string('titre', 30);
-                $table->string('description', 100);
+                $table->string('titre', 255);
+                $table->text('description');
                 $table->string('type', 15);
                 $table->string('urgence', 15)->default('Moyenne');
                 $table->string('etat', 10);
