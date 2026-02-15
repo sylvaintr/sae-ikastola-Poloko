@@ -8,15 +8,21 @@ use App\Models\Facture;
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Activite;
-use App\Models\Etre;
+use App\Models\Pratiquer;
 use Carbon\Carbon;
 
 class CalculMontantFactureTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_zero_children_returns_zero_amounts()
+    public function test_zero_enfants_retourne_montants_zero()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
         $facture = $this->createFacture($famille, ['previsionnel' => false]);
 
@@ -29,8 +35,14 @@ class CalculMontantFactureTest extends TestCase
         $this->assertEquals(0, $result['montanttotal']);
     }
 
-    public function test_one_child_previsionnel_uses_nbFoisGarderie()
+    public function test_un_enfant_previsionnel_utilise_nbFois_garderie()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
 
         $this->createEnfant($famille, ['nbFoisGarderie' => 9]);
@@ -49,8 +61,14 @@ class CalculMontantFactureTest extends TestCase
         $this->assertEquals(0, $result['montantparticipationSeaska']);
     }
 
-    public function test_two_children_with_seaska_and_etre_counts()
+    public function test_deux_enfants_avec_seaska_et_etre_sont_comptes()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => true]);
         $this->createEnfants($famille, 2);
 
@@ -72,8 +90,14 @@ class CalculMontantFactureTest extends TestCase
         $this->assertEquals(20, $result['montangarderie']);
     }
 
-    public function test_three_or_more_children_cotisation_75()
+    public function test_trois_ou_plus_enfants_cotisation_75()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
 
         $this->createEnfants($famille, 3);
@@ -88,7 +112,7 @@ class CalculMontantFactureTest extends TestCase
     // Helper methods to reduce duplication across tests
     private function createFamille(array $attrs = []): Famille
     {
-        return Famille::create(array_merge(['aineDansAutreSeaska' => false], $attrs));
+        return Famille::factory()->create(array_merge(['aineDansAutreSeaska' => false], $attrs));
     }
 
     private function createEnfant(Famille $famille, array $attrs = []): Enfant
@@ -119,7 +143,7 @@ class CalculMontantFactureTest extends TestCase
     {
         $enfants = Enfant::where('idFamille', $famille->idFamille)->get();
         foreach ($enfants as $enfant) {
-            Etre::create([
+            Pratiquer::create([
                 'idEnfant' => $enfant->idEnfant,
                 'activite' => $activite->activite,
                 'dateP' => $date,
@@ -129,8 +153,7 @@ class CalculMontantFactureTest extends TestCase
 
     private function invokeCalculerMontantFacture(Facture $facture)
     {
-        $controller = new \App\Http\Controllers\FactureController();
-        $ref = new \ReflectionMethod($controller, 'calculerMontantFacture');
-        return $ref->invoke($controller, $facture->idFacture);
+        $calculator = new \App\Services\FactureCalculator();
+        return $calculator->calculerMontantFacture($facture->idFacture);
     }
 }

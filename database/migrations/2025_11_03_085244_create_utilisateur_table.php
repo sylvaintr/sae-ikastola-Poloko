@@ -17,7 +17,8 @@ return new class extends Migration {
             $table->string('mdp', 255);
             $table->string('email')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('languePref', 17);
+            $table->string('languePref', 3)->default('eus');
+            $table->date('dateNaissance')->nullable();
             $table->boolean('statutValidation')->default(false);
             $table->rememberToken();
             $table->timestamps();

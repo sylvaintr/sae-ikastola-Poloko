@@ -22,7 +22,7 @@ class LierFactory extends Factory
 
             'idUtilisateur' => Utilisateur::factory(),
             'idFamille' => Famille::factory(),
-            'parite' => $this->faker->randomElement(['parent', 'tuteur', 'autre', null]),
+            'parite' => $this->faker->numberBetween(0, 100),
         ];
     }
 }

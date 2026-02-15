@@ -3,16 +3,22 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\HandlesDocumentDownloads;
 use App\Models\Utilisateur;
 use App\Models\Role;
+use App\Models\DocumentObligatoire;
+use App\Models\Document;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Response;
 use Illuminate\View\View;
 
 class AccountController extends Controller
 {
+    use HandlesDocumentDownloads;
     public function index(Request $request): View
     {
         $query = Utilisateur::query();
@@ -92,6 +98,7 @@ class AccountController extends Controller
             'languePref' => ['required', 'string', 'max:17'],
             'mdp' => ['required', 'string', 'min:8'],
             'mdp_confirmation' => ['required', 'string', 'same:mdp'],
+            'dateNaissance' => ['nullable', 'date', 'before:today'],
             'statutValidation' => ['nullable', 'boolean'],
             'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['exists:role,idRole'],
@@ -120,6 +127,7 @@ class AccountController extends Controller
             $account->email = $validated['email'];
             $account->languePref = $validated['languePref'];
             $account->mdp = Hash::make($validated['mdp']);
+            $account->dateNaissance = $validated['dateNaissance'] ?? null;
             $account->statutValidation = $shouldValidate;
             $account->save();
 
@@ -143,8 +151,60 @@ class AccountController extends Controller
         $account->load(['rolesCustom' => function($query) {
             $query->select('role.idRole', 'role.name');
         }]);
+        
+        // Charger les documents obligatoires pour les rôles de l'utilisateur
+        $userRoleIds = $account->rolesCustom()->pluck('avoir.idRole')->toArray();
+        
+        if (empty($userRoleIds)) {
+            $documentsObligatoiresAvecEtat = collect([]);
+        } else {
+            $documentsObligatoires = DocumentObligatoire::whereHas('roles', function($query) use ($userRoleIds) {
+                $query->whereIn('attribuer.idRole', $userRoleIds);
+            })->get();
+            
+            // Pour chaque document obligatoire, trouver les documents uploadés par l'utilisateur
+            $documentsObligatoiresAvecEtat = $documentsObligatoires->map(function($docOblig) use ($account) {
+                // Récupérer tous les documents de l'utilisateur qui correspondent au nom du document obligatoire
+                $documentsUtilisateur = $account->documents()
+                    ->where(function ($q) use ($docOblig) {
+                        $q->where('nom', 'like', '%' . $docOblig->nom . '%')
+                          ->orWhere('nom', $docOblig->nom);
+                    })
+                    ->orderBy('idDocument', 'desc')
+                    ->get();
+                
+                // Prendre le dernier document (le plus récent)
+                $dernierDocument = $documentsUtilisateur->first();
+                
+                if (!$dernierDocument) {
+                    $docOblig->etat = 'non_remis';
+                    $docOblig->documentUploaded = null;
+                    $docOblig->dateRemise = null;
+                } else {
+                    // Mapper les états : actif = remis, en_attente = en_cours_validation, valide = valide
+                    $etatMapping = [
+                        'actif' => 'remis',
+                        'en_attente' => 'en_cours_validation',
+                        'valide' => 'valide'
+                    ];
+                    $docOblig->etat = $etatMapping[$dernierDocument->etat] ?? 'remis';
+                    $docOblig->documentUploaded = $dernierDocument;
+                    
+                    // Récupérer la date de remise (date de modification du fichier)
+                    if (Storage::disk('public')->exists($dernierDocument->chemin)) {
+                        $docOblig->dateRemise = \Carbon\Carbon::createFromTimestamp(
+                            Storage::disk('public')->lastModified($dernierDocument->chemin)
+                        );
+                    } else {
+                        $docOblig->dateRemise = null;
+                    }
+                }
+                
+                return $docOblig;
+            });
+        }
 
-        return view('admin.accounts.show', compact('account'));
+        return view('admin.accounts.show', compact('account', 'documentsObligatoiresAvecEtat'));
     }
 
     public function edit(Utilisateur $account): View|RedirectResponse
@@ -294,5 +354,69 @@ class AccountController extends Controller
             ->route('admin.accounts.index')
             ->with('status', trans('admin.accounts_page.messages.deleted'));
     }
+    
+    /**
+     * Valide ou invalide un document obligatoire d'un utilisateur
+     */
+    public function validateDocument(Request $request, Utilisateur $account, Document $document): RedirectResponse
+    {
+        // Vérifier que le document appartient à l'utilisateur
+        if (!$account->documents()->where('document.idDocument', $document->idDocument)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $validated = $request->validate([
+            'etat' => ['required', 'string', 'in:valide,en_attente'],
+        ]);
+        
+        // Si on valide, passer à 'valide', sinon passer à 'en_attente' (en cours de validation)
+        $document->update(['etat' => $validated['etat']]);
+        
+        return redirect()
+            ->route('admin.accounts.show', $account)
+            ->with('status', 'document_validated');
+    }
+    
+    /**
+     * Supprime un document obligatoire d'un utilisateur
+     */
+    public function deleteDocument(Utilisateur $account, Document $document): RedirectResponse
+    {
+        // Vérifier que le document appartient à l'utilisateur
+        if (!$account->documents()->where('document.idDocument', $document->idDocument)->exists()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        // Ne pas permettre la suppression si le document est validé
+        if ($document->etat === 'valide') {
+            return redirect()
+                ->route('admin.accounts.show', $account)
+                ->with('error', __('auth.document_validated_cannot_delete'));
+        }
+        
+        // Supprimer le fichier physique
+        if (Storage::disk('public')->exists($document->chemin)) {
+            Storage::disk('public')->delete($document->chemin);
+        }
+        
+        // Détacher le document de l'utilisateur
+        $account->documents()->detach($document->idDocument);
+        
+        // Supprimer le document si aucun autre utilisateur ne l'utilise
+        if ($document->utilisateurs()->count() === 0) {
+            $document->delete();
+        }
+        
+        return redirect()
+            ->route('admin.accounts.show', $account)
+            ->with('status', 'document_deleted');
+    }
+    
+    /**
+     * Télécharge un document obligatoire d'un utilisateur
+     */
+    public function downloadDocument(Utilisateur $account, Document $document)
+    {
+        return $this->downloadDocumentWithFormattedName($account, $document);
+    }
 }
-

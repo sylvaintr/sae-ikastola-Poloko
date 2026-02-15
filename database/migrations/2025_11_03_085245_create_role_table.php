@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('role', function (Blueprint $table) {
             $table->integer('idRole')->primary()->autoIncrement();
-            $table->string('name', 20);
+            $table->string('name', 54);
             $table->string('guard_name', 20)->default('web');
             $table->timestamps();
         });

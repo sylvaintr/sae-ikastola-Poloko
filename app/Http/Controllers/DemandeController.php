@@ -4,21 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\Tache;
-use App\Models\TacheHistorique;
+use App\Models\DemandeHistorique;
+use App\Models\Role;
+use App\Http\Controllers\Traits\HandlesCsvExport;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DemandeController extends Controller
 {
+    use HandlesCsvExport;
+
     private const DEFAULT_TYPES = ['Réparation', 'Ménage', 'Maintenance'];
     private const STATUS_TERMINE = 'Terminé';
     private const DEFAULT_ETATS = ['En attente', 'En cours', self::STATUS_TERMINE];
     private const DEFAULT_URGENCES = ['Faible', 'Moyenne', 'Élevée'];
+    private const PER_PAGE = 10;
 
-    public function index(Request $request)
+    /**
+     * Extrait les filtres de la requête (utilisés par index + export).
+     */
+    private function extractFilters(Request $request): array
     {
-        $filters = [
+        return [
             'search' => $request->input('search'),
             'etat' => $request->input('etat', 'all'),
             'type' => $request->input('type', 'all'),
@@ -28,37 +39,62 @@ class DemandeController extends Controller
             'sort' => $request->input('sort', 'date'),
             'direction' => $request->input('direction', 'desc'),
         ];
+    }
 
+    /**
+     * Construit la query demandes en appliquant les filtres.
+     */
+    private function buildDemandesQuery(array $filters): Builder
+    {
         $query = Tache::query();
 
-        if ($filters['search']) {
-            $searchTerm = trim($filters['search']);
+        if (!empty($filters['search'])) {
+            $searchTerm = trim((string) $filters['search']);
+
             $query->where(function ($q) use ($searchTerm) {
+                // Si l'utilisateur tape un ID (numérique), on fait une recherche exacte sur l'ID
+                // pour éviter que "1" matche 1,10,11,21,... ou via le titre.
+                if (ctype_digit($searchTerm)) {
+                    $q->where('idTache', (int) $searchTerm);
+                    return;
+                }
+
+                // Sinon, recherche texte (ID partiel ou titre)
                 $q->where('idTache', 'like', '%' . $searchTerm . '%')
                     ->orWhere('titre', 'like', '%' . $searchTerm . '%');
             });
         }
 
-        if ($filters['etat'] && $filters['etat'] !== 'all') {
+        if (!empty($filters['etat']) && $filters['etat'] !== 'all') {
             $query->where('etat', $filters['etat']);
         }
 
-        if ($filters['type'] && $filters['type'] !== 'all') {
+        if (!empty($filters['type']) && $filters['type'] !== 'all') {
             $query->where('type', $filters['type']);
         }
 
-        if ($filters['urgence'] && $filters['urgence'] !== 'all') {
+        if (!empty($filters['urgence']) && $filters['urgence'] !== 'all') {
             $query->where('urgence', $filters['urgence']);
         }
 
-        if ($filters['date_from']) {
+        if (!empty($filters['date_from'])) {
             $query->whereDate('dateD', '>=', $filters['date_from']);
         }
 
-        if ($filters['date_to']) {
+        if (!empty($filters['date_to'])) {
             $query->whereDate('dateD', '<=', $filters['date_to']);
         }
 
+        return $query;
+    }
+
+    /**
+     * Résout le champ de tri + direction à partir des filtres.
+     *
+     * @return array{0:string,1:string}
+     */
+    private function resolveSort(array $filters): array
+    {
         $sortable = [
             'id' => 'idTache',
             'date' => 'dateD',
@@ -68,13 +104,23 @@ class DemandeController extends Controller
             'etat' => 'etat',
         ];
 
-        $sortField = $sortable[$filters['sort']] ?? $sortable['date'];
-        $direction = strtolower($filters['direction']) === 'asc' ? 'asc' : 'desc';
+        $sortKey = (string) ($filters['sort'] ?? 'date');
+        $sortField = $sortable[$sortKey] ?? $sortable['date'];
+        $direction = strtolower((string) ($filters['direction'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        return [$sortField, $direction];
+    }
+
+    public function index(Request $request)
+    {
+        $filters = $this->extractFilters($request);
+        $query = $this->buildDemandesQuery($filters);
+        [$sortField, $direction] = $this->resolveSort($filters);
 
         $demandes = $query
             ->orderBy($sortField, $direction)
             ->orderBy('idTache', 'desc')
-            ->paginate(10)
+            ->paginate(self::PER_PAGE)
             ->withQueryString();
 
         $types = $this->loadOrDefault('type', collect(self::DEFAULT_TYPES));
@@ -87,14 +133,19 @@ class DemandeController extends Controller
     public function create()
     {
         $types = $this->loadOrDefault('type', collect(self::DEFAULT_TYPES));
-
         $urgences = self::DEFAULT_URGENCES;
-        return view('demandes.create', compact('types', 'urgences'));
+        
+        // Charger tous les rôles (commissions) pour l'assignation
+        $roles = Role::select('idRole', 'name')
+            ->orderBy('name')
+            ->get();
+        
+        return view('demandes.create', compact('types', 'urgences', 'roles'));
     }
 
     public function show(Tache $demande)
     {
-        $demande->loadMissing(['documents', 'historiques']);
+        $demande->loadMissing(['realisateurs', 'documents', 'historiques', 'roleAssigne']);
 
         $metadata = [
             'reporter' => $demande->user->name ?? $demande->reporter_name ?? 'Inconnu',
@@ -105,8 +156,9 @@ class DemandeController extends Controller
             ? $demande->documents
                 ->filter(fn($doc) => Storage::disk('public')->exists($doc->chemin))
                 ->map(fn($doc) => [
-                    'url' => url('storage/' . ltrim($doc->chemin, '/')),
+                    'url' => route('demandes.document.show', ['demande' => $demande, 'document' => $doc]),
                     'nom' => $doc->nom,
+                    'id' => $doc->idDocument,
                 ])->values()->all()
             : [];
 
@@ -128,6 +180,7 @@ class DemandeController extends Controller
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
             'idEvenement' => ['nullable', 'integer'],
+            'idRole' => ['required', 'integer', 'exists:role,idRole'],
             'photos' => ['nullable', 'array', 'max:4'],
             'photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
         ]);
@@ -141,7 +194,7 @@ class DemandeController extends Controller
         $demande = Tache::create($data);
 
         $this->storePhotos($demande, $request->file('photos', []));
-        $this->createInitialHistory($demande);
+        $this->storeInitialHistory($demande);
 
         return to_route('demandes.index')->with('status', __('demandes.messages.created'));
     }
@@ -157,11 +210,17 @@ class DemandeController extends Controller
             $types = collect(['Réparation', 'Ménage', 'Maintenance']);
         }
         $urgences = ['Faible', 'Moyenne', 'Élevée'];
+        
+        // Charger tous les rôles (commissions) pour l'assignation
+        $roles = Role::select('idRole', 'name')
+            ->orderBy('name')
+            ->get();
 
         return view('demandes.create', [
             'types' => $types,
             'urgences' => $urgences,
             'demande' => $demande,
+            'roles' => $roles,
         ]);
     }
 
@@ -181,6 +240,7 @@ class DemandeController extends Controller
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
             'idEvenement' => ['nullable', 'integer'],
+            'idRole' => ['required', 'integer', 'exists:role,idRole'],
         ]);
 
         $updates = collect($validated)->except(['dateD', 'dateF'])->toArray();
@@ -196,50 +256,37 @@ class DemandeController extends Controller
         return $values->isEmpty() ? $fallback : $values;
     }
 
-    protected function storePhotos(Tache $demande, array $files): void
+    protected function storeInitialHistory(Tache $demande): void
     {
-        if (empty($files)) {
-            return;
-        }
-
-        $nextId = (Document::max('idDocument') ?? 0) + 1;
-
-        foreach ($files as $file) {
-            $path = $file->store('demandes', 'public');
-
-            Document::create([
-                'idDocument' => $nextId++,
-                'idTache' => $demande->idTache,
-                'nom' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
-                'chemin' => $path,
-                'type' => substr($file->extension(), 0, 5),
-                'etat' => 'actif',
-            ]);
-        }
-    }
-
-    protected function createInitialHistory(Tache $demande): void
-    {
-        TacheHistorique::create([
-            'idTache' => $demande->idTache,
-            'statut' => __('demandes.history_statuses.created'),
-            'titre' => $demande->titre,
-            'responsable' => auth()->user()->name ?? '',
-            'depense' => $demande->montantP,
-            'date_evenement' => $demande->dateD ?? now(),
-            'description' => $demande->description,
-        ]);
+        $this->addHistoryEntry(
+            $demande,
+            __('demandes.history_statuses.created'),
+            $demande->description,
+            0 // Dépense réelle à 0 lors de la création, elle sera complétée par les avancements
+        );
     }
 
     public function destroy(Tache $demande)
     {
-        $documents = $demande->documents;
-
-        foreach ($documents as $doc) {
+        // Supprimer les documents liés (fichiers + enregistrements)
+        foreach ($demande->documents as $doc) {
+            // Supprimer le fichier physique
             Storage::disk('public')->delete($doc->chemin);
+            // Supprimer les relations dans la table pivot 'contenir' (utilisateurs-documents)
+            $doc->utilisateurs()->detach();
+            // Supprimer les relations dans la table pivot 'joindre' (actualités-documents)
+            $doc->actualites()->detach();
+            // Supprimer l'enregistrement du document
             $doc->delete();
         }
 
+        // Supprimer l'historique lié
+        DemandeHistorique::where('idDemande', $demande->idTache)->delete();
+
+        // Supprimer les relations dans la table pivot 'realiser' (utilisateurs-tâches)
+        $demande->realisateurs()->detach();
+
+        // Supprimer la demande elle-même
         $demande->delete();
 
         return to_route('demandes.index')->with('status', __('demandes.messages.deleted'));
@@ -266,15 +313,12 @@ class DemandeController extends Controller
             'depense' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        TacheHistorique::create([
-            'idTache' => $demande->idTache,
-            'statut' => __('demandes.history_statuses.progress'),
-            'date_evenement' => now(),
-            'titre' => $validated['titre'],
-            'responsable' => auth()->user()->name ?? '',
-            'depense' => $validated['depense'] ?? null,
-            'description' => $validated['description'] ?? null,
-        ]);
+        $this->addHistoryEntry(
+            $demande,
+            __('demandes.history_statuses.progress'),
+            $validated['description'] ?? null,
+            $validated['depense'] ?? null
+        );
 
         return to_route('demandes.show', $demande)->with('status', __('demandes.messages.history_added'));
     }
@@ -283,17 +327,145 @@ class DemandeController extends Controller
     {
         $demande->update(['etat' => self::STATUS_TERMINE]);
 
-        TacheHistorique::create([
-            'idTache' => $demande->idTache,
-            'statut' => __('demandes.history_statuses.done'),
-            'date_evenement' => now(),
-            'titre' => $demande->titre,
-            'responsable' => auth()->user()->name ?? '',
-            'depense' => $demande->montantR ?? null,
-            'description' => __('demandes.history_statuses.done_description'),
-        ]);
+        $this->addHistoryEntry(
+            $demande,
+            __('demandes.history_statuses.done'),
+            __('demandes.history_statuses.done_description'),
+            $demande->montantR ?? null
+        );
 
         return to_route('demandes.show', $demande)->with('status', __('demandes.messages.validated'));
     }
+
+    /**
+     * Ajoute une entrée dans demande_historique.
+     */
+    private function addHistoryEntry(Tache $demande, string $statut, ?string $description = null, ?float $depense = null): void
+    {
+        $user = Auth::user();
+
+        DemandeHistorique::create([
+            'idDemande' => $demande->idTache,
+            'statut' => $statut,
+            'titre' => $demande->titre,
+            'responsable' => $user ? ($user->name ?? '') : '',
+            'depense' => $depense,
+            'dateE' => now(),
+            'description' => $description,
+        ]);
+    }
+
+    /**
+     * Sauvegarde les photos liées à la demande (si présentes).
+     */
+    protected function storePhotos(Tache $demande, array $files): void
+    {
+        if (empty($files)) {
+            return;
+        }
+
+        foreach ($files as $file) {
+            $path = $file->store('demandes', 'public');
+
+            Document::create([
+                'idTache' => $demande->idTache,
+                'nom' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                'chemin' => $path,
+                'type' => substr($file->extension(), 0, 5),
+                'etat' => 'actif',
+            ]);
+        }
+    }
+
+    /**
+     * Exporte en CSV uniquement les demandes affichées sur la page courante (mêmes filtres/tri/pagination que l'index).
+     */
+    public function exportAllCsv(Request $request): StreamedResponse
+    {
+        $filters = $this->extractFilters($request);
+        $query = $this->buildDemandesQuery($filters);
+        [$sortField, $direction] = $this->resolveSort($filters);
+
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = self::PER_PAGE; // doit correspondre à index()
+
+        $demandes = $query
+            ->orderBy($sortField, $direction)
+            ->orderBy('idTache', 'desc')
+            ->with(['realisateurs', 'historiques'])
+            ->forPage($page, $perPage)
+            ->get();
+
+        $filename = 'Ensemble_Des_Demandes_' . date('Y-m-d') . '.csv';
+        $headers = $this->buildCsvHeaders($filename);
+
+        $callback = function () use ($demandes) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // En-têtes du CSV
+            fputcsv($file, [
+                __('demandes.export.id'),
+                __('demandes.export.date_creation'),
+                __('demandes.export.titre'),
+                __('demandes.export.description'),
+                __('demandes.export.type'),
+                __('demandes.export.urgence'),
+                __('demandes.export.etat'),
+                __('demandes.export.date_fin'),
+                __('demandes.export.montant_previsionnel'),
+                __('demandes.export.montant_reel'),
+                __('demandes.export.realisateurs'),
+            ], ';');
+
+            // Données des demandes
+            foreach ($demandes as $demande) {
+                $realisateurs = $demande->realisateurs->pluck('name')->join(', ');
+                $montantReel = $demande->historiques->sum('depense');
+
+                fputcsv($file, [
+                    $demande->idTache,
+                    $this->formatDateForCsv($demande->dateD),
+                    $demande->titre,
+                    $demande->description,
+                    $demande->type ?? '—',
+                    $demande->urgence ?? '—',
+                    $demande->etat ?? '—',
+                    $this->formatDateForCsv($demande->dateF),
+                    $this->formatMontantForCsv($demande->montantP),
+                    $this->formatMontantForCsv($montantReel, true),
+                    $realisateurs ?: '—',
+                ], ';');
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Affiche/sert une image d'un document lié à une demande.
+     */
+    public function showDocument(Tache $demande, Document $document)
+    {
+        // Vérifier que le document appartient à la demande
+        if ($document->idTache !== $demande->idTache) {
+            abort(404, 'Document not found for this demande.');
+        }
+
+        // Vérifier que le fichier existe
+        if (!Storage::disk('public')->exists($document->chemin)) {
+            abort(404, 'File not found.');
+        }
+
+        $filePath = Storage::disk('public')->path($document->chemin);
+        $mimeType = Storage::disk('public')->mimeType($document->chemin) ?? 'image/jpeg';
+
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+        ]);
+    }
+
 }
 

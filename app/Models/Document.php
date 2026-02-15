@@ -28,7 +28,8 @@ class Document extends Model
 
 	protected $casts = [
 		'idDocument' => 'int',
-		'idTache' => 'int'
+		'idTache' => 'int',
+		'idDocumentObligatoire' => 'int',
 	];
 
 	/**
@@ -42,6 +43,7 @@ class Document extends Model
 	protected $fillable = [
 		'idDocument',
 		'idTache',
+		'idDocumentObligatoire',
 		'nom',
 		'chemin',
 		'type',
@@ -53,6 +55,12 @@ class Document extends Model
 	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */
+
+	public function documentObligatoire()
+    {
+        return $this->belongsTo(DocumentObligatoire::class, 'idDocumentObligatoire', 'idDocumentObligatoire');
+    }
+	
 	public function utilisateurs()
 	{
 		return $this->belongsToMany(Utilisateur::class, 'contenir', 'idDocument', 'idUtilisateur');

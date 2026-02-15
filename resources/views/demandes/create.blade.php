@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="container py-4 demande-create-page">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
             <div>
                 @php $isEdit = isset($demande); @endphp
                 <h1 class="fw-bold mb-1">{{ $isEdit ? __('demandes.form.edit_title') : __('demandes.form.create_title') }}</h1>
@@ -8,7 +8,7 @@
                     {{ $isEdit ? __('demandes.form.edit_subtitle') : __('demandes.form.create_subtitle') }}
                 </p>
             </div>
-            <div class="text-center">
+            <div class="text-center text-md-end">
                 <a href="{{ route('demandes.index') }}" class="btn demande-btn-outline px-4 fw-semibold">{{ __('demandes.form.buttons.back.eu') }}</a>
                 <small class="text-muted d-block mt-1">{{ __('demandes.form.buttons.back.fr') }}</small>
             </div>
@@ -70,6 +70,22 @@
                 </div>
             </div>
 
+            <div class="demande-field-row">
+                <div class="demande-field-col w-100">
+                    <label for="demande-assigne" class="form-label">{{ __('demandes.form.labels.assigne.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.assigne.fr') }}</small></label>
+                    <select id="demande-assigne" name="idRole" class="form-select" required {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : '' }}>
+                        <option value="" disabled @selected(old('idRole', $demande->idRole ?? '') == '')>
+                            {{ __('demandes.form.labels.assigne.none') }}
+                        </option>
+                        @foreach ($roles ?? [] as $role)
+                            <option value="{{ $role->idRole }}" @selected(old('idRole', $demande->idRole ?? '') == $role->idRole)>
+                                {{ $role->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
             @if(!$isEdit)
                 <div class="demande-field-row photo-row align-items-center">
                     <div class="demande-field-col flex-grow-1 d-flex align-items-center gap-4">
@@ -127,12 +143,24 @@
                 reader.onload = (event) => {
                     const col = document.createElement('div');
                     col.className = 'col-md-3';
-                    col.innerHTML = `
-                        <div class="demande-photo-thumb">
-                            <img src="${event.target.result}" alt="${file.name}">
-                        </div>
-                        <div class="small text-muted text-truncate">${file.name}</div>
-                    `;
+                    // Create the thumb container
+                    const thumbDiv = document.createElement('div');
+                    thumbDiv.className = 'demande-photo-thumb';
+
+                    // Create the image element
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.setAttribute('alt', file.name);
+                    thumbDiv.appendChild(img);
+
+                    // Create the file name display
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'small text-muted text-truncate';
+                    nameDiv.textContent = file.name;
+
+                    // Append to col
+                    col.appendChild(thumbDiv);
+                    col.appendChild(nameDiv);
                     preview.appendChild(col);
                 };
                 reader.readAsDataURL(file);

@@ -18,10 +18,14 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    @stack('head-scripts')
+
 </head>
 
 <body class="font-sans antialiased">
     <x-loader />
+
+    @php $errors = $errors ?? new \Illuminate\Support\ViewErrorBag(); @endphp
 
 
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -74,6 +78,28 @@
         </script>
     @endif
 
+    @if ($errors->any())
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+            <div id="validationToast" class="toast align-items-center text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                            <div class="toast-body">
+                                {{ Lang::get($errors->first(), [], 'eus') }}
+                                @if (Lang::getLocale() == 'fr')
+                                    <p class="fw-light">{{ __($errors->first()) }}</p>
+                                @endif
+                            </div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var toastEl = document.getElementById('validationToast');
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            });
+        </script>
+    @endif
 
     @if (session('error'))
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">

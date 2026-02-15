@@ -9,14 +9,14 @@
             </div>
         @endif
 
-        <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-4 mb-5">
+        <div class="d-flex flex-column flex-md-row align-items-md-start justify-content-md-between gap-3 gap-md-4 mb-4 mb-md-5">
             <div>
-                <h1 class="fw-bold display-4 mb-1" style="font-size: 2.5rem;">{{ __('admin.accounts_page.title') }}</h1>
+                <h1 class="fw-bold mb-1" style="font-size: clamp(1.75rem, 4vw, 2.5rem);">{{ __('admin.accounts_page.title') }}</h1>
                 <p class="text-muted mb-0" style="font-size: 0.9rem;">{{ __('admin.accounts_page.title_subtitle') }}</p>
             </div>
 
-            <div class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
-                <div class="admin-search-container">
+            <div class="d-flex flex-column flex-sm-row align-items-sm-end gap-2 gap-sm-3 w-100 w-md-auto">
+                <div class="admin-search-container flex-grow-1 flex-sm-grow-0">
                     <input type="text" id="search-account" name="search" class="form-control admin-search-input"
                         placeholder="{{ __('admin.accounts_page.search_placeholder') }}"
                         value="{{ request('search') }}">
@@ -24,11 +24,11 @@
                         {{ __('admin.accounts_page.search_label') }}</p>
                 </div>
 
-                <div class="d-flex flex-column align-items-start">
-                    <a href="{{ route('admin.accounts.create') }}" class="btn admin-add-button">
+                <div class="d-flex flex-column align-items-start align-items-sm-end">
+                    <a href="{{ route('admin.accounts.create') }}" class="btn admin-add-button w-100 w-sm-auto">
                         {{ __('admin.accounts_page.add_button') }}
                     </a>
-                    <p class="text-muted mb-0 admin-button-subtitle">{{ __('admin.accounts_page.add_button_subtitle') }}
+                    <p class="text-muted mb-0 admin-button-subtitle text-start text-sm-end">{{ __('admin.accounts_page.add_button_subtitle') }}
                     </p>
                 </div>
             </div>

@@ -5,18 +5,26 @@
 <x-app-layout>
     <div class="container py-4 demande-page">
         <div class="demande-toolbar text-end">
-            <div class="d-flex flex-wrap gap-4 justify-content-end">
+            <div class="d-flex flex-column flex-sm-row flex-wrap gap-3 gap-sm-4 justify-content-end">
                 <div class="demande-toolbar-item">
-                    <button type="button" class="btn demande-btn-outline fw-semibold px-4 py-2">
-                        {{ __('demandes.toolbar.export.eu') }}
-                    </button>
-                    <small class="text-muted">{{ __('demandes.toolbar.export.fr') }}</small>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{{ route('demandes.export.all.csv', request()->query()) }}" class="btn demande-btn-outline fw-semibold px-4 py-2 w-100 w-sm-auto">
+                            <i class="bi bi-download me-2"></i>
+                            {{ __('demandes.toolbar.export.eu') }}
+                        </a>
+                        <i class="bi bi-info-circle text-info"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="top"
+                           title="{{ __('demandes.toolbar.export.help.fr') }}"
+                           style="cursor: help; font-size: 1.1rem;"></i>
+                    </div>
+                    <small class="text-muted d-block d-sm-inline">{{ __('demandes.toolbar.export.fr') }}</small>
                 </div>
                 <div class="demande-toolbar-item">
-                    <a href="{{ route('demandes.create') }}" class="btn demande-btn-primary fw-semibold text-white px-4 py-2">
+                    <a href="{{ route('demandes.create') }}" class="btn demande-btn-primary fw-semibold text-white px-4 py-2 w-100 w-sm-auto">
                         {{ __('demandes.toolbar.create.eu') }}
                     </a>
-                    <small class="text-muted">{{ __('demandes.toolbar.create.fr') }}</small>
+                    <small class="text-muted d-block d-sm-inline">{{ __('demandes.toolbar.create.fr') }}</small>
                 </div>
             </div>
         </div>
@@ -35,12 +43,12 @@
 
 <form class="demande-filter-form mt-4" method="GET" action="{{ route('demandes.index') }}" id="demande-filter-form">
             <div class="row g-3 align-items-start">
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <label for="search" class="form-label fw-semibold text-muted small mb-1">{{ __('demandes.search.label.eu') }} <small class="text-muted d-block">{{ __('demandes.search.label.fr') }}</small></label>
                     <input type="text" id="search" name="search" class="form-control demande-search-input"
                         placeholder="{{ __('demandes.search.placeholder') }}" value="{{ $filters['search'] }}">
                 </div>
-                <div class="col-md-8 text-md-end">
+                <div class="col-12 col-md-8 text-md-end">
                     <div class="dropdown d-inline-block">
                         <button class="demande-filter-toggle fw-semibold" type="button" id="filterDropdown"
                             data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
@@ -224,7 +232,7 @@
                                                 <path
                                                     d="M13.5 3.207L6 10.707V13h2.293l7.5-7.5L13.5 3.207zm-10 8.647V14h2.146l8.147-8.146-2.146-2.147L3.5 11.854z" />
                                                 <path fill-rule="evenodd"
-                                                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 1,00000 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+                                                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 1 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                                             </svg>
                                         </a>
                                     @endif
@@ -329,5 +337,11 @@
                 }, 500);
             });
         }
+
+        // Initialiser les tooltips Bootstrap
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     });
 </script>

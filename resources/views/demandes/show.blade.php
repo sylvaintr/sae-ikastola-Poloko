@@ -9,13 +9,18 @@
                 </span>
             </a>
         </div>
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-4 mb-5">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 gap-md-4 mb-4 mb-md-5">
             <div>
                 <h1 class="fw-bold mb-1">{{ $demande->titre }}</h1>
                 <p class="text-uppercase text-muted small mb-2">{{ $demande->type ?? __('demandes.show.type_default') }}</p>
                 <p class="text-muted mb-0">
                     {{ __('demandes.show.reported_by', ['name' => $metadata['reporter'], 'date' => $metadata['report_date']]) }}
                 </p>
+                @if($demande->roleAssigne)
+                    <p class="text-muted mb-0 mt-2">
+                        <strong>{{ __('demandes.show.assigned_to') }}:</strong> {{ $demande->roleAssigne->name }}
+                    </p>
+                @endif
             </div>
             <div class="d-flex flex-column align-items-md-end align-items-center">
                 <div class="text-uppercase text-muted small fw-semibold text-center">
@@ -36,7 +41,7 @@
             @if (count($photos))
                 <div class="row g-3">
                     @foreach ($photos as $photo)
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="demande-photo-card">
                                 <img src="{{ $photo['url'] }}" alt="{{ $photo['nom'] }}" class="img-fluid w-100 rounded-3">
                                 <div class="small text-muted mt-2">{{ $photo['nom'] }}</div>
@@ -101,12 +106,17 @@
                             @foreach ($historiques as $item)
                                 <tr>
                                     <td>{{ $item->statut }}</td>
-                                    <td>{{ optional($item->date_evenement)->format('d-m-Y') ?? '—' }}</td>
+                                    <td>{{ optional($item->dateE)->format('d-m-Y') ?? '—' }}</td>
                                     <td>{{ $item->titre }}</td>
                                     <td>{{ $item->responsable ?? '—' }}</td>
                                     <td>{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}</td>
                                     <td class="text-center">
-                                        <button type="button" class="btn demande-action-btn history-view-btn" data-description="{{ $item->description ?? '—' }}" data-titre="{{ $item->titre }}" data-date="{{ optional($item->date_evenement)->format('d/m/Y') ?? '—' }}" data-depense="{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}" title="{{ __('demandes.actions.view') }}">
+                                        <button type="button" class="btn demande-action-btn history-view-btn"
+                                            data-description="{{ $item->description ?? '—' }}"
+                                            data-titre="{{ $item->titre }}"
+                                            data-date="{{ optional($item->dateE)->format('d/m/Y') ?? '—' }}"
+                                            data-depense="{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}"
+                                            title="{{ __('demandes.actions.view') }}">
                                             <i class="bi bi-eye"></i>
                                         </button>
                                     </td>
@@ -121,22 +131,38 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4">
             <div class="d-flex flex-column flex-md-row gap-4 text-muted fw-semibold">
                 <div>{{ __('demandes.history.planned') }} : <span class="text-dark">{{ $demande->montantP ? number_format($demande->montantP, 0, ',', ' ') . ' €' : '—' }}</span></div>
-                <div>{{ __('demandes.history.real') }} : <span class="text-dark">{{ $totalDepense ? number_format($totalDepense, 0, ',', ' ') . ' €' : '—' }}</span></div>
+                <div>{{ __('demandes.history.real') }} : <span class="text-dark">{{ $totalDepense ? number_format($totalDepense, 0, ',', ' ') . ' €' : '0 €' }}</span></div>
             </div>
-        @if ($demande->etat !== 'Terminé')
-            <div class="text-center">
-                <a href="{{ route('demandes.historique.create', $demande) }}" class="btn demande-btn-primary px-4">
-                    {{ __('demandes.history.button.eu') }}
-                </a>
-                <div class="text-muted small">{{ __('demandes.history.button.fr') }}</div>
+            <div class="d-flex flex-column flex-md-row gap-3 align-items-center">
+                <div class="text-center">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <a href="{{ route('demandes.export.csv', $demande) }}" class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-download me-2"></i>
+                            {{ __('demandes.toolbar.export.eu') }}
+                        </a>
+                        <i class="bi bi-info-circle text-info"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="top"
+                           title="{{ __('demandes.toolbar.export.help.fr') }}"
+                           style="cursor: help; font-size: 1.1rem;"></i>
+                    </div>
+                    <div class="text-muted small mt-1">{{ __('demandes.toolbar.export.fr') }}</div>
+                </div>
+                @if ($demande->etat !== 'Terminé')
+                    <div class="text-center">
+                        <a href="{{ route('demandes.historique.create', $demande) }}" class="btn demande-btn-primary px-4">
+                            {{ __('demandes.history.button.eu') }}
+                        </a>
+                        <div class="text-muted small">{{ __('demandes.history.button.fr') }}</div>
+                    </div>
+                @endif
             </div>
-        @endif
         </div>
     </div>
 </x-app-layout>
 
 <div class="modal fade" id="viewHistoryModal" tabindex="-1" aria-labelledby="viewHistoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="viewHistoryModalLabel">{{ __('demandes.modals.history_view.title') }}</h5>
@@ -174,6 +200,12 @@
                 descEl.textContent = this.getAttribute('data-description') || '—';
                 modal.show();
             });
+        });
+
+        // Initialiser les tooltips Bootstrap
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
         });
     });
 </script>

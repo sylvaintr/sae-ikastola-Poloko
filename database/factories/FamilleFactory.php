@@ -36,7 +36,6 @@ class FamilleFactory extends Factory
     {
         return $this->afterCreating(function (Famille $famille) {
             Lier::factory()->create(['idFamille' => $famille->idFamille]);
-            Enfant::factory()->count(random_int(1, 4))->create(['idFamille' => $famille->idFamille]);
         });
     }
 }

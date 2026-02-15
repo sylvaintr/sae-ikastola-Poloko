@@ -3,7 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\Utilisateur;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\ResetPasswordNotification as ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -59,8 +59,8 @@ class PasswordResetTest extends TestCase
             $response = $this->post('/reset-password', [
                 'token' => $notification->token,
                 'email' => $user->email,
-                'password' => 'password',
-                'password_confirmation' => 'password',
+                'password' => 'P@ssw0rd123!',
+                'password_confirmation' => 'P@ssw0rd123!',
             ]);
 
             $response

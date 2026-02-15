@@ -18,7 +18,7 @@ class AccountUpdateDebugTest extends TestCase
     {
         parent::setUp();
 
-        $adminRole = Role::factory()->create(['name' => 'CA']);
+        $adminRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $this->adminUser = Utilisateur::factory()->create();
         $this->adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
         $this->actingAs($this->adminUser);
@@ -26,6 +26,7 @@ class AccountUpdateDebugTest extends TestCase
 
     public function test_capture_queries_during_put_update()
     {
+        // given
         $role = Role::factory()->create();
         $account = Utilisateur::factory()->create();
 
@@ -43,8 +44,10 @@ class AccountUpdateDebugTest extends TestCase
             $queries[] = ['sql' => $query->sql, 'bindings' => $query->bindings];
         });
 
+        // when
         $this->put(route('admin.accounts.update', $account->idUtilisateur), $putData);
 
+        // then
         // Find any insert into `avoir` in captured queries
         $pivotInserts = array_filter($queries, function ($q) {
             return str_contains($q['sql'], 'insert into `avoir`');

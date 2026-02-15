@@ -1,5 +1,4 @@
 <?php
-
 namespace Tests\Unit;
 
 use App\Mail\Facture as FactureMail;
@@ -11,12 +10,16 @@ class MailFactureTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_facture_mail_builds(): void
+    public function test_construction_du_mail_facture(): void
     {
-        $facture = Facture::factory()->create();
-        $famille = $facture->famille()->first();
+        // given
+        $facture     = Facture::factory()->create();
+        $utilisateur = $facture->utilisateur()->first();
 
-        $mail = new FactureMail($facture, $famille);
+        // when
+        $mail = new FactureMail($facture, $utilisateur);
+
+        // then
 
         $rendered = $mail->render();
         $this->assertIsString($rendered);

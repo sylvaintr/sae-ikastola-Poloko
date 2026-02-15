@@ -42,22 +42,34 @@
 
 
 <script>
-    // Fonction pour afficher le loader
     function showLoader() {
         document.getElementById('loader-overlay').style.display = 'flex';
     }
 
-    // Fonction pour masquer le loader
     function hideLoader() {
         document.getElementById('loader-overlay').style.display = 'none';
     }
 
-    // Exemple d'utilisation : afficher le loader lors du chargement de la page
+
     window.addEventListener('pageshow', function() {
         hideLoader();
     });
 
-    window.addEventListener('beforeunload', function() {
-        showLoader();
+
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a');
+        
+
+        if (link && link.href && !link.hasAttribute('download') && link.target !== '_blank') {
+            if (link.href.contains(window.location.hostname)) {
+                showLoader();
+            }
+        }
+    });
+
+    document.addEventListener('submit', function(e) {
+        if (!e.target.hasAttribute('data-no-loader')) {
+            showLoader();
+        }
     });
 </script>
