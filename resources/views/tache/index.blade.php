@@ -279,7 +279,7 @@
             </table>
         </div>
 
-        <div class="mt-3">
+        <div class="mt-3 admin-pagination-container">
             {{ $taches->links() }}
         </div>
     </div>

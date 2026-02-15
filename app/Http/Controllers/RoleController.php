@@ -23,8 +23,8 @@ class RoleController extends Controller
     public function show(Role $role): View
     {
         $role->load('permissions');
-        $allPermissions = \Spatie\Permission\Models\Permission::all();
-        return view('admin.roles.show', compact('role', 'allPermissions'));
+        $permissions = \Spatie\Permission\Models\Permission::all();
+        return view('admin.roles.show', compact('role', 'permissions'));
     }
 
     /**

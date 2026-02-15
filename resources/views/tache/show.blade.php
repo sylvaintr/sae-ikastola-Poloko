@@ -96,20 +96,10 @@
 
                     <ul class="list-group">
                         @foreach ($tache->realisateurs as $user)
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <li class="list-group-item">
                                 <div>
                                     <strong>{{ $user->prenom }} {{ $user->nom }}</strong><br>
                                     <small class="text-muted">{{ $user->email }}</small>
-                                </div>
-
-                                <div class="text-end">
-                                    {{ $user->pivot->dateM ? $user->pivot->dateM->format('d/m/Y') : 'Non renseigné' }}
-
-                                    @if($user->pivot->description)
-                                        <div class="mt-1 text-muted small">
-                                            "{{ $user->pivot->description }}"
-                                        </div>
-                                    @endif
                                 </div>
                             </li>
                         @endforeach
@@ -181,7 +171,13 @@
                 </div>
             </section>
             
+            @php
+                $roles = auth()->user()->getRoleNames();
+                $isOnlyParent = $roles->count() === 1 && $roles->contains('parent');
+            @endphp
+
             <div class="d-flex flex-row align-items-end justify-content-end gap-3">
+                @if(!$isOnlyParent || auth()->user()->can('gerer-tache'))
                 <div class="d-flex flex-column align-items-start">
                     <button
                         type="button"
@@ -206,7 +202,8 @@
                     </a>
                     <p class="text-muted mb-0 admin-button-subtitle">{{ __('taches.actions.edit') }}</p>
                 </div>
-                
+                @endif
+
                 <div class="d-flex flex-column align-items-start">
                     <a
                         @if ($tache->etat !== 'done')
@@ -338,23 +335,12 @@
             }
 
             $('.datatable-historique').DataTable({
-                paging: true,
-                pageLength: 5,
+                paging: false,
                 lengthChange: false,
                 searching: false,
-                info: true,
+                info: false,
                 ordering: true,
                 order: [[1, 'asc']], // date
-                language: {
-                    info: 'Affichage de _START_ à _END_ sur _TOTAL_ résultat(s)',
-                    infoEmpty: 'La chronologie des actions apparaîtra ici.',
-                    paginate: {
-                        first: '‹‹',
-                        previous: '‹',
-                        next: '›',
-                        last: '››'
-                    }
-                },
                 columns: [
                     { data: 'statut' },
                     { data: 'date_evenement' },
@@ -362,7 +348,6 @@
                     { data: 'responsable' },
                     { data: 'action', orderable: false },
                 ],
-                dom: '<"d-flex justify-content-end mb-2"p>rt<"d-flex justify-content-end mt-2"i>',
             });
 
             document.addEventListener('click', function (e) {

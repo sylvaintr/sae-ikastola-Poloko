@@ -42,6 +42,17 @@ class TacheController extends Controller
 
         $query = Tache::query()->with('realisateurs');
 
+        // Les utilisateurs avec uniquement le rôle 'parent' ne voient que leurs tâches
+        $user = auth()->user();
+        $roles = $user->getRoleNames();
+        $isOnlyParent = $roles->count() === 1 && $roles->contains('parent');
+
+        if ($isOnlyParent && !$user->can('gerer-tache')) {
+            $query->whereHas('realisateurs', function ($q) use ($user) {
+                $q->where('utilisateur.idUtilisateur', $user->idUtilisateur);
+            });
+        }
+
         if ($filters['search']) {
             $search = Str::of($filters['search'])->lower()->ascii();
             $this->applySearchFilter($query, $search);
@@ -119,6 +130,17 @@ class TacheController extends Controller
 
 private function applyFilters($query, Request $request): void
 {
+    // Les utilisateurs avec uniquement le rôle 'parent' ne voient que leurs tâches
+    $user = auth()->user();
+    $roles = $user->getRoleNames();
+    $isOnlyParent = $roles->count() === 1 && $roles->contains('parent');
+
+    if ($isOnlyParent && !$user->can('gerer-tache')) {
+        $query->whereHas('realisateurs', function ($q) use ($user) {
+            $q->where('utilisateur.idUtilisateur', $user->idUtilisateur);
+        });
+    }
+
     if ($request->filled('search_global')) {
         $search = Str::of($request->search_global)->lower()->ascii();
         $this->applySearchFilter($query, $search);
@@ -184,7 +206,7 @@ private function formatAssignation($tache)
 
     public function create()
     {
-        $utilisateurs = Utilisateur::orderBy('prenom')->limit(150)->get();
+        $utilisateurs = Utilisateur::role('parent')->orderBy('prenom')->limit(150)->get();
         return view('tache.form', compact('utilisateurs'));
     }
 
@@ -239,7 +261,7 @@ private function formatAssignation($tache)
         // eager load realisateurs pour préremplir
         $tache->load('realisateurs');
 
-        $utilisateurs = Utilisateur::orderBy('prenom')->limit(150)->get();
+        $utilisateurs = Utilisateur::role('parent')->orderBy('prenom')->limit(150)->get();
 
         return view('tache.form', compact('tache', 'utilisateurs'));
     }
@@ -299,6 +321,18 @@ private function formatAssignation($tache)
     public function show($id)
     {
         $tache = Tache::with(['realisateurs'])->findOrFail($id);
+
+        // Les utilisateurs avec uniquement le rôle 'parent' ne peuvent voir que leurs tâches
+        $user = auth()->user();
+        $roles = $user->getRoleNames();
+        $isOnlyParent = $roles->count() === 1 && $roles->contains('parent');
+
+        if ($isOnlyParent && !$user->can('gerer-tache')) {
+            $isAssigned = $tache->realisateurs->contains('idUtilisateur', $user->idUtilisateur);
+            if (!$isAssigned) {
+                abort(403, 'Vous n\'avez pas accès à cette tâche.');
+            }
+        }
 
         $historique = TacheHistorique::with('utilisateur')
             ->where('idTache', $tache->idTache)
