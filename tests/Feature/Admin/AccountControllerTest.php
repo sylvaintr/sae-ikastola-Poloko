@@ -61,7 +61,7 @@ class AccountControllerTest extends TestCase
     {
         $this->withoutMiddleware();
 
-        $role = Role::create(['name' => 'R1', 'guard_name' => 'web']);
+        $role = Role::firstOrCreate(['name' => 'R1', 'guard_name' => 'web']);
 
         $account = Utilisateur::factory()->create();
         $account->rolesCustom()->attach([$role->idRole => ['model_type' => Utilisateur::class]]);

@@ -80,6 +80,9 @@ class DemandeControllerIndexFiltersTest extends TestCase
     {
         // given
         $this->withoutMiddleware();
+        // Nettoyer les tâches existantes pour s'assurer qu'on teste uniquement nos données
+        Tache::query()->delete();
+
         $a = Tache::factory()->create(['titre' => 'B']);
         $b = Tache::factory()->create(['titre' => 'A']);
         $c = Tache::factory()->create(['titre' => 'C']);

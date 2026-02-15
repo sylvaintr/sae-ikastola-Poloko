@@ -25,12 +25,15 @@ class FactureControllerEnvoyerFactureTest extends TestCase
     public function test_envoyerFacture_attaches_pdf_and_sends_mail()
     {
         Mail::fake();
-        Storage::fake('public');
+        // Ne pas utiliser Storage::fake car le service utilise le vrai storage
 
-        $client = Utilisateur::factory()->create(['email' => 'client@example.org']);
+        $uniqueEmail = 'client_' . uniqid() . '@example.org';
+        $client = Utilisateur::factory()->create(['email' => $uniqueEmail]);
         $famille = Famille::factory()->create();
         $famille->utilisateurs()->detach();
-        $famille->utilisateurs()->attach($client->idUtilisateur);
+        $famille->utilisateurs()->attach($client->idUtilisateur, ['parite' => 50]);
+        // Créer un enfant pour que le calculateur ne retourne pas de redirection
+        \App\Models\Enfant::factory()->create(['idFamille' => $famille->idFamille]);
 
         $facture = Facture::factory()->create([
             'etat' => 'verifier',
@@ -38,13 +41,8 @@ class FactureControllerEnvoyerFactureTest extends TestCase
             'idUtilisateur' => $client->idUtilisateur,
         ]);
 
-        // Mock exporter to return pdf bytes and expect to be called with $facture and true
-        $mock = $this->createMock(FactureExporter::class);
-        $mock->expects($this->once())
-            ->method('serveManualFile')
-            ->with($this->isInstanceOf(Facture::class), true)
-            ->willReturn('%PDF-1.4');
-        $this->app->instance(FactureExporter::class, $mock);
+        // Créer un fichier PDF pour que le service le trouve
+        Storage::disk('public')->put('factures/facture-' . $facture->idFacture . '.pdf', '%PDF-1.4 dummy');
 
         // perform the request
         $response = $this->get(route('admin.facture.envoyer', $facture->idFacture));
@@ -54,5 +52,8 @@ class FactureControllerEnvoyerFactureTest extends TestCase
         Mail::assertSent(FactureMail::class, function ($mail) use ($client) {
             return $mail->hasTo($client->email);
         });
+
+        // Cleanup
+        Storage::disk('public')->delete('factures/facture-' . $facture->idFacture . '.pdf');
     }
 }

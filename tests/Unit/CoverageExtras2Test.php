@@ -81,7 +81,7 @@ class CoverageExtras2Test extends TestCase
         $controller->update($mock2, $act->idActualite);
 
         // then
-        $this->assertDatabaseMissing('actualite', ['titrefr' => 't']);
+        $this->assertDatabaseMissing('actualite', ['idActualite' => $act->idActualite, 'titrefr' => 't']);
         $this->assertEquals('updated', Actualite::find($act->idActualite)->titrefr);
     }
 

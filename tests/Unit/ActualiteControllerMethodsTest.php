@@ -31,7 +31,7 @@ class ActualiteControllerMethodsTest extends TestCase
 
         $et = Etiquette::factory()->create();
 
-        $file = UploadedFile::fake()->image('pic.jpg');
+        $file = UploadedFile::fake()->create('pic.jpg', 10, 'image/jpeg');
 
         $params = [
             'type' => 'public',

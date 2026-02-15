@@ -6,12 +6,11 @@ use App\Models\Actualite;
 use App\Models\Document;
 use App\Models\Etiquette;
 use App\Models\Posseder; // Import de la Request
+use App\Services\ActualiteDataTableService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\Facades\DataTables;
 
 class ActualiteController extends Controller
 {
@@ -115,7 +114,7 @@ class ActualiteController extends Controller
     public function store(Request $request)
     {
         // Support both StoreActualiteRequest and plain Request in tests
-        if (method_exists($request, 'validated')) {
+        if ($request instanceof StoreActualiteRequest) {
             $data = $request->validated();
         } else {
             // Ensure slashed dates (d/m/Y) are normalized before validation
@@ -171,7 +170,7 @@ class ActualiteController extends Controller
             return redirect()->back()->with('error', __('actualite.not_found'));
         }
 
-        if (method_exists($request, 'validated')) {
+        if ($request instanceof StoreActualiteRequest) {
             $validated = $request->validated();
         } else {
             // Normalize slashed date format before validating as StoreActualiteRequest is not executed
@@ -335,44 +334,26 @@ class ActualiteController extends Controller
     }
 
     /**
-     * Données pour DataTables (Logique inlined pour réduire le nombre de méthodes)
+     * Données pour DataTables (Logique déléguée au service)
      */
     public function data(?Request $request = null)
     {
         $request = $request ?? request();
-        $query   = Actualite::query()->with('etiquettes');
-
-        // Filtres simples
-        if ($request->filled('type')) {
-            $query->where('type', $request->input('type'));
+        if ($request !== request()) {
+            app()->instance('request', $request);
         }
-        if ($request->filled('etat')) {
-            $request->input('etat') === 'active' ? $query->where('archive', false) : $query->where('archive', true);
-        }
+        $query = Actualite::query()->with('etiquettes');
 
-        // Filtre Etiquettes
-        if ($request->filled('etiquette')) {
-            $ids = array_map('intval', (array) $request->input('etiquette'));
-            $query->whereHas('etiquettes', function ($q) use ($ids) {
-                $q->whereIn('etiquette.idEtiquette', $ids);
-            });
+        $service = app(ActualiteDataTableService::class);
+        $service->applySimpleFilters($request, $query);
+        $service->applyColumnFilters($request, $query);
+
+        // Fallback for minimal DataTables-like requests (ex: unit tests)
+        if ($service->shouldReturnSimpleJson($request)) {
+            return $service->buildSimpleJsonResponse($request, $query);
         }
 
-        return DataTables::of($query)
-            ->addColumn('titre', fn($actu) => $actu->titrefr ?? 'Sans titre')
-            ->addColumn('etiquettes', fn($actu) => $actu->etiquettes->pluck('nom')->join(', '))
-            ->addColumn('etat', fn($actu) => $actu->archive ? Lang::get('actualite.archived') : Lang::get('actualite.active'))
-            ->addColumn('actions', fn($actu) => view('actualites.template.colonne-action', ['actualite' => $actu]))
-
-        // Filtre Titre (recherche globale) — use direct callable to improve testability
-            ->filterColumn('titre', [$this, 'filterColumnTitreInline'])
-        // Filtre Etiquettes (recherche textuelle) — use direct callable
-            ->filterColumn('etiquettes', [$this, 'filterColumnEtiquettesInline'])
-        // Register callable wrappers so unit tests can invoke them directly
-            ->filterColumn('titre', [$this, 'filterColumnTitreCallback'])
-            ->filterColumn('etiquettes', [$this, 'filterColumnEtiquettesCallback'])
-            ->rawColumns(['actions'])
-            ->make(true);
+        return $service->buildDataTablesResponse($query);
     }
 
     // Delegates unknown helper calls to a dedicated helper class so the
@@ -397,19 +378,4 @@ class ActualiteController extends Controller
         throw new \BadMethodCallException("Method {$method} does not exist.");
     }
 
-    /**
-     * Inline titre filter extracted to a private method so unit tests can target it.
-     */
-    private function filterColumnTitreInline($q, $keyword)
-    {
-        $q->where(fn($sq) => $sq->where('titrefr', 'like', "%{$keyword}%")->orWhere('titreeus', 'like', "%{$keyword}%"));
-    }
-
-    /**
-     * Inline etiquettes filter extracted to a private method so unit tests can target it.
-     */
-    private function filterColumnEtiquettesInline($q, $keyword)
-    {
-        $q->whereHas('etiquettes', fn($sq) => $sq->where('nom', 'like', "%{$keyword}%"));
-    }
 }

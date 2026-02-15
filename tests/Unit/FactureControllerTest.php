@@ -19,6 +19,12 @@ class FactureControllerTest extends TestCase
         Storage::fake('public');
         $facture = Facture::factory()->create(['etat' => 'manuel']);
 
+        $mockConv = $this->getMockBuilder(\App\Services\FactureConversionService::class)
+            ->onlyMethods(['convertFactureToPdf'])
+            ->getMock();
+        $mockConv->method('convertFactureToPdf')->willReturn(true);
+        $this->app->instance(\App\Services\FactureConversionService::class, $mockConv);
+
         // create dummy manual files
         $base = 'factures/facture-' . $facture->idFacture;
         Storage::disk('public')->put($base . '.doc', 'x');
@@ -89,7 +95,7 @@ class FactureControllerTest extends TestCase
     {
         // given
         $famille = Famille::factory()->create();
-        $user    = Utilisateur::factory()->create(['email' => 'to@example.test']);
+        $user    = Utilisateur::factory()->create();
         $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 1]);
 
         $facture = Facture::factory()->create(['etat' => 'brouillon', 'idFamille' => $famille->idFamille, 'idUtilisateur' => $user->idUtilisateur]);
@@ -336,7 +342,7 @@ class FactureControllerTest extends TestCase
         \Illuminate\Support\Facades\Mail::fake();
 
         $famille = \App\Models\Famille::factory()->create();
-        $user    = \App\Models\Utilisateur::factory()->create(['email' => 'to@example.test']);
+        $user    = \App\Models\Utilisateur::factory()->create();
         $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 1]);
 
         $facture = \App\Models\Facture::factory()->create(['etat' => 'verifier', 'idFamille' => $famille->idFamille, 'idUtilisateur' => $user->idUtilisateur]);

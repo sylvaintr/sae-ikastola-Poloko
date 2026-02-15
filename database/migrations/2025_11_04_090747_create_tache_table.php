@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('tache')) {
+        if (! Schema::hasTable('tache')) {
             Schema::create('tache', function (Blueprint $table) {
                 $table->integer('idTache')->primary();
-                $table->string('titre', 30);
-                $table->string('description', 100);
+                $table->string('titre', 255);
+                $table->text('description');
                 $table->string('type', 15);
                 $table->string('urgence', 15)->default('Moyenne');
                 $table->string('etat', 10);
@@ -33,7 +33,7 @@ return new class extends Migration
         } else {
             // Si la table existe déjà, ajouter la colonne idRole si elle n'existe pas
             Schema::table('tache', function (Blueprint $table) {
-                if (!Schema::hasColumn('tache', 'idRole')) {
+                if (! Schema::hasColumn('tache', 'idRole')) {
                     $table->integer('idRole')->nullable()->after('idEvenement')->index('idrole');
                     $table->foreign('idRole')
                         ->references('idRole')
