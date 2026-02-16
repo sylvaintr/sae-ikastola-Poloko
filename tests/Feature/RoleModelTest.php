@@ -12,8 +12,13 @@ class RoleModelTest extends TestCase
 
     public function test_role_factory_creates_record()
     {
+        // given
+        // none
+
+        // when
         $role = Role::factory()->create();
 
+        // then
         $this->assertDatabaseHas('role', ['name' => $role->name]);
         $this->assertGreaterThanOrEqual(0,  $role->documentObligatoires()->count());
         $this->assertGreaterThanOrEqual(0,  $role->etiquettes()->count());

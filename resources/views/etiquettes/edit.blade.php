@@ -28,6 +28,14 @@
                         </div>
 
                         <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="public" name="public" value="1" {{ old('public', $etiquette->public) ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold" for="public">{{ __('etiquette.public') }}</label>
+                                <div class="form-text">{{ __('etiquette.public_help') }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
                             <div class="form-label fw-semibold mb-2">{{ __('admin.accounts_page.create.fields.roles') }}</div>
                             <div class="role-selector-container">
                                 <div class="row g-3">
@@ -336,4 +344,4 @@
         </script>
     @endpush
 </x-app-layout>
-                       
+

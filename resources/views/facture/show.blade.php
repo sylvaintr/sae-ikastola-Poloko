@@ -16,7 +16,12 @@
             </div>
         </a>
 
-        @include('facture.template.facture-html')
+        @if (isset($fichierpdf))
+            <iframe src="{{ $fichierpdf }}" title="facture" width="100%" height="600px"></iframe>
+        @else
+            {!! $inlinedHtml !!}
+        @endif
+ 
     </div>
 
 </x-app-layout>

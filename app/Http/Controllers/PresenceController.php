@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Classe;
 use App\Models\Enfant;
-use App\Models\Etre;
+use App\Models\Pratiquer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
-/** @codeCoverageIgnore */
+
 class PresenceController extends Controller
 {
     /**
@@ -67,12 +67,12 @@ class PresenceController extends Controller
             return response()->json(['presentIds' => []]);
         }
 
-        $presentIds = Etre::query()
-            ->join('enfant', 'enfant.idEnfant', '=', 'etre.idEnfant')
+        $presentIds = Pratiquer::query()
+            ->join('enfant', 'enfant.idEnfant', '=', 'pratiquer.idEnfant')
             ->whereIn('enfant.idClasse', $classIds)
-            ->whereDate('etre.dateP', $date)
-            ->where('etre.activite', $activite)
-            ->pluck('etre.idEnfant')
+            ->whereDate('pratiquer.dateP', $date)
+            ->where('pratiquer.activite', $activite)
+            ->pluck('pratiquer.idEnfant')
             ->all();
 
         return response()->json(['presentIds' => $presentIds]);
@@ -102,7 +102,7 @@ class PresenceController extends Controller
 
         DB::transaction(function () use ($date, $activite, $enfantIds, $presentIds) {
             // Remove existing records for these enfants on this date/activity
-            Etre::query()
+            Pratiquer::query()
                 ->whereIn('idEnfant', $enfantIds)
                 ->whereDate('dateP', $date)
                 ->where('activite', $activite)
@@ -117,7 +117,7 @@ class PresenceController extends Controller
                     ];
                 }, $presentIds);
                 // Insert presence rows
-                Etre::query()->insert($rows);
+                Pratiquer::query()->insert($rows);
             }
         });
 

@@ -1,22 +1,22 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\Enfant;
+use App\Mail\Facture as FactureMail;
 use App\Models\Facture;
 use App\Models\Famille;
+use App\Services\FactureCalculator;
+use App\Services\FactureConversionService;
+use App\Services\FactureExporter;
+use App\Services\FactureFileService;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\Facture as FactureMail;
-use App\Models\Etre;
-use App\Models\Utilisateur;
-use Pelago\Emogrifier\CssInliner;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 
 /**
  * Class FactureController
@@ -27,6 +27,20 @@ use Dompdf\Options;
  */
 class FactureController extends Controller
 {
+    private const DIR_FACTURES = 'factures/';
+
+    private $factureCalculator;
+    private $factureExporter;
+    private $factureConversionService;
+    private $factureFileService;
+    public function __construct()
+    {
+        $this->factureCalculator        = app(FactureCalculator::class);
+        $this->factureExporter          = app(FactureExporter::class);
+        $this->factureConversionService = app(FactureConversionService::class);
+        $this->factureFileService       = app(FactureFileService::class);
+    }
+
     /**
      * Methode pour afficher la liste des factures
      * @return View
@@ -37,45 +51,48 @@ class FactureController extends Controller
         return view('facture.index');
     }
 
-
     /**
      * Methode pour afficher une facture specifique
      * @param string $id Identifiant de la facture à afficher
      * @return View|RedirectResponse
      */
-    public function show(string $id): View|RedirectResponse
+    public function show(string $id): View | RedirectResponse
     {
-        $montants = $this->calculerMontantFacture($id);
-        if ($montants instanceof RedirectResponse) {
-            return $montants;
+        $facture = Facture::find($id ?? null);
+        if ($facture === null) {
+            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
 
-        return view('facture.show', [
-            'facture' => $montants['facture'],
-            'famille' => $montants['famille'],
-            'enfants' => $montants['enfants'],
-            'montangarderie' => $montants['montangarderie'] ?? 0,
-            'montantcotisation' => $montants['montantcotisation'] ?? 0,
-            'montantparticipation' => $montants['montantparticipation'] ?? 0,
-            'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
-            'montanttotal' => $montants['montanttotal'] ?? 0,
-        ]);
+        $nomfichier = 'facture-' . $facture->idFacture;
+
+        // return le fichier de la facture
+        $chemin = self::DIR_FACTURES . $nomfichier . '.pdf';
+        if (Storage::disk('public')->exists($chemin)) {
+            $urlPublique = Storage::url($chemin);
+            $return      = view('facture.show', [
+                'fichierpdf' => $urlPublique,
+            ]);
+        } else {
+            // File not found: redirect with error
+            $return = redirect()->route('admin.facture.index')
+                ->with('error', 'facture.fichierpdfintrouvable');
+        }
+
+        return $return;
+
     }
 
     /**
      * Permet de gérer le corps du tableau de factures en AJAX pour DataTables
      * @return JsonResponse
      */
-    public function  facturesData(): JsonResponse
+    public function facturesData(): JsonResponse
     {
         $query = Facture::query();
 
         return DataTables::of($query)
             ->addColumn('titre', function ($facture) {
                 return "Facture {$facture->idFacture}";
-            })
-            ->addColumn('etat', function ($facture) {
-                return $facture->etat ? 'Vérifiée' : 'Brouillon';
             })
             ->addColumn('actions', function ($facture) {
                 return view('facture.template.colonne-action', compact('facture'));
@@ -90,78 +107,48 @@ class FactureController extends Controller
      * @param bool $returnBinary Indique si la méthode doit retourner le binaire du fichier (true) ou une réponse HTTP (false)
      * @return Response|RedirectResponse response contenant le fichier exporté
      */
-    public function exportFacture(string $id, bool $returnBinary = false): Response|RedirectResponse|string
+    public function exportFacture(string $id, bool $returnBinary = false): Response | RedirectResponse | string | null
     {
 
-        $montants = $this->calculerMontantFacture($id);
+        $montants = $this->factureCalculator->calculerMontantFacture($id);
+
         if ($montants instanceof RedirectResponse) {
             return $montants;
         }
 
         $facture = $montants['facture'];
 
-
-
-        $content = view('facture.template.facture-html', [
-            'facture' => $montants['facture'],
-            'famille' => $montants['famille'],
-            'enfants' => $montants['enfants'],
-            'montantcotisation' => $montants['montantcotisation'] ?? 0,
-            'montantparticipation' => $montants['montantparticipation'] ?? 0,
-            'montantparticipationSeaska' => $montants['montantparticipationSeaska'] ?? 0,
-            'montangarderie' => $montants['montangarderie'] ?? 0,
-            'montanttotal' => $montants['montanttotal'] ?? 0
-        ])->render();
-        $htmlInlined = CssInliner::fromHtml($content)->inlineCss()->render();
-        if (is_object($facture) && $facture->etat) {
-
-            $options = new Options();
-            $options->set('isHtml5ParserEnabled', true);
-            $options->set('isRemoteEnabled', true);
-
-            $options->set('defaultPaperMargins', [-10, -10, -10, -10]);
-
-            $dompdf = new Dompdf($options);
-            $dompdf->loadHtml($htmlInlined);
-            $dompdf->setPaper('A4', 'portrait');
-            $dompdf->render();
-
-            if ($returnBinary) {
-                return $dompdf->output();
-            }
-
-
-
-            $reponce = response($dompdf->output(), 200)
-                ->header('Content-Type', 'application/pdf')
-                ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.pdf"');
-        } else {
-
-            $reponce = response($htmlInlined, 200)
-                ->header('Content-Type', 'application/vnd.ms-word')
-                ->header('Content-Disposition', 'attachment; filename="facture-' . ($facture->idFacture ?? 'unknown') . '.doc"');
+        $manualResponse = $this->factureExporter->serveManualFile($facture, $returnBinary);
+        if ($manualResponse) {
+            return $manualResponse;
         }
-        return $reponce;
-    }
 
+    }
 
     /**
      * Methode pour envoyer une facture par mail
      * @param string $id Identifiant de la facture à envoyer
      * @return RedirectResponse response de redirection vers la liste des factures
      */
-    public function envoyerFacture(string $id): RedirectResponse
+    public function envoyerFacture(string $id): RedirectResponse | null
     {
         $facture = Facture::find($id ?? null);
         if ($facture === null) {
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
-        $client = $facture->famille()->first()->utilisateurs()->first();
-        if ($facture->etat) {
+        $client = $facture->utilisateur()->first();
+        if ($facture->etat === 'verifier') {
 
-            $famille = Famille::find($facture->idFamille);
+            $mail = new FactureMail($facture, $client);
 
-            $mail = new FactureMail($facture, $famille);
+            // Déterminer la langue préférée du destinataire et l'appliquer au Mailable
+            $langueDestinataire = $client->languePref ?? config('app.locale', 'fr');
+            if (method_exists($mail, 'locale')) {
+                $mail->locale($langueDestinataire);
+            } else {
+                app()->setLocale($langueDestinataire);
+            }
+
             $piecejointe = $this->exportFacture($id, true);
 
             $mail->attachData($piecejointe, 'facture-' . $facture->idFacture . '.pdf', [
@@ -175,106 +162,89 @@ class FactureController extends Controller
         }
     }
 
-    public function validerFacture(string $id): RedirectResponse
+    public function validerFacture(string $id): ?RedirectResponse
+    {
+        $response = null;
+
+        $facture = Facture::find($id ?? null);
+        if ($facture === null) {
+            $response = redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
+        } else {
+            // On ne traite que si l'état n'est pas déjà validé
+            if ($facture->etat != 'verifier') {
+                // Use the conversion service synchronously (dependency-injected)
+                $ok = $this->factureConversionService->convertFactureToPdf($facture);
+
+                if ($ok) {
+                    // passer l'état à 'verifier'
+                    $facture->etat = 'verifier';
+                    $facture->save();
+                    $response = redirect()->route('admin.facture.index')->with('success', 'facture.validersuccess');
+                } else {
+                    $response = redirect()->route('admin.facture.index')->with('error', 'facture.inexistantefile');
+                }
+            } else {
+                $response = redirect()->route('admin.facture.index', $facture->idFacture)->with('error', 'facture.dejasvalidee');
+            }
+        }
+
+        return $response;
+    }
+
+    public function update(Request $request, string $id): RedirectResponse
     {
         $facture = Facture::find($id ?? null);
         if ($facture === null) {
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
-        $facture->etat = true;
-        $facture->save();
-        return redirect()->route('admin.facture.index', $facture->idFacture)->with('success', 'facture.validersuccess');
+
+        $request->validate([
+            'facture' => 'nullable|file|mimes:doc,docx,odt|max:2048',
+        ]);
+
+        $response = $this->factureFileService->processUploadedFile($request, $facture);
+
+        if ($response === null) {
+            $facture->etat = 'manuel';
+            $facture->save();
+
+            $response = redirect()->route('admin.facture.index')->with('success', 'facture.etatupdatesuccess');
+        }
+
+        return $response;
     }
 
+    // file upload processing moved to FactureFileService
 
+    // helpers moved to FactureFileService
 
     /**
-     * Calculate invoice amounts.
-     * @param string $id Identifiant de la facture à calculer
-     * @return array<int, float> tableau associatif contenant les montants calculés :
-     *      montantcotisation, montantparticipation, montantparticipationSeaska, montangarderie, montanttotal,facture, famille, enfants
+     * Methode pour creer les factures mensuelles
+     * si c'est le mois de fevrier ou aout les factures sont non previsionnelles
+     * @return void
      */
-    private function calculerMontantFacture(string $id): array|RedirectResponse
+    public function createFacture(): void
     {
+        $mois = Carbon::now()->month;
 
-        $facture = Facture::find($id ?? null);
-        if ($facture === null) {
-            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
-        }
-        $famille = $facture->famille()->first();
-        $enfants = $famille->enfants()->get();
-
-        $montantcotisation = 0;
-        switch ($enfants->count()) {
-            case 0:
-                $montantcotisation = 0;
-                break;
-            case 1:
-                $montantcotisation = 45;
-                break;
-            case 2:
-                $montantcotisation = 65;
-                break;
-            default:
-                $montantcotisation = 75;
-                break;
-        }
-
-        // calcul du montant de la participation
-        $montantparticipation = $enfants->count() * 9.65;
-
-
-        // calcul du montant de la partisapation seaska
-        if ($famille->aineDansAutreSeaska) {
-            $montantparticipationSeaska = 7.70;
-        } else {
-            $montantparticipationSeaska = 0;
-        }
-
-
-
-
-        // calcul du montant de la garderie
-        $montangarderie = 0;
-        $nbfoisgarderie = 0;
-        /** @var Enfant $enfant */
-        foreach ($enfants as $enfant) {
-            if ($facture->previsionnel) {
-                $nbfoisgarderie = $enfant->nbFoisGarderie;
-            } else {
-                $debutMois = $facture->dateC->copy()->startOfMonth();
-                $finMois = $facture->dateC->copy()->endOfMonth();
-
-
-
-                $nbfoisgarderie =  Etre::where('idEnfant', $enfant->idEnfant)
-                    ->whereBetween('dateP', [$debutMois, $finMois])
-                    ->whereHas('activite', function ($query) {
-                        $query->where('activite', 'like', '%garderie%');
-                    })
-                    ->count();
+        $previsionnel = ! in_array($mois, [2, 8], true);
+        Famille::chunk(100, function ($familles) use ($previsionnel) {
+            foreach ($familles as $famille) {
+                $parents = $famille->utilisateurs()->get();
+                foreach ($parents as $parent) {
+                    if (($parent->pivot->parite ?? 0) > 0) {
+                        $facture                = new Facture();
+                        $facture->idFamille     = $famille->idFamille;
+                        $facture->idUtilisateur = $parent->idUtilisateur;
+                        $facture->previsionnel  = $previsionnel;
+                        $facture->dateC         = now();
+                        $facture->etat          = 'brouillon';
+                        $facture->save();
+                        $this->factureExporter->generateFactureToWord($facture);
+                    }
+                }
             }
-
-            if ($nbfoisgarderie > 0 && $nbfoisgarderie <= 8) {
-                $montangarderie += 10;
-            } elseif ($nbfoisgarderie > 8) {
-                $montangarderie += 20;
-            } else {
-                $montangarderie += 0;
-            }
-        }
-
-        $montanttotal = $montangarderie + $montantcotisation + $montantparticipation + $montantparticipationSeaska;
-
-        return [
-            'facture' => $facture,
-            'famille' => $famille,
-            'enfants' => $enfants,
-            'montantcotisation' => $montantcotisation,
-            'montantparticipation' => $montantparticipation,
-            'montantparticipationSeaska' => $montantparticipationSeaska,
-            'montangarderie' => $montangarderie,
-            'montanttotal' => $montanttotal,
-        ];
+        });
     }
+
 }

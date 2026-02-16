@@ -16,8 +16,14 @@ class ActualiteControllerMethodsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_store_converts_slash_date_and_saves_with_plain_request()
+    public function test_store_convertit_date_avec_slash_et_enregistre_avec_request_simple()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         Storage::fake('public');
 
         $user = Utilisateur::factory()->create();
@@ -49,8 +55,14 @@ class ActualiteControllerMethodsTest extends TestCase
         $this->assertGreaterThan(0, $act->documents()->count());
     }
 
-    public function test_data_filters_return_json_and_respects_filters()
+    public function test_data_filters_retournent_json_et_respectent_filtres()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $et = Etiquette::factory()->create();
         Actualite::factory()->create(['type' => 'public', 'archive' => false, 'titrefr' => 'A1', 'dateP' => now()])->etiquettes()->attach($et->idEtiquette);
         Actualite::factory()->create(['type' => 'public', 'archive' => true, 'titrefr' => 'A2', 'dateP' => now()]);
@@ -71,8 +83,14 @@ class ActualiteControllerMethodsTest extends TestCase
         $this->assertArrayHasKey('data', $p3);
     }
 
-    public function test_call_delegates_to_helpers()
+    public function test_appel_delegue_aux_helpers()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $act = Actualite::factory()->create(['titrefr' => 'CT']);
         $controller = new ActualiteController();
 

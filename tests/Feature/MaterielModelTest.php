@@ -12,8 +12,13 @@ class MaterielModelTest extends TestCase
 
     public function test_materiel_factory_creates_record()
     {
+        // given
+        // none
+
+        // when
         $materiel = Materiel::factory()->create();
 
+        // then
         $this->assertDatabaseHas('materiel', ['idMateriel' => $materiel->idMateriel]);
         $this->assertGreaterThanOrEqual(0,  $materiel->evenements()->count());
     }

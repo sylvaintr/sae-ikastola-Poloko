@@ -17,84 +17,91 @@ class AuthEmailVerificationTest extends TestCase
 
     public function test_prompt_shows_view_when_not_verified()
     {
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(false);
+        // given
+        $user = Utilisateur::factory()->unverified()->create();
 
-        $this->actingAs($user)
-            ->get(route('verification.notice'))
-            ->assertOk()
-            ->assertViewIs('auth.verify-email');
+        // when
+        $response = $this->actingAs($user)->get(route('verification.notice'));
+
+        // then
+        $response->assertOk()->assertViewIs('auth.verify-email');
     }
 
     public function test_prompt_redirects_when_verified()
     {
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(true);
+        // given
+        $user = Utilisateur::factory()->create();
 
-        $this->actingAs($user)
-            ->get(route('verification.notice'))
-            ->assertRedirect(route('home'));
+        // when
+        $response = $this->actingAs($user)->get(route('verification.notice'));
+
+        // then
+        $response->assertRedirect(route('home'));
     }
 
     public function test_notification_sends_when_not_verified()
     {
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(false);
-        $user->shouldReceive('sendEmailVerificationNotification')->once();
+        // given
+        $user = Utilisateur::factory()->unverified()->create();
 
-        $this->actingAs($user)
-            ->post(route('verification.send'))
-            ->assertSessionHas('status', 'verification-link-sent');
+        // when
+        $response = $this->actingAs($user)->post(route('verification.send'));
+
+        // then
+        $response->assertSessionHas('status', 'verification-link-sent');
     }
 
     public function test_notification_redirects_when_verified()
     {
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(true);
+        // given
+        $user = Utilisateur::factory()->create();
 
-        $this->actingAs($user)
-            ->post(route('verification.send'))
-            ->assertRedirect(route('home'));
+        // when
+        $response = $this->actingAs($user)->post(route('verification.send'));
+
+        // then
+        $response->assertRedirect(route('home'));
     }
 
     public function test_verify_marks_email_and_redirects()
     {
+        // given
         Event::fake();
 
         $mockRequest = Mockery::mock(EmailVerificationRequest::class)->makePartial();
 
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(false);
-        $user->shouldReceive('markEmailAsVerified')->andReturn(true);
+        $user = Utilisateur::factory()->unverified()->create();
 
         $mockRequest->shouldReceive('user')->andReturn($user);
 
         $controller = new VerifyEmailController();
 
+        // when
         $response = $controller->__invoke($mockRequest);
 
+        // then
         $this->assertStringContainsString('?verified=1', $response->getTargetUrl());
-
         Event::assertDispatched(Verified::class);
     }
 
     public function test_verify_redirects_when_already_verified()
     {
+        // given
         Event::fake();
 
         $mockRequest = Mockery::mock(EmailVerificationRequest::class)->makePartial();
 
-        $user = Mockery::mock(Utilisateur::class)->makePartial();
-        $user->shouldReceive('hasVerifiedEmail')->andReturn(true);
+        $user = Utilisateur::factory()->create();
 
         $mockRequest->shouldReceive('user')->andReturn($user);
 
         $controller = new VerifyEmailController();
 
+        // when
         $response = $controller->__invoke($mockRequest);
 
+        // then
         $this->assertStringContainsString('?verified=1', $response->getTargetUrl());
-
         Event::assertNotDispatched(Verified::class);
     }
 }

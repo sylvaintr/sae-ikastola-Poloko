@@ -20,7 +20,7 @@ class AccountUpdateSyncTest extends TestCase
     {
         parent::setUp();
 
-        $adminRole = Role::factory()->create(['name' => 'CA']);
+        $adminRole = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $adminUser = Utilisateur::factory()->create();
         $adminUser->rolesCustom()->attach($adminRole->idRole, ['model_type' => Utilisateur::class]);
         $this->actingAs($adminUser);
@@ -28,6 +28,7 @@ class AccountUpdateSyncTest extends TestCase
 
     public function test_put_update_then_roles_sync_via_controller()
     {
+        // given
         $role = Role::factory()->create();
         $account = Utilisateur::factory()->create();
 
@@ -40,8 +41,10 @@ class AccountUpdateSyncTest extends TestCase
             'roles' => [$role->idRole],
         ];
 
+        // when
         $response = $this->put(route('admin.accounts.update', $account->idUtilisateur), $putData);
 
+        // then
         $response->assertRedirect(route('admin.accounts.index'));
 
         $this->assertDatabaseHas('utilisateur', ['email' => 'newemail@example.com', 'prenom' => 'NewPrenom']);

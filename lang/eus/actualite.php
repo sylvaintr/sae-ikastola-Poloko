@@ -59,8 +59,21 @@ return [
     'visibilite' => 'Ikusgarritasuna',
     'all_types' => 'Mota guztiak',
     'reset' => 'Berrezarri',
+    'apply' => 'Aplikatu',
+    'filtres' => 'Iragazkiak',
+    'search_placeholder' => 'Berri bat bilatu',
     'active' => 'Aktiboa',
     'archived' => 'Artxibatua',
- 
+    'modals' => [
+        'delete' => [
+            'title' => 'Berria ezabatu',
+            'message' => 'Benetan ezabatu nahi duzu berria?',
+            'cancel' => 'Utzi',
+            'confirm' => 'Ezabatu',
+        ],
+    ],
+    'duplicate' => 'Bikoiztu',
+    'duplicated_success' => 'Berria arrakastaz bikoiztu da.',
+
 
 ];

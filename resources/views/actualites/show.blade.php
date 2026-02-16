@@ -53,9 +53,19 @@
             /* Carousel plus grand pour la galerie du bas */
             object-fit: cover;
         }
+        
+        @media (max-width: 767.98px) {
+            .main-image {
+                max-height: 250px;
+            }
+            
+            .carousel-item img {
+                height: 300px;
+            }
+        }
     </style>
 
-    <div class="container py-5">
+    <div class="container py-4 py-md-5">
 
         {{-- Bouton Retour --}}
         <div class="mb-4">
@@ -74,10 +84,10 @@
         @endphp
 
         {{-- PARTIE HAUTE : TEXTE + IMAGE PRINCIPALE --}}
-        <div class="row gx-5">
+        <div class="row gx-3 gx-md-5">
 
             {{-- COLONNE GAUCHE : TEXTES --}}
-            <div class="col-lg-7 order-2 order-lg-1">
+            <div class="col-12 col-lg-7 order-2 order-lg-1 mb-4 mb-lg-0">
 
                 {{-- Titres --}}
                 <h1 class="mb-2">
@@ -121,7 +131,7 @@
 
             {{-- COLONNE DROITE : IMAGE PRINCIPALE --}}
             {{-- Sur mobile (order-1), l'image s'affiche AVANT le texte. Sur PC (order-lg-2), elle est à droite --}}
-            <div class="col-lg-5 mb-4 mb-lg-0 order-1 order-lg-2">
+            <div class="col-12 col-lg-5 mb-4 mb-lg-0 order-1 order-lg-2">
                 @if ($mainImage)
                     <div class="sticky-top" style="top: 20px; z-index: 1;">
                         @php
@@ -151,7 +161,7 @@
                 </div>
 
                 {{-- On centre le carousel et on limite sa largeur pour l'esthétique --}}
-                <div class="col-lg-10 mx-auto">
+                <div class="col-12 col-lg-10 mx-auto">
                     <div id="carouselGalerie" class="carousel slide carousel-fade carousel-container-rounded"
                         data-bs-ride="carousel">
 

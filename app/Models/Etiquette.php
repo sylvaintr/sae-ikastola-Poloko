@@ -24,7 +24,8 @@ class Etiquette extends Model
 	public $timestamps = false;
 
 	protected $casts = [
-		'idEtiquette' => 'int'
+		'idEtiquette' => 'int',
+        'public' => 'bool',
 	];
 
 	/**
@@ -33,7 +34,8 @@ class Etiquette extends Model
 	 * - `nom` (string) : nom / libellé de l'étiquette.
 	 */
 	protected $fillable = [
-		'nom'
+		'nom',
+        'public',
 	];
 
 	/**

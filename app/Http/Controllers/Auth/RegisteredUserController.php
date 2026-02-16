@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\Utilisateur;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -29,14 +30,40 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validation du reCAPTCHA (si activé)
+        if (config('services.recaptcha.enabled', true)) {
+            $recaptchaResponse = $request->input('g-recaptcha-response');
+            if (!$recaptchaResponse || !$this->verifyRecaptcha($recaptchaResponse)) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['g-recaptcha-response' => __('auth.recaptcha_failed')]);
+            }
+        }
+
         $request->validate([
             // Accept either a single 'name' (compatibility) or prenom+nom
             'name' => ['required_without:prenom', 'string', 'max:255'],
             'prenom' => ['required_without:name', 'string', 'max:255'],
             'nom' => ['required_without:name', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . Utilisateur::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'languePref' => ['nullable', 'string', 'max:10'],
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                'unique:utilisateur,email'
+            ],
+            'password' => [
+                'required',
+                'confirmed',
+                Rules\Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+            ],
+            'languePref' => ['nullable', 'string', 'in:fr,eus'],
+            'dateNaissance' => ['nullable', 'date', 'before:today'],
         ]);
 
         // Map 'name' -> prenom/nom when provided
@@ -48,19 +75,72 @@ class RegisteredUserController extends Controller
             $nom = $parts[1] ?? '';
         }
 
+        // Créer l'utilisateur avec statutValidation à false (non validé)
         $user = Utilisateur::create([
             'prenom' => $prenom,
             'nom' => $nom,
             'email' => $request->email,
             'mdp' => Hash::make($request->password),
             'languePref' => $request->input('languePref', 'fr'),
-            'statutValidation' => $request->input('statutValidation', true),
+            'dateNaissance' => $request->filled('dateNaissance') ? $request->dateNaissance : null,
+            'statutValidation' => false, // Toujours non validé pour les inscriptions publiques
         ]);
+
+        // Assigner automatiquement le rôle "parent"
+        $parentRole = Role::where('name', 'parent')->first();
+        if ($parentRole) {
+            $user->rolesCustom()->sync([
+                $parentRole->idRole => ['model_type' => Utilisateur::class]
+            ]);
+        }
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // Ne pas connecter l'utilisateur automatiquement car le compte n'est pas validé
+        // Rediriger vers la page de connexion avec un message de confirmation
+        return redirect(route('login'))
+            ->with('status', __('auth.registration_pending_validation'));
+    }
 
-        return redirect(route('home'));
+    /**
+     * Verify reCAPTCHA response
+     */
+    private function verifyRecaptcha(string $response): bool
+    {
+        $secretKey = config('services.recaptcha.secret_key');
+
+        if (!$secretKey) {
+            return false;
+        }
+
+        // En environnement local avec les clés de test, accepter toute réponse non vide
+        // Les clés de test de Google acceptent toujours n'importe quelle réponse
+        // La clé de test est récupérée depuis la configuration, pas hardcodée
+        $testSecretKey = config('services.recaptcha.test_secret_key');
+        if (config('app.env') === 'local' && $secretKey === $testSecretKey) {
+            // Clés de test : accepter toute réponse non vide pour le développement
+            return !empty($response);
+        }
+
+        $url = 'https://www.google.com/recaptcha/api/siteverify';
+        $data = [
+            'secret' => $secretKey,
+            'response' => $response,
+            'remoteip' => request()->ip(),
+        ];
+
+        $options = [
+            'http' => [
+                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method' => 'POST',
+                'content' => http_build_query($data),
+            ],
+        ];
+
+        $context = stream_context_create($options);
+        $result = @file_get_contents($url, false, $context);
+
+        $json = $result !== false ? json_decode($result, true) : null;
+        return isset($json['success']) && $json['success'] === true;
     }
 }

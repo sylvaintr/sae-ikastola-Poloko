@@ -19,8 +19,14 @@ class DataTablesMicroCoverageTest extends TestCase
      * Trigger ActualiteController::data() filterColumn callbacks for
      * 'titre' and 'etiquettes' by providing columns[*][data] + search values.
      */
-    public function test_actualite_data_triggers_titre_and_etiquettes_filter_callbacks()
+    public function test_donnees_actualite_declenchent_filtres_titre_et_etiquettes()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         // Create an etiquette and an actualite that reference it
         $et = Etiquette::factory()->create(['nom' => 'special-tag']);
         $act = Actualite::factory()->create(['titrefr' => 'UniqueTitle', 'archive' => false]);
@@ -46,8 +52,14 @@ class DataTablesMicroCoverageTest extends TestCase
      * Trigger EtiquetteController::data() filterColumn callback for 'roles'
      * by providing columns[*][data] => 'roles' with a non-empty search value.
      */
-    public function test_etiquette_data_triggers_roles_filter_callback()
+    public function test_donnees_etiquette_declenchent_callback_filtre_roles()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $role = Role::factory()->create(['name' => 'R-special']);
         $et = Etiquette::factory()->create(['nom' => 'E1']);
         $et->roles()->attach($role->idRole);
@@ -71,8 +83,14 @@ class DataTablesMicroCoverageTest extends TestCase
      * Directly call the controller-level filter callbacks so their lines
      * (the calls to the helper methods) are executed and counted by coverage.
      */
-    public function test_invoke_filter_column_callables_directly()
+    public function test_invoquer_callables_pour_filtre_colonne_directement()
     {
+        // given
+        // none
+
+        // when
+
+        // then
         $aController = new ActualiteController();
         $eController = new EtiquetteController();
 
