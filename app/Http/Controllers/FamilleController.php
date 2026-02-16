@@ -204,10 +204,6 @@ class FamilleController extends Controller
         $query = $request->input('q', '');
         $familleId = $request->input('famille_id');
 
-        if (trim((string) $query) === '') {
-            return response()->json([]);
-        }
-
         // Filtrer uniquement les utilisateurs ayant le rôle "parent" (ils peuvent avoir d'autres rôles aussi)
         $roleParent = Role::where('name', 'parent')->first();
 
@@ -222,11 +218,11 @@ class FamilleController extends Controller
         // Un parent peut appartenir à plusieurs familles => recherche sur tous les parents.
         // On garde en plus ceux déjà liés à la famille (au cas où un utilisateur lié n'aurait pas le rôle parent).
         $users = Utilisateur::where(function ($q) use ($roleParent, $idsUtilisateursFamille) {
-            if ($roleParent) {
-                $q->whereHas('rolesCustom', function ($q3) use ($roleParent) {
+            $q->whereHas('rolesCustom', function ($q3) use ($roleParent) {
+                if ($roleParent) {
                     $q3->where('role.idRole', $roleParent->idRole);
-                });
-            }
+                }
+            });
 
             if (!empty($idsUtilisateursFamille)) {
                 $q->orWhereIn('idUtilisateur', $idsUtilisateursFamille);

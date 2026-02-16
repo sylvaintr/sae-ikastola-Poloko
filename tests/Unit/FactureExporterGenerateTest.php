@@ -14,16 +14,7 @@ class FactureExporterGenerateTest extends TestCase
 
     public function test_generateFactureToWord_creates_docx_and_calls_conversion()
     {
-        if (! class_exists('ZipArchive')) {
-            $this->markTestSkipped('ZipArchive not available.');
-        }
-
-        if (! class_exists(\PhpOffice\PhpWord\TemplateProcessor::class)) {
-            $this->markTestSkipped('PhpOffice\\PhpWord\\TemplateProcessor not available.');
-        }
-
-        // Ne pas utiliser Storage::fake() car le générateur écrit directement sur le système de fichiers
-        // Storage::fake('public');
+        Storage::fake('public');
 
         // create a minimal, valid DOCX (zip) template so TemplateProcessor can open it
         $templateDir = storage_path('app/templates');
@@ -54,11 +45,10 @@ class FactureExporterGenerateTest extends TestCase
         $exporter = new FactureExporter();
         $exporter->generateFactureToWord($facture);
 
-        $docxPath = $outputDir . 'facture-' . $facture->idFacture . '.docx';
-        $this->assertFileExists($docxPath);
+        $this->assertFileExists($outputDir . 'facture-' . $facture->idFacture . '.docx');
 
         // cleanup
         @unlink($templatePath);
-        @unlink($docxPath);
+        @unlink($outputDir . 'facture-' . $facture->idFacture . '.docx');
     }
 }

@@ -21,8 +21,7 @@ class DocumentObligatoire extends Model
 	use HasFactory;
 	protected $table = 'documentObligatoire';
 	protected $primaryKey = 'idDocumentObligatoire';
-	public $incrementing = true;
-	protected $keyType = 'int';
+	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [

@@ -8,14 +8,6 @@ class FactureExporterCloneRowAndAbortTest extends TestCase
 {
     public function test_generateFactureToWord_cloneRow_succeeds_with_template_variable()
     {
-        if (! class_exists('ZipArchive')) {
-            $this->markTestSkipped('ZipArchive not available.');
-        }
-
-        if (! class_exists(\PhpOffice\PhpWord\TemplateProcessor::class)) {
-            $this->markTestSkipped('PhpOffice\\PhpWord\\TemplateProcessor not available.');
-        }
-
         $templatePath = storage_path('app/templates/facture_template.docx');
         @mkdir(dirname($templatePath), 0755, true);
 
@@ -61,25 +53,11 @@ class FactureExporterCloneRowAndAbortTest extends TestCase
         $this->assertDirectoryExists($outdir);
     }
 
-    public function test_generateFactureToWord_handles_missing_template_gracefully()
+    public function test_generateFactureToWord_aborts_when_template_missing()
     {
-        if (! class_exists('ZipArchive')) {
-            $this->markTestSkipped('ZipArchive not available.');
-        }
-
-        if (! class_exists(\PhpOffice\PhpWord\TemplateProcessor::class)) {
-            $this->markTestSkipped('PhpOffice\\PhpWord\\TemplateProcessor not available.');
-        }
-
-        // Le template est recréé par TestCase::setUp(), donc on le supprime ici
         $templatePath = storage_path('app/templates/facture_template.docx');
         if (file_exists($templatePath)) {
             unlink($templatePath);
-        }
-        // S'assurer que le répertoire du template ne contient pas d'autre fichier template
-        $templateDir = dirname($templatePath);
-        if (file_exists($templateDir . '/facture_template.docx')) {
-            unlink($templateDir . '/facture_template.docx');
         }
 
         $facture               = new Facture();
@@ -88,24 +66,9 @@ class FactureExporterCloneRowAndAbortTest extends TestCase
         $facture->etat         = 'draft';
         $facture->dateC        = new \DateTime();
 
-        // Le service gère l'erreur gracieusement via handleTemplateError()
-        // et retourne null au lieu de laisser l'exception remonter
+        $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+
         $svc = app()->make('App\\Services\\FactureExporter');
-        $result = $svc->generateFactureToWord($facture);
-
-        // Restaurer le template pour les autres tests
-        if (! file_exists($templatePath)) {
-            @mkdir(dirname($templatePath), 0755, true);
-            $zip = new \ZipArchive();
-            if ($zip->open($templatePath, \ZipArchive::OVERWRITE | \ZipArchive::CREATE) === true) {
-                $zip->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"></Types>');
-                $zip->addFromString('_rels/.rels', '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>');
-                $zip->addFromString('word/document.xml', '<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Template</w:t></w:r></w:p></w:body></w:document>');
-                $zip->close();
-            }
-        }
-
-        // La méthode gère l'erreur en interne et retourne null
-        $this->assertNull($result, 'La méthode devrait retourner null quand le template est manquant');
+        $svc->generateFactureToWord($facture);
     }
 }

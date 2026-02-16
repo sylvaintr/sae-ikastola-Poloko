@@ -24,8 +24,7 @@ class Evenement extends Model
 	use HasFactory;
 	protected $table = 'evenement';
 	protected $primaryKey = 'idEvenement';
-	public $incrementing = true;
-	protected $keyType = 'int';
+	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [

@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('documentObligatoire', function (Blueprint $table) {
-            $table->id('idDocumentObligatoire');
+            $table->integer('idDocumentObligatoire')->primary();
             $table->string('nom', 20)->nullable();
             $table->boolean('dateE')->nullable();
         });

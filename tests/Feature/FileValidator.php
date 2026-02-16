@@ -18,10 +18,6 @@ class FileValidator
             return true;
         }
 
-        if (! class_exists('ZipArchive')) {
-            return $isValidInitially;
-        }
-
         $zip = new \ZipArchive();
         $res = $zip->open($filePath);
         if ($res === true || $res === \ZipArchive::ER_OK) {

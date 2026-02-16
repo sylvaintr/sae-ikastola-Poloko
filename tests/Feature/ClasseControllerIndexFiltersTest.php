@@ -33,9 +33,6 @@ class ClasseControllerIndexFiltersTest extends TestCase
     public function test_niveau_filter_is_applied()
     {
         // given
-        // Supprimer les classes existantes avec ces niveaux pour éviter les interférences
-        Classe::where('niveau', 'CE1')->orWhere('niveau', 'CM2')->delete();
-
         Classe::factory()->create(['nom' => 'Classe Une', 'niveau' => 'CE1']);
         Classe::factory()->create(['nom' => 'Classe Deux', 'niveau' => 'CM2']);
         $controller = new \App\Http\Controllers\ClasseController();

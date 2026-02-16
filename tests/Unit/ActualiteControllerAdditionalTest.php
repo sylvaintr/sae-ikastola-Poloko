@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\ActualiteController;
 use App\Models\Actualite;
 use App\Models\Etiquette;
-use App\Services\ActualiteDataTableService;
 
 class ActualiteControllerAdditionalTest extends TestCase
 {
@@ -113,16 +112,21 @@ class ActualiteControllerAdditionalTest extends TestCase
         $a1->etiquettes()->attach($et->idEtiquette);
         Actualite::factory()->create(['titrefr' => 'NoMatch', 'archive' => false]);
 
-        $service = new ActualiteDataTableService();
+        $controller = new ActualiteController();
 
-        // Test filter titre method
+        // Call private methods via reflection to ensure the inline logic is covered
+        $rClass = new \ReflectionClass($controller);
+        $m1 = $rClass->getMethod('filterColumnTitreInline');
+        $m1->setAccessible(true);
+
         $query = Actualite::query();
-        $service->filterColumnTitre($query, 'InlineMatch');
+        $m1->invoke($controller, $query, 'InlineMatch');
         $this->assertCount(1, $query->get());
 
-        // Test filter etiquettes method
+        $m2 = $rClass->getMethod('filterColumnEtiquettesInline');
+        $m2->setAccessible(true);
         $query2 = Actualite::query();
-        $service->filterColumnEtiquettes($query2, 'inline-tag');
+        $m2->invoke($controller, $query2, 'inline-tag');
         $this->assertCount(1, $query2->get());
     }
 }

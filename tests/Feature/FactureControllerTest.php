@@ -15,7 +15,6 @@ use function PHPUnit\Framework\assertTrue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class FactureControllerTest extends TestCase
@@ -47,9 +46,9 @@ class FactureControllerTest extends TestCase
     {
         // given
         $controleur = new FactureController();
-        $user = Utilisateur::factory()->create();
+        Utilisateur::factory()->create(['idUtilisateur' => 9999]);
         $famille = Famille::factory()->create();
-        $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 100]);
+        $famille->utilisateurs()->attach(9999, ['parite' => 100]);
         Enfant::factory()->count(2)->create(['idFamille' => $famille->idFamille]);
         $controleur->createFacture();
         $facture = Facture::first();
@@ -87,17 +86,17 @@ class FactureControllerTest extends TestCase
     public function test_export_facture_retourne_pdf_ou_doc()
     {
         // given: prepare storage and a facture
-        // Ne pas utiliser Storage::fake() car le service utilise le disque réel via Storage::disk('public')
-        $facture = Facture::factory()->create(['etat' => 'verifier']);
-        $famille = Famille::factory()->create();
-        $facture->idFamille = $famille->idFamille;
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $facture            = Facture::factory()->create(['etat' => 'verifier']);
+        $famille            = Famille::factory()->create();
+        $facture->idFamille = $famille->idFamille ?? $famille->id;
         $facture->save();
 
         // create an actual PDF file for this facture so exporter can serve it
-        Storage::disk('public')->put('factures/facture-' . $facture->idFacture . '.pdf', '%PDF%');
+        \Illuminate\Support\Facades\Storage::disk('public')->put('factures/facture-' . $facture->idFacture . '.pdf', '%PDF%');
 
         // when
-        $response = $this->get(route('admin.facture.export', $facture->idFacture));
+        $response = $this->get(route('admin.facture.export', $facture->id));
 
         // then
         $response->assertStatus(200);
@@ -106,46 +105,37 @@ class FactureControllerTest extends TestCase
         // given (pour un brouillon -> docx)
         $facture->etat = 'manuel';
         $facture->save();
-        // Supprimer le PDF et créer le docx
-        Storage::disk('public')->delete('factures/facture-' . $facture->idFacture . '.pdf');
-        Storage::disk('public')->put('factures/facture-' . $facture->idFacture . '.docx', 'DOCDATA');
+        \Illuminate\Support\Facades\Storage::disk('public')->put('factures/facture-' . $facture->idFacture . '.docx', 'DOCDATA');
 
         // when
-        $response = $this->get(route('admin.facture.export', $facture->idFacture));
+        $response = $this->get(route('admin.facture.export', $facture->id));
 
         // then
         $response->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-
-        // Cleanup
-        Storage::disk('public')->delete('factures/facture-' . $facture->idFacture . '.docx');
     }
 
     public function test_valider_facture_change_etat()
     {
         // given
-        $user = Utilisateur::factory()->create();
-        $famille = Famille::factory()->create();
-        $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 100]);
-        Enfant::factory()->count(2)->create(['idFamille' => $famille->idFamille]);
-
-        // Créer une facture avec état 'manuel' (pas brouillon) pour que la conversion puisse avoir lieu
-        $facture = Facture::factory()->create([
-            'etat' => 'manuel',
-            'idUtilisateur' => $user->idUtilisateur,
-            'idFamille' => $famille->idFamille,
-        ]);
-
-        // Créer un fichier docx pour que le service de conversion trouve quelque chose
-        Storage::disk('public')->put('factures/facture-' . $facture->idFacture . '.docx', 'dummy content');
+        $controleur = new FactureController();
+        Utilisateur::factory()->create(['idUtilisateur' => 9999]);
+        Famille::factory()->create(['idFamille' => 9999])->utilisateurs()->attach(9999, ['parite' => 100]);
+        Enfant::factory()->count(2)->create(['idFamille' => 9999]);
+        $controleur->createFacture();
+        $facture = Facture::first();
 
         // when
-        $response = $this->get(route('admin.facture.valider', $facture->idFacture));
+        // Mock the conversion service to simulate successful conversion
+        $mockConv = $this->getMockBuilder(\App\Services\FactureConversionService::class)->onlyMethods(['convertFactureToPdf'])->getMock();
+        $mockConv->method('convertFactureToPdf')->willReturn(true);
+        $this->app->instance(\App\Services\FactureConversionService::class, $mockConv);
+
+        $response = $this->get(route('admin.facture.valider', $facture->id));
 
         // then
-        $response->assertRedirect();
-        // En mode test, le service de conversion retourne true via le short-circuit
-        // et met à jour l'état à 'verifier'
-        $this->assertEquals('verifier', Facture::find($facture->idFacture)->etat);
+        $location = $response->headers->get('Location');
+        $this->assertStringStartsWith(route('admin.facture.index'), $location);
+        $this->assertEquals('verifier', Facture::find($facture->id)->etat);
     }
 
     public function test_envoyer_facture_envoie_email_si_valide()
@@ -155,18 +145,20 @@ class FactureControllerTest extends TestCase
         $utilisateur = Utilisateur::factory()->create();
         $famille     = Famille::factory()->create();
         $famille->utilisateurs()->detach();
-        $famille->utilisateurs()->attach($utilisateur->idUtilisateur);
+        $famille->utilisateurs()->attach($utilisateur->id);
         $facture = Facture::factory()->create([
             'etat'          => 'verifier',
-            'idUtilisateur' => $utilisateur->idUtilisateur,
+            'idUtilisateur' => $utilisateur->id,
             'idFamille'     => $famille->idFamille,
         ]);
 
-        // Créer un fichier PDF pour que l'export le trouve
-        Storage::disk('public')->put('factures/facture-' . $facture->idFacture . '.pdf', '%PDF-1.4 dummy content');
-
         // when
-        $response = $this->get(route('admin.facture.envoyer', $facture->idFacture));
+        // Mock exporter so controller.exportFacture returns PDF binary
+        $mockExporter = $this->getMockBuilder(\App\Services\FactureExporter::class)->onlyMethods(['serveManualFile'])->getMock();
+        $mockExporter->method('serveManualFile')->willReturn('%PDF%');
+        $this->app->instance(\App\Services\FactureExporter::class, $mockExporter);
+
+        $response = $this->get(route('admin.facture.envoyer', $facture->id));
 
         // then
         $response->assertRedirect(route('admin.facture.index'));

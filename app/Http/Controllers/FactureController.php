@@ -109,19 +109,20 @@ class FactureController extends Controller
      */
     public function exportFacture(string $id, bool $returnBinary = false): Response | RedirectResponse | string | null
     {
-        $montants = app(FactureCalculator::class)->calculerMontantFacture($id);
+
+        $montants = $this->factureCalculator->calculerMontantFacture($id);
+
         if ($montants instanceof RedirectResponse) {
             return $montants;
         }
 
-        $facture = $montants['facture'] ?? Facture::find($id ?? null);
-        if ($facture === null) {
-            return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
+        $facture = $montants['facture'];
+
+        $manualResponse = $this->factureExporter->serveManualFile($facture, $returnBinary);
+        if ($manualResponse) {
+            return $manualResponse;
         }
 
-        $response = app(FactureExporter::class)->serveManualFile($facture, $returnBinary);
-
-        return $response ?? redirect()->route('admin.facture.index')->with('error', 'facture.fichierpdfintrouvable');
     }
 
     /**
@@ -135,38 +136,30 @@ class FactureController extends Controller
         if ($facture === null) {
             return redirect()->route('admin.facture.index')->with('error', 'facture.inexistante');
         }
+        $client = $facture->utilisateur()->first();
+        if ($facture->etat === 'verifier') {
 
-        if ($facture->etat !== 'verifier') {
+            $mail = new FactureMail($facture, $client);
+
+            // Déterminer la langue préférée du destinataire et l'appliquer au Mailable
+            $langueDestinataire = $client->languePref ?? config('app.locale', 'fr');
+            if (method_exists($mail, 'locale')) {
+                $mail->locale($langueDestinataire);
+            } else {
+                app()->setLocale($langueDestinataire);
+            }
+
+            $piecejointe = $this->exportFacture($id, true);
+
+            $mail->attachData($piecejointe, 'facture-' . $facture->idFacture . '.pdf', [
+                'mime' => 'application/pdf',
+            ]);
+
+            Mail::to($client->email)->send($mail);
+            return redirect()->route('admin.facture.index')->with('success', 'facture.envoiersuccess');
+        } else {
             return redirect()->route('admin.facture.index')->with('error', 'facture.envoiererror');
         }
-
-        $client = $facture->utilisateur()->first();
-        $mail = $this->prepareFactureMail($facture, $client);
-        
-        $piecejointe = $this->exportFacture($id, true);
-        $mail->attachData($piecejointe, 'facture-' . $facture->idFacture . '.pdf', [
-            'mime' => 'application/pdf',
-        ]);
-
-        Mail::to($client->email)->send($mail);
-        return redirect()->route('admin.facture.index')->with('success', 'facture.envoiersuccess');
-    }
-
-    /**
-     * Prepare the mail with the correct locale
-     */
-    private function prepareFactureMail($facture, $client)
-    {
-        $mail = new FactureMail($facture, $client);
-        $langueDestinataire = $client->languePref ?? config('app.locale', 'fr');
-        
-        if (method_exists($mail, 'locale')) {
-            $mail->locale($langueDestinataire);
-        } else {
-            app()->setLocale($langueDestinataire);
-        }
-
-        return $mail;
     }
 
     public function validerFacture(string $id): ?RedirectResponse
@@ -180,7 +173,7 @@ class FactureController extends Controller
             // On ne traite que si l'état n'est pas déjà validé
             if ($facture->etat != 'verifier') {
                 // Use the conversion service synchronously (dependency-injected)
-                $ok = app(FactureConversionService::class)->convertFactureToPdf($facture);
+                $ok = $this->factureConversionService->convertFactureToPdf($facture);
 
                 if ($ok) {
                     // passer l'état à 'verifier'
@@ -209,7 +202,7 @@ class FactureController extends Controller
             'facture' => 'nullable|file|mimes:doc,docx,odt|max:2048',
         ]);
 
-        $response = app(FactureFileService::class)->processUploadedFile($request, $facture);
+        $response = $this->factureFileService->processUploadedFile($request, $facture);
 
         if ($response === null) {
             $facture->etat = 'manuel';
@@ -232,68 +225,26 @@ class FactureController extends Controller
      */
     public function createFacture(): void
     {
-        $previsionnel = $this->isPrevisionnel();
+        $mois = Carbon::now()->month;
 
+        $previsionnel = ! in_array($mois, [2, 8], true);
         Famille::chunk(100, function ($familles) use ($previsionnel) {
             foreach ($familles as $famille) {
-                $this->createFacturesForFamille($famille, $previsionnel);
+                $parents = $famille->utilisateurs()->get();
+                foreach ($parents as $parent) {
+                    if (($parent->pivot->parite ?? 0) > 0) {
+                        $facture                = new Facture();
+                        $facture->idFamille     = $famille->idFamille;
+                        $facture->idUtilisateur = $parent->idUtilisateur;
+                        $facture->previsionnel  = $previsionnel;
+                        $facture->dateC         = now();
+                        $facture->etat          = 'brouillon';
+                        $facture->save();
+                        $this->factureExporter->generateFactureToWord($facture);
+                    }
+                }
             }
         });
-    }
-
-    /**
-     * Détermine si les factures du mois courant sont prévisionnelles
-     */
-    private function isPrevisionnel(): bool
-    {
-        $mois = Carbon::now()->month;
-        return ! in_array($mois, [2, 8], true);
-    }
-
-    /**
-     * Crée les factures pour une famille donnée
-     */
-    private function createFacturesForFamille(Famille $famille, bool $previsionnel): void
-    {
-        $parents = $famille->utilisateurs()->get();
-
-        foreach ($parents as $parent) {
-            if (($parent->pivot->parite ?? 0) > 0) {
-                $this->createFactureForParent($famille, $parent, $previsionnel);
-            }
-        }
-    }
-
-    /**
-     * Crée une facture pour un parent spécifique
-     */
-    private function createFactureForParent(Famille $famille, $parent, bool $previsionnel): void
-    {
-        $facture                = new Facture();
-        $facture->idFamille     = $famille->idFamille;
-        $facture->idUtilisateur = $parent->idUtilisateur;
-        $facture->previsionnel  = $previsionnel;
-        $facture->dateC         = now();
-        $facture->etat          = 'brouillon';
-        $facture->save();
-
-        app(FactureExporter::class)->generateFactureToWord($facture);
-        $this->createDummyDocxForTesting($facture);
-    }
-
-    /**
-     * Crée un fichier DOCX factice en environnement de test
-     */
-    private function createDummyDocxForTesting(Facture $facture): void
-    {
-        if (! app()->environment('testing')) {
-            return;
-        }
-
-        $docxPath = storage_path('app/public/factures/facture-' . $facture->idFacture . '.docx');
-        if (! file_exists($docxPath)) {
-            @file_put_contents($docxPath, 'DUMMY_DOCX');
-        }
     }
 
 }

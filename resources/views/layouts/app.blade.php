@@ -44,11 +44,9 @@
 
         <!-- Page Content -->
         <main>
-            
             @isset($slot)
                 {{ $slot }}
             @endisset
-
         </main>
     </div>
 
@@ -128,8 +126,12 @@
         </script>
     @endif
     </div>
-
-    @stack('scripts')
 </body>
+
+<!-- Bootstrap JS bundle (includes Popper) - ensures Bootstrap components (dropdowns, modals) work -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity=""
+    crossorigin="anonymous"></script>
+
+@stack('scripts')
 
 </html>

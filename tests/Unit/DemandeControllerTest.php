@@ -169,8 +169,7 @@ class DemandeControllerTest extends TestCase
         $response = $controller->update($request, $tache);
 
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $response);
-        $tache->refresh();
-        $this->assertEquals('updated', $tache->titre);
+        $this->assertDatabaseHas('tache', ['idTache' => $tache->idTache, 'titre' => 'updated']);
     }
 
     public function test_storeHistorique_cree_un_historique()
