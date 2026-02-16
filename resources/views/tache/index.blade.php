@@ -253,12 +253,12 @@
                                                 <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 1 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                                             </svg>
                                         </a>
-                                        <a href="#" class="delete-tache demande-action-btn" data-url="{{ route('tache.delete', $tache) }}" title="Supprimer la tâche">
+                                        <button type="button" class="delete-tache demande-action-btn btn p-0 border-0" data-url="{{ route('tache.delete', $tache) }}" title="Supprimer la tâche">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                                                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5" />
                                                 <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM14.5 2h-13v1h13z" />
                                             </svg>
-                                        </a>
+                                        </button>
                                         @if ($tache->etat === 'done')
                                             <i class="bi bi-check-circle-fill demande-action-btn big-icon text-success" title="Tâche terminée" style="opacity: 0.5; cursor:not-allowed;"></i>
                                         @else
@@ -351,6 +351,7 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
             // Toast
             const toast = document.getElementById('demande-toast');
@@ -389,19 +390,11 @@
                 }, 500));
             }
 
-
-            {{-- CSRF --}}
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
             let pendingAction = null;
 
             function openConfirmModal(title, body, onConfirm) {
-                $('#confirmModalTitle').text(title);
-                $('#confirmModalBody').text(body);
+                document.getElementById('confirmModalTitle').textContent = title;
+                document.getElementById('confirmModalBody').textContent = body;
                 pendingAction = onConfirm;
 
                 new bootstrap.Modal(
@@ -409,7 +402,7 @@
                 ).show();
             }
 
-            $('#confirmModalAction').on('click', function () {
+            document.getElementById('confirmModalAction').addEventListener('click', function () {
                 if (pendingAction) pendingAction();
                 pendingAction = null;
 
@@ -418,39 +411,46 @@
                 ).hide();
             });
 
-            {{-- MARK DONE --}}
-            $(document).on('click', '.mark-done', function (e) {
-                e.preventDefault();
+            // MARK DONE
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest('.mark-done');
+                if (!btn) return;
 
-                const $btn = $(this);
-                const url = $btn.data('url');
+                e.preventDefault();
+                const url = btn.dataset.url;
 
                 openConfirmModal(
                     'Marquer comme terminée',
                     'Voulez-vous vraiment marquer cette tâche comme terminée ?',
                     function () {
-                        $.ajax({
-                            url: url,
-                            type: 'PATCH',
-                            success: function () {
-                                window.location.reload();
-                            },
-                            error: function () {
-                                openConfirmModal(
-                                    'Erreur',
-                                    'Impossible de marquer la tâche comme terminée.',
-                                    function () {}
-                                );
+                        fetch(url, {
+                            method: 'PATCH',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
                             }
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                window.location.reload();
+                            } else {
+                                openConfirmModal('Erreur', 'Impossible de marquer la tâche comme terminée.', function () {});
+                            }
+                        })
+                        .catch(() => {
+                            openConfirmModal('Erreur', 'Impossible de marquer la tâche comme terminée.', function () {});
                         });
                     }
                 );
             });
+
+            // DELETE
             document.addEventListener('click', function (e) {
                 const btn = e.target.closest('.delete-tache');
                 if (!btn) return;
 
                 e.preventDefault();
+                e.stopPropagation();
 
                 const deleteUrl = btn.dataset.url;
                 const form = document.getElementById('deleteForm');

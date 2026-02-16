@@ -304,6 +304,13 @@ private function formatAssignation($tache)
     public function delete(Tache $tache)
     {
         try {
+            // Supprimer l'historique lié
+            TacheHistorique::where('idTache', $tache->idTache)->delete();
+
+            // Détacher les réalisateurs (pivot)
+            $tache->realisateurs()->detach();
+
+            // Supprimer la tâche
             $tache->delete();
 
             return redirect()
