@@ -54,26 +54,9 @@ trait FamilleSynchronizationTrait
             if (isset($enfantData['idEnfant'])) {
                 $this->updateExistingEnfant($enfantData, $familleId);
             } else {
-                if (! $this->hasRequiredEnfantFields($enfantData)) {
-                    continue;
-                }
                 $this->createNewEnfant($enfantData, $familleId);
             }
         }
-    }
-
-    /**
-     * Vérifie la présence des champs requis pour créer un nouvel enfant.
-     */
-    private function hasRequiredEnfantFields(array $enfantData): bool
-    {
-        $required = ['nom', 'prenom', 'dateN', 'sexe', 'NNI', 'idClasse'];
-        foreach ($required as $field) {
-            if (! isset($enfantData[$field])) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
@@ -157,8 +140,9 @@ trait FamilleSynchronizationTrait
         foreach ($usersData as $userData) {
             if (isset($userData['idUtilisateur'])) {
                 $this->updateExistingUtilisateur($userData, $famille);
+            } else {
+                $this->createNewUtilisateur($userData, $famille);
             }
-            // En update, les entrées sans idUtilisateur sont ignorées
         }
     }
 

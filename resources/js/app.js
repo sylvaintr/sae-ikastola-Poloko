@@ -1,22 +1,7 @@
-import jQuery from 'jquery';
-globalThis.$ = globalThis.jQuery = jQuery;
-
-import * as bootstrap from 'bootstrap';
-globalThis.bootstrap = bootstrap;
-
+import 'bootstrap/dist/js/bootstrap.bundle';
+import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './bootstrap';
 import './children-selector';
-
-// Register jQuery DataTables plugin globally so legacy inline scripts using
-// `$('.datatable-taches').DataTable()` work correctly.
-import 'datatables.net';
-import 'datatables.net-bs5';
-
-import 'datatables.net-responsive';
-import 'datatables.net-responsive-bs5';
-
-// Importation de Bootstrap Icons
-import 'bootstrap-icons/font/bootstrap-icons.css';
 
 export const dataTableLangs = {
     fr: {

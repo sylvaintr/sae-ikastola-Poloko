@@ -27,8 +27,7 @@ class Enfant extends Model
 	use HasFactory;
 	protected $table = 'enfant';
 	protected $primaryKey = 'idEnfant';
-	public $incrementing = true;
-	protected $keyType = 'int';
+	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [

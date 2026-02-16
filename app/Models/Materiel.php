@@ -21,8 +21,7 @@ class Materiel extends Model
 	use HasFactory;
 	protected $table = 'materiel';
 	protected $primaryKey = 'idMateriel';
-	public $incrementing = true;
-	protected $keyType = 'int';
+	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [

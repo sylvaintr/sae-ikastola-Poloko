@@ -104,8 +104,6 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
     {
         // given
         $this->withoutMiddleware();
-        // Supprimer toutes les tâches existantes pour s'assurer qu'il n'y a pas de types
-        Tache::query()->delete();
         // create a demande with empty type so the distinct types collection is empty after filter()
         $demande = Tache::factory()->create(['type' => '', 'etat' => 'En attente']);
 

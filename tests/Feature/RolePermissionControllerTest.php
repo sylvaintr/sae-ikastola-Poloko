@@ -18,39 +18,74 @@ class RolePermissionControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Clear Spatie permission cache to avoid conflicts between tests
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
         // Création de l'admin CA pour l'accès aux routes (TestCase seeds permissions/roles)
         $this->admin = Utilisateur::factory()->create();
         $this->admin->assignRole('CA');
 
-        // Rôle de test - utiliser firstOrCreate pour éviter les conflits
-        $this->role = Role::firstOrCreate(['name' => 'editor']);
+        // Rôle de test
+        $this->role = Role::create(['name' => 'editor']);
     }
 
     public function test_index_shows_roles()
     {
-        // La route admin.roles.index n'existe pas dans l'application
-        $this->markTestSkipped('La route admin.roles.index n\'est pas définie dans web.php');
+        Role::create(['name' => 'role1']);
+        Role::create(['name' => 'role2']);
+
+        $user = Utilisateur::factory()->create();
+        $user->assignRole('CA'); // ensure has admin
+
+        $this->actingAs($user)
+            ->get(route('admin.roles.index'))
+            ->assertStatus(200)
+            ->assertSee('role1')
+            ->assertSee('role2');
     }
 
     public function test_show_displays_role_permissions()
     {
-        // La route admin.roles.show n'existe pas dans l'application
-        $this->markTestSkipped('La route admin.roles.show n\'est pas définie dans web.php');
+        $role = Role::create(['name' => 'tester']);
+        $p1   = Permission::create(['name' => 'perm.a']);
+        $role->givePermissionTo($p1);
+
+        $user = Utilisateur::factory()->create();
+        $user->assignRole('CA');
+
+        $this->actingAs($user)
+            ->get(route('admin.roles.show', $role))
+            ->assertStatus(200)
+            ->assertSee('perm.a');
     }
 
     public function test_attach_multiple_permissions()
     {
-        // La route admin.roles.permissions.attach n'existe pas dans l'application
-        $this->markTestSkipped('La route admin.roles.permissions.attach n\'est pas définie dans web.php');
+        $role = Role::create(['name' => 'tester2']);
+        $p1   = Permission::create(['name' => 'perm.x']);
+        $p2   = Permission::create(['name' => 'perm.y']);
+
+        $user = Utilisateur::factory()->create();
+        $user->assignRole('CA');
+
+        $this->actingAs($user)
+            ->post(route('admin.roles.permissions.attach', $role), [
+                'permissions' => [$p1->id, $p2->id],
+            ])
+            ->assertRedirect();
+
+        $this->assertTrue($role->hasPermissionTo('perm.x'));
+        $this->assertTrue($role->hasPermissionTo('perm.y'));
     }
 
     public function test_respondNotFound_returns_session_error()
     {
-        // La route admin.roles.permissions.attach n'existe pas dans l'application
-        $this->markTestSkipped('La route admin.roles.permissions.attach n\'est pas définie dans web.php');
+        $role = Role::create(['name' => 'role_no_input']);
+
+        $user = Utilisateur::factory()->create();
+        $user->assignRole('CA');
+
+        $this->actingAs($user)
+            ->post(route('admin.roles.permissions.attach', $role), [])
+            ->assertRedirect()
+            ->assertSessionHas('success');
     }
 
     /**
@@ -58,8 +93,12 @@ class RolePermissionControllerTest extends TestCase
      */
     public function test_attach_with_non_existent_permission_id()
     {
-        // La route admin.roles.permissions.attach n'existe pas dans l'application
-        $this->markTestSkipped('La route admin.roles.permissions.attach n\'est pas définie dans web.php');
+        $this->actingAs($this->admin)
+            ->post(route('admin.roles.permissions.attach', $this->role), [
+                'permissions' => [999], // ID inexistant
+            ])
+            ->assertRedirect()
+            ->assertSessionHasErrors('permission');
     }
 
     /**
@@ -68,8 +107,16 @@ class RolePermissionControllerTest extends TestCase
      */
     public function test_attach_using_permission_name_string()
     {
-        // La route admin.roles.permissions.attach n'existe pas dans l'application
-        $this->markTestSkipped('La route admin.roles.permissions.attach n\'est pas définie dans web.php');
+        Permission::create(['name' => 'publish-articles']);
+
+        $this->actingAs($this->admin)
+            ->post(route('admin.roles.permissions.attach', $this->role), [
+                'permissions' => ['publish-articles'],
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertTrue($this->role->hasPermissionTo('publish-articles'));
     }
 
     /**
@@ -78,8 +125,16 @@ class RolePermissionControllerTest extends TestCase
      */
     public function test_attach_mixed_valid_and_invalid_permissions()
     {
-        // La route admin.roles.permissions.attach n'existe pas dans l'application
-        $this->markTestSkipped('La route admin.roles.permissions.attach n\'est pas définie dans web.php');
+        $p1 = Permission::create(['name' => 'valid-perm']);
+
+        $this->actingAs($this->admin)
+            ->post(route('admin.roles.permissions.attach', $this->role), [
+                'permissions' => [$p1->id, 'invalid-perm-name'],
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->assertTrue($this->role->hasPermissionTo('valid-perm'));
     }
 
     /**
@@ -88,8 +143,15 @@ class RolePermissionControllerTest extends TestCase
      */
     public function test_attach_using_single_permission_input_field()
     {
-        // La route admin.roles.permissions.attach n'existe pas dans l'application
-        $this->markTestSkipped('La route admin.roles.permissions.attach n\'est pas définie dans web.php');
+        $p1 = Permission::create(['name' => 'single-perm']);
+
+        $this->actingAs($this->admin)
+            ->post(route('admin.roles.permissions.attach', $this->role), [
+                'permission' => $p1->id, // Champ au singulier
+            ])
+            ->assertRedirect();
+
+        $this->assertTrue($this->role->hasPermissionTo('single-perm'));
     }
 
     /**
@@ -98,7 +160,17 @@ class RolePermissionControllerTest extends TestCase
      */
     public function test_attach_already_assigned_permission()
     {
-        // La route admin.roles.permissions.attach n'existe pas dans l'application
-        $this->markTestSkipped('La route admin.roles.permissions.attach n\'est pas définie dans web.php');
+        $p = Permission::create(['name' => 'already-have']);
+        $this->role->givePermissionTo($p);
+
+        $this->actingAs($this->admin)
+            ->post(route('admin.roles.permissions.attach', $this->role), [
+                'permissions' => [$p->id],
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        // Doit toujours l'avoir une seule fois
+        $this->assertTrue($this->role->hasPermissionTo('already-have'));
     }
 }

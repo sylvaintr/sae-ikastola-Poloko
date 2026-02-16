@@ -8,10 +8,6 @@ class FactureExporterGeneratePrevisionnelTest extends TestCase
 {
     public function test_generateFactureToWord_handles_previsionnel_false()
     {
-        if (! class_exists('ZipArchive')) {
-            $this->markTestSkipped('ZipArchive not available.');
-        }
-
         // ensure template exists (TestCase setup should create it, but be explicit)
         $templatePath = storage_path('app/templates/facture_template.docx');
         if (! file_exists($templatePath)) {

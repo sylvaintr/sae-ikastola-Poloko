@@ -124,20 +124,16 @@ class ObligatoryDocumentControllerTest extends TestCase
         // then
         DocumentObligatoire::query()->delete();
 
-        // Créer des documents avec un gap: 1, 2, 4 (le 3 est manquant)
         $d1 = new DocumentObligatoire();
         $d1->idDocumentObligatoire = 1;
-        $d1->nom = 'Doc1';
         $d1->save();
 
         $d2 = new DocumentObligatoire();
         $d2->idDocumentObligatoire = 2;
-        $d2->nom = 'Doc2';
         $d2->save();
 
         $d4 = new DocumentObligatoire();
         $d4->idDocumentObligatoire = 4;
-        $d4->nom = 'Doc4';
         $d4->save();
 
         $controller = new ObligatoryDocumentController();
@@ -145,7 +141,6 @@ class ObligatoryDocumentControllerTest extends TestCase
         $ref->setAccessible(true);
 
         $id = $ref->invoke($controller);
-        // Le premier ID disponible est 3 (entre 2 et 4)
         $this->assertEquals(3, $id);
     }
 

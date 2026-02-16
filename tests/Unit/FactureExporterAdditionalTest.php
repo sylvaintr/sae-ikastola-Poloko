@@ -3,25 +3,19 @@ namespace Tests\Unit;
 
 use App\Models\Facture;
 use App\Services\FactureExporter;
-use App\Models\Utilisateur;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class FactureExporterAdditionalTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_rendre_pdf_depuis_html_retourne_pdf()
     {
         // given: exporter behaviour is provided by existing serveManualFile implementation
         $exporter = $this->getMockBuilder(FactureExporter::class)->onlyMethods(['serveManualFile'])->getMock();
         $exporter->method('serveManualFile')->willReturn('%PDF-BINARY%');
 
-        $user = Utilisateur::factory()->create();
-
         // when
-        $facture = Facture::factory()->create(['etat' => 'verifier', 'idUtilisateur' => $user->idUtilisateur]);
+        $facture = Facture::factory()->create(['etat' => 'verifier']);
         $pdf     = $exporter->serveManualFile($facture, true);
 
         // then
@@ -34,11 +28,8 @@ class FactureExporterAdditionalTest extends TestCase
         // given
         $exporter = new FactureExporter();
 
-        $user = Utilisateur::factory()->create();
-
         $facture = Facture::factory()->create([
             'etat' => 'verifier',
-            'idUtilisateur' => $user->idUtilisateur,
         ]);
 
         $famille = \App\Models\Famille::factory()->create();
@@ -74,11 +65,9 @@ class FactureExporterAdditionalTest extends TestCase
         \Illuminate\Support\Facades\Storage::fake('public');
         $exporter = new FactureExporter();
 
-        $user = Utilisateur::factory()->create();
-
         // when
         // Case 1: facture in 'verifier' state -> pdf
-        $factPdf = Facture::factory()->create(['etat' => 'verifier', 'idUtilisateur' => $user->idUtilisateur]);
+        $factPdf = Facture::factory()->create(['etat' => 'verifier']);
         $namePdf = 'facture-' . $factPdf->idFacture . '.pdf';
         Storage::disk('public')->put('factures/' . $namePdf, 'PDFDATA');
 
@@ -93,7 +82,7 @@ class FactureExporterAdditionalTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Http\Response::class, $servedResp);
 
         // when (case 2)
-        $factDoc = Facture::factory()->create(['etat' => 'manuel', 'idUtilisateur' => $user->idUtilisateur]);
+        $factDoc = Facture::factory()->create(['etat' => 'manuel']);
         $nameDoc = 'facture-' . $factDoc->idFacture . '.docx';
         Storage::disk('public')->put('factures/' . $nameDoc, 'DOCDATA');
 

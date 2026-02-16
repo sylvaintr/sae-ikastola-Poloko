@@ -20,18 +20,15 @@ class ProfileControllerTest extends TestCase
     public function test_mise_a_jour_reinitialise_verif_email_et_redirige()
     {
         // given
-        $uniqueOldEmail = 'old_' . uniqid() . '@example.com';
-        $uniqueNewEmail = 'new_' . uniqid() . '@example.com';
-
         $user = Utilisateur::factory()->create([
-            'email' => $uniqueOldEmail,
+            'email' => 'old@example.com',
             'email_verified_at' => now(),
         ]);
 
         // when
         $response = $this->actingAs($user)
             ->patch(route('profile.update'), [
-                'email' => $uniqueNewEmail,
+                'email' => 'new@example.com',
                 'nom' => $user->nom,
                 'prenom' => $user->prenom,
             ]);
@@ -42,7 +39,7 @@ class ProfileControllerTest extends TestCase
 
         $this->assertDatabaseHas('utilisateur', [
             'idUtilisateur' => $user->idUtilisateur,
-            'email' => $uniqueNewEmail,
+            'email' => 'new@example.com',
             'email_verified_at' => null,
         ]);
     }
@@ -188,12 +185,10 @@ class ProfileControllerTest extends TestCase
         // given
         Storage::fake('public');
 
-        $role = Role::create(['name' => 'ROLE_TEST_' . uniqid(), 'guard_name' => 'web']);
+        $role = Role::create(['name' => 'ROLE_TEST', 'guard_name' => 'web']);
 
-        // Utiliser un ID unique pour éviter les conflits
-        $uniqueId = (DocumentObligatoire::max('idDocumentObligatoire') ?? 0) + 1000 + rand(1, 1000);
         $docOblig = new DocumentObligatoire();
-        $docOblig->idDocumentObligatoire = $uniqueId;
+        $docOblig->idDocumentObligatoire = 1;
         $docOblig->nom = 'Contrat';
         $docOblig->save();
         $docOblig->roles()->attach($role->idRole);
@@ -228,10 +223,9 @@ class ProfileControllerTest extends TestCase
         // given
         Storage::fake('public');
 
-        $role = Role::create(['name' => 'ROLE_TEST2_' . uniqid(), 'guard_name' => 'web']);
-        $uniqueId = (DocumentObligatoire::max('idDocumentObligatoire') ?? 0) + 2000 + rand(1, 1000);
+        $role = Role::create(['name' => 'ROLE_TEST2', 'guard_name' => 'web']);
         $docOblig = new DocumentObligatoire();
-        $docOblig->idDocumentObligatoire = $uniqueId;
+        $docOblig->idDocumentObligatoire = 2;
         $docOblig->nom = 'Contrat2';
         $docOblig->save();
         $docOblig->roles()->attach($role->idRole);
@@ -265,10 +259,9 @@ class ProfileControllerTest extends TestCase
         // given
         Storage::fake('public');
 
-        $role = Role::create(['name' => 'ROLE_TEST3_' . uniqid(), 'guard_name' => 'web']);
-        $uniqueId = (DocumentObligatoire::max('idDocumentObligatoire') ?? 0) + 3000 + rand(1, 1000);
+        $role = Role::create(['name' => 'ROLE_TEST3', 'guard_name' => 'web']);
         $docOblig = new DocumentObligatoire();
-        $docOblig->idDocumentObligatoire = $uniqueId;
+        $docOblig->idDocumentObligatoire = 3;
         $docOblig->nom = 'Contrat3';
         $docOblig->save();
         $docOblig->roles()->attach($role->idRole);
@@ -362,10 +355,6 @@ class ProfileControllerTest extends TestCase
     
     public function test_upload_docx_sans_dossier_word_retourne_erreur()
     {
-        if (! class_exists('ZipArchive')) {
-            $this->markTestSkipped('ZipArchive not available.');
-        }
-
         // given
         Storage::fake('public');
 
@@ -487,10 +476,6 @@ class ProfileControllerTest extends TestCase
     /** @test */
     public function it_calls_validate_docx_zip_when_conditions_are_met_and_zip_archive_exists()
     {
-        if (! class_exists('ZipArchive')) {
-            $this->markTestSkipped('ZipArchive not available.');
-        }
-
         // GIVEN 
         $validator = new FileValidator();
 
@@ -550,10 +535,6 @@ class ProfileControllerTest extends TestCase
 
     public function test_profilecontroller_validateDocxIfNeeded_calls_validateDocxZip_when_ziparchive_exists_and_returns_false_for_missing_word_folder()
     {
-        if (! class_exists('ZipArchive')) {
-            $this->markTestSkipped('ZipArchive not available.');
-        }
-
         // GIVEN
         $controller = new \App\Http\Controllers\ProfileController();
 
@@ -581,10 +562,6 @@ class ProfileControllerTest extends TestCase
 
     public function test_profilecontroller_validateDocxIfNeeded_returns_true_when_zip_contains_word_folder()
     {
-        if (! class_exists('ZipArchive')) {
-            $this->markTestSkipped('ZipArchive not available.');
-        }
-
         // GIVEN
         $controller = new \App\Http\Controllers\ProfileController();
 

@@ -26,23 +26,14 @@ globalThis.afficherDataTableEtiquettes = function(id) {
                     name: 'actions', 
                     orderable: false,
                     searchable: false, 
-                    className: 'text-end',
+                    className: 'all',
+                    width: '1%',
                     render: function (data, type, row) {
-                        return data;
+                        return '<div style="white-space: nowrap;">' + data + '</div>';
                     }
                 }
             ],
-            responsive: {
-                details: {
-                    display: $.fn.dataTable.Responsive.display.modal( {
-                        header: function ( row ) {
-                            row.data();
-                            return 'Détails';
-                        }
-                    } ),
-                    renderer: $.fn.dataTable.Responsive.renderer.tableAll()
-                }
-            },
+            responsive: true,
             language: dataTableLangs[currentLang] || dataTableLangs.eus
         });
 

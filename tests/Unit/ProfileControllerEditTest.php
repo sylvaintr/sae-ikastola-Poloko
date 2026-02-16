@@ -30,7 +30,7 @@ class ProfileControllerEditTest extends TestCase
 
         // create a document obligatoire and link to role via attribuer pivot
         $docOblig = new DocumentObligatoire();
-        $docOblig->idDocumentObligatoire = 100001;
+        $docOblig->idDocumentObligatoire = 1;
         $docOblig->nom = 'ID Card';
         $docOblig->save();
         DB::table('attribuer')->insert([
@@ -80,7 +80,7 @@ class ProfileControllerEditTest extends TestCase
         ]);
 
         $docOblig = new DocumentObligatoire();
-        $docOblig->idDocumentObligatoire = 100002;
+        $docOblig->idDocumentObligatoire = 2;
         $docOblig->nom = 'Passport';
         $docOblig->save();
         DB::table('attribuer')->insert([
