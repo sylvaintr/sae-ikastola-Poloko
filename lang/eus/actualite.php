@@ -74,6 +74,7 @@ return [
     ],
     'duplicate' => 'Bikoiztu',
     'duplicated_success' => 'Berria arrakastaz bikoiztu da.',
+    'cannot_duplicate_archived' => 'Ezin da artxibatutako berria bikoiztu.',
 
 
     'download_images_zip' => 'Irudiak deskargatu (ZIP)',

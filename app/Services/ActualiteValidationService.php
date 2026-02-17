@@ -22,6 +22,9 @@ class ActualiteValidationService
 
         // Normalize slashed date format before validating
         $this->normalizeDateP($request);
+        
+        // Normalize archive checkbox value before validating
+        $this->normalizeArchive($request);
 
         $formRequest = new StoreActualiteRequest();
         $rules = $this->addWebpSupportToImageRules($formRequest->rules());
@@ -42,6 +45,21 @@ class ActualiteValidationService
                 $request->merge(['dateP' => $d->format('Y-m-d')]);
             }
         }
+    }
+
+    /**
+     * Normalise la valeur de la checkbox archive en booléen.
+     * Une checkbox envoie "on" quand elle est cochée, rien quand elle n'est pas cochée.
+     */
+    private function normalizeArchive(Request $request): void
+    {
+        $archiveValue = false;
+        if ($request->has('archive')) {
+            $inputValue = $request->input('archive');
+            // Convertir "on", true, "1", 1 en true, tout le reste en false
+            $archiveValue = in_array($inputValue, ['on', true, '1', 1], true);
+        }
+        $request->merge(['archive' => (bool) $archiveValue]);
     }
 
     /**

@@ -74,6 +74,7 @@ return [
     ],
     'duplicate' => 'Dupliquer',
     'duplicated_success' => 'Actualité dupliquée avec succès.',
+    'cannot_duplicate_archived' => 'Impossible de dupliquer une actualité archivée.',
 
 
     'download_images_zip' => 'Télécharger les images (ZIP)',

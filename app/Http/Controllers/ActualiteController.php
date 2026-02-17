@@ -217,6 +217,12 @@ class ActualiteController extends Controller
     {
         $original = Actualite::with(['etiquettes', 'documents'])->findOrFail($id);
 
+        // Empêcher la duplication d'une actualité archivée
+        if ($original->archive) {
+            return redirect()->route('admin.actualites.index')
+                ->with('error', __('actualite.cannot_duplicate_archived'));
+        }
+
         // Créer une nouvelle actualité avec les mêmes données (sauf idActualite)
         $duplicate = Actualite::create([
             'titrefr' => $original->titrefr ? ($original->titrefr . ' (Copie)') : null,
