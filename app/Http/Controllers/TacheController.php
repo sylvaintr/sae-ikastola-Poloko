@@ -30,12 +30,18 @@ class TacheController extends Controller
      */
     public function index(Request $request)
     {
+        // Validation des filtres de date
+        $validated = $request->validate([
+            'date_min' => ['nullable', 'date', 'date_format:Y-m-d'],
+            'date_max' => ['nullable', 'date', 'date_format:Y-m-d', 'after_or_equal:date_min'],
+        ]);
+
         $filters = [
             'search' => $request->input('search'),
             'etat' => $request->input('etat', 'all'),
             'urgence' => $request->input('urgence', 'all'),
-            'date_min' => $request->input('date_min'),
-            'date_max' => $request->input('date_max'),
+            'date_min' => $validated['date_min'] ?? null,
+            'date_max' => $validated['date_max'] ?? null,
             'sort' => $request->input('sort', 'date'),
             'direction' => $request->input('direction', 'desc'),
         ];
@@ -154,13 +160,29 @@ private function applyFilters($query, Request $request): void
         $query->where('type', $request->urgence);
     }
 
-    if ($request->filled('date_min')) {
-        $query->whereDate('dateD', '>=', $request->date_min);
+    // Validation et application des filtres de date
+    $dateMin = $request->input('date_min');
+    $dateMax = $request->input('date_max');
+
+    if ($dateMin && $this->isValidDate($dateMin)) {
+        $query->whereDate('dateD', '>=', $dateMin);
     }
 
-    if ($request->filled('date_max')) {
-        $query->whereDate('dateD', '<=', $request->date_max);
+    if ($dateMax && $this->isValidDate($dateMax)) {
+        // Vérifier que date_max >= date_min
+        if (!$dateMin || $dateMax >= $dateMin) {
+            $query->whereDate('dateD', '<=', $dateMax);
+        }
     }
+}
+
+/**
+ * Vérifie si une chaîne est une date valide au format Y-m-d.
+ */
+private function isValidDate(string $date): bool
+{
+    $parsed = \DateTime::createFromFormat('Y-m-d', $date);
+    return $parsed && $parsed->format('Y-m-d') === $date;
 }
 
 private function applySearchFilter($query, $search): void
@@ -219,6 +241,14 @@ private function formatAssignation($tache)
             'dateD' => 'required|date',
             'realisateurs' => 'required|array|min:1',
             'realisateurs.*' => 'required|integer|exists:utilisateur,idUtilisateur'
+        ], [
+            'titre.required' => 'taches.validation.titre_required',
+            'description.required' => 'taches.validation.description_required',
+            'type.required' => 'taches.validation.type_required',
+            'dateD.required' => 'taches.validation.dateD_required',
+            'dateD.date' => 'taches.validation.dateD_date',
+            'realisateurs.required' => 'taches.validation.realisateurs_required',
+            'realisateurs.min' => 'taches.validation.realisateurs_min',
         ]);
 
         $tache = Tache::create([
@@ -249,13 +279,13 @@ private function formatAssignation($tache)
             'modifie_par' => auth()->user()->idUtilisateur ?? null,
         ]);
 
-        return to_route('tache.index')->with('status', __('taches.messages.created'));
+        return to_route('tache.index')->with('status', 'taches.messages.created');
     }
 
     public function edit(Tache $tache)
     {
         if ($tache->etat === "done") {
-            return to_route('tache.show', $tache)->with('status', __('taches.messages.locked'));
+            return to_route('tache.show', $tache)->with('status', 'taches.messages.locked');
         }
 
         // eager load realisateurs pour préremplir
@@ -269,7 +299,7 @@ private function formatAssignation($tache)
     public function update(Request $request, Tache $tache)
     {
         if ($tache->etat === "done") {
-            return to_route('tache.show', $tache)->with('status', __('taches.messages.locked'));
+            return to_route('tache.show', $tache)->with('status', 'taches.messages.locked');
         }
 
         $validated = $request->validate([
@@ -277,9 +307,16 @@ private function formatAssignation($tache)
             'description' => 'required|string',
             'type' => 'required|in:low,medium,high',
             'dateD' => 'required|date',
-            
             'realisateurs' => 'required|array|min:1',
             'realisateurs.*' => 'required|integer|exists:utilisateur,idUtilisateur',
+        ], [
+            'titre.required' => 'taches.validation.titre_required',
+            'description.required' => 'taches.validation.description_required',
+            'type.required' => 'taches.validation.type_required',
+            'dateD.required' => 'taches.validation.dateD_required',
+            'dateD.date' => 'taches.validation.dateD_date',
+            'realisateurs.required' => 'taches.validation.realisateurs_required',
+            'realisateurs.min' => 'taches.validation.realisateurs_min',
         ]);
 
         $tache->update([
@@ -298,7 +335,7 @@ private function formatAssignation($tache)
             }
         }
 
-        return redirect()->route('tache.index')->with('status', __('taches.messages.updated'));
+        return redirect()->route('tache.index')->with('status', 'taches.messages.updated');
     }
 
     public function delete(Tache $tache)
@@ -315,12 +352,12 @@ private function formatAssignation($tache)
 
             return redirect()
                 ->route('tache.index')
-                ->with('status', __('taches.messages.deleted'));
+                ->with('status', 'taches.messages.deleted');
 
         } catch (\Exception $e) {
             return redirect()
                 ->route('tache.index')
-                ->with('error', 'Erreur lors de la suppression.');
+                ->with('error', 'taches.messages.delete_error');
         }
     }
 
@@ -405,7 +442,7 @@ private function formatAssignation($tache)
             $tache->save();
         }
 
-        return to_route('tache.show', $tache)->with('status', __('taches.messages.history_added'));
+        return to_route('tache.show', $tache)->with('status', 'taches.messages.history_added');
     }
 
     /**
@@ -416,14 +453,14 @@ private function formatAssignation($tache)
     {
         if ($tache->etat === 'done') {
             return to_route('tache.show', $tache)
-                ->with('status', __('taches.messages.history_locked'));
+                ->with('status', 'taches.messages.history_locked');
         }
 
         // Accès réservé au CA ET aux utilisateurs assignés à la tâche
         $isAssigned = $tache->realisateurs->contains('idUtilisateur', auth()->user()->idUtilisateur);
         if (!$isAssigned && !auth()->user()->can('gerer-tache')) {
             return to_route('tache.show', $tache)
-                ->with('status', __('taches.messages.history_not_allowed'));
+                ->with('status', 'taches.messages.history_not_allowed');
         }
 
         return null;

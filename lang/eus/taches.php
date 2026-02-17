@@ -259,14 +259,72 @@ return [
         'photo_alt' => 'Irudia :name',
     ],
     'messages' => [
-        'created' => 'Tâche créée avec succès.',
-        'updated' => 'Tâche mise à jour.',
-        'deleted' => 'Tâche supprimée.',
-        'history_added' => 'Nouvel avancement ajouté.',
-        'validated' => 'Tâche clôturée.',
-        'locked' => 'La demande est déjà terminée.',
-        'history_locked' => 'Orbana hau amaituta dago, ezin da aurrerapenik gehitu.',
-        'history_not_allowed' => 'Vous n’avez pas la permission d’ajouter un avancement.',
+        'created' => [
+            'eu' => 'Orbana ondo sortu da.',
+            'fr' => 'Tâche créée avec succès.',
+        ],
+        'updated' => [
+            'eu' => 'Orbana eguneratua.',
+            'fr' => 'Tâche mise à jour.',
+        ],
+        'deleted' => [
+            'eu' => 'Orbana ezabatua.',
+            'fr' => 'Tâche supprimée.',
+        ],
+        'history_added' => [
+            'eu' => 'Aurrerapen berria gehitua.',
+            'fr' => 'Nouvel avancement ajouté.',
+        ],
+        'validated' => [
+            'eu' => 'Orbana itxita.',
+            'fr' => 'Tâche clôturée.',
+        ],
+        'locked' => [
+            'eu' => 'Orbana dagoeneko amaituta dago.',
+            'fr' => 'La tâche est déjà terminée.',
+        ],
+        'history_locked' => [
+            'eu' => 'Orbana hau amaituta dago, ezin da aurrerapenik gehitu.',
+            'fr' => 'Cette tâche est terminée, impossible d\'ajouter un avancement.',
+        ],
+        'history_not_allowed' => [
+            'eu' => 'Ez duzu aurrerapenik gehitzeko baimenik.',
+            'fr' => 'Vous n\'avez pas la permission d\'ajouter un avancement.',
+        ],
+        'delete_error' => [
+            'eu' => 'Errorea ezabatzean.',
+            'fr' => 'Erreur lors de la suppression.',
+        ],
+    ],
+    'validation' => [
+        'titre_required' => [
+            'eu' => 'Izenburua eremua beharrezkoa da.',
+            'fr' => 'Le champ titre est requis.',
+        ],
+        'description_required' => [
+            'eu' => 'Deskribapena eremua beharrezkoa da.',
+            'fr' => 'Le champ description est requis.',
+        ],
+        'type_required' => [
+            'eu' => 'Larrialdi mota beharrezkoa da.',
+            'fr' => 'Le type d\'urgence est requis.',
+        ],
+        'dateD_required' => [
+            'eu' => 'Data eremua beharrezkoa da.',
+            'fr' => 'Le champ date est requis.',
+        ],
+        'dateD_date' => [
+            'eu' => 'Data formatu baliozkoa izan behar da.',
+            'fr' => 'La date doit être au format valide.',
+        ],
+        'realisateurs_required' => [
+            'eu' => 'Gutxienez erabiltzaile bat hautatu behar da.',
+            'fr' => 'Au moins un utilisateur doit être sélectionné.',
+        ],
+        'realisateurs_min' => [
+            'eu' => 'Gutxienez erabiltzaile bat hautatu behar da.',
+            'fr' => 'Au moins un utilisateur doit être sélectionné.',
+        ],
     ],
 ];
 

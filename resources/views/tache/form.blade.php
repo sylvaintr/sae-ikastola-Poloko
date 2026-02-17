@@ -328,14 +328,28 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Charger les utilisateurs depuis l'API
     function loadUsers(query = '') {
-        $.get("{{ route('users.search') }}", { q: query })
-            .done(function(users) {
-                allUsersData = users;
-                renderUserList(users);
-            })
-            .fail(function() {
-                availableUsers.innerHTML = '<div class="role-list-empty-message">Erreur lors du chargement des utilisateurs</div>';
-            });
+        const url = new URL("{{ route('users.search') }}");
+        url.searchParams.append('q', query);
+
+        fetch(url, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur réseau');
+            }
+            return response.json();
+        })
+        .then(users => {
+            allUsersData = users;
+            renderUserList(users);
+        })
+        .catch(() => {
+            availableUsers.innerHTML = '<div class="role-list-empty-message">Erreur lors du chargement des utilisateurs</div>';
+        });
     }
     
     // Afficher la liste des utilisateurs
