@@ -26,7 +26,7 @@
                 $messageEu = __($statusKey . '.eu');
                 $messageFr = __($statusKey . '.fr');
             @endphp
-            <div id="demande-toast" class="demande-toast shadow-sm">
+            <div id="demande-toast-success" class="demande-toast shadow-sm">
                 <div class="d-flex align-items-center justify-content-between gap-3">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-check-circle-fill text-success"></i>
@@ -47,7 +47,7 @@
                 $errorEu = __($errorKey . '.eu');
                 $errorFr = __($errorKey . '.fr');
             @endphp
-            <div id="demande-toast" class="demande-toast shadow-sm">
+            <div id="demande-toast-error" class="demande-toast shadow-sm">
                 <div class="d-flex align-items-center justify-content-between gap-3">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-exclamation-circle-fill text-danger"></i>
@@ -391,8 +391,7 @@
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
             // Toast
-            const toast = document.getElementById('demande-toast');
-            if (toast) {
+            document.querySelectorAll('.demande-toast').forEach(toast => {
                 const closeBtn = toast.querySelector('.btn-close');
                 const hideToast = () => {
                     toast.classList.add('hide');
@@ -400,7 +399,7 @@
                 };
                 closeBtn?.addEventListener('click', hideToast);
                 setTimeout(hideToast, 3200);
-            }
+            });
 
             function debounce(fn, delay = 300) {
                 let timeout;

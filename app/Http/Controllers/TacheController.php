@@ -168,11 +168,8 @@ private function applyFilters($query, Request $request): void
         $query->whereDate('dateD', '>=', $dateMin);
     }
 
-    if ($dateMax && $this->isValidDate($dateMax)) {
-        // Vérifier que date_max >= date_min
-        if (!$dateMin || $dateMax >= $dateMin) {
-            $query->whereDate('dateD', '<=', $dateMax);
-        }
+    if ($dateMax && $this->isValidDate($dateMax) && (!$dateMin || $dateMax >= $dateMin)) {
+        $query->whereDate('dateD', '<=', $dateMax);
     }
 }
 
