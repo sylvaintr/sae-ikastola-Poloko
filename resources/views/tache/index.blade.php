@@ -21,11 +21,41 @@
         </div>
 
         @if (session('status'))
+            @php
+                $statusKey = session('status');
+                $messageEu = __($statusKey . '.eu');
+                $messageFr = __($statusKey . '.fr');
+            @endphp
             <div id="demande-toast" class="demande-toast shadow-sm">
                 <div class="d-flex align-items-center justify-content-between gap-3">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-check-circle-fill text-success"></i>
-                        <span>{{ session('status') }}</span>
+                        <div>
+                            <span class="fw-semibold">{{ $messageEu }}</span>
+                            <br>
+                            <small class="text-muted">{{ $messageFr }}</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-sm" aria-label="{{ __('demandes.actions.close') }}"></button>
+                </div>
+            </div>
+        @endif
+
+        @if (session('error'))
+            @php
+                $errorKey = session('error');
+                $errorEu = __($errorKey . '.eu');
+                $errorFr = __($errorKey . '.fr');
+            @endphp
+            <div id="demande-toast" class="demande-toast shadow-sm">
+                <div class="d-flex align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-exclamation-circle-fill text-danger"></i>
+                        <div>
+                            <span class="fw-semibold">{{ $errorEu }}</span>
+                            <br>
+                            <small class="text-muted">{{ $errorFr }}</small>
+                        </div>
                     </div>
                     <button type="button" class="btn-close btn-close-sm" aria-label="{{ __('demandes.actions.close') }}"></button>
                 </div>
@@ -112,9 +142,14 @@
                             </div>
                         </div>
 
+                        {{-- MESSAGE D'ERREUR DATE --}}
+                        <div id="date-error" class="alert alert-danger py-2 mb-3 d-none" role="alert">
+                            <small>La date minimum doit être antérieure ou égale à la date maximum.</small>
+                        </div>
+
                         {{-- ACTIONS --}}
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-warning w-100">
+                            <button type="submit" class="btn btn-warning w-100" id="filter-submit-btn">
                                 Filtrer
                             </button>
 
@@ -375,6 +410,37 @@
 
             const filterForm = document.getElementById('tache-filter-form');
             const searchInput = document.getElementById('search-global');
+            const dateMinInput = document.getElementById('filter-date-min');
+            const dateMaxInput = document.getElementById('filter-date-max');
+            const dateError = document.getElementById('date-error');
+            const filterSubmitBtn = document.getElementById('filter-submit-btn');
+
+            // Validation des dates
+            function validateDates() {
+                const dateMin = dateMinInput?.value;
+                const dateMax = dateMaxInput?.value;
+
+                if (dateMin && dateMax && dateMin > dateMax) {
+                    dateError?.classList.remove('d-none');
+                    filterSubmitBtn?.setAttribute('disabled', 'disabled');
+                    return false;
+                } else {
+                    dateError?.classList.add('d-none');
+                    filterSubmitBtn?.removeAttribute('disabled');
+                    return true;
+                }
+            }
+
+            // Écouter les changements sur les champs de date
+            dateMinInput?.addEventListener('change', validateDates);
+            dateMaxInput?.addEventListener('change', validateDates);
+
+            // Validation à la soumission du formulaire
+            filterForm?.addEventListener('submit', function(e) {
+                if (!validateDates()) {
+                    e.preventDefault();
+                }
+            });
 
             if (searchInput && filterForm) {
                 searchInput.addEventListener('input', debounce(function () {

@@ -11,11 +11,20 @@
         </div>
         
         @if (session('status'))
+            @php
+                $statusKey = session('status');
+                $messageEu = __($statusKey . '.eu');
+                $messageFr = __($statusKey . '.fr');
+            @endphp
             <div id="demande-toast" class="demande-toast shadow-sm">
                 <div class="d-flex align-items-center justify-content-between gap-3">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-check-circle-fill text-success"></i>
-                        <span>{{ session('status') }}</span>
+                        <div>
+                            <span class="fw-semibold">{{ $messageEu }}</span>
+                            <br>
+                            <small class="text-muted">{{ $messageFr }}</small>
+                        </div>
                     </div>
                     <button type="button" class="btn-close btn-close-sm" aria-label="{{ __('demandes.actions.close') }}"></button>
                 </div>

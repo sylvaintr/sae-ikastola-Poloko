@@ -79,15 +79,33 @@
     @endif
 
     @if ($errors->any())
+        @php
+            $errorKey = $errors->first();
+            // Vérifier si c'est une clé de traduction (contient un point)
+            if (str_contains($errorKey, '.')) {
+                $messageEu = __($errorKey . '.eu');
+                $messageFr = __($errorKey . '.fr');
+                // Si la traduction n'existe pas, utiliser le message tel quel
+                if ($messageEu === $errorKey . '.eu') {
+                    $messageEu = $errorKey;
+                    $messageFr = $errorKey;
+                }
+            } else {
+                // Message simple, pas de clé de traduction
+                $messageEu = $errorKey;
+                $messageFr = $errorKey;
+            }
+        @endphp
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
             <div id="validationToast" class="toast align-items-center text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="d-flex">
-                            <div class="toast-body">
-                                {{ Lang::get($errors->first(), [], 'eus') }}
-                                @if (Lang::getLocale() == 'fr')
-                                    <p class="fw-light">{{ __($errors->first()) }}</p>
-                                @endif
-                            </div>
+                    <div class="toast-body">
+                        <span class="fw-semibold">{{ $messageEu }}</span>
+                        @if ($messageEu !== $messageFr)
+                            <br>
+                            <small class="fw-light">{{ $messageFr }}</small>
+                        @endif
+                    </div>
                     <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
             </div>
