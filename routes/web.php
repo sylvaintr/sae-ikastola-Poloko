@@ -11,6 +11,8 @@ use App\Http\Controllers\LierController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TacheController;
+use App\Http\Controllers\UtilisateurController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -171,6 +173,26 @@ Route::middleware('auth')->group(function () {
     Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
     Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
     Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
+
+    // ---------------- Tâches ----------------
+    Route::middleware('can:access-tache')->group(function () {
+        Route::get('/tache', [TacheController::class, 'index'])->name('tache.index');
+        Route::get('/tache/get-datatable', [TacheController::class, 'getDatatable'])->name('tache.get-datatable');
+        Route::get('/tache/{tache}/show', [TacheController::class, 'show'])->name('tache.show');
+        Route::get('/tache/{tache}/historique/create', [TacheController::class, 'createHistorique'])->name('tache.historique.create');
+        Route::post('/tache/{tache}/historique', [TacheController::class, 'storeHistorique'])->name('tache.historique.store');
+        Route::middleware('can:gerer-tache')->group(function () {
+            Route::get('/tache/create', [TacheController::class, 'create'])->name('tache.create');
+            Route::post('/tache/store', [TacheController::class, 'store'])->name('tache.store');
+            Route::get('/tache/{tache}/edit', [TacheController::class, 'edit'])->name('tache.edit');
+            Route::put('/tache/{tache}', [TacheController::class, 'update'])->name('tache.update');
+            Route::delete('/tache/{tache}', [TacheController::class, 'delete'])->name('tache.delete');
+            Route::patch('/taches/{id}/done', [TacheController::class, 'markDone'])->name('tache.markDone');
+        });
+    });
+
+    // Recherche des utilisateurs (pour assignation des tâches)
+    Route::get('/users/search', [UtilisateurController::class, 'search'])->name('users.search');
 
     Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
         Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);
