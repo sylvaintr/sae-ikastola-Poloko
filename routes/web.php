@@ -2,15 +2,19 @@
 
 use App\Http\Controllers\ActualiteController;
 use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\CalendrierController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\DemandeController;
 use App\Http\Controllers\EtiquetteController;
+use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\FamilleController;
+use App\Http\Controllers\IcsController;
 use App\Http\Controllers\LierController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RecetteController;
 use App\Http\Controllers\TacheController;
 use App\Http\Controllers\UtilisateurController;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/document', [ProfileController::class, 'uploadDocument'])->name('profile.document.upload');
+    Route::post('/profile/regenerate-ics-token', [ProfileController::class, 'regenerateIcsToken'])->name('profile.regenerate-ics-token');
     Route::get('/profile/document/{document}/download', [ProfileController::class, 'downloadDocument'])->name('profile.document.download');
     Route::delete('/profile/document/{document}', [ProfileController::class, 'deleteDocument'])->name('profile.document.delete');
     Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
@@ -174,6 +179,31 @@ Route::middleware('auth')->group(function () {
     Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
     Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
 
+    // ---------------- Calendrier ----------------
+    Route::get('/calendrier', [CalendrierController::class, 'index'])->name('calendrier.index');
+    Route::get('/calendrier/events', [CalendrierController::class, 'events'])->name('calendrier.events');
+    Route::put('/calendrier/evenements/{evenement}', [CalendrierController::class, 'update'])->name('calendrier.update');
+
+    // ---------------- Événements ----------------
+    Route::middleware('can:access-evenement')->group(function () {
+        Route::get('/evenements', [EvenementController::class, 'index'])->name('evenements.index');
+        Route::get('/evenements/export', [EvenementController::class, 'export'])->name('evenements.export');
+        Route::get('/evenements/create', [EvenementController::class, 'create'])->name('evenements.create');
+        Route::post('/evenements', [EvenementController::class, 'store'])->name('evenements.store');
+        Route::get('/evenements/{id}', [EvenementController::class, 'show'])->name('evenements.show');
+        Route::get('/evenements/{id}/edit', [EvenementController::class, 'edit'])->name('evenements.edit');
+        Route::put('/evenements/{id}', [EvenementController::class, 'update'])->name('evenements.update');
+        Route::delete('/evenements/{id}', [EvenementController::class, 'destroy'])->name('evenements.destroy');
+        Route::get('/evenements/{evenement}/export-csv', [EvenementController::class, 'exportCsv'])->name('evenements.export.csv');
+
+        // Recettes (liées aux événements)
+        Route::get('/evenements/{evenementId}/recettes/create', [RecetteController::class, 'create'])->name('recettes.create');
+        Route::post('/evenements/{evenement}/recettes', [RecetteController::class, 'store'])->name('recettes.store');
+        Route::get('/recettes/{recette}/edit', [RecetteController::class, 'edit'])->name('recettes.edit');
+        Route::put('/recettes/{recette}', [RecetteController::class, 'update'])->name('recettes.update');
+        Route::delete('/recettes/{recette}', [RecetteController::class, 'destroy'])->name('recettes.destroy');
+    });
+
     // ---------------- Tâches ----------------
     Route::middleware('can:access-tache')->group(function () {
         Route::get('/tache', [TacheController::class, 'index'])->name('tache.index');
@@ -211,6 +241,9 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/actualites' . ROUTE_ID, [ActualiteController::class, 'show'])->name('actualites.show');
+
+// ---------------- ICS (accès public par token) ----------------
+Route::get('/ics/{token}', [IcsController::class, 'feed'])->name('ics.feed');
 
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['fr', 'eus'])) {

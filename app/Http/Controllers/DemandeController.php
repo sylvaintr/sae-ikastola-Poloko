@@ -41,7 +41,7 @@ class DemandeController extends Controller
 
         // Vérifier si l'utilisateur a un des rôles associés à la demande
         $demandeRoleIds = $demande->roles()->pluck('role.idRole')->toArray();
-        $userRoleIds = $user->roles()->pluck('role.idRole')->toArray();
+        $userRoleIds = $user->rolesCustom()->pluck('role.idRole')->toArray();
 
         // Autorisé si la demande a des rôles ET l'utilisateur en possède au moins un
         return !empty($demandeRoleIds) && !empty(array_intersect($demandeRoleIds, $userRoleIds));
@@ -129,7 +129,7 @@ class DemandeController extends Controller
         // Préparer les infos d'autorisation pour la vue
         $user = Auth::user();
         $isCA = $user?->hasRole('CA') ?? false;
-        $userRoleIds = $user ? $user->roles()->pluck('role.idRole')->toArray() : [];
+        $userRoleIds = $user ? $user->rolesCustom()->pluck('role.idRole')->toArray() : [];
 
         return view('demandes.index', compact('demandes', 'filters', 'etats', 'urgences', 'evenements', 'isCA', 'userRoleIds'));
     }
@@ -139,8 +139,9 @@ class DemandeController extends Controller
         $urgences = self::DEFAULT_URGENCES;
         $roles = Role::orderBy('name')->get();
         $evenements = Evenement::with('roles')->orderBy('titre')->get();
+        $types = \App\Models\Tache::select('type')->distinct()->orderBy('type')->pluck('type')->filter()->values();
 
-        return view('demandes.create', compact('urgences', 'roles', 'evenements'));
+        return view('demandes.create', compact('urgences', 'roles', 'evenements', 'types'));
     }
 
     public function show(Tache $demande)
@@ -215,6 +216,7 @@ class DemandeController extends Controller
         $urgences = ['Faible', 'Moyenne', 'Élevée'];
         $roles = Role::orderBy('name')->get();
         $evenements = Evenement::with('roles')->orderBy('titre')->get();
+        $types = \App\Models\Tache::select('type')->distinct()->orderBy('type')->pluck('type')->filter()->values();
 
         // Charger les rôles de la demande
         $demande->load('roles');
@@ -224,6 +226,7 @@ class DemandeController extends Controller
             'demande' => $demande,
             'roles' => $roles,
             'evenements' => $evenements,
+            'types' => $types,
         ]);
     }
 

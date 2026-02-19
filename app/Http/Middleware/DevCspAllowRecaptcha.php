@@ -24,12 +24,19 @@ class DevCspAllowRecaptcha
 
         // CSP permissif pour le dev : autorise l'exécution du script reCAPTCHA
         // et les ressources locales / CDN couramment utilisées pendant le dev.
+        $vitePort = env('VITE_PORT', '5173');
+        $vitePorts = '';
+        for ($p = 5173; $p <= 5180; $p++) {
+            $vitePorts .= "http://localhost:{$p} ws://localhost:{$p} ";
+        }
+        $vitePorts = trim($vitePorts);
+
         $csp = "default-src 'self'; "
-            . "script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net; "
+            . "script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net {$vitePorts}; "
             . "frame-src 'self' https://www.google.com/recaptcha/ https://www.google.com; "
-            . "connect-src 'self' https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net; "
-            . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net; "
-            . "font-src 'self' https://fonts.gstatic.com https://fonts.bunny.net data:; "
+            . "connect-src 'self' https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net {$vitePorts}; "
+            . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net {$vitePorts}; "
+            . "font-src 'self' https://fonts.gstatic.com https://fonts.bunny.net data: {$vitePorts}; "
             . "img-src 'self' data: https:;";
 
         $response->headers->set('Content-Security-Policy', $csp);

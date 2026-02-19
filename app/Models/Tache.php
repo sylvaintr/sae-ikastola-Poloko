@@ -103,7 +103,7 @@ class Tache extends Model
 	public function historiques()
 	{
 		return $this->hasMany(\App\Models\DemandeHistorique::class, 'idDemande', 'idTache')
-			->orderByDesc('date_evenement')
+			->orderByDesc('dateE')
 			->orderByDesc('id');
 	}
 
@@ -115,6 +115,16 @@ class Tache extends Model
 	public function roleAssigne()
 	{
 		return $this->belongsTo(Role::class, 'idRole');
+	}
+
+	/**
+	 * Relation belongsToMany vers les rôles associés à la tâche (pivot `tache_role`).
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+	 */
+	public function roles()
+	{
+		return $this->belongsToMany(Role::class, 'tache_role', 'idTache', 'idRole');
 	}
 
 }

@@ -27,7 +27,7 @@
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3 mb-3">
             <div>
                 <h1 class="fw-bold mb-1">{{ $evenement->titre }}</h1>
-                <div class="text-muted small">{{ \Carbon\Carbon::parse($evenement->dateE)->format('d F Y') }}</div>
+                <div class="text-muted small">{{ \Carbon\Carbon::parse($evenement->start_at)->format('d F Y') }}</div>
             </div>
             <div class="d-flex flex-wrap gap-4 text-muted small align-items-center">
                 <div class="d-flex align-items-center flex-wrap gap-2">
