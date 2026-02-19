@@ -55,7 +55,11 @@ class FamilleControllerUpdateUtilisateursTest extends TestCase
         $this->assertEquals('eus', $user->languePref);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         // Current implementation creates a new utilisateur when no idUtilisateur is provided.
+=======
+        // Controller creates new utilisateurs when no idUtilisateur provided, so expect it to exist
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 =======
         // Controller creates new utilisateurs when no idUtilisateur provided, so expect it to exist
 >>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
