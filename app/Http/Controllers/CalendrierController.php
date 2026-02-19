@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 class CalendrierController extends Controller
 {
     private const STATUS_TERMINE = 'Terminé';
-    private const ADMIN_ROLE = 'CA';
+    private const ADMIN_PERMISSION = 'gerer-evenement';
 
     public function index()
     {
@@ -28,7 +28,7 @@ class CalendrierController extends Controller
 
         $user = Auth::user();
         $userRoleIds = $user ? $user->rolesCustom()->pluck('role.idRole')->toArray() : [];
-        $isAdmin = $user && $user->hasRole(self::ADMIN_ROLE);
+        $isAdmin = $user && $user->can(self::ADMIN_PERMISSION);
 
         $events = $this->getFilteredEvenements($isAdmin, $userRoleIds, $start, $end);
         $demandes = $this->getFilteredDemandes($isAdmin, $userRoleIds, $start, $end);

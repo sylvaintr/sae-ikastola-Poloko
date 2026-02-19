@@ -188,20 +188,23 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:access-evenement')->group(function () {
         Route::get('/evenements', [EvenementController::class, 'index'])->name('evenements.index');
         Route::get('/evenements/export', [EvenementController::class, 'export'])->name('evenements.export');
-        Route::get('/evenements/create', [EvenementController::class, 'create'])->name('evenements.create');
-        Route::post('/evenements', [EvenementController::class, 'store'])->name('evenements.store');
         Route::get('/evenements/{id}', [EvenementController::class, 'show'])->name('evenements.show');
-        Route::get('/evenements/{id}/edit', [EvenementController::class, 'edit'])->name('evenements.edit');
-        Route::put('/evenements/{id}', [EvenementController::class, 'update'])->name('evenements.update');
-        Route::delete('/evenements/{id}', [EvenementController::class, 'destroy'])->name('evenements.destroy');
         Route::get('/evenements/{evenement}/export-csv', [EvenementController::class, 'exportCsv'])->name('evenements.export.csv');
 
-        // Recettes (liées aux événements)
-        Route::get('/evenements/{evenementId}/recettes/create', [RecetteController::class, 'create'])->name('recettes.create');
-        Route::post('/evenements/{evenement}/recettes', [RecetteController::class, 'store'])->name('recettes.store');
-        Route::get('/recettes/{recette}/edit', [RecetteController::class, 'edit'])->name('recettes.edit');
-        Route::put('/recettes/{recette}', [RecetteController::class, 'update'])->name('recettes.update');
-        Route::delete('/recettes/{recette}', [RecetteController::class, 'destroy'])->name('recettes.destroy');
+        Route::middleware('can:gerer-evenement')->group(function () {
+            Route::get('/evenements/create', [EvenementController::class, 'create'])->name('evenements.create');
+            Route::post('/evenements', [EvenementController::class, 'store'])->name('evenements.store');
+            Route::get('/evenements/{id}/edit', [EvenementController::class, 'edit'])->name('evenements.edit');
+            Route::put('/evenements/{id}', [EvenementController::class, 'update'])->name('evenements.update');
+            Route::delete('/evenements/{id}', [EvenementController::class, 'destroy'])->name('evenements.destroy');
+
+            // Recettes (liées aux événements)
+            Route::get('/evenements/{evenementId}/recettes/create', [RecetteController::class, 'create'])->name('recettes.create');
+            Route::post('/evenements/{evenement}/recettes', [RecetteController::class, 'store'])->name('recettes.store');
+            Route::get('/recettes/{recette}/edit', [RecetteController::class, 'edit'])->name('recettes.edit');
+            Route::put('/recettes/{recette}', [RecetteController::class, 'update'])->name('recettes.update');
+            Route::delete('/recettes/{recette}', [RecetteController::class, 'destroy'])->name('recettes.destroy');
+        });
     });
 
     // ---------------- Tâches ----------------
