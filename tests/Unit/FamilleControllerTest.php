@@ -1,16 +1,21 @@
 <?php
-
 namespace Tests\Unit;
 
 use App\Http\Controllers\FamilleController;
+<<<<<<< HEAD
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Utilisateur;
 use App\Models\Role;
+=======
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 use App\Models\Classe;
+use App\Models\Enfant;
+use App\Models\Famille;
+use App\Models\Utilisateur;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Tests\TestCase;
 
 class FamilleControllerTest extends TestCase
@@ -26,29 +31,29 @@ class FamilleControllerTest extends TestCase
         $existingEnfant = Enfant::factory()->create(['idFamille' => 0, 'idClasse' => $classe->idClasse, 'idEnfant' => 3000]);
 
         $payload = [
-            'enfants' => [
+            'enfants'      => [
                 [
                     'idEnfant' => $existingEnfant->idEnfant,
-                    'nom' => 'Enf',
-                    'prenom' => 'Tst',
-                    'dateN' => '2020-01-01',
-                    'sexe' => 'M',
-                    'NNI' => '000',
+                    'nom'      => 'Enf',
+                    'prenom'   => 'Tst',
+                    'dateN'    => '2020-01-01',
+                    'sexe'     => 'M',
+                    'NNI'      => '000',
                     'idClasse' => $classe->idClasse,
                 ],
             ],
             'utilisateurs' => [
                 [
-                    'nom' => 'Parent',
-                    'prenom' => 'One',
-                    'mdp' => 'secret',
+                    'nom'        => 'Parent',
+                    'prenom'     => 'One',
+                    'mdp'        => 'secret',
                     'languePref' => 'fr',
-                    'parite' => 1,
+                    'parite'     => 1,
                 ],
             ],
         ];
 
-        $request = Request::create('/','POST', $payload);
+        $request = Request::create('/', 'POST', $payload);
 
         // when
         $ctrl = new FamilleController();
@@ -185,7 +190,7 @@ class FamilleControllerTest extends TestCase
 
         // then
         // prepare some available utilisateurs and enfants
-        $user = Utilisateur::factory()->create();
+        $user   = Utilisateur::factory()->create();
         $enfant = Enfant::factory()->create(['idFamille' => 0, 'idEnfant' => 2000]);
 
         $ctrl = new FamilleController();
@@ -216,8 +221,8 @@ class FamilleControllerTest extends TestCase
 
         // then
         $famille = Famille::factory()->create();
-        $enfant = Enfant::factory()->create(['idFamille' => $famille->idFamille, 'idEnfant' => 1000]);
-        $user = Utilisateur::factory()->create();
+        $enfant  = Enfant::factory()->create(['idFamille' => $famille->idFamille, 'idEnfant' => 1000]);
+        $user    = Utilisateur::factory()->create();
         $famille->utilisateurs()->attach($user->idUtilisateur);
 
         $ctrl = new FamilleController();
@@ -232,9 +237,15 @@ class FamilleControllerTest extends TestCase
         // given: a user without famille matching query
         $user = Utilisateur::factory()->create(['nom' => 'Smith', 'prenom' => 'John']);
 
+<<<<<<< HEAD
         // Ensure role 'parent' exists and attach it to the user so searchUsers returns it
         $role = Role::firstOrCreate(['name' => 'parent']);
         $user->rolesCustom()->attach($role->idRole, ['model_type' => Utilisateur::class]);
+=======
+        // Ensure role 'parent' exists and assign it so the search returns the user
+        $role = \App\Models\Role::firstOrCreate(['name' => 'parent'], ['guard_name' => 'web']);
+        $user->assignRole($role);
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 
         $req = Request::create('/', 'GET', ['q' => 'Sm']);
         $this->app->instance('request', $req);
@@ -256,12 +267,12 @@ class FamilleControllerTest extends TestCase
 
         // then
         $famille = Famille::factory()->create();
-        $enfant = Enfant::factory()->create(['idFamille' => $famille->idFamille, 'idEnfant' => 1001]);
-        $user = Utilisateur::factory()->create();
+        $enfant  = Enfant::factory()->create(['idFamille' => $famille->idFamille, 'idEnfant' => 1001]);
+        $user    = Utilisateur::factory()->create();
         $famille->utilisateurs()->attach($user->idUtilisateur);
 
         $payload = [
-            'enfants' => [
+            'enfants'      => [
                 ['idEnfant' => $enfant->idEnfant, 'nom' => 'NewNom', 'prenom' => 'NewPrenom'],
             ],
             'utilisateurs' => [

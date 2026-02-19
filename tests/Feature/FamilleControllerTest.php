@@ -1,15 +1,12 @@
 <?php
-
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\Famille;
-use App\Models\Utilisateur;
 use App\Models\Classe;
-use App\Models\Enfant;
+use App\Models\Famille;
 use App\Models\Role;
-use Illuminate\Support\Facades\Config;
+use App\Models\Utilisateur;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class FamilleControllerTest extends TestCase
 {
@@ -20,7 +17,7 @@ class FamilleControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Ensure CA role exists
         if (Role::where('name', 'CA')->count() == 0) {
             Role::create(['name' => 'CA']);
@@ -50,7 +47,7 @@ class FamilleControllerTest extends TestCase
 
         // when
         $response = $this->actingAs($this->adminUser)
-                         ->get(route('admin.familles.index'));
+            ->get(route('admin.familles.index'));
 
         // then
         $response->assertStatus(200);
@@ -65,20 +62,20 @@ class FamilleControllerTest extends TestCase
 
         // when
         $response = $this->getJson('/api/familles/' . $famille->idFamille);
-        
+
         // then
         $response->assertStatus(200)
-                 ->assertJsonFragment(['idFamille' => $famille->idFamille]);
+            ->assertJsonFragment(['idFamille' => $famille->idFamille]);
     }
 
     public function test_web_admin_show_retourne_vue()
     {
         // given
         $famille = Famille::factory()->create();
-        
+
         // when
         $response = $this->actingAs($this->adminUser)
-                         ->get(route('admin.familles.show', $famille->idFamille));
+            ->get(route('admin.familles.show', $famille->idFamille));
 
         // then
         $response->assertStatus(200);
@@ -99,7 +96,7 @@ class FamilleControllerTest extends TestCase
     {
         // when
         $response = $this->actingAs($this->adminUser)
-                         ->get(route('admin.familles.show', 99999999));
+            ->get(route('admin.familles.show', 99999999));
 
         // then
         $response->assertRedirect(route('admin.familles.index'));
@@ -109,7 +106,7 @@ class FamilleControllerTest extends TestCase
     {
         // when
         $response = $this->actingAs($this->adminUser)
-                         ->get(route('admin.familles.create'));
+            ->get(route('admin.familles.create'));
 
         // then
         $response->assertStatus(200);
@@ -121,10 +118,10 @@ class FamilleControllerTest extends TestCase
     {
         // given
         $famille = Famille::factory()->create();
-        
+
         // when
         $response = $this->actingAs($this->adminUser)
-                         ->get(route('admin.familles.edit', $famille->idFamille));
+            ->get(route('admin.familles.edit', $famille->idFamille));
 
         // then
         $response->assertStatus(200);
@@ -136,7 +133,7 @@ class FamilleControllerTest extends TestCase
     {
         // when
         $response = $this->actingAs($this->adminUser)
-                         ->get(route('admin.familles.edit', 999999));
+            ->get(route('admin.familles.edit', 999999));
 
         // then
         $response->assertRedirect(route('admin.familles.index'));
@@ -146,22 +143,22 @@ class FamilleControllerTest extends TestCase
     {
         // given
         $classe = Classe::factory()->create();
-        $user = Utilisateur::factory()->create();
+        $user   = Utilisateur::factory()->create();
 
         $payload = [
-            'enfants' => [
+            'enfants'      => [
                 [
-                    'nom' => 'Dupont',
-                    'prenom' => 'Alice',
-                    'dateN' => '2015-05-01',
-                    'sexe' => 'F',
-                    'NNI' => '123456789',
+                    'nom'      => 'Dupont',
+                    'prenom'   => 'Alice',
+                    'dateN'    => '2015-05-01',
+                    'sexe'     => 'F',
+                    'NNI'      => '123456789',
                     'idClasse' => $classe->idClasse,
-                ]
+                ],
             ],
             'utilisateurs' => [
-                ['idUtilisateur' => $user->idUtilisateur, 'parite' => 100]
-            ]
+                ['idUtilisateur' => $user->idUtilisateur, 'parite' => 100],
+            ],
         ];
 
         // when
@@ -169,7 +166,7 @@ class FamilleControllerTest extends TestCase
 
         // then
         $response->assertStatus(201);
-        
+
         $idFamille = $response->json('famille.idFamille');
         $this->assertDatabaseHas('famille', ['idFamille' => $idFamille]);
         $this->assertDatabaseHas('enfant', ['nom' => 'Dupont', 'idFamille' => $idFamille]);
@@ -180,10 +177,10 @@ class FamilleControllerTest extends TestCase
     {
         // given
         $famille = Famille::factory()->create();
-        
+
         // when
         $response = $this->actingAs($this->adminUser)
-                         ->delete(route('admin.familles.delete', $famille->idFamille));
+            ->delete(route('admin.familles.delete', $famille->idFamille));
 
         // then
         $response->assertStatus(200);
@@ -194,7 +191,7 @@ class FamilleControllerTest extends TestCase
     {
         // when
         $response = $this->actingAs($this->adminUser)
-                         ->delete(route('admin.familles.delete', 999999));
+            ->delete(route('admin.familles.delete', 999999));
 
         // then
         $response->assertStatus(404);
@@ -204,7 +201,7 @@ class FamilleControllerTest extends TestCase
     {
         // given
         $famille = Famille::factory()->create();
-        $user = Utilisateur::factory()->create(['nom' => 'SearchableName']);
+        $user    = Utilisateur::factory()->create(['nom' => 'SearchableName']);
         $famille->utilisateurs()->attach($user->idUtilisateur, ['parite' => 100]);
 
         // when
@@ -228,18 +225,24 @@ class FamilleControllerTest extends TestCase
     {
         // given
         $user = Utilisateur::factory()->create(['nom' => 'UserFind']);
+<<<<<<< HEAD
         // Ensure the 'parent' role exists and is attached so API search returns the user
         $role = Role::firstOrCreate(['name' => 'parent']);
         $user->rolesCustom()->attach($role->idRole, ['model_type' => Utilisateur::class]);
         
+=======
+        // Ensure the 'parent' role exists and assign it so the API returns the user
+        $role = Role::firstOrCreate(['name' => 'parent'], ['guard_name' => 'web']);
+        $user->assignRole($role);
+
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
         // This route is defined in web.php and requires Auth
         // when
         $response = $this->actingAs($this->adminUser)
-                         ->getJson('/api/search/users?q=UserFind');
-        
+            ->getJson('/api/search/users?q=UserFind');
+
         // then
         $response->assertStatus(200);
         $response->assertJsonFragment(['nom' => 'UserFind']);
     }
 }
-

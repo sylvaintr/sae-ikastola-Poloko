@@ -1,12 +1,11 @@
 <?php
-
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Request;
 use App\Models\Famille;
 use App\Models\Utilisateur;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
+use Tests\TestCase;
 
 class FamilleControllerUpdateUtilisateursTest extends TestCase
 {
@@ -25,22 +24,22 @@ class FamilleControllerUpdateUtilisateursTest extends TestCase
         // existing utilisateur that should be updated
         $user = Utilisateur::factory()->create([
             'idUtilisateur' => 777,
-            'languePref' => 'fr',
+            'languePref'    => 'fr',
         ]);
 
         $requestData = [
-            'enfants' => [],
+            'enfants'      => [],
             'utilisateurs' => [
                 // entry without idUtilisateur should be skipped (continue)
                 [
-                    'nom' => 'ShouldBe',
+                    'nom'    => 'ShouldBe',
                     'prenom' => 'Skipped',
-                    'mdp' => 'secret',
+                    'mdp'    => 'secret',
                 ],
                 // entry with idUtilisateur should update existing user
                 [
                     'idUtilisateur' => $user->idUtilisateur,
-                    'languePref' => 'eus',
+                    'languePref'    => 'eus',
                 ],
             ],
         ];
@@ -48,14 +47,18 @@ class FamilleControllerUpdateUtilisateursTest extends TestCase
         $request = Request::create('/', 'PUT', $requestData);
 
         $controller = new \App\Http\Controllers\FamilleController();
-        $response = $controller->update($request, $famille->idFamille);
+        $response   = $controller->update($request, $famille->idFamille);
 
         $this->assertEquals(200, $response->getStatusCode());
 
         $user->refresh();
         $this->assertEquals('eus', $user->languePref);
 
+<<<<<<< HEAD
         // Current implementation creates a new utilisateur when no idUtilisateur is provided.
+=======
+        // Controller creates new utilisateurs when no idUtilisateur provided, so expect it to exist
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
         $this->assertDatabaseHas('utilisateur', ['nom' => 'ShouldBe', 'prenom' => 'Skipped']);
     }
 }

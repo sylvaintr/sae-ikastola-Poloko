@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Evenement
@@ -21,69 +20,69 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Evenement extends Model
 {
-	use HasFactory;
-	protected $table = 'evenement';
-	protected $primaryKey = 'idEvenement';
-	public $incrementing = true;
-	public $timestamps = false;
+    use HasFactory;
+    protected $table      = 'evenement';
+    protected $primaryKey = 'idEvenement';
+    public $incrementing  = true;
+    public $timestamps    = false;
 
-	protected $casts = [
-		'idEvenement' => 'int',
-		'obligatoire' => 'bool',
-		'start_at' => 'datetime',
-		'end_at' => 'datetime',
-	];
+    protected $casts = [
+        'idEvenement' => 'int',
+        'obligatoire' => 'bool',
+        'start_at'    => 'datetime',
+        'end_at'      => 'datetime',
+    ];
 
-	protected $fillable = [
-		'titre',
-		'description',
-		'obligatoire',
-		'start_at',
-		'end_at',
-	];
+    protected $fillable = [
+        'titre',
+        'description',
+        'obligatoire',
+        'start_at',
+        'end_at',
+    ];
 
-	/**
-	 * Relation belongsToMany vers les rôles associés à cet événement (pivot `evenement_role`).
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-	 */
-	public function roles()
-	{
-		return $this->belongsToMany(Role::class, 'evenement_role', 'idEvenement', 'idRole');
-	}
+    /**
+     * Relation belongsToMany vers les rôles associés à cet événement (pivot `evenement_role`).
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'evenement_role', 'idEvenement', 'idRole');
+    }
 
-	/**
-	 * Relation hasMany vers les recettes associées à cet événement.
-	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
-	 */
-	public function recettes()
-	{
-		return $this->hasMany(Recette::class, 'idEvenement');
-	}
+    /**
+     * Relation hasMany vers les recettes associées à cet événement.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function recettes()
+    {
+        return $this->hasMany(Recette::class, 'idEvenement');
+    }
 
-	/**
-	 * Relation hasMany vers les tâches associées à cet événement.
-	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
-	 */
-	public function taches()
-	{
-		return $this->hasMany(Tache::class, 'idEvenement');
-	}
+    /**
+     * Relation hasMany vers les tâches associées à cet événement.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function taches()
+    {
+        return $this->hasMany(Tache::class, 'idEvenement');
+    }
 
-	/**
-	 * Relation hasMany vers les demandes associées à cet événement.
-	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
-	 */
-	public function demandes()
-	{
-		return $this->hasMany(Tache::class, 'idEvenement')->where('type', 'demande');
-	}
+    /**
+     * Relation hasMany vers les demandes associées à cet événement.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function demandes()
+    {
+        return $this->hasMany(Tache::class, 'idEvenement')->where('type', 'demande');
+    }
 
-	/**
-	 * Relation belongsToMany vers les matériels associés à cet événement via la table pivot `inclure`.
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-	 */
-	public function materiels()
-	{
-		return $this->belongsToMany(Materiel::class, 'inclure', 'idEvenement', 'idMateriel');
-	}
+    /**
+     * Relation belongsToMany vers les matériels associés à cet événement via la table pivot `inclure`.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function materiels()
+    {
+        return $this->belongsToMany(Materiel::class, 'inclure', 'idEvenement', 'idMateriel');
+    }
 }
