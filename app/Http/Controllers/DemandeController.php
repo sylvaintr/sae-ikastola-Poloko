@@ -34,8 +34,8 @@ class DemandeController extends Controller
             return false;
         }
 
-        // Les membres du CA ont toujours accès
-        if ($user->hasRole('CA')) {
+        // Les utilisateurs avec la permission gerer-demande ont toujours accès
+        if ($user->can('gerer-demande')) {
             return true;
         }
 
@@ -128,7 +128,7 @@ class DemandeController extends Controller
 
         // Préparer les infos d'autorisation pour la vue
         $user = Auth::user();
-        $isCA = $user?->hasRole('CA') ?? false;
+        $isCA = $user?->can('gerer-demande') ?? false;
         $userRoleIds = $user ? $user->rolesCustom()->pluck('role.idRole')->toArray() : [];
 
         return view('demandes.index', compact('demandes', 'filters', 'etats', 'urgences', 'evenements', 'isCA', 'userRoleIds'));
