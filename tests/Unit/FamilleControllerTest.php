@@ -3,10 +3,13 @@ namespace Tests\Unit;
 
 use App\Http\Controllers\FamilleController;
 <<<<<<< HEAD
+<<<<<<< HEAD
 use App\Models\Famille;
 use App\Models\Enfant;
 use App\Models\Utilisateur;
 use App\Models\Role;
+=======
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 =======
 >>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 use App\Models\Classe;
@@ -238,9 +241,15 @@ class FamilleControllerTest extends TestCase
         $user = Utilisateur::factory()->create(['nom' => 'Smith', 'prenom' => 'John']);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         // Ensure role 'parent' exists and attach it to the user so searchUsers returns it
         $role = Role::firstOrCreate(['name' => 'parent']);
         $user->rolesCustom()->attach($role->idRole, ['model_type' => Utilisateur::class]);
+=======
+        // Ensure role 'parent' exists and assign it so the search returns the user
+        $role = \App\Models\Role::firstOrCreate(['name' => 'parent'], ['guard_name' => 'web']);
+        $user->assignRole($role);
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 =======
         // Ensure role 'parent' exists and assign it so the search returns the user
         $role = \App\Models\Role::firstOrCreate(['name' => 'parent'], ['guard_name' => 'web']);

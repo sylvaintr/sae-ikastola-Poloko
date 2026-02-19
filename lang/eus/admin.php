@@ -23,9 +23,15 @@ $common = [
 
 return [
 <<<<<<< HEAD
+<<<<<<< HEAD
     'title'                          => 'Administrazioa',
     'common'                         => $common,
     'sections'                       => [
+=======
+    'title'                => 'Administrazioa',
+    'common'               => $common,
+    'sections'             => [
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 =======
     'title'                => 'Administrazioa',
     'common'               => $common,
@@ -40,7 +46,10 @@ return [
         'notifications'        => 'Jakinarazpenak',
         'obligatory_documents' => OBLIGATORY_DOCUMENTS_LABEL,
 <<<<<<< HEAD
+<<<<<<< HEAD
         'role_permissions'     => 'Rolen kudeaketa',
+=======
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 =======
 >>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
         'descriptions'         => [
@@ -53,10 +62,16 @@ return [
             'invoices'             => 'Fakturak eta ordainketak kudeatu',
             'notifications'        => 'Jakinarazpenak eta sistema alertak kudeatu',
 <<<<<<< HEAD
+<<<<<<< HEAD
             'role_permissions'     => 'Rolen eta baimenak kudeatu, funtzionalitateetarako sarbidea kontrolatzeko',
         ],
     ],
     'accounts_page'                  => [
+=======
+        ],
+    ],
+    'accounts_page'        => [
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 =======
         ],
     ],
@@ -115,7 +130,11 @@ return [
             'archived_notice'  => 'Kontu hau artxibatuta dago. Kontsulta bakarrik baimenduta dago.',
             'details_title'    => 'Kontuaren informazioa',
 <<<<<<< HEAD
+<<<<<<< HEAD
             'documents_title'  => 'OBLIGATORY_DOCUMENTS_LABEL',
+=======
+            'documents_title'  => OBLIGATORY_DOCUMENTS_LABEL,
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 =======
             'documents_title'  => OBLIGATORY_DOCUMENTS_LABEL,
 >>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
@@ -193,7 +212,11 @@ return [
         'archive_confirmation' => 'Ziur zaude :name kontua artxibatu nahi duzula ?',
     ],
 <<<<<<< HEAD
+<<<<<<< HEAD
     'enfants_page'                   => [
+=======
+    'enfants_page'         => [
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
 =======
     'enfants_page'         => [
 >>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
@@ -251,6 +274,9 @@ return [
 =======
     'obligatory_documents' => [
         'title'               => OBLIGATORY_DOCUMENTS_LABEL,
+<<<<<<< HEAD
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
+=======
 >>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
         'subtitle'            => 'Beharrezko dokumentuaks',
         'description'         => 'Orri honek beharrezko dokumentuak kudeatzeko aukera emango du.',
