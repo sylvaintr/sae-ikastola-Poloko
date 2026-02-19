@@ -119,6 +119,7 @@ return [
 
     // Export CSV
     'export_btn' => 'Exporter CSV',
+    'export_btn_help' => 'Pour convertir le fichier CSV en format lisible, utilisez un site gratuit comme ConvertCSV.com ou CSVed.com',
     'export' => [
         'evenement_title' => 'Événement',
         'comptabilite_title' => 'Comptabilité',

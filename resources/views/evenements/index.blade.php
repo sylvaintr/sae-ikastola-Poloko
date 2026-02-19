@@ -21,10 +21,17 @@
             </div>
             <div class="d-flex flex-nowrap gap-3 align-items-start">
                 <div class="d-flex flex-column align-items-center">
-                    <button type="button" id="export-csv-btn" class="btn demande-btn-outline"
-                        data-export-url="{{ route('evenements.export', request()->query()) }}">
-                        {{ Lang::get('evenements.export_btn', [], 'eus') }}
-                    </button>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" id="export-csv-btn" class="btn demande-btn-outline"
+                            data-export-url="{{ route('evenements.export', request()->query()) }}">
+                            {{ Lang::get('evenements.export_btn', [], 'eus') }}
+                        </button>
+                        <i class="bi bi-info-circle text-info"
+                           data-bs-toggle="tooltip"
+                           data-bs-placement="top"
+                           title="{{ __('evenements.export_btn_help') }}"
+                           style="cursor: help; font-size: 1.1rem;"></i>
+                    </div>
                     @if (Lang::getLocale() == 'fr')
                         <small class="text-muted mt-1">{{ Lang::get('evenements.export_btn') }}</small>
                     @endif
@@ -190,6 +197,10 @@
 </x-app-layout>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+    });
+
     // Alert auto-disparition
     (function () {
         const alert = document.getElementById('status-alert');

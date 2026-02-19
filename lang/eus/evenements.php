@@ -119,6 +119,7 @@ return [
 
     // Export CSV
     'export_btn' => 'CSV esportatu',
+    'export_btn_help' => 'CSV fitxategia formatu irakurgarri bihurtzeko, erabili webgune doako bat, adibidez: ConvertCSV.com edo CSVed.com',
     'export' => [
         'evenement_title' => 'Gertaera',
         'comptabilite_title' => 'Kontabilitatea',
