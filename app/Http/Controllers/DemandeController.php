@@ -71,6 +71,7 @@ class DemandeController extends Controller
         ];
 
         $query = Tache::query();
+        $query->where('type', 'demande');
 
         if ($filters['search']) {
             $searchTerm = trim($filters['search']);
@@ -190,6 +191,7 @@ class DemandeController extends Controller
         $data['etat'] = 'En attente';
         $data['dateD'] = $validated['dateD'] ?? now();
         $data['dateF'] = $validated['dateF'] ?? null;
+        $data['type'] = 'demande';
 
         $demande = Tache::create($data);
 

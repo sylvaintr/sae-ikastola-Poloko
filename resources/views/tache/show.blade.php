@@ -50,7 +50,7 @@
                     $etatBadgeEU = e($tache->etat);
             }
 
-            switch ($tache->type) {
+            switch ($tache->urgence) {
                 case 'low':
                     $typeBadgeFR = 'Faible';
                     $typeBadgeEU = 'Baxua';
@@ -64,8 +64,8 @@
                     $typeBadgeEU = 'Altua';
                     break;
                 default:
-                    $typeBadgeFR = e($tache->type);
-                    $typeBadgeEU = e($tache->type);
+                    $typeBadgeFR = e($tache->urgence);
+                    $typeBadgeEU = e($tache->urgence);
             }
         @endphp
 

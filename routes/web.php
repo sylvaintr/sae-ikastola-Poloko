@@ -188,8 +188,6 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:access-evenement')->group(function () {
         Route::get('/evenements', [EvenementController::class, 'index'])->name('evenements.index');
         Route::get('/evenements/export', [EvenementController::class, 'export'])->name('evenements.export');
-        Route::get('/evenements/{id}', [EvenementController::class, 'show'])->name('evenements.show');
-        Route::get('/evenements/{evenement}/export-csv', [EvenementController::class, 'exportCsv'])->name('evenements.export.csv');
 
         Route::middleware('can:gerer-evenement')->group(function () {
             Route::get('/evenements/create', [EvenementController::class, 'create'])->name('evenements.create');
@@ -205,6 +203,10 @@ Route::middleware('auth')->group(function () {
             Route::put('/recettes/{recette}', [RecetteController::class, 'update'])->name('recettes.update');
             Route::delete('/recettes/{recette}', [RecetteController::class, 'destroy'])->name('recettes.destroy');
         });
+
+        // Routes avec paramètre dynamique : après les routes statiques pour éviter les conflits
+        Route::get('/evenements/{evenement}/export-csv', [EvenementController::class, 'exportCsv'])->name('evenements.export.csv');
+        Route::get('/evenements/{id}', [EvenementController::class, 'show'])->name('evenements.show');
     });
 
     // ---------------- Tâches ----------------

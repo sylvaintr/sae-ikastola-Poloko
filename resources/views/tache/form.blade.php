@@ -22,12 +22,12 @@
                            value="{{ old('titre', $tache->titre ?? '') }}" maxlength="255" required>
                 </div>
                 <div class="col-md-4">
-                    <label for="type" class="form-label fw-bold mb-0">Larrialdia <span class="text-danger">*</span></label>
+                    <label for="urgence" class="form-label fw-bold mb-0">Larrialdia <span class="text-danger">*</span></label>
                     <p class="text-muted mt-0 admin-button-subtitle">Urgence</p>
-                    <select id="type" name="type" class="form-select">
-                        <option value="low" {{ old('type', $tache->type ?? '') == 'low' ? 'selected' : '' }}>Faible</option>
-                        <option value="medium" {{ old('type', $tache->type ?? '') == 'medium' ? 'selected' : '' }}>Moyenne</option>
-                        <option value="high" {{ old('type', $tache->type ?? '') == 'high' ? 'selected' : '' }}>Élevée</option>
+                    <select id="urgence" name="urgence" class="form-select">
+                        <option value="low" {{ old('urgence', $tache->urgence ?? '') == 'low' ? 'selected' : '' }}>Faible</option>
+                        <option value="medium" {{ old('urgence', $tache->urgence ?? '') == 'medium' ? 'selected' : '' }}>Moyenne</option>
+                        <option value="high" {{ old('urgence', $tache->urgence ?? '') == 'high' ? 'selected' : '' }}>Élevée</option>
                     </select>
                 </div>
             </div>
