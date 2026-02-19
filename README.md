@@ -7,10 +7,10 @@ Elle offre un ensemble de fonctionnalités essentielles pour les écoles, notamm
 
 ## ✨ Fonctionnalités principales
 
--   📄 Création et gestion de **factures**
--   📅 Gestion des **événements scolaires**
--   📝 Les parents peuvent **soumettre des demandes** via l’application
--   📌 Pointage des élèves à la **cantine** et à la **garderie**
+- 📄 Création et gestion de **factures**
+- 📅 Gestion des **événements scolaires**
+- 📝 Les parents peuvent **soumettre des demandes** via l’application
+- 📌 Pointage des élèves à la **cantine** et à la **garderie**
 
 ---
 
@@ -30,8 +30,8 @@ Compatible avec tous les types d’appareils (**ordinateur, tablette, smartphone
 
 L’application peut être exécutée dans différents environnements :
 
--   **Docker + Docker Compose** (recommandé)
--   **WAMP** pour un usage local
+- **Docker + Docker Compose** (recommandé)
+- **WAMP** pour un usage local
 
 La configuration repose sur l’utilisation de **variables d’environnement** afin de séparer les paramètres sensibles du code source.
 
@@ -41,15 +41,15 @@ La configuration repose sur l’utilisation de **variables d’environnement** a
 
 ### Avec Docker
 
--   Docker
--   Docker Compose
+- Docker
+- Docker Compose
 
 ### Avec WAMP
 
--   WAMP (PHP 8.4 recommandé)
--   Composer
--   Node.js & npm
--   MySQL
+- WAMP (PHP 8.4 recommandé)
+- Composer
+- Node.js & npm
+- MySQL
 
 ---
 
@@ -70,8 +70,8 @@ cp .env.example .env
 
 Configurer notamment :
 
--   la base de données
--   le service mail de développement
+- la base de données
+- le service mail de développement
 
 ### 3️⃣ Lancement de l’application
 
@@ -88,8 +88,8 @@ docker compose exec app php artisan migrate --seed
 
 ### 5️⃣ Accès
 
--   Application : [http://localhost](http://localhost)
--   Interface Mailpit : [http://localhost:8025](http://localhost:8025)
+- Application : [http://localhost](http://localhost)
+- Interface Mailpit : [http://localhost:8025](http://localhost:8025)
 
 ---
 
@@ -113,9 +113,9 @@ Accès : [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 Les informations sensibles sont stockées dans le fichier `.env` (non versionné), notamment :
 
--   clés d’application
--   identifiants de base de données
--   configuration mail
+- clés d’application
+- identifiants de base de données
+- configuration mail
 
 👉 Le fichier `.env` ne doit jamais être publié.
 
@@ -131,11 +131,36 @@ php artisan db:seed
 
 ---
 
+## 🎨 Customisation
+
+### Couleurs
+
+Modifiez la variable de couleur au début du fichier `resources/css/app.css`
+
+### Logo
+
+Remplacez le fichier `public/logo_ikastola.png` par votre propre logo.
+
+### Nom de l'application
+
+Mettez à jour la variable `APP_NAME` dans le fichier `.env`.
+
+### Template de facture
+
+Personnalisez le template de facture en veillant à conserver les mêmes variables. Pour modifier le calcul, ajustez :
+
+- Les fonctions des classes `FactureCalculator`
+- La fonction `generateFactureToWord` de la classe `FactureExporter`
+
+### Rôles
+
+il faudra modifier le fichier `database/seeders/RoleSeeder.php` pour ajouter, modifier ou suprimer des roles.
+
 ## ▶️ Mini-démo possible
 
--   Lancement de l’application avec Docker
--   Accès à l’interface web
--   Vérification du bon fonctionnement (facturation, présences, mails)
+- Lancement de l’application avec Docker
+- Accès à l’interface web
+- Vérification du bon fonctionnement (facturation, présences, mails)
 
 ---
 
