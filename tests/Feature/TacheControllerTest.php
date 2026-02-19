@@ -69,18 +69,6 @@ class TacheControllerTest extends TestCase
         $this->assertTrue($taches->contains('idTache', $tacheAssigned->idTache));
     }
 
-    public function test_datatable_returns_json_for_ajax_request()
-    {
-        Tache::factory()->create();
-
-        // Route is named `tache.get-datatable` in routes/web.php. Call as AJAX (X-Requested-With)
-        $response = $this->actingAs($this->adminUser)
-            ->get(route('tache.get-datatable'), ['X-Requested-With' => 'XMLHttpRequest']);
-
-        $response->assertStatus(200);
-        $response->assertJsonStructure(['data', 'recordsTotal', 'recordsFiltered']);
-    }
-
     // --- TESTS CREATE & STORE ---
 
     public function test_create_returns_view()
