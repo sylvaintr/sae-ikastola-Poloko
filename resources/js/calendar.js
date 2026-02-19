@@ -5,6 +5,9 @@ import interactionPlugin from '@fullcalendar/interaction';
 import frLocale from '@fullcalendar/core/locales/fr';
 import euLocale from '@fullcalendar/core/locales/eu';
 
+// Import du thème personnalisé
+import '../css/calendar.css';
+
 function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 }
