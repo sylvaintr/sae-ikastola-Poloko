@@ -164,7 +164,7 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
+    Route::get('/api/search/users', [FamilleController::class, 'searchUsers'])->name('admin.familles.searchUsers');
     Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 
     // ---------------- Présence ----------------

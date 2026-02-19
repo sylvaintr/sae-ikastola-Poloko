@@ -134,9 +134,8 @@ class HandlesCsvExportTest extends TestCase
         $this->controller->exportCsv($tache)->sendContent();
         $content = ob_get_clean();
 
-        // Vérifie que les noms sont concaténés (si votre trait utilise ->pluck('name'))
-        // Attention: Vérifiez si vous devez modifier le trait pour 'prenom' . ' ' . 'nom'
-        $this->assertStringContainsString($user1->name, $content);
-        $this->assertStringContainsString($user2->name, $content);
+        // Vérifie que les noms de famille sont concaténés (format: "Nom1, Nom2").
+        $expected = $user1->nom . ', ' . $user2->nom;
+        $this->assertStringContainsString($expected, $content);
     }
 }

@@ -1,12 +1,10 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\Tache;
 use App\Models\TacheHistorique;
 use App\Models\Utilisateur;
-use App\Models\Role;
-use App\Models\Evenement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
@@ -14,15 +12,15 @@ use Yajra\DataTables\Facades\DataTables;
 class TacheController extends Controller
 {
     private const ETATS = [
-        'todo' => 'En attente',
+        'todo'  => 'En attente',
         'doing' => 'En cours',
-        'done' => 'Terminé',
+        'done'  => 'Terminé',
     ];
 
     private const URGENCES = [
-        'low' => 'Faible',
+        'low'    => 'Faible',
         'medium' => 'Moyenne',
-        'high' => 'Élevée',
+        'high'   => 'Élevée',
     ];
 
     /**
@@ -37,23 +35,23 @@ class TacheController extends Controller
         ]);
 
         $filters = [
-            'search' => $request->input('search'),
-            'etat' => $request->input('etat', 'all'),
-            'urgence' => $request->input('urgence', 'all'),
-            'date_min' => $validated['date_min'] ?? null,
-            'date_max' => $validated['date_max'] ?? null,
-            'sort' => $request->input('sort', 'date'),
+            'search'    => $request->input('search'),
+            'etat'      => $request->input('etat', 'all'),
+            'urgence'   => $request->input('urgence', 'all'),
+            'date_min'  => $validated['date_min'] ?? null,
+            'date_max'  => $validated['date_max'] ?? null,
+            'sort'      => $request->input('sort', 'date'),
             'direction' => $request->input('direction', 'desc'),
         ];
 
         $query = Tache::query()->with('realisateurs');
 
         // Les utilisateurs avec uniquement le rôle 'parent' ne voient que leurs tâches
-        $user = auth()->user();
-        $roles = $user->getRoleNames();
+        $user         = auth()->user();
+        $roles        = $user->getRoleNames();
         $isOnlyParent = $roles->count() === 1 && $roles->contains('parent');
 
-        if ($isOnlyParent && !$user->can('gerer-tache')) {
+        if ($isOnlyParent && ! $user->can('gerer-tache')) {
             $query->whereHas('realisateurs', function ($q) use ($user) {
                 $q->where('utilisateur.idUtilisateur', $user->idUtilisateur);
             });
@@ -81,15 +79,15 @@ class TacheController extends Controller
         }
 
         $sortable = [
-            'id' => 'idTache',
-            'date' => 'dateD',
-            'title' => 'titre',
+            'id'          => 'idTache',
+            'date'        => 'dateD',
+            'title'       => 'titre',
             'assignation' => 'assignation',
-            'urgence' => 'type',
-            'etat' => 'etat',
+            'urgence'     => 'type',
+            'etat'        => 'etat',
         ];
 
-        $sortKey = $filters['sort'] ?? 'date';
+        $sortKey   = $filters['sort'] ?? 'date';
         $direction = strtolower($filters['direction'] ?? 'desc') === 'asc' ? 'asc' : 'desc';
         $sortField = $sortable[$sortKey] ?? $sortable['date'];
 
@@ -109,119 +107,118 @@ class TacheController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $etats = self::ETATS;
+        $etats    = self::ETATS;
         $urgences = self::URGENCES;
 
         return view('tache.index', compact('taches', 'filters', 'etats', 'urgences'));
     }
 
     public function getDatatable(Request $request)
-{
-    if (!$request->ajax()) {
-        return view('tache.index');
+    {
+        if (! $request->ajax()) {
+            return view('tache.index');
+        }
+
+        $query = Tache::query();
+        $this->applyFilters($query, $request);
+
+        return DataTables::of($query)
+            ->editColumn('dateD', fn($row) => $this->formatDate($row))
+            ->editColumn('etat', fn($row) => $this->formatEtat($row->etat))
+            ->addColumn('assignation', fn($tache) => $this->formatAssignation($tache))
+            ->addColumn('urgence', fn($row) => $this->formatUrgence($row->type))
+            ->addColumn('action', '')
+            ->rawColumns(['action'])
+            ->make(true);
     }
 
-    $query = Tache::query();
-    $this->applyFilters($query, $request);
+    private function applyFilters($query, Request $request): void
+    {
+        // Les utilisateurs avec uniquement le rôle 'parent' ne voient que leurs tâches
+        $user         = auth()->user();
+        $roles        = $user->getRoleNames();
+        $isOnlyParent = $roles->count() === 1 && $roles->contains('parent');
 
-    return DataTables::of($query)
-        ->editColumn('dateD', fn ($row) => $this->formatDate($row))
-        ->editColumn('etat', fn ($row) => $this->formatEtat($row->etat))
-        ->addColumn('assignation', fn ($tache) => $this->formatAssignation($tache))
-        ->addColumn('urgence', fn ($row) => $this->formatUrgence($row->type))
-        ->addColumn('action', fn ($row) => $this->buildActions($row))
-        ->rawColumns(['action'])
-        ->make(true);
-}
+        if ($isOnlyParent && ! $user->can('gerer-tache')) {
+            $query->whereHas('realisateurs', function ($q) use ($user) {
+                $q->where('utilisateur.idUtilisateur', $user->idUtilisateur);
+            });
+        }
 
-private function applyFilters($query, Request $request): void
-{
-    // Les utilisateurs avec uniquement le rôle 'parent' ne voient que leurs tâches
-    $user = auth()->user();
-    $roles = $user->getRoleNames();
-    $isOnlyParent = $roles->count() === 1 && $roles->contains('parent');
+        if ($request->filled('search_global')) {
+            $search = Str::of($request->search_global)->lower()->ascii();
+            $this->applySearchFilter($query, $search);
+        }
 
-    if ($isOnlyParent && !$user->can('gerer-tache')) {
-        $query->whereHas('realisateurs', function ($q) use ($user) {
-            $q->where('utilisateur.idUtilisateur', $user->idUtilisateur);
-        });
+        if ($request->filled('etat')) {
+            $query->where('etat', $request->etat);
+        }
+
+        if ($request->filled('urgence')) {
+            $query->where('type', $request->urgence);
+        }
+
+        // Validation et application des filtres de date
+        $dateMin = $request->input('date_min');
+        $dateMax = $request->input('date_max');
+
+        if ($dateMin && $this->isValidDate($dateMin)) {
+            $query->whereDate('dateD', '>=', $dateMin);
+        }
+
+        if ($dateMax && $this->isValidDate($dateMax) && (! $dateMin || $dateMax >= $dateMin)) {
+            $query->whereDate('dateD', '<=', $dateMax);
+        }
     }
-
-    if ($request->filled('search_global')) {
-        $search = Str::of($request->search_global)->lower()->ascii();
-        $this->applySearchFilter($query, $search);
-    }
-
-    if ($request->filled('etat')) {
-        $query->where('etat', $request->etat);
-    }
-
-    if ($request->filled('urgence')) {
-        $query->where('type', $request->urgence);
-    }
-
-    // Validation et application des filtres de date
-    $dateMin = $request->input('date_min');
-    $dateMax = $request->input('date_max');
-
-    if ($dateMin && $this->isValidDate($dateMin)) {
-        $query->whereDate('dateD', '>=', $dateMin);
-    }
-
-    if ($dateMax && $this->isValidDate($dateMax) && (!$dateMin || $dateMax >= $dateMin)) {
-        $query->whereDate('dateD', '<=', $dateMax);
-    }
-}
 
 /**
  * Vérifie si une chaîne est une date valide au format Y-m-d.
  */
-private function isValidDate(string $date): bool
-{
-    $parsed = \DateTime::createFromFormat('Y-m-d', $date);
-    return $parsed && $parsed->format('Y-m-d') === $date;
-}
-
-private function applySearchFilter($query, $search): void
-{
-    $query->where(function ($q) use ($search) {
-        $q->where('idTache', 'like', "%{$search}%")
-            ->orWhere('titre', 'like', "%{$search}%")
-            ->orWhere('description', 'like', "%{$search}%")
-            ->orWhereHas('realisateurs', function ($qr) use ($search) {
-                $qr->where('prenom', 'like', "%{$search}%")
-                    ->orWhere('nom', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-    });
-}
-
-private function formatDate($row)
-{
-    return \Carbon\Carbon::parse($row->dateD)->format('d/m/Y');
-}
-
-private function formatEtat($etat): string
-{
-    return self::ETATS[$etat] ?? self::ETATS['todo'];
-}
-
-private function formatUrgence($type): string
-{
-    return self::URGENCES[$type] ?? self::URGENCES['high'];
-}
-
-private function formatAssignation($tache)
-{
-    $first = $tache->realisateurs->first();
-
-    if (!$first) {
-        return '—';
+    private function isValidDate(string $date): bool
+    {
+        $parsed = \DateTime::createFromFormat('Y-m-d', $date);
+        return $parsed && $parsed->format('Y-m-d') === $date;
     }
 
-    return $first->prenom . ' ' . strtoupper(substr($first->nom, 0, 1)) . '.';
-}
+    private function applySearchFilter($query, $search): void
+    {
+        $query->where(function ($q) use ($search) {
+            $q->where('idTache', 'like', "%{$search}%")
+                ->orWhere('titre', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%")
+                ->orWhereHas('realisateurs', function ($qr) use ($search) {
+                    $qr->where('prenom', 'like', "%{$search}%")
+                        ->orWhere('nom', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+        });
+    }
 
+    private function formatDate($row)
+    {
+        return \Carbon\Carbon::parse($row->dateD)->format('d/m/Y');
+    }
+
+    private function formatEtat($etat): string
+    {
+        return self::ETATS[$etat] ?? self::ETATS['todo'];
+    }
+
+    private function formatUrgence($type): string
+    {
+        return self::URGENCES[$type] ?? self::URGENCES['high'];
+    }
+
+    private function formatAssignation($tache)
+    {
+        $first = $tache->realisateurs->first();
+
+        if (! $first) {
+            return '—';
+        }
+
+        return $first->prenom . ' ' . strtoupper(substr($first->nom, 0, 1)) . '.';
+    }
 
     public function create()
     {
@@ -232,46 +229,45 @@ private function formatAssignation($tache)
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'titre' => 'required|string|max:255',
-            'description' => 'required|string',
-            'type' => 'required|in:low,medium,high',
-            'dateD' => 'required|date',
-            'realisateurs' => 'required|array|min:1',
-            'realisateurs.*' => 'required|integer|exists:utilisateur,idUtilisateur'
+            'titre'          => 'required|string|max:255',
+            'description'    => 'required|string',
+            'type'           => 'required|in:low,medium,high',
+            'dateD'          => 'required|date',
+            'realisateurs'   => 'required|array|min:1',
+            'realisateurs.*' => 'required|integer|exists:utilisateur,idUtilisateur',
         ], [
-            'titre.required' => 'taches.validation.titre_required',
-            'description.required' => 'taches.validation.description_required',
-            'type.required' => 'taches.validation.type_required',
-            'dateD.required' => 'taches.validation.dateD_required',
-            'dateD.date' => 'taches.validation.dateD_date',
+            'titre.required'        => 'taches.validation.titre_required',
+            'description.required'  => 'taches.validation.description_required',
+            'type.required'         => 'taches.validation.type_required',
+            'dateD.required'        => 'taches.validation.dateD_required',
+            'dateD.date'            => 'taches.validation.dateD_date',
             'realisateurs.required' => 'taches.validation.realisateurs_required',
-            'realisateurs.min' => 'taches.validation.realisateurs_min',
+            'realisateurs.min'      => 'taches.validation.realisateurs_min',
         ]);
 
         $tache = Tache::create([
-            'idTache' => (Tache::max('idTache') ?? 0) + 1,
-            'titre' => $validated['titre'],
+            'idTache'     => (Tache::max('idTache') ?? 0) + 1,
+            'titre'       => $validated['titre'],
             'description' => $validated['description'],
-            'type' => $validated['type'],
-            'etat' => 'todo',
-            'dateD' => $validated['dateD'],
+            'type'        => $validated['type'],
+            'etat'        => 'todo',
+            'dateD'       => $validated['dateD'],
         ],
-       
+
         );
-       
 
         // attacher realisateurs (pivot)
-        if (!empty($validated['realisateurs'])) {
+        if (! empty($validated['realisateurs'])) {
             foreach ($validated['realisateurs'] as $uId) {
                 $tache->realisateurs()->attach($uId, ['dateM' => now(), 'description' => null]);
             }
         }
         // historique initial avec création de la tâche
         TacheHistorique::create([
-            'idTache' => $tache->idTache,
-            'statut' => __('taches.history_statuses.created'),
-            'titre' => $tache->titre,
-            'urgence' => $tache->type,
+            'idTache'     => $tache->idTache,
+            'statut'      => __('taches.history_statuses.created'),
+            'titre'       => $tache->titre,
+            'urgence'     => $tache->type,
             'description' => $tache->description,
             'modifie_par' => auth()->user()->idUtilisateur ?? null,
         ]);
@@ -300,33 +296,33 @@ private function formatAssignation($tache)
         }
 
         $validated = $request->validate([
-            'titre' => 'required|string|max:255',
-            'description' => 'required|string',
-            'type' => 'required|in:low,medium,high',
-            'dateD' => 'required|date',
-            'realisateurs' => 'required|array|min:1',
+            'titre'          => 'required|string|max:255',
+            'description'    => 'required|string',
+            'type'           => 'required|in:low,medium,high',
+            'dateD'          => 'required|date',
+            'realisateurs'   => 'required|array|min:1',
             'realisateurs.*' => 'required|integer|exists:utilisateur,idUtilisateur',
         ], [
-            'titre.required' => 'taches.validation.titre_required',
-            'description.required' => 'taches.validation.description_required',
-            'type.required' => 'taches.validation.type_required',
-            'dateD.required' => 'taches.validation.dateD_required',
-            'dateD.date' => 'taches.validation.dateD_date',
+            'titre.required'        => 'taches.validation.titre_required',
+            'description.required'  => 'taches.validation.description_required',
+            'type.required'         => 'taches.validation.type_required',
+            'dateD.required'        => 'taches.validation.dateD_required',
+            'dateD.date'            => 'taches.validation.dateD_date',
             'realisateurs.required' => 'taches.validation.realisateurs_required',
-            'realisateurs.min' => 'taches.validation.realisateurs_min',
+            'realisateurs.min'      => 'taches.validation.realisateurs_min',
         ]);
 
         $tache->update([
-            'titre' => $validated['titre'],
+            'titre'       => $validated['titre'],
             'description' => $validated['description'],
-            'type' => $validated['type'],
-            'dateD' => $validated['dateD'],
+            'type'        => $validated['type'],
+            'dateD'       => $validated['dateD'],
         ]);
 
         // Synchroniser realisateurs (on wipe & reattach)
         $ids = $validated['realisateurs'] ?? [];
         $tache->realisateurs()->sync([]);
-        if (!empty($ids)) {
+        if (! empty($ids)) {
             foreach ($ids as $uId) {
                 $tache->realisateurs()->attach($uId, ['dateM' => null, 'description' => null]);
             }
@@ -358,19 +354,18 @@ private function formatAssignation($tache)
         }
     }
 
-
     public function show($id)
     {
         $tache = Tache::with(['realisateurs'])->findOrFail($id);
 
         // Les utilisateurs avec uniquement le rôle 'parent' ne peuvent voir que leurs tâches
-        $user = auth()->user();
-        $roles = $user->getRoleNames();
+        $user         = auth()->user();
+        $roles        = $user->getRoleNames();
         $isOnlyParent = $roles->count() === 1 && $roles->contains('parent');
 
-        if ($isOnlyParent && !$user->can('gerer-tache')) {
+        if ($isOnlyParent && ! $user->can('gerer-tache')) {
             $isAssigned = $tache->realisateurs->contains('idUtilisateur', $user->idUtilisateur);
-            if (!$isAssigned) {
+            if (! $isAssigned) {
                 abort(403, 'Vous n\'avez pas accès à cette tâche.');
             }
         }
@@ -385,16 +380,16 @@ private function formatAssignation($tache)
 
     public function markDone($id)
     {
-        $tache = Tache::findOrFail($id);
+        $tache       = Tache::findOrFail($id);
         $tache->etat = 'done';
         $tache->save();
 
         // Fin de la tâche renseignée dans l'historique
         TacheHistorique::create([
-            'idTache' => $tache->idTache,
-            'statut' => __('taches.history_statuses.done'),
-            'titre' => $tache->titre,
-            'urgence' => $tache->type,
+            'idTache'     => $tache->idTache,
+            'statut'      => __('taches.history_statuses.done'),
+            'titre'       => $tache->titre,
+            'urgence'     => $tache->type,
             'description' => __('taches.history_statuses.done_description'),
             'modifie_par' => auth()->user()->idUtilisateur ?? null,
         ]);
@@ -412,7 +407,6 @@ private function formatAssignation($tache)
         return view('tache.historique.create', compact('tache'));
     }
 
-
     public function storeHistorique(Request $request, Tache $tache)
     {
         $accessDenied = $this->checkHistoriqueAccess($tache);
@@ -421,15 +415,15 @@ private function formatAssignation($tache)
         }
 
         $validated = $request->validate([
-            'titre' => ['required', 'string', 'max:60'],
+            'titre'       => ['required', 'string', 'max:60'],
             'description' => ['nullable', 'string', 'max:255'],
         ]);
 
         TacheHistorique::create([
-            'idTache' => $tache->idTache,
-            'statut' => __('taches.history_statuses.progress'),
-            'titre' => $validated['titre'],
-            'urgence' => $tache->type,
+            'idTache'     => $tache->idTache,
+            'statut'      => __('taches.history_statuses.progress'),
+            'titre'       => $validated['titre'],
+            'urgence'     => $tache->type,
             'description' => $validated['description'] ?? null,
             'modifie_par' => auth()->user()->idUtilisateur ?? null,
         ]);
@@ -455,7 +449,7 @@ private function formatAssignation($tache)
 
         // Accès réservé au CA ET aux utilisateurs assignés à la tâche
         $isAssigned = $tache->realisateurs->contains('idUtilisateur', auth()->user()->idUtilisateur);
-        if (!$isAssigned && !auth()->user()->can('gerer-tache')) {
+        if (! $isAssigned && ! auth()->user()->can('gerer-tache')) {
             return to_route('tache.show', $tache)
                 ->with('status', 'taches.messages.history_not_allowed');
         }
