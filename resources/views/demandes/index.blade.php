@@ -300,7 +300,7 @@
             </table>
         </div>
 
-        <div class="mt-3">
+        <div class="mt-3 admin-pagination-container">
             {{ $demandes->links() }}
         </div>
     </div>
