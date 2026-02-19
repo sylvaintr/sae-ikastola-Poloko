@@ -11,7 +11,7 @@ use Spatie\Permission\Models\Permission;
 class RolePermissionController extends Controller
 {
     /**
-     * Attache une permission à un rôle.
+     * Méthode qui attache une permission à un rôle.
      * @param Request $request La requête HTTP contenant les données de la permission à attacher.
      * @param Role $role Le rôle auquel la permission doit être attachée.
      * @return RedirectResponse Redirige en arrière avec un message de succès ou d'erreur dans la session.
@@ -66,7 +66,7 @@ class RolePermissionController extends Controller
     }
 
     /**
-     *  retourne une réponse d'erreur lorsque la permission n'est pas trouvée.
+     *  Méthode qui retourne une réponse d'erreur lorsque la permission n'est pas trouvée.
      * @return RedirectResponse pour rediriger en arrière avec un message d'erreur dans la session.
      */
     protected function respondNotFound(): RedirectResponse
@@ -76,7 +76,7 @@ class RolePermissionController extends Controller
     }
 
     /**
-     * Affiche la page de gestion des permissions pour un rôle.
+     * Méthode qui affiche la page de gestion des permissions pour un rôle.
      * @param Role $role Le rôle pour lequel afficher les permissions.
      * @return View La vue avec les données du rôle et des permissions
      */
@@ -90,7 +90,7 @@ class RolePermissionController extends Controller
     }
 
     /**
-     * Liste tous les rôles pour accéder à la gestion des permissions.
+     * Méthode qui liste tous les rôles pour accéder à la gestion des permissions.
      * @return View La vue avec la liste des rôles
      */
     public function index(): View

@@ -226,6 +226,13 @@ class FamilleControllerTest extends TestCase
         // given
         $user = Utilisateur::factory()->create(['nom' => 'UserFind']);
 
+        // Ensure role 'parent' exists and assign to the user so controller's
+        // role-based filter includes this user.
+        if (Role::where('name', 'parent')->count() === 0) {
+            Role::create(['name' => 'parent']);
+        }
+        $user->assignRole('parent');
+
         // This route is defined in web.php and requires Auth
         // when
         $response = $this->actingAs($this->adminUser)

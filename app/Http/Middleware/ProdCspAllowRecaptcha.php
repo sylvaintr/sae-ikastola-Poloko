@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Middleware;
 
 use Closure;
@@ -12,6 +11,12 @@ use Illuminate\Http\Request;
  */
 class ProdCspAllowRecaptcha
 {
+    /**
+     * Méthode pour appliquer une politique de sécurité du contenu (CSP) adaptée à la production. Cette méthode vérifie d'abord si l'environnement de l'application est 'local'. Si c'est le cas, elle laisse passer la requête sans modification. Sinon, elle applique une politique CSP qui autorise explicitement les ressources nécessaires pour Google reCAPTCHA, ainsi que les CDN jsdelivr et les services de polices en ligne, tout en limitant les sources de scripts, styles, images et polices aux domaines spécifiés. Cette approche permet d'améliorer la sécurité tout en assurant le bon fonctionnement de reCAPTCHA et des autres ressources externes nécessaires.
+     * @param Request $request La requête HTTP entrante
+     * @param Closure $next Le prochain middleware ou contrôleur à appeler
+     * @return \Illuminate\Http\Response La réponse HTTP après l'application de la politique CSP
+     */
     public function handle(Request $request, Closure $next)
     {
         if (config('app.env') === 'local') {

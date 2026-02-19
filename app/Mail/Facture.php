@@ -26,8 +26,8 @@ class Facture extends Mailable
     }
 
     /**
-     * methode pour definir l'enveloppe du mail
-     * @return \Illuminate\Mail\Mailables\Envelope
+     * Méthode pour definir l'enveloppe du mail
+     * @return \Illuminate\Mail\Mailables\Envelope L'enveloppe du mail, contenant des informations telles que le sujet du mail
      */
     public function envelope(): Envelope
     {
@@ -37,8 +37,8 @@ class Facture extends Mailable
     }
 
     /**
-     * methode pour definir le contenu du mail
-     * @return \Illuminate\Mail\Mailables\Content
+     * Méthode pour definir le contenu du mail
+     * @return \Illuminate\Mail\Mailables\Content Le contenu du mail, spécifiant la vue à utiliser et les données à passer à cette vue pour générer le corps du mail
      */
     public function content(): Content
     {
@@ -56,8 +56,8 @@ class Facture extends Mailable
     }
 
     /**
-     * methode pour definir les pieces jointes du mail
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * Méthode pour definir les pieces jointes du mail
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment> Un tableau des pièces jointes à inclure dans le mail. Dans ce cas, il n'y a pas de pièces jointes, donc le tableau est vide.
      */
     public function attachments(): array
     {

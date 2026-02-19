@@ -1,10 +1,9 @@
 <?php
-
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Tache
@@ -27,94 +26,103 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Tache extends Model
 {
-	use HasFactory;
-	protected $table = 'tache';
-	protected $primaryKey = 'idTache';
-	public $incrementing = false;
-	protected $keyType = 'int';
-	public $timestamps = false;
+    use HasFactory;
+    protected $table      = 'tache';
+    protected $primaryKey = 'idTache';
+    public $incrementing  = false;
+    protected $keyType    = 'int';
+    public $timestamps    = false;
 
-	protected $casts = [
-		'idTache' => 'int',
-		'dateD' => 'datetime',
-		'dateF' => 'datetime',
-		'montantP' => 'float',
-		'montantR' => 'float',
-		'idEvenement' => 'int',
-		'idRole' => 'int'
-	];
+    protected $casts = [
+        'idTache'     => 'int',
+        'dateD'       => 'datetime',
+        'dateF'       => 'datetime',
+        'montantP'    => 'float',
+        'montantR'    => 'float',
+        'idEvenement' => 'int',
+        'idRole'      => 'int',
+    ];
 
-	/**
-	 * Attributs assignables (fillable) pour une tâche.
-	 *
-	 * - `titre` (string) : titre court de la tâche.
-	 * - `description` (string) : description détaillée de la tâche.
-	 * - `type` (string) : catégorie ou type de la tâche.
-	 * - `etat` (string) : état courant (ex: ouverte, en cours, fermée).
-	 * - `dateD` (datetime|null) : date de début prévue.
-	 * - `dateF` (datetime|null) : date de fin prévue.
-	 * - `montantP` (float|null) : montant prévu.
-	 * - `montantR` (float|null) : montant réel.
-	 * - `idEvenement` (int|null) : référence vers un événement associé.
-	 */
-	protected $fillable = [
-		'idTache',
-		'titre',
-		'description',
-		'type',
-		'urgence',
-		'etat',
-		'dateD',
-		'dateF',
-		'montantP',
-		'montantR',
-		'idEvenement',
-		'idRole'
-	];
+    /**
+     * Attributs assignables (fillable) pour une tâche.
+     *
+     * - `titre` (string) : titre court de la tâche.
+     * - `description` (string) : description détaillée de la tâche.
+     * - `type` (string) : catégorie ou type de la tâche.
+     * - `etat` (string) : état courant (ex: ouverte, en cours, fermée).
+     * - `dateD` (datetime|null) : date de début prévue.
+     * - `dateF` (datetime|null) : date de fin prévue.
+     * - `montantP` (float|null) : montant prévu.
+     * - `montantR` (float|null) : montant réel.
+     * - `idEvenement` (int|null) : référence vers un événement associé.
+     */
+    protected $fillable = [
+        'idTache',
+        'titre',
+        'description',
+        'type',
+        'urgence',
+        'etat',
+        'dateD',
+        'dateF',
+        'montantP',
+        'montantR',
+        'idEvenement',
+        'idRole',
+    ];
 
-	/**
-	 * Relation belongsTo vers l'événement associé à la tâche (optionnel).
-	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-	 */
-	public function evenement()
-	{
-		return $this->belongsTo(Evenement::class, 'idEvenement');
-	}
+    /**
+     * Relation belongsTo vers l'événement associé à la tâche (optionnel).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function evenement()
+    {
+        return $this->belongsTo(Evenement::class, 'idEvenement');
+    }
 
-	/**
-	 * Relation belongsToMany vers les utilisateurs ayant réalisé la tâche (pivot `realiser`).
-	 * Inclut les colonnes pivot `dateM` et `description`.
-	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-	 */
-	public function realisateurs()
-	{
-		return $this->belongsToMany(Utilisateur::class, 'realiser', 'idTache', 'idUtilisateur')
-		->using(\App\Models\Realiser::class)
-		->withPivot('dateM', 'description');
-	}
+    /**
+     * Relation belongsToMany vers les utilisateurs ayant réalisé la tâche (pivot `realiser`).
+     * Inclut les colonnes pivot `dateM` et `description`.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function realisateurs()
+    {
+        return $this->belongsToMany(Utilisateur::class, 'realiser', 'idTache', 'idUtilisateur')
+            ->using(\App\Models\Realiser::class)
+            ->withPivot('dateM', 'description');
+    }
 
-	public function documents()
-	{
-		return $this->hasMany(Document::class, 'idTache', 'idTache');
-	}
+    /**
+     * Relation hasMany vers les documents associés à cette tâche.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function documents()
+    {
+        return $this->hasMany(Document::class, 'idTache', 'idTache');
+    }
 
-	public function historiques()
-	{
-		return $this->hasMany(\App\Models\DemandeHistorique::class, 'idDemande', 'idTache')
-			->orderByDesc('dateE')
-			->orderByDesc('id');
-	}
+    /**
+     * Relation hasMany vers les historiques de demandes liés à cette tâche.
+     * Les historiques sont ordonnés par date d'événement (`dateE`) décroissante, puis par identifiant décroissant pour les événements ayant la même date.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function historiques()
+    {
+        return $this->hasMany(\App\Models\DemandeHistorique::class, 'idDemande', 'idTache')
+            ->orderByDesc('dateE')
+            ->orderByDesc('id');
+    }
 
-	/**
-	 * Relation belongsTo vers le rôle (commission) assigné à la tâche.
-	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-	 */
-	public function roleAssigne()
-	{
-		return $this->belongsTo(Role::class, 'idRole');
-	}
+    /**
+     * Relation belongsTo vers le rôle (commission) assigné à la tâche.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function roleAssigne()
+    {
+        return $this->belongsTo(Role::class, 'idRole');
+    }
 
 }

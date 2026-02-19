@@ -1,9 +1,8 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Document
@@ -20,64 +19,72 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Document extends Model
 {
-	use HasFactory;
-	protected $table = 'document';
-	protected $primaryKey = 'idDocument';
-	public $incrementing = true;
-	public $timestamps = false;
+    use HasFactory;
+    protected $table      = 'document';
+    protected $primaryKey = 'idDocument';
+    public $incrementing  = true;
+    public $timestamps    = false;
 
-	protected $casts = [
-		'idDocument' => 'int',
-		'idTache' => 'int',
-		'idDocumentObligatoire' => 'int',
-	];
+    protected $casts = [
+        'idDocument'            => 'int',
+        'idTache'               => 'int',
+        'idDocumentObligatoire' => 'int',
+    ];
 
-	/**
-	 * Attributs assignables (fillable) pour un document.
-	 *
-	 * - `nom` (string) : nom / libellé du document.
-	 * - `chemin` (string) : chemin de stockage ou URL du fichier.
-	 * - `type` (string) : type de document (ex: pdf, image).
-	 * - `etat` (string) : état ou statut du document.
-	 */
-	protected $fillable = [
-		'idDocument',
-		'idTache',
-		'idDocumentObligatoire',
-		'nom',
-		'chemin',
-		'type',
-		'etat'
-	];
+    /**
+     * Attributs assignables (fillable) pour un document.
+     *
+     * - `nom` (string) : nom / libellé du document.
+     * - `chemin` (string) : chemin de stockage ou URL du fichier.
+     * - `type` (string) : type de document (ex: pdf, image).
+     * - `etat` (string) : état ou statut du document.
+     */
+    protected $fillable = [
+        'idDocument',
+        'idTache',
+        'idDocumentObligatoire',
+        'nom',
+        'chemin',
+        'type',
+        'etat',
+    ];
 
-	/**
-	 * Relation belongsToMany vers les utilisateurs qui possèdent / sont liés à ce document (pivot `contenir`).
-	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-	 */
+    /**
+     * Relation belongsToMany vers les utilisateurs qui possèdent / sont liés à ce document (pivot `contenir`).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
 
-	public function documentObligatoire()
+    public function documentObligatoire()
     {
         return $this->belongsTo(DocumentObligatoire::class, 'idDocumentObligatoire', 'idDocumentObligatoire');
     }
-	
-	public function utilisateurs()
-	{
-		return $this->belongsToMany(Utilisateur::class, 'contenir', 'idDocument', 'idUtilisateur');
-	}
 
-	public function tache()
-	{
-		return $this->belongsTo(Tache::class, 'idTache', 'idTache');
-	}
+    /**
+     * Relation belongsToMany vers les utilisateurs qui possèdent / sont liés à ce document (pivot `contenir`).
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function utilisateurs()
+    {
+        return $this->belongsToMany(Utilisateur::class, 'contenir', 'idDocument', 'idUtilisateur');
+    }
 
-	/**
-	 * Relation belongsToMany vers les actualités auxquelles ce document est joint (pivot `joindre`).
-	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-	 */
-	public function actualites()
-	{
-		return $this->belongsToMany(Actualite::class, 'joindre', 'idDocument', 'idActualite');
-	}
+    /**
+     * Relation belongsTo vers la tâche à laquelle ce document est associé (si applicable).
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function tache()
+    {
+        return $this->belongsTo(Tache::class, 'idTache', 'idTache');
+    }
+
+    /**
+     * Relation belongsToMany vers les actualités auxquelles ce document est joint (pivot `joindre`).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function actualites()
+    {
+        return $this->belongsToMany(Actualite::class, 'joindre', 'idDocument', 'idActualite');
+    }
 }
