@@ -60,26 +60,6 @@ return [
     'nonconnecte' => 'Saioa hasi behar duzu baliabide honetara sartzeko.',
     'accesrefuse' => 'Ez duzu baimenik orrialde honetara sartzeko.',
 
-    // ICS Calendar subscription
-    'abonnement_calendrier' => 'Egutegiaren harpidetza',
-    'abonnement_calendrier_description' => 'Sinkronizatu ikastolako egutegia zure egutegi aplikazio gogokoenekin (Google Agenda, Outlook, Apple Calendar, etab.).',
-    'url_calendrier' => 'Egutegiaren URLa',
-    'copier_url' => 'URLa kopiatu',
-    'url_copiee' => 'URLa arbelean kopiatu da!',
-    'instructions_calendrier' => 'Nola gehitu egutegi hau?',
-    'google_etape_1' => 'Ireki Google Agenda',
-    'google_etape_2' => 'Sakatu "+" "Beste egutegi batzuk" ondoan eta gero "URLtik"',
-    'google_etape_3' => 'Itsatsi goiko URLa eta sakatu "Egutegia gehitu"',
-    'outlook_etape_1' => 'Ireki Outlook Calendar',
-    'outlook_etape_2' => 'Sakatu "Egutegia gehitu" eta gero "Webtik harpidetu"',
-    'outlook_etape_3' => 'Itsatsi goiko URLa eta sakatu "Inportatu"',
-    'apple_etape_1' => 'Ireki Egutegi aplikazioa',
-    'apple_etape_2' => 'Joan Fitxategia > Egutegi harpidetza berria',
-    'apple_etape_3' => 'Itsatsi goiko URLa eta sakatu "Harpidetu"',
-    'regenerer_token_description' => 'Zure URLa arriskuan dagoela uste baduzu, berri bat sor dezakezu. URL zaharra ez da funtzionatuko.',
-    'regenerer_token' => 'Tokena birsortu',
-    'confirmer_regenerer_token' => 'Ziur zaude? URL zaharra ez da gehiago funtzionatuko.',
-    'token_regenere' => 'Token berria arrakastaz sortu da.',
     'notification_reset_line1' => "Mezu hau bidali dizugu pasahitza berrezartzeko eskaera jaso dugulako.",
     'notification_reset_line2' => "Ez baduzu eskaera hau egin, ez da ekintzarik behar.",
 
@@ -98,7 +78,7 @@ return [
     'password_rule_upper' => 'Letra maiuskula bat',
     'password_rule_number' => 'Zenbaki bat',
     'password_rule_symbol' => 'Sinbolo bat',
-
+    
     // Profile sections
     'mon_profil' => 'Nire profila',
     'date_naissance' => 'Jaiotze data',
@@ -108,7 +88,7 @@ return [
     'mes_documents' => 'Nire dokumentuak',
     'valide' => 'Baliozkoa',
     'en_attente' => 'Itxaroten',
-
+    
     // Family information
     'informations_famille' => 'Familiaren informazioa',
     'famille_id' => 'Familia ID',
@@ -116,7 +96,7 @@ return [
     'enfants' => 'Haurrak',
     'aucun_enfant' => 'Ez dago erregistratutako haurrik',
     'aucune_famille' => 'Ez dago profil hau lotutako familiarik',
-
+    
     // Documents
     'upload_document' => 'Dokumentu bat igo',
     'upload_document_hint' => 'Onartutako formatuak: PDF, DOC, DOCX, JPG, JPEG, PNG (gehienez 8MB)',
@@ -131,7 +111,7 @@ return [
     'document_uploaded' => 'Dokumentua arrakastaz igo da',
     'document_deleted' => 'Dokumentua arrakastaz ezabatu da',
     'confirm_delete_document' => 'Ziur al zaude dokumentu hau ezabatu nahi duzula?',
-
+    
     // Obligatory documents
     'documents_obligatoires' => 'Beharrezko dokumentuak',
     'etat_document' => 'Egoera',
@@ -154,7 +134,7 @@ return [
     'document_size_exceeded' => 'Fitxategia handiegia da. Onartzen den gehienezko tamaina :max MB da',
     'document_invalid_format' => 'Fitxategi formatua ez da onartzen. Onartutako formatuak: PDF, DOC, DOCX, JPG, JPEG, PNG',
     'document_validated_cannot_delete' => 'Dokumentu hau balioztatuta dago eta ezin da ezabatu.',
-
+    
     // Autentifikazio errore mezuak
     'failed' => 'Kredentzial hauek ez datoz bat kontu batekin ere.',
     'password' => 'Emandako pasahitza okerra da.',

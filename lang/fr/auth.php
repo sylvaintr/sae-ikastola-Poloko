@@ -81,27 +81,6 @@ return [
     'accesrefuse' => "Vous n'avez pas la permission d'accéder à cette page.",
     'nonconnecte' => "Vous devez être connecté pour accéder à cette page.",
 
-    // ICS Calendar subscription
-    'abonnement_calendrier' => 'Abonnement calendrier',
-    'abonnement_calendrier_description' => "Synchronisez le calendrier de l'école avec votre application de calendrier favorite (Google Agenda, Outlook, Apple Calendar, etc.).",
-    'url_calendrier' => 'URL du calendrier',
-    'copier_url' => "Copier l'URL",
-    'url_copiee' => 'URL copiée dans le presse-papiers !',
-    'instructions_calendrier' => "Comment ajouter ce calendrier ?",
-    'google_etape_1' => "Ouvrez Google Agenda",
-    'google_etape_2' => 'Cliquez sur "+" à côté de "Autres agendas" puis "À partir de l\'URL"',
-    'google_etape_3' => "Collez l'URL ci-dessus et cliquez sur \"Ajouter un agenda\"",
-    'outlook_etape_1' => "Ouvrez Outlook Calendar",
-    'outlook_etape_2' => "Cliquez sur \"Ajouter un calendrier\" puis \"S'abonner à partir du web\"",
-    'outlook_etape_3' => "Collez l'URL ci-dessus et cliquez sur \"Importer\"",
-    'apple_etape_1' => "Ouvrez l'application Calendrier",
-    'apple_etape_2' => "Allez dans Fichier > Nouvel abonnement à un calendrier",
-    'apple_etape_3' => "Collez l'URL ci-dessus et cliquez sur \"S'abonner\"",
-    'regenerer_token_description' => "Si vous pensez que votre URL a été compromise, vous pouvez en générer une nouvelle. L'ancienne URL ne fonctionnera plus.",
-    'regenerer_token' => 'Régénérer le token',
-    'confirmer_regenerer_token' => "Êtes-vous sûr ? L'ancienne URL ne fonctionnera plus.",
-    'token_regenere' => 'Nouveau token généré avec succès.',
-
     'notification_reset_line1' => "Vous recevez cet e-mail car nous avons reçu une demande de réinitialisation de mot de passe.",
     'notification_reset_line2' => "Si vous n’avez pas demandé cette réinitialisation, aucune action n’est requise.",
 
@@ -121,7 +100,7 @@ return [
     'password_rule_upper' => 'Une lettre majuscule',
     'password_rule_number' => 'Un chiffre',
     'password_rule_symbol' => 'Un symbole',
-
+    
     // Family information
     'informations_famille' => 'Informations de la famille',
     'famille_id' => 'Famille ID',
@@ -129,7 +108,7 @@ return [
     'enfants' => 'Enfants',
     'aucun_enfant' => 'Aucun enfant enregistré',
     'aucune_famille' => 'Aucune famille associée à ce profil',
-
+    
     // Documents
     'upload_document' => 'Télécharger un document',
     'upload_document_hint' => 'Formats acceptés : PDF, DOC, DOCX, JPG, JPEG, PNG (max 8MB)',
@@ -144,7 +123,7 @@ return [
     'document_uploaded' => 'Document téléchargé avec succès',
     'document_deleted' => 'Document supprimé avec succès',
     'confirm_delete_document' => 'Êtes-vous sûr de vouloir supprimer ce document ?',
-
+    
     // Obligatory documents
     'documents_obligatoires' => 'Documents obligatoires',
     'etat_document' => 'État',
@@ -167,7 +146,7 @@ return [
     'document_size_exceeded' => 'Le fichier est trop volumineux. La taille maximale autorisée est de :max Mo',
     'document_invalid_format' => 'Le format du fichier n\'est pas autorisé. Formats acceptés : PDF, DOC, DOCX, JPG, JPEG, PNG',
     'document_validated_cannot_delete' => 'Ce document est validé et ne peut pas être supprimé.',
-
+    
     // Messages d'erreur d'authentification
     'failed' => 'Ces identifiants ne correspondent à aucun compte.',
     'password' => 'Le mot de passe fourni est incorrect.',

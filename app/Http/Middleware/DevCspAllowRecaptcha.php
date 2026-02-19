@@ -22,19 +22,13 @@ class DevCspAllowRecaptcha
 
         $response = $next($request);
 
-        // CSP permissif pour le dev : autorise l'exécution du script reCAPTCHA,
-        // le serveur Vite (ports 5173-5180) et les ressources locales / CDN.
-        $vitePorts = '';
-        for ($port = 5173; $port <= 5180; $port++) {
-            $vitePorts .= "http://localhost:{$port} http://[::1]:{$port} ws://localhost:{$port} ws://[::1]:{$port} ";
-        }
-        $vite = trim($vitePorts);
-
+        // CSP permissif pour le dev : autorise l'exécution du script reCAPTCHA
+        // et les ressources locales / CDN couramment utilisées pendant le dev.
         $csp = "default-src 'self'; "
-            . "script-src 'self' 'unsafe-inline' {$vite} https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net; "
-            . "frame-src https://www.google.com/recaptcha/ https://www.google.com; "
-            . "connect-src 'self' {$vite} https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net; "
-            . "style-src 'self' 'unsafe-inline' {$vite} https://fonts.googleapis.com https://fonts.bunny.net; "
+            . "script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net; "
+            . "frame-src 'self' https://www.google.com/recaptcha/ https://www.google.com; "
+            . "connect-src 'self' https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net; "
+            . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net; "
             . "font-src 'self' https://fonts.gstatic.com https://fonts.bunny.net data:; "
             . "img-src 'self' data: https:;";
 
