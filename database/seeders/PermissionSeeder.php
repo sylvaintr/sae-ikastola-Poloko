@@ -20,6 +20,7 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'gerer-presence']);
         Permission::create(['name' => 'gerer-actualites']);
         Permission::create(['name' => 'gerer-etiquettes']);
+        Permission::create(['name' => 'gerer-tache']);
         Permission::create(['name' => 'gerer-notifications']);
         Permission::create(['name' => 'gerer-familles']);
         Permission::create(['name' => 'gerer-utilisateurs']);
