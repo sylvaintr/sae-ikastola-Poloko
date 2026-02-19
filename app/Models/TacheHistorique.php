@@ -51,7 +51,7 @@ class TacheHistorique extends Model
      */
     public function getResponsableAttribute()
     {
-        return $this->utilisateur?->name ?? '—';
+        return $this->utilisateur?->nom ?? '—';
     }
 
     /**

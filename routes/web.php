@@ -6,7 +6,6 @@ use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\CalendrierController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\DemandeController;
-use App\Http\Controllers\EnfantController;
 use App\Http\Controllers\EtiquetteController;
 use App\Http\Controllers\EvenementController;
 use App\Http\Controllers\FactureController;
@@ -184,7 +183,7 @@ Route::middleware('auth')->group(function () {
 
 // ---------------- API et helpers admin ----------------
 Route::middleware('auth')->group(function () {
-    Route::get('/api/search/users', [FamilleController::class, 'searchUsers']);
+    Route::get('/api/search/users', [FamilleController::class, 'searchUsers'])->name('admin.familles.searchUsers');
     Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 });
 

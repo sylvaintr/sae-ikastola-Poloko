@@ -85,7 +85,7 @@ trait HandlesCsvExport
         fputcsv($file, [__('demandes.export.montant_previsionnel'), $this->formatMontantForCsv($demande->montantP)], ';');
         fputcsv($file, [__('demandes.export.montant_reel'), $this->formatMontantForCsv($demande->historiques->sum('depense'), true)], ';');
 
-        $realisateurs = $demande->realisateurs->pluck('name')->join(', ');
+        $realisateurs = $demande->realisateurs->pluck('nom')->join(', ');
         fputcsv($file, [__('demandes.export.realisateurs'), $realisateurs ?: '—'], ';');
         fputcsv($file, [], ';');
     }

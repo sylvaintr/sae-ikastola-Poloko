@@ -1,16 +1,23 @@
 <?php
-
 namespace App\Models;
 
-use Carbon\Carbon;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Support\Str;
 use App\Notifications\ResetPasswordNotification;
+use App\Notifications\ResetPasswordNotification;
+use Carbon\Carbon;
+use Carbon\Carbon;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+use Spatie\Permission\Traits\HasRoles;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * Class Utilisateur
@@ -33,269 +40,338 @@ use App\Notifications\ResetPasswordNotification;
  */
 class Utilisateur extends Authenticatable implements CanResetPasswordContract
 {
-	use HasFactory, Notifiable, HasRoles, CanResetPassword;
-	protected $table = 'utilisateur';
-	protected $primaryKey = 'idUtilisateur';
-	public $incrementing = true;
-	protected $keyType = 'int';
+    use HasFactory, Notifiable, HasRoles, CanResetPassword;
+    protected $table      = 'utilisateur';
+    protected $primaryKey = 'idUtilisateur';
+    public $incrementing  = true;
+    protected $keyType    = 'int';
 
-	protected $casts = [
-		'idUtilisateur' => 'int',
-		'statutValidation' => 'bool',
-		'archived_at' => 'datetime',
-		'dateNaissance' => 'datetime',
-	];
-	/**
-	 * Attributs à cacher lors de la sérialisation (ex: JSON).
-	 * mdp : Mot de passe (hashé) — ne pas exposer en clair.
-	 * remember_token : Jeton "remember me".
-	 */
-	protected $hidden = [
-		'mdp',
-		'remember_token',
-		'ics_token'
-	];
+    protected $casts = [
+        'idUtilisateur'    => 'int',
+        'statutValidation' => 'bool',
+        'archived_at'      => 'datetime',
+        'dateNaissance'    => 'datetime',
+    ];
+    /**
+     * Attributs à cacher lors de la sérialisation (ex: JSON).
+     * mdp : Mot de passe (hashé) — ne pas exposer en clair.
+     * remember_token : Jeton "remember me".
+     */
+    protected $hidden = [
+        'mdp',
+        'remember_token',
+        'ics_token',
+    ];
 
-	/**
-	 * Les attributs assignables de l'utilisateur.
-	 *
-	 * Clés et explications :
-	 * - prenom (string) : Prénom de l'utilisateur.
-	 * - nom (string) : Nom de famille de l'utilisateur.
-	 * - email (string) : Adresse e‑mail unique utilisée pour l'authentification et les notifications.
-	 * - mdp (string) : Mot de passe haché (ne jamais stocker ni transmettre en clair).
-	 * - languePref (string) : Langue préférée de l'utilisateur (ex: "fr", "eus").
-	 * - statutValidation (bool|null) : Indique si le compte est activé (true) ou non (false).
-	 * - remember_token (string|null) : Jeton optionnel pour la fonctionnalité "se souvenir de moi".
-	 * - created_at (string|DateTime|null) : Date et heure de création de l'enregistrement.
-	 * - updated_at (string|DateTime|null) : Date et heure de la dernière modification de l'enregistrement.
-	 *
-	 * Remarques :
-	 * - Les champs sensibles (mot_de_passe, tokens) doivent être protégés et exclus des réponses publiques.
-	 * - Ce commentaire documente la structure attendue du tableau retourné/attendu par le modèle Utilisateur.
-	 */
-	protected $fillable = [
-		'prenom',
-		'nom',
-		'mdp',
-		'email',
-		'languePref',
-		'statutValidation',
-		'dateNaissance',
-		'archived_at',
-		'remember_token',
-		'ics_token'
-	];
+    /**
+     * Les attributs assignables de l'utilisateur.
+     *
+     * Clés et explications :
+     * - prenom (string) : Prénom de l'utilisateur.
+     * - nom (string) : Nom de famille de l'utilisateur.
+     * - email (string) : Adresse e‑mail unique utilisée pour l'authentification et les notifications.
+     * - mdp (string) : Mot de passe haché (ne jamais stocker ni transmettre en clair).
+     * - languePref (string) : Langue préférée de l'utilisateur (ex: "fr", "eus").
+     * - statutValidation (bool|null) : Indique si le compte est activé (true) ou non (false).
+     * - remember_token (string|null) : Jeton optionnel pour la fonctionnalité "se souvenir de moi".
+     * - created_at (string|DateTime|null) : Date et heure de création de l'enregistrement.
+     * - updated_at (string|DateTime|null) : Date et heure de la dernière modification de l'enregistrement.
+     *
+     * Remarques :
+     * - Les champs sensibles (mot_de_passe, tokens) doivent être protégés et exclus des réponses publiques.
+     * - Ce commentaire documente la structure attendue du tableau retourné/attendu par le modèle Utilisateur.
+     */
+    protected $fillable = [
+        'prenom',
+        'nom',
+        'mdp',
+        'email',
+        'languePref',
+        'statutValidation',
+        'dateNaissance',
+        'archived_at',
+        'remember_token',
+        'ics_token',
+    ];
 
-	/**
-	 * Retourne le mot de passe utilisé pour l'authentification.
-	 * @return string Le mot de passe (hashé) stocké dans l'attribut `mdp`.
-	 */
-	public function getAuthPassword()
-	{
-		return $this->mdp;
-	}
+    /**
+     * Retourne le mot de passe utilisé pour l'authentification.
+     * @return string Le mot de passe (hashé) stocké dans l'attribut `mdp`.
+     */
+    public function getAuthPassword()
+    {
+        return $this->mdp;
+    }
 
+    /**
+     * Retourne l'adresse e-mail utilisée pour l'envoi des liens de réinitialisation.
+     * @return string|null Adresse e-mail ou null si absente.
+     */
+    public function getEmailForPasswordReset()
+    {
+        return $this->email;
+    }
 
+    /**
+     * Envoie la notification de réinitialisation de mot de passe.
+     * @param string $token Jeton de réinitialisation fourni par le système.
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
 
-	/**
-	 * Retourne l'adresse e-mail utilisée pour l'envoi des liens de réinitialisation.
-	 * @return string|null Adresse e-mail ou null si absente.
-	 */
-	public function getEmailForPasswordReset()
-	{
-		return $this->email;
-	}
+    /**
+     * Accesseur de compatibilité pour obtenir le mot de passe via `$user->password`.
+     * @return string Le mot de passe hashé (attribut `mdp`).
+     */
+    public function getPasswordAttribute()
+    {
+        return $this->mdp;
+    }
 
+    /**
+     * Mutateur de compatibilité qui permet d'assigner `$user->password = '...'`.
+     * Si la valeur fournie n'est pas déjà hachée, elle sera hachée avant stockage.
+     * @param string $value Mot de passe en clair ou déjà hashé.
+     * @return string Valeur (hashée) stockée.
+     */
+    public function setPasswordAttribute($value)
+    {
+        $info = password_get_info($value);
 
+        // Only hash if not already hashed
+        if ($info['algo'] === null || $info['algo'] === 0) {
+            return password_hash($value, PASSWORD_DEFAULT);
+        }
 
-	/**
-	 * Envoie la notification de réinitialisation de mot de passe.
-	 * @param string $token Jeton de réinitialisation fourni par le système.
-	 * @return void
-	 */
-	public function sendPasswordResetNotification($token)
-	{
-		$this->notify(new ResetPasswordNotification($token));
-	}
+        return $value;
+    }
 
+    /**
+     * Fournit un attribut virtuel `name` combinant `prenom` et `nom`.
+     * Retourne une chaîne vide si les deux sont absents.
+     * @return string
+     */
+    public function getNameAttribute(): string
+    {
+        $prenom = $this->attributes['prenom'] ?? '';
+        $nom    = $this->attributes['nom'] ?? '';
+        return trim($prenom . ' ' . $nom);
+    }
 
+    /**
+     * Indique si le compte est archivé.
+     *
+     * @return bool
+     */
+    public function getIsArchivedAttribute(): bool
+    {
+        return ! is_null($this->archived_at);
+    }
 
-	/**
-	 * Accesseur de compatibilité pour obtenir le mot de passe via `$user->password`.
-	 * @return string Le mot de passe hashé (attribut `mdp`).
-	 */
-	public function getPasswordAttribute()
-	{
-		return $this->mdp;
-	}
+    /**
+     * Helper explicite pour vérifier l'archivage.
+     */
+    public function isArchived(): bool
+    {
+        return $this->getIsArchivedAttribute();
+    }
 
+    /**
+     * Fournit un alias `id` pointant vers la clé primaire `idUtilisateur`.
+     * @return int Identifiant primaire du modèle.
+     */
+    public function getIdAttribute()
+    {
+        return $this->getKey();
+    }
 
+    /* Relations */
 
-	/**
-	 * Mutateur de compatibilité qui permet d'assigner `$user->password = '...'`.
-	 * Si la valeur fournie n'est pas déjà hachée, elle sera hachée avant stockage.
-	 * @param string $value Mot de passe en clair ou déjà hashé.
-	 * @return string Valeur (hashée) stockée.
-	 */
-	public function setPasswordAttribute($value)
-	{
-		$info = password_get_info($value);
+    /**
+     * Relation hasMany vers les actualités créées par l'utilisateur.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function actualites()
+    {
+        return $this->hasMany(Actualite::class, 'idUtilisateur');
+    }
 
-		// Only hash if not already hashed
-		if ($info['algo'] === null || $info['algo'] === 0) {
-			return password_hash($value, PASSWORD_DEFAULT);
-		}
+    /**
+     * Relation belongsToMany vers les documents liés à l'utilisateur via la pivot `contenir`.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function documents()
+    {
+        return $this->belongsToMany(Document::class, 'contenir', 'idUtilisateur', 'idDocument');
+    }
 
-		return $value;
-	}
+    /**
+     * Relation hasMany vers les factures émises par l'utilisateur.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function factures()
+    {
+        return $this->hasMany(Facture::class, 'idUtilisateur');
+    }
 
+    /**
+     * Relation hasMany vers les enregistrements de pivot `avoir` (rôles attribués).
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function avoirs()
+    {
+        return $this->hasMany(Avoir::class, 'idUtilisateur');
+    }
 
+    /**
+     * Relation belongsToMany vers les rôles de l'utilisateur (via la table `avoir`).
+     * Retourne les rôles associés et inclut la colonne pivot `model_type`.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function rolesCustom()
+    {
+        // Pivot table `avoir` links utilisateurs and roles in this project
+        // model_type is required for the polymorphic relationship structure
+        return $this->belongsToMany(Role::class, 'avoir', 'idUtilisateur', 'idRole')
+            ->withPivot('model_type')
+            ->using(Avoir::class);
+    }
 
-	/**
-	 * Fournit un attribut virtuel `name` combinant `prenom` et `nom`.
-	 * @return string Nom complet formaté.
-	 */
-	public function getNameAttribute()
-	{
-		$prenom = $this->attributes['prenom'] ?? '';
-		$nom = $this->attributes['nom'] ?? '';
-		return trim($prenom . ' ' . $nom);
-	}
+    /**
+     * Relation belongsToMany vers les familles associées à l'utilisateur (pivot `lier`).
+     * La colonne pivot `parite` contient le rôle dans la famille.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function familles()
+    {
+        return $this->belongsToMany(Famille::class, 'lier', 'idUtilisateur', 'idFamille')->withPivot('parite');
+    }
 
-	/**
-	 * Indique si le compte est archivé.
-	 *
-	 * @return bool
-	 */
-	public function getIsArchivedAttribute(): bool
-	{
-		return !is_null($this->archived_at);
-	}
+    /**
+     * Indique si le compte est archivé.
+     *
+     * @return bool
+     */
+    public function getIsArchivedAttribute(): bool
+    {
+        return ! is_null($this->archived_at);
+    }
 
-	/**
-	 * Helper explicite pour vérifier l'archivage.
-	 */
-	public function isArchived(): bool
-	{
-		return $this->getIsArchivedAttribute();
-	}
+    /**
+     * Helper explicite pour vérifier l'archivage.
+     */
+    public function isArchived(): bool
+    {
+        return $this->getIsArchivedAttribute();
+    }
 
+    /**
+     * Fournit un alias `id` pointant vers la clé primaire `idUtilisateur`.
+     * @return int Identifiant primaire du modèle.
+     */
+    public function getIdAttribute()
+    {
+        return $this->getKey();
+    }
 
+    /* Relations */
 
-	/**
-	 * Fournit un alias `id` pointant vers la clé primaire `idUtilisateur`.
-	 * @return int Identifiant primaire du modèle.
-	 */
-	public function getIdAttribute()
-	{
-		return $this->getKey();
-	}
+    /**
+     * Relation hasMany vers les actualités créées par l'utilisateur.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function actualites()
+    {
+        return $this->hasMany(Actualite::class, 'idUtilisateur');
+    }
 
+    /**
+     * Relation belongsToMany vers les documents liés à l'utilisateur via la pivot `contenir`.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function documents()
+    {
+        return $this->belongsToMany(Document::class, 'contenir', 'idUtilisateur', 'idDocument');
+    }
 
-	/* Relations */
+    /**
+     * Relation hasMany vers les factures émises par l'utilisateur.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function factures()
+    {
+        return $this->hasMany(Facture::class, 'idUtilisateur');
+    }
 
-	/**
-	 * Relation hasMany vers les actualités créées par l'utilisateur.
-	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
-	 */
-	public function actualites()
-	{
-		return $this->hasMany(Actualite::class, 'idUtilisateur');
-	}
+    /**
+     * Relation hasMany vers les enregistrements de pivot `avoir` (rôles attribués).
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function avoirs()
+    {
+        return $this->hasMany(Avoir::class, 'idUtilisateur');
+    }
 
+    /**
+     * Relation belongsToMany vers les rôles de l'utilisateur (via la table `avoir`).
+     * Retourne les rôles associés et inclut la colonne pivot `model_type`.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function rolesCustom()
+    {
+        // Pivot table `avoir` links utilisateurs and roles in this project
+        // model_type is required for the polymorphic relationship structure
+        return $this->belongsToMany(Role::class, 'avoir', 'idUtilisateur', 'idRole')
+            ->withPivot('model_type')
+            ->using(Avoir::class);
+    }
 
-	/**
-	 * Relation belongsToMany vers les documents liés à l'utilisateur via la pivot `contenir`.
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-	 */
-	public function documents()
-	{
-		return $this->belongsToMany(Document::class, 'contenir', 'idUtilisateur', 'idDocument');
-	}
+    /**
+     * Relation belongsToMany vers les familles associées à l'utilisateur (pivot `lier`).
+     * La colonne pivot `parite` contient le rôle dans la famille.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function familles()
+    {
+        return $this->belongsToMany(Famille::class, 'lier', 'idUtilisateur', 'idFamille')->withPivot('parite');
+    }
 
+    /**
+     * Relation belongsToMany vers les tâches réalisées par l'utilisateur (pivot `realiser`).
+     * Inclut les colonnes pivot `dateM` et `description`.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function tachesRealisees()
+    {
+        return $this->belongsToMany(Tache::class, 'realiser', 'idUtilisateur', 'idTache')
+            ->using(\App\Models\Realiser::class)
+            ->withPivot('dateM', 'description');
+    }
 
-	/**
-	 * Relation hasMany vers les factures émises par l'utilisateur.
-	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
-	 */
-	public function factures()
-	{
-		return $this->hasMany(Facture::class, 'idUtilisateur');
-	}
+    /**
+     * Génère ou régénère le token ICS de l'utilisateur.
+     * @return string Le nouveau token généré.
+     */
+    public function generateIcsToken(): string
+    {
+        $this->ics_token = Str::random(64);
+        $this->save();
+        return $this->ics_token;
+    }
 
-
-	/**
-	 * Relation hasMany vers les enregistrements de pivot `avoir` (rôles attribués).
-	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
-	 */
-	public function avoirs()
-	{
-		return $this->hasMany(Avoir::class, 'idUtilisateur');
-	}
-
-
-	/**
-	 * Relation belongsToMany vers les rôles de l'utilisateur (via la table `avoir`).
-	 * Retourne les rôles associés et inclut la colonne pivot `model_type`.
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-	 */
-	public function rolesCustom()
-	{
-		// Pivot table `avoir` links utilisateurs and roles in this project
-		// model_type is required for the polymorphic relationship structure
-		return $this->belongsToMany(Role::class, 'avoir', 'idUtilisateur', 'idRole')
-			->withPivot('model_type')
-			->using(Avoir::class);
-	}
-
-
-	/**
-	 * Relation belongsToMany vers les familles associées à l'utilisateur (pivot `lier`).
-	 * La colonne pivot `parite` contient le rôle dans la famille.
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-	 */
-	public function familles()
-	{
-		return $this->belongsToMany(Famille::class, 'lier', 'idUtilisateur', 'idFamille')->withPivot('parite');
-	}
-
-
-
-
-	/**
-	 * Relation belongsToMany vers les tâches réalisées par l'utilisateur (pivot `realiser`).
-	 * Inclut les colonnes pivot `dateM` et `description`.
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-	 */
-	public function tachesRealisees()
-	{
-		return $this->belongsToMany(Tache::class, 'realiser', 'idUtilisateur', 'idTache')
-		->using(\App\Models\Realiser::class)
-		->withPivot('dateM', 'description');
-	}
-
-	/**
-	 * Génère ou régénère le token ICS de l'utilisateur.
-	 * @return string Le nouveau token généré.
-	 */
-	public function generateIcsToken(): string
-	{
-		$this->ics_token = Str::random(64);
-		$this->save();
-		return $this->ics_token;
-	}
-
-	/**
-	 * Retourne l'URL complète du flux ICS de l'utilisateur.
-	 * Génère un token si l'utilisateur n'en a pas encore.
-	 * @return string L'URL du flux ICS.
-	 */
-	public function getIcsUrl(): string
-	{
-		if (!$this->ics_token) {
-			$this->generateIcsToken();
-		}
-		return route('ics.feed', ['token' => $this->ics_token]);
-	}
+    /**
+     * Retourne l'URL complète du flux ICS de l'utilisateur.
+     * Génère un token si l'utilisateur n'en a pas encore.
+     * @return string L'URL du flux ICS.
+     */
+    public function getIcsUrl(): string
+    {
+        if (! $this->ics_token) {
+            $this->generateIcsToken();
+        }
+        return route('ics.feed', ['token' => $this->ics_token]);
+    }
 }
