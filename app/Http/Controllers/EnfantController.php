@@ -1,13 +1,12 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Contracts\View\View;
-use App\Models\Enfant;
 use App\Models\Classe;
+use App\Models\Enfant;
 use App\Models\Famille;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class EnfantController extends Controller
 {
@@ -25,41 +24,41 @@ class EnfantController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('nom', 'like', "%{$search}%")
-                  ->orWhere('prenom', 'like', "%{$search}%")
-                  ->orWhere('sexe', 'like', "%{$search}%")
-                  ->orWhereDate('dateN', 'like', "%{$search}%")
-                  ->orWhereHas('famille', function ($q) use ($search) {
-                      $q->where('idFamille', 'like', "%{$search}%")
-                        ->orWhereHas('utilisateurs', function ($q) use ($search) {
-                            $q->where('nom', 'like', "%{$search}%")
-                              ->orWhere('prenom', 'like', "%{$search}%");
-                        });
-                  });
+                    ->orWhere('prenom', 'like', "%{$search}%")
+                    ->orWhere('sexe', 'like', "%{$search}%")
+                    ->orWhereDate('dateN', 'like', "%{$search}%")
+                    ->orWhereHas('famille', function ($q) use ($search) {
+                        $q->where('idFamille', 'like', "%{$search}%")
+                            ->orWhereHas('utilisateurs', function ($q) use ($search) {
+                                $q->where('nom', 'like', "%{$search}%")
+                                    ->orWhere('prenom', 'like', "%{$search}%");
+                            });
+                    });
             });
         }
 
         // Gestion du tri
-        $sortColumn = $request->get('sort', 'nom');
+        $sortColumn    = $request->get('sort', 'nom');
         $sortDirection = $request->get('direction', 'asc');
-        
+
         $allowedSortColumns = ['nom', 'prenom', 'dateN', 'sexe', 'classe', 'famille'];
-        if (!in_array($sortColumn, $allowedSortColumns)) {
+        if (! in_array($sortColumn, $allowedSortColumns)) {
             $sortColumn = 'nom';
         }
-        
-        if (!in_array($sortDirection, ['asc', 'desc'])) {
+
+        if (! in_array($sortDirection, ['asc', 'desc'])) {
             $sortDirection = 'asc';
         }
 
         // Pour le tri par classe ou famille, on doit faire un join
         if ($sortColumn === 'classe') {
             $query->leftJoin('classe', 'enfant.idClasse', '=', 'classe.idClasse')
-                  ->select('enfant.*')
-                  ->orderBy('classe.nom', $sortDirection);
+                ->select('enfant.*')
+                ->orderBy('classe.nom', $sortDirection);
         } elseif ($sortColumn === 'famille') {
             $query->leftJoin('famille', 'enfant.idFamille', '=', 'famille.idFamille')
-                  ->select('enfant.*')
-                  ->orderBy('famille.idFamille', $sortDirection);
+                ->select('enfant.*')
+                ->orderBy('famille.idFamille', $sortDirection);
         } else {
             $query->orderBy($sortColumn, $sortDirection);
         }
@@ -74,7 +73,7 @@ class EnfantController extends Controller
      */
     public function create(): View
     {
-        $classes = Classe::orderBy('nom')->get();
+        $classes  = Classe::orderBy('nom')->get();
         $familles = Famille::with('utilisateurs')->orderBy('idFamille')->get();
 
         return view('admin.enfants.create', compact('classes', 'familles'));
@@ -86,14 +85,14 @@ class EnfantController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nom' => 'required|string|max:20',
-            'prenom' => 'required|string|max:150',
-            'dateN' => 'required|date',
-            'sexe' => 'required|string|max:5|in:M,F',
-            'NNI' => 'required|string|regex:/^[0-9]{10}$/',
+            'nom'            => 'required|string|max:20',
+            'prenom'         => 'required|string|max:150',
+            'dateN'          => 'required|date',
+            'sexe'           => 'required|string|max:5|in:M,F',
+            'NNI'            => 'required|string|regex:/^[0-9]{10}$/',
             'nbFoisGarderie' => 'nullable|integer|min:0',
-            'idClasse' => 'nullable|integer|exists:classe,idClasse',
-            'idFamille' => 'nullable|integer|exists:famille,idFamille',
+            'idClasse'       => 'nullable|integer|exists:classe,idClasse',
+            'idFamille'      => 'nullable|integer|exists:famille,idFamille',
         ]);
 
         // Convertir NNI en integer (bigInteger) pour la base de données
@@ -102,7 +101,7 @@ class EnfantController extends Controller
 
         // Valeurs par défaut
         $validated['nbFoisGarderie'] = $validated['nbFoisGarderie'] ?? 0;
-        
+
         // idFamille et idClasse peuvent être null
         if (empty($validated['idFamille'])) {
             $validated['idFamille'] = null;
@@ -121,11 +120,11 @@ class EnfantController extends Controller
     /**
      * Affiche les détails d'un enfant.
      */
-    public function show($id): View
+    public function show($id): View | RedirectResponse
     {
         $enfant = Enfant::with(['classe', 'famille.utilisateurs'])->find($id);
 
-        if (!$enfant) {
+        if (! $enfant) {
             return redirect()->route('admin.enfants.index');
         }
 
@@ -135,15 +134,15 @@ class EnfantController extends Controller
     /**
      * Affiche le formulaire d'édition d'un enfant.
      */
-    public function edit($id): View
+    public function edit($id): View | RedirectResponse
     {
         $enfant = Enfant::find($id);
 
-        if (!$enfant) {
+        if (! $enfant) {
             return redirect()->route('admin.enfants.index');
         }
 
-        $classes = Classe::orderBy('nom')->get();
+        $classes  = Classe::orderBy('nom')->get();
         $familles = Famille::with('utilisateurs')->orderBy('idFamille')->get();
 
         return view('admin.enfants.edit', compact('enfant', 'classes', 'familles'));
@@ -156,19 +155,19 @@ class EnfantController extends Controller
     {
         $enfant = Enfant::find($id);
 
-        if (!$enfant) {
+        if (! $enfant) {
             return redirect()->route('admin.enfants.index');
         }
 
         $validated = $request->validate([
-            'nom' => 'required|string|max:20',
-            'prenom' => 'required|string|max:150',
-            'dateN' => 'required|date',
-            'sexe' => 'required|string|max:5|in:M,F',
-            'NNI' => 'required|string|regex:/^[0-9]{10}$/',
+            'nom'            => 'required|string|max:20',
+            'prenom'         => 'required|string|max:150',
+            'dateN'          => 'required|date',
+            'sexe'           => 'required|string|max:5|in:M,F',
+            'NNI'            => 'required|string|regex:/^[0-9]{10}$/',
             'nbFoisGarderie' => 'nullable|integer|min:0',
-            'idClasse' => 'nullable|integer|exists:classe,idClasse',
-            'idFamille' => 'nullable|integer|exists:famille,idFamille',
+            'idClasse'       => 'nullable|integer|exists:classe,idClasse',
+            'idFamille'      => 'nullable|integer|exists:famille,idFamille',
         ]);
 
         // Convertir NNI en integer (bigInteger) pour la base de données
@@ -197,7 +196,7 @@ class EnfantController extends Controller
     {
         $enfant = Enfant::find($id);
 
-        if (!$enfant) {
+        if (! $enfant) {
             return $this->handleNotFoundResponse();
         }
 
@@ -229,5 +228,5 @@ class EnfantController extends Controller
             ->route('admin.enfants.index')
             ->with('success', $flashMessage);
     }
-}
 
+}

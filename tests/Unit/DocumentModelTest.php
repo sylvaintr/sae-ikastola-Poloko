@@ -1,5 +1,4 @@
 <?php
-
 namespace Tests\Unit;
 
 use App\Models\Document;
@@ -14,13 +13,15 @@ class DocumentModelTest extends TestCase
         $d = new Document();
 
         // when
-        $utilRel = $d->utilisateurs();
-        $tacheRel = $d->tache();
-        $actualitesRel = $d->actualites();
+        $utilRel                = $d->utilisateurs();
+        $tacheRel               = $d->tache();
+        $actualitesRel          = $d->actualites();
+        $documentObligatoireRel = $d->documentObligatoire();
 
         // then
         $this->assertInstanceOf(Relation::class, $utilRel);
         $this->assertInstanceOf(Relation::class, $tacheRel);
         $this->assertInstanceOf(Relation::class, $actualitesRel);
+        $this->assertInstanceOf(Relation::class, $documentObligatoireRel);
     }
 }

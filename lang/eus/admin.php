@@ -22,9 +22,15 @@ $common = [
 ];
 
 return [
+<<<<<<< HEAD
     'title'                          => 'Administrazioa',
     'common'                         => $common,
     'sections'                       => [
+=======
+    'title'                => 'Administrazioa',
+    'common'               => $common,
+    'sections'             => [
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
         'add_message'          => 'Argitalpenak',
         'accounts'             => 'Kontuak',
         'families'             => 'Familiak',
@@ -33,7 +39,10 @@ return [
         'invoices'             => 'Fakturak',
         'notifications'        => 'Jakinarazpenak',
         'obligatory_documents' => OBLIGATORY_DOCUMENTS_LABEL,
+<<<<<<< HEAD
         'role_permissions'     => 'Rolen kudeaketa',
+=======
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
         'descriptions'         => [
             'add_message'          => 'Erabiltzaileek ikus ditzaketen argitalpenak eta berriak kudeatu',
             'accounts'             => 'Erabiltzaile kontuak, beren rolak eta balioztatzeak kudeatu',
@@ -43,10 +52,16 @@ return [
             'obligatory_documents' => 'Erabiltzaileentzat beharrezkoak diren dokumentuak kudeatu',
             'invoices'             => 'Fakturak eta ordainketak kudeatu',
             'notifications'        => 'Jakinarazpenak eta sistema alertak kudeatu',
+<<<<<<< HEAD
             'role_permissions'     => 'Rolen eta baimenak kudeatu, funtzionalitateetarako sarbidea kontrolatzeko',
         ],
     ],
     'accounts_page'                  => [
+=======
+        ],
+    ],
+    'accounts_page'        => [
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
         'title'                => 'Kontuak',
         'title_subtitle'       => 'Kontuak',
         'search_placeholder'   => 'Erabiltzaile baten bilaketa...',
@@ -99,7 +114,11 @@ return [
             'no_roles'         => 'Ez dago esleituriko rolarik',
             'archived_notice'  => 'Kontu hau artxibatuta dago. Kontsulta bakarrik baimenduta dago.',
             'details_title'    => 'Kontuaren informazioa',
+<<<<<<< HEAD
             'documents_title'  => 'OBLIGATORY_DOCUMENTS_LABEL',
+=======
+            'documents_title'  => OBLIGATORY_DOCUMENTS_LABEL,
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
             'documents'        => [
                 'name'               => 'Izena',
                 'state'              => 'Egoera',
@@ -173,7 +192,11 @@ return [
         'delete_confirmation'  => 'Ziur zaude :name kontua ezabatu nahi duzula ?',
         'archive_confirmation' => 'Ziur zaude :name kontua artxibatu nahi duzula ?',
     ],
+<<<<<<< HEAD
     'enfants_page'                   => [
+=======
+    'enfants_page'         => [
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
         'title'               => 'Haurrak',
         'title_subtitle'      => 'Enfants',
         'search_placeholder'  => 'Haur bat bilatu...',
@@ -222,8 +245,13 @@ return [
         'delete_confirmation' => 'Ziur zaude :name haurra ezabatu nahi duzula ?',
         'no_children'         => 'Ez da haurrik erregistratu',
     ],
+<<<<<<< HEAD
     'obligatory_documents'           => [
         'title'               => 'OBLIGATORY_DOCUMENTS_LABEL',
+=======
+    'obligatory_documents' => [
+        'title'               => OBLIGATORY_DOCUMENTS_LABEL,
+>>>>>>> 9d3b359 (Add comprehensive tests for notification handling and user management)
         'subtitle'            => 'Beharrezko dokumentuaks',
         'description'         => 'Orri honek beharrezko dokumentuak kudeatzeko aukera emango du.',
         'add_button'          => 'Gehitu dokumentu bat',
