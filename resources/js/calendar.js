@@ -137,6 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
             await persistMoveResize(info, updateUrlTemplate);
         },
 
+        datesSet: function() {
+            el.style.visibility = 'visible';
+        },
+
         eventClick: function (info) {
             info.jsEvent.preventDefault();
 

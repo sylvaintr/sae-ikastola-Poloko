@@ -224,7 +224,7 @@
                          data-demande-urgence="{{ __('demandes.urgence') }}"
                          data-demande-etat="{{ __('demandes.etat') }}"
                          data-demande-show-url="{{ route('demandes.show', ['demande' => '__ID__']) }}"
-                         style="min-height: 650px;"></div>
+                         style="min-height: 650px; visibility: hidden;"></div>
 
                     {{-- Légende --}}
                     <div class="mt-4 pt-3 border-top">
