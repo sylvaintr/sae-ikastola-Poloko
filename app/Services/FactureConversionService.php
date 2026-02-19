@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\Storage;
 class FactureConversionService
 {
     /**
-     * Convert a Word/ODT facture to PDF using LibreOffice. Deletes the original Word/ODT file if conversion is successful.
-     * @param Facture $facture the facture to convert
-     * @return bool returns true if conversion succeeded, false otherwise
+     * Méthode pour convertir une facture de Word/ODT à PDF et supprimer le fichier source après conversion réussie.
+     * @param Facture $facture La facture à convertir
+     * @return bool true si la conversion a réussi et le fichier source a été supprimé, false sinon
      */
     public function convertFactureToPdfAndDeleteWord(Facture $facture): bool
     {
@@ -21,9 +21,9 @@ class FactureConversionService
     }
 
     /**
-     * Factorise la recherche du fichier source, la conversion et les logs.
+     * Méthode pour convertir une facture de Word/ODT à PDF. Cette méthode recherche d'abord le fichier source de la facture dans les formats Word (doc, docx) ou ODT, puis utilise la méthode `convertirWordToPdf` pour effectuer la conversion. Si la conversion est réussie et que le paramètre `$deleteOriginal` est vrai, le fichier source est supprimé. La méthode retourne true si la conversion a réussi (indépendamment de la suppression du fichier source), ou false si aucun fichier source n'a été trouvé ou si la conversion a échoué.
      *
-     * @param Facture $facture
+     * @param Facture $facture La facture à convertir
      * @param bool $deleteOriginal si true supprime le fichier source après conversion réussie
      * @return bool
      */
@@ -64,11 +64,14 @@ class FactureConversionService
     }
 
     /**
-     * Execute la commande de conversion et retourne un tableau contenant success, output et return
+     * Méthode pour exécuter la commande de conversion et retourne un tableau contenant success, output et return
      *
-     * @param string $inputPath
-     * @param string $outputPath
-     * @return array{success:bool, output:array, return:int}
+     * @param string $inputPath chemin complet du fichier source à convertir
+     * @param string $outputPath chemin complet du fichier PDF cible à générer
+     * @return array{success:bool, output:array, return:int} tableau contenant le résultat de la conversion :
+     *      - success (bool) : indique si la conversion a réussi (true si le fichier PDF cible a été généré, false sinon)
+     *      - output (array) : tableau des lignes de sortie de la commande d'exécution, utile pour le débogage
+     *      - return (int) : code de retour de la commande d'exécution, où 0 indique généralement une exécution réussie, et tout autre valeur indique une erreur
      */
     public function convertirWordToPdf(string $inputPath, string $outputPath): array
     {

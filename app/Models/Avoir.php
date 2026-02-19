@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -18,59 +17,59 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  */
 class Avoir extends Pivot
 {
-	protected $table = 'avoir';
-	public $incrementing = false;
-	public $timestamps = false;
+    protected $table     = 'avoir';
+    public $incrementing = false;
+    public $timestamps   = false;
 
-	protected $casts = [
-		'idUtilisateur' => 'int',
-		'idRole' => 'int'
-	];
+    protected $casts = [
+        'idUtilisateur' => 'int',
+        'idRole'        => 'int',
+    ];
 
-	/**
-	 * Attributs assignables (fillable) pour le pivot avoir.
-	 *
-	 * - `idUtilisateur` (int) : identifiant de l'utilisateur.
-	 * - `idRole` (int) : identifiant du rôle attribué.
-	 * - `model_type` (string) : type du modèle pour relations polymorphiques.
-	 */
-	protected $fillable = [
-		'idUtilisateur',
-		'idRole',
-		'model_type'
-	];
+    /**
+     * Attributs assignables (fillable) pour le pivot avoir.
+     *
+     * - `idUtilisateur` (int) : identifiant de l'utilisateur.
+     * - `idRole` (int) : identifiant du rôle attribué.
+     * - `model_type` (string) : type du modèle pour relations polymorphiques.
+     */
+    protected $fillable = [
+        'idUtilisateur',
+        'idRole',
+        'model_type',
+    ];
 
-	/**
-	 * Boot method pour définir des valeurs par défaut lors de la création d'un pivot avoir.
-	 */
-	public static function boot()
-	{
-		parent::boot();
+    /**
+     * Boot method pour définir des valeurs par défaut lors de la création d'un pivot avoir.
+     */
+    public static function boot()
+    {
+        parent::boot();
 
-		static::creating(function ($avoir) {
-			if (empty($avoir->model_type)) {
-				$avoir->model_type = Utilisateur::class;
-			}
-		});
-	}
+        static::creating(function ($avoir) {
+            if (empty($avoir->model_type)) {
+                $avoir->model_type = Utilisateur::class;
+            }
+        });
+    }
 
-	/**
-	 * Relation belongsTo vers l'utilisateur associé.
-	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-	 */
-	public function utilisateur()
-	{
-		return $this->belongsTo(Utilisateur::class, 'idUtilisateur');
-	}
+    /**
+     * Relation belongsTo vers l'utilisateur associé.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function utilisateur()
+    {
+        return $this->belongsTo(Utilisateur::class, 'idUtilisateur');
+    }
 
-	/**
-	 * Relation belongsTo vers le rôle associé.
-	 *
-	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-	 */
-	public function role()
-	{
-		return $this->belongsTo(Role::class, 'idRole');
-	}
+    /**
+     * Relation belongsTo vers le rôle associé.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'idRole');
+    }
 }

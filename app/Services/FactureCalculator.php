@@ -10,7 +10,7 @@ class FactureCalculator
 {
 
     /**
-     * Calculer les montants d'une facture donnée.
+     * Méthode pour calculer les montants d'une facture donnée.
      * @param string $id Identifiant de la facture à calculer
      * @return array<int, float> tableau associatif contenant les montants calculés :
      *      montantcotisation, montantparticipation, montantparticipationSeaska, montangarderie, montanttotal,facture, famille, nbEnfants
@@ -75,9 +75,9 @@ class FactureCalculator
     }
 
     /**
-     * calcule le montant de la regulation pour une facture donnée
+     * Méthode pour calculer le montant de la régularisation pour une facture donnée
      * @param int $idfacture identifiant de la facture
-     * @return float montant de la regulation (peut être négatif)
+     * @return float montant de la régularisation (peut être négatif)
      */
     public function calculerRegularisation(int $idfacture): float
     {

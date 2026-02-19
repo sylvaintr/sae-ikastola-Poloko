@@ -56,6 +56,11 @@ class DocumentObligatoire extends Model
         return $this->hasMany(Document::class, 'idDocumentObligatoire', 'idDocumentObligatoire');
     }
 
+    /**
+     * Relation belongsToMany vers les rôles associés à ce document obligatoire via la table pivot `attribuer`.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'attribuer', 'idDocumentObligatoire', 'idRole');
