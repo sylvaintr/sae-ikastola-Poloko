@@ -162,10 +162,15 @@ return [
                 'fr' => 'Photo',
             ],
             'assigne' => [
-                'eu' => 'Batzordea esleitu',
-                'fr' => 'Assigner à une commission',
+                'eu' => 'Batzordeak esleitu',
+                'fr' => 'Assigner à des commissions',
                 'none' => 'Aucune commission assignée',
             ],
+            'commission_search' => 'Bilatu batzorde bat / Rechercher une commission',
+            'commission_placeholder' => 'Tapez pour filtrer...',
+            'commission_selected' => 'Hautatutako batzordeak / Commissions sélectionnées',
+            'commission_empty' => 'Aucune commission sélectionnée',
+            'commission_required' => 'Veuillez sélectionner au moins une commission.',
         ],
         'buttons' => [
             'back' => [

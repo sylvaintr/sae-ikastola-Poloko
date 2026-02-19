@@ -16,9 +16,12 @@
                 <p class="text-muted mb-0">
                     {{ __('demandes.show.reported_by', ['name' => $metadata['reporter'], 'date' => $metadata['report_date']]) }}
                 </p>
-                @if($demande->roleAssigne)
+                @if($demande->roles->isNotEmpty())
                     <p class="text-muted mb-0 mt-2">
-                        <strong>{{ __('demandes.show.assigned_to') }}:</strong> {{ $demande->roleAssigne->name }}
+                        <strong>{{ __('demandes.show.assigned_to') }}:</strong>
+                        @foreach($demande->roles as $role)
+                            <span class="badge bg-orange-soft text-dark fw-normal ms-1">{{ $role->name }}</span>
+                        @endforeach
                     </p>
                 @endif
             </div>
@@ -41,14 +44,16 @@
             @if (count($photos))
                 <div class="row g-3">
                     @foreach ($photos as $photo)
-                        <div class="col-12 col-md-6">
-                            <div class="demande-photo-card">
-                                <img src="{{ $photo['url'] }}" alt="{{ $photo['nom'] }}" class="img-fluid w-100 rounded-3">
-                                <div class="small text-muted mt-2">{{ $photo['nom'] }}</div>
-                            </div>
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <a href="{{ $photo['url'] }}" target="_blank" class="d-block demande-photo-card text-decoration-none">
+                                <img src="{{ $photo['url'] }}" alt="{{ $photo['nom'] }}" class="img-fluid w-100 rounded-3" style="object-fit: cover; max-height: 220px;">
+                                <div class="small text-muted mt-2 text-truncate">{{ $photo['nom'] }}</div>
+                            </a>
                         </div>
                     @endforeach
                 </div>
+            @else
+                <p class="text-muted">—</p>
             @endif
         </section>
 
@@ -106,7 +111,7 @@
                             @foreach ($historiques as $item)
                                 <tr>
                                     <td>{{ $item->statut }}</td>
-                                    <td>{{ optional($item->date_evenement)->format('d-m-Y') ?? '—' }}</td>
+                                    <td>{{ optional($item->dateE)->format('d-m-Y') ?? '—' }}</td>
                                     <td>{{ $item->titre }}</td>
                                     <td>{{ $item->responsable ?? '—' }}</td>
                                     <td>{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}</td>
@@ -114,7 +119,7 @@
                                         <button type="button" class="btn demande-action-btn history-view-btn"
                                             data-description="{{ $item->description ?? '—' }}"
                                             data-titre="{{ $item->titre }}"
-                                            data-date="{{ optional($item->date_evenement)->format('d/m/Y') ?? '—' }}"
+                                            data-date="{{ optional($item->dateE)->format('d/m/Y') ?? '—' }}"
                                             data-depense="{{ $item->depense ? number_format($item->depense, 2, ',', ' ') . ' €' : '—' }}"
                                             title="{{ __('demandes.actions.view') }}">
                                             <i class="bi bi-eye"></i>

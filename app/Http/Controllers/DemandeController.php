@@ -139,9 +139,8 @@ class DemandeController extends Controller
         $urgences = self::DEFAULT_URGENCES;
         $roles = Role::orderBy('name')->get();
         $evenements = Evenement::with('roles')->orderBy('titre')->get();
-        $types = \App\Models\Tache::select('type')->distinct()->orderBy('type')->pluck('type')->filter()->values();
 
-        return view('demandes.create', compact('urgences', 'roles', 'evenements', 'types'));
+        return view('demandes.create', compact('urgences', 'roles', 'evenements'));
     }
 
     public function show(Tache $demande)
@@ -182,7 +181,7 @@ class DemandeController extends Controller
             'idEvenement' => ['nullable', 'integer', 'exists:evenement,idEvenement'],
             'photos' => ['nullable', 'array', 'max:4'],
             'photos.*' => ['file', 'image', 'mimes:jpg,jpeg,png', 'max:4096'],
-            'roles' => ['nullable', 'array'],
+            'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['integer', 'exists:role,idRole'],
         ]);
 
@@ -216,7 +215,6 @@ class DemandeController extends Controller
         $urgences = ['Faible', 'Moyenne', 'Élevée'];
         $roles = Role::orderBy('name')->get();
         $evenements = Evenement::with('roles')->orderBy('titre')->get();
-        $types = \App\Models\Tache::select('type')->distinct()->orderBy('type')->pluck('type')->filter()->values();
 
         // Charger les rôles de la demande
         $demande->load('roles');
@@ -226,7 +224,6 @@ class DemandeController extends Controller
             'demande' => $demande,
             'roles' => $roles,
             'evenements' => $evenements,
-            'types' => $types,
         ]);
     }
 
@@ -247,7 +244,7 @@ class DemandeController extends Controller
             'montantP' => ['nullable', 'numeric', 'min:0'],
             'montantR' => ['nullable', 'numeric', 'min:0'],
             'idEvenement' => ['nullable', 'integer', 'exists:evenement,idEvenement'],
-            'roles' => ['nullable', 'array'],
+            'roles' => ['required', 'array', 'min:1'],
             'roles.*' => ['integer', 'exists:role,idRole'],
         ]);
 
@@ -469,8 +466,7 @@ class DemandeController extends Controller
         $this->addHistoryEntry(
             $demande,
             __('demandes.history_statuses.created'),
-            $demande->description,
-            $demande->montantP
+            $demande->description
         );
     }
 
