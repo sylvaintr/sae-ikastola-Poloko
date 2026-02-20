@@ -7,12 +7,14 @@
         <i class="bi bi-pencil-fill"></i>
     </a>
 
+    @if(!$actualite->archive)
     <form action="{{ route('admin.actualites.duplicate', $actualite->idActualite) }}" method="POST" class="d-inline">
         @csrf
         <button type="submit" class="btn demande-action-btn" title="{{ __('actualite.duplicate') }}">
             <i class="bi bi-files"></i>
         </button>
     </form>
+    @endif
 
     <form action="{{ route('admin.actualites.destroy', $actualite->idActualite) }}" method="POST" class="d-inline actualite-delete-form">
         @csrf

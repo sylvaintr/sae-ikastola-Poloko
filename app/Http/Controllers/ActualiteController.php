@@ -1,47 +1,53 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreActualiteRequest;
 use App\Models\Actualite;
 use App\Models\Document;
 use App\Models\Etiquette;
-use App\Models\Posseder; // Import de la Request
+use App\Services\ActualiteDataTableService;
+use App\Services\ActualiteEtiquetteService;
+use App\Services\ActualiteFilterService;
+use App\Services\ActualiteImageService;
+use App\Services\ActualiteValidationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\Facades\DataTables;
 
 class ActualiteController extends Controller
 {
+    private ActualiteEtiquetteService $etiquetteService;
+    private ActualiteFilterService $filterService;
+    private ActualiteValidationService $validationService;
+    private ActualiteImageService $imageService;
+    private ActualiteDataTableService $dataTableService;
+
+    public function __construct(
+        ActualiteEtiquetteService $etiquetteService,
+        ActualiteFilterService $filterService,
+        ActualiteValidationService $validationService,
+        ActualiteImageService $imageService,
+        ActualiteDataTableService $dataTableService
+    ) {
+        $this->etiquetteService = $etiquetteService;
+        $this->filterService = $filterService;
+        $this->validationService = $validationService;
+        $this->imageService = $imageService;
+        $this->dataTableService = $dataTableService;
+    }
+
     /**
      * Affiche la liste publique des actualités (Front-end).
      */
     public function index(?Request $request = null)
     {
-        $this->ensureEtiquetteIsPublicColumn();
+        $this->etiquetteService->ensurePublicColumn();
 
         $request = $request ?? request();
-        // 1. Définir les étiquettes autorisées
-        // Étiquettes non liées à un rôle : accessibles à tous
-        $unboundIds = Etiquette::whereNotIn('idEtiquette', Posseder::distinct()->pluck('idEtiquette'))->pluck('idEtiquette')->toArray();
-
-        $hasIsPublic  = Schema::hasColumn('etiquette', 'public');
-        $publicTagIds = $hasIsPublic
-            ? Etiquette::where('public', true)->pluck('idEtiquette')->toArray()
-            : [];
-        $authUser = $request->user() ?? Auth::user();
-        if (! $authUser) {
-            // Invité : seules les étiquettes publiques sont considérées
-            $etiquettes      = Etiquette::whereIn('idEtiquette', $publicTagIds)->get();
-            $allowedIdsArray = $publicTagIds;
-        } else {
-            $roleIds         = $authUser->rolesCustom->pluck('idRole')->toArray();
-            $allowedIds      = Posseder::whereIn('idRole', $roleIds)->pluck('idEtiquette')->toArray();
-            $allowedIdsArray = array_values(array_unique(array_merge($allowedIds, $publicTagIds)));
-            $etiquettes      = Etiquette::whereIn('idEtiquette', $allowedIdsArray)->get();
-        }
+        $etiquetteData = $this->etiquetteService->resolveAllowedEtiquettes($request);
+        $etiquettes = $etiquetteData['etiquettes'];
+        $allowedIdsArray = $etiquetteData['allowedIds'];
+        $publicTagIds = $etiquetteData['publicTagIds'];
+        $unboundIds = $etiquetteData['unboundIds'];
 
         // 2. Construire la requête
         $query = Actualite::with(['etiquettes', 'documents'])
@@ -114,19 +120,7 @@ class ActualiteController extends Controller
      */
     public function store(Request $request)
     {
-        // Support both StoreActualiteRequest and plain Request in tests
-        if (method_exists($request, 'validated')) {
-            $data = $request->validated();
-        } else {
-            // Ensure slashed dates (d/m/Y) are normalized before validation
-            if ($request->has('dateP') && str_contains($request->dateP, '/')) {
-                $d = \DateTime::createFromFormat('d/m/Y', $request->dateP);
-                if ($d) {
-                    $request->merge(['dateP' => $d->format('Y-m-d')]);
-                }
-            }
-            $data = $request->validate((new StoreActualiteRequest())->rules());
-        }
+        $data = $this->validationService->validateRequest($request);
         $data['idUtilisateur'] = Auth::id();
 
         $actualite = Actualite::create($data);
@@ -136,7 +130,7 @@ class ActualiteController extends Controller
         }
 
         if ($request->hasFile('images')) {
-            $this->uploadImages($request->file('images'), $actualite);
+            $this->imageService->uploadImages($request->file('images'), $actualite);
         }
 
         return redirect()->route('home')->with('success', 'Actualité créée avec succès.');
@@ -171,18 +165,7 @@ class ActualiteController extends Controller
             return redirect()->back()->with('error', __('actualite.not_found'));
         }
 
-        if (method_exists($request, 'validated')) {
-            $validated = $request->validated();
-        } else {
-            // Normalize slashed date format before validating as StoreActualiteRequest is not executed
-            if ($request->has('dateP') && str_contains($request->dateP, '/')) {
-                $d = \DateTime::createFromFormat('d/m/Y', $request->dateP);
-                if ($d) {
-                    $request->merge(['dateP' => $d->format('Y-m-d')]);
-                }
-            }
-            $validated = $request->validate((new StoreActualiteRequest())->rules());
-        }
+        $validated = $this->validationService->validateRequest($request);
 
         // update() utilise les données déjà validées et formatées (dateP convertie)
         $actualite->update($validated);
@@ -194,7 +177,7 @@ class ActualiteController extends Controller
         }
 
         if ($request->hasFile('images')) {
-            $this->uploadImages($request->file('images'), $actualite);
+            $this->imageService->uploadImages($request->file('images'), $actualite);
         }
 
         return redirect()->route('actualites.show', $id)->with('success', 'Actualité mise à jour.');
@@ -234,6 +217,12 @@ class ActualiteController extends Controller
     {
         $original = Actualite::with(['etiquettes', 'documents'])->findOrFail($id);
 
+        // Empêcher la duplication d'une actualité archivée
+        if ($original->archive) {
+            return redirect()->route('admin.actualites.index')
+                ->with('error', __('actualite.cannot_duplicate_archived'));
+        }
+
         // Créer une nouvelle actualité avec les mêmes données (sauf idActualite)
         $duplicate = Actualite::create([
             'titrefr' => $original->titrefr ? ($original->titrefr . ' (Copie)') : null,
@@ -265,39 +254,11 @@ class ActualiteController extends Controller
 
     public function adminIndex(Request $request)
     {
-        $this->ensureEtiquetteIsPublicColumn();
+        $this->etiquetteService->ensurePublicColumn();
 
         $query = Actualite::with('etiquettes')->orderBy('dateP', 'desc');
-
-        $filters = [
-            'type'      => $request->get('type', ''),
-            'etat'      => $request->get('etat', ''),
-            'etiquette' => $request->get('etiquette', ''),
-            'search'    => $request->get('search', ''),
-        ];
-
-        if (! empty($filters['type'])) {
-            $query->where('type', $filters['type']);
-        }
-
-        if (! empty($filters['etat'])) {
-            $filters['etat'] === 'active'
-                ? $query->where('archive', false)
-                : $query->where('archive', true);
-        }
-
-        if (! empty($filters['etiquette'])) {
-            $ids = array_map('intval', (array) $filters['etiquette']);
-            $query->whereHas('etiquettes', fn($q) => $q->whereIn('etiquette.idEtiquette', $ids));
-        }
-
-        if (! empty($filters['search'])) {
-            $term = '%' . $filters['search'] . '%';
-            $query->where(function ($q) use ($term) {
-                $q->where('titrefr', 'like', $term)
-                    ->orWhere('titreeus', 'like', $term);
-            });
-        }
+        $filters = $this->filterService->extractFilters($request);
+        $this->filterService->applyFilters($query, $filters);
 
         $actualites = $query->paginate(10)->appends($request->query());
         $etiquettes = Etiquette::all();
@@ -305,75 +266,19 @@ class ActualiteController extends Controller
         return view('actualites.pannel', compact('actualites', 'etiquettes', 'filters'));
     }
 
-    /**
-     * Ajoute la colonne public sur etiquette si absente (pas de nouvelle migration).
-     */
-    private function ensureEtiquetteIsPublicColumn(): void
-    {
-        if (! Schema::hasColumn('etiquette', 'public')) {
-            Schema::table('etiquette', function ($table) {
-                $table->boolean('public')->default(false)->after('nom');
-            });
-        }
-    }
 
     /**
-     * Méthode privée pour gérer l'upload (évite la duplication de code)
-     */
-    private function uploadImages(array $files, Actualite $actualite)
-    {
-        foreach ($files as $file) {
-            $path     = $file->store('actualites', 'public');
-            $document = Document::create([
-                'nom'    => $file->getClientOriginalName(),
-                'chemin' => $path,
-                'type'   => 'image',
-                'etat'   => 'actif',
-            ]);
-            $actualite->documents()->attach($document->idDocument);
-        }
-    }
-
-    /**
-     * Données pour DataTables (Logique inlined pour réduire le nombre de méthodes)
+     * Données pour DataTables.
      */
     public function data(?Request $request = null)
     {
-        $request = $request ?? request();
-        $query   = Actualite::query()->with('etiquettes');
-
-        // Filtres simples
-        if ($request->filled('type')) {
-            $query->where('type', $request->input('type'));
-        }
-        if ($request->filled('etat')) {
-            $request->input('etat') === 'active' ? $query->where('archive', false) : $query->where('archive', true);
-        }
-
-        // Filtre Etiquettes
-        if ($request->filled('etiquette')) {
-            $ids = array_map('intval', (array) $request->input('etiquette'));
-            $query->whereHas('etiquettes', function ($q) use ($ids) {
-                $q->whereIn('etiquette.idEtiquette', $ids);
-            });
-        }
-
-        return DataTables::of($query)
-            ->addColumn('titre', fn($actu) => $actu->titrefr ?? 'Sans titre')
-            ->addColumn('etiquettes', fn($actu) => $actu->etiquettes->pluck('nom')->join(', '))
-            ->addColumn('etat', fn($actu) => $actu->archive ? Lang::get('actualite.archived') : Lang::get('actualite.active'))
-            ->addColumn('actions', fn($actu) => view('actualites.template.colonne-action', ['actualite' => $actu]))
-
-        // Filtre Titre (recherche globale) — use direct callable to improve testability
-            ->filterColumn('titre', [$this, 'filterColumnTitreInline'])
-        // Filtre Etiquettes (recherche textuelle) — use direct callable
-            ->filterColumn('etiquettes', [$this, 'filterColumnEtiquettesInline'])
-        // Register callable wrappers so unit tests can invoke them directly
-            ->filterColumn('titre', [$this, 'filterColumnTitreCallback'])
-            ->filterColumn('etiquettes', [$this, 'filterColumnEtiquettesCallback'])
-            ->rawColumns(['actions'])
-            ->make(true);
+        return $this->dataTableService->buildDataTable(
+            $request,
+            [$this->dataTableService, 'filterColumnTitreInline'],
+            [$this->dataTableService, 'filterColumnEtiquettesInline']
+        );
     }
+
 
     // Delegates unknown helper calls to a dedicated helper class so the
     // controller stays small (helps static analyzers enforce method limits).
@@ -397,19 +302,4 @@ class ActualiteController extends Controller
         throw new \BadMethodCallException("Method {$method} does not exist.");
     }
 
-    /**
-     * Inline titre filter extracted to a private method so unit tests can target it.
-     */
-    private function filterColumnTitreInline($q, $keyword)
-    {
-        $q->where(fn($sq) => $sq->where('titrefr', 'like', "%{$keyword}%")->orWhere('titreeus', 'like', "%{$keyword}%"));
-    }
-
-    /**
-     * Inline etiquettes filter extracted to a private method so unit tests can target it.
-     */
-    private function filterColumnEtiquettesInline($q, $keyword)
-    {
-        $q->whereHas('etiquettes', fn($sq) => $sq->where('nom', 'like', "%{$keyword}%"));
-    }
 }

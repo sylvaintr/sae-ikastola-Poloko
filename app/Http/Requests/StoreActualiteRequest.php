@@ -32,8 +32,15 @@ class StoreActualiteRequest extends FormRequest
         }
         
         // Gérer la case à cocher 'archive' qui n'est pas envoyée si décochée
+        // Une checkbox envoie "on" quand elle est cochée, rien quand elle n'est pas cochée
+        $archiveValue = false;
+        if ($this->has('archive')) {
+            $inputValue = $this->input('archive');
+            // Convertir "on", true, "1", 1 en true, tout le reste en false
+            $archiveValue = in_array($inputValue, ['on', true, '1', 1], true);
+        }
         $this->merge([
-            'archive' => $this->has('archive'),
+            'archive' => (bool) $archiveValue,
         ]);
     }
 

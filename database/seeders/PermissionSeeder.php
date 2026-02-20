@@ -11,23 +11,24 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        Permission::create(['name' => 'access-administration']);
-        Permission::create(['name' => 'access-demande']);
-        Permission::create(['name' => 'access-tache']);
-        Permission::create(['name' => 'access-presence']);
-        Permission::create(['name' => 'access-evenement']);
-        Permission::create(['name' => 'access-calendrier']);
-        Permission::create(['name' => 'gerer-presence']);
-        Permission::create(['name' => 'gerer-actualites']);
-        Permission::create(['name' => 'gerer-etiquettes']);
-        Permission::create(['name' => 'gerer-tache']);
-        Permission::create(['name' => 'gerer-notifications']);
-        Permission::create(['name' => 'gerer-familles']);
-        Permission::create(['name' => 'gerer-utilisateurs']);
-        Permission::create(['name' => 'gerer-roles']);
-        Permission::create(['name' => 'gerer-enfants']);
-        Permission::create(['name' => 'gerer-classes']);
-        Permission::create(['name' => 'gerer-document-obligatoire']);
-        Permission::create(['name' => 'gerer-factures']);
+        Permission::firstOrCreate(['name' => 'access-administration'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'access-demande'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'access-tache'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'access-presence'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'access-evenement'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'access-calendrier'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-presence'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-actualites'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-etiquettes'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-demandes'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-tache'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-notifications'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-familles'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-utilisateurs'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-roles'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-enfants'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-classes'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-document-obligatoire'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-factures'], ['guard_name' => 'web']);
     }
 }
