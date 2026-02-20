@@ -9,6 +9,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Supprimer temporairement la contrainte de clé étrangère
+        Schema::table('evenement_role', function (Blueprint $table) {
+            $table->dropForeign(['idEvenement']);
+        });
+
         Schema::table('evenement', function (Blueprint $table) {
             // Rendre idEvenement auto-increment
             $table->integer('idEvenement', true)->change();
@@ -28,10 +33,23 @@ return new class extends Migration
         Schema::table('evenement', function (Blueprint $table) {
             $table->dropColumn('dateE');
         });
+
+        // Re-créer la contrainte de clé étrangère
+        Schema::table('evenement_role', function (Blueprint $table) {
+            $table->foreign('idEvenement')
+                ->references('idEvenement')
+                ->on('evenement')
+                ->onDelete('cascade');
+        });
     }
 
     public function down(): void
     {
+        // Supprimer temporairement la contrainte de clé étrangère
+        Schema::table('evenement_role', function (Blueprint $table) {
+            $table->dropForeign(['idEvenement']);
+        });
+
         Schema::table('evenement', function (Blueprint $table) {
             $table->date('dateE')->nullable()->after('obligatoire');
         });
@@ -42,6 +60,14 @@ return new class extends Migration
             $table->dropColumn(['start_at', 'end_at']);
             $table->string('titre', 20)->change();
             $table->string('description', 100)->change();
+        });
+
+        // Re-créer la contrainte de clé étrangère
+        Schema::table('evenement_role', function (Blueprint $table) {
+            $table->foreign('idEvenement')
+                ->references('idEvenement')
+                ->on('evenement')
+                ->onDelete('cascade');
         });
     }
 };
