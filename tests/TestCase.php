@@ -108,6 +108,8 @@ abstract class TestCase extends BaseTestCase
             'gerer-classes',
             'gerer-document-obligatoire',
             'gerer-factures',
+            'gerer-evenement',
+            'gerer-demande',
         ];
 
         foreach ($permissions as $p) {

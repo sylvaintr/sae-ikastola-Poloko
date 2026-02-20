@@ -19,6 +19,12 @@ class ProfileController extends Controller
 {
     use HandlesDocumentDownloads;
 
+    // Taille maximale des documents en KB (8 MB)
+    private const MAX_DOCUMENT_SIZE_KB = 8192;
+
+    // Magic bytes pour détecter les fichiers ZIP (utilisé pour DOCX)
+    private const ZIP_MAGIC_BYTES = '504b0304';
+
     /**
      * Methode pour afficher le formulaire de profil de l'utilisateur
      */

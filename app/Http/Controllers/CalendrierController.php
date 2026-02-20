@@ -34,7 +34,7 @@ class CalendrierController extends Controller
         $demandes = $this->getFilteredDemandes($isAdmin, $userRoleIds, $start, $end);
         $taches = $this->getFilteredTaches($isAdmin, $userRoleIds, $start, $end);
 
-        return response()->json($events->merge($demandes)->merge($taches));
+        return response()->json($events->concat($demandes)->concat($taches));
     }
 
     /**

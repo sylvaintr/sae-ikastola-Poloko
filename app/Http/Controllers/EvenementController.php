@@ -228,6 +228,9 @@ class EvenementController extends Controller
 
         $callback = function () use ($evenements) {
             $file = fopen('php://output', 'w');
+            if ($file === false) {
+                return;
+            }
             fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8
 
             // En-têtes du tableau principal
@@ -307,6 +310,9 @@ class EvenementController extends Controller
 
         $callback = function () use ($evenement) {
             $file = fopen('php://output', 'w');
+            if ($file === false) {
+                return;
+            }
             fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8
 
             // Section événement
