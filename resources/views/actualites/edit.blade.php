@@ -208,7 +208,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="contenufr" class="form-label">
-                                            {{ __('actualite.contenu') }} (FR) 
+                                            {{ __('actualite.contenu') }} (FR)
                                             <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" class="text-info text-decoration-none" title="{{ __('actualite.markdown_help') ?? 'Aide Markdown' }}" rel="noopener noreferrer">
                                                 <i class="bi bi-info-circle"></i>
                                             </a>
@@ -243,7 +243,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="contenueus" class="form-label">
-                                            {{ __('actualite.contenu') }} (EUS) 
+                                            {{ __('actualite.contenu') }} (EUS)
                                             <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" class="text-info text-decoration-none" title="{{ __('actualite.markdown_help') ?? 'Aide Markdown' }}" rel="noopener noreferrer">
                                                 <i class="bi bi-info-circle"></i>
                                             </a>
