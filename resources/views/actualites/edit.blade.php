@@ -209,7 +209,7 @@
                                     <div class="mb-3">
                                         <label for="contenufr" class="form-label">
                                             {{ __('actualite.contenu') }} (FR) 
-                                            <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" class="text-info" title="{{ __('actualite.markdown_help') ?? 'Aide Markdown' }}" rel="noopener noreferrer">
+                                            <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" class="text-info text-decoration-none" title="{{ __('actualite.markdown_help') ?? 'Aide Markdown' }}" rel="noopener noreferrer">
                                                 <i class="bi bi-info-circle"></i>
                                             </a>
                                             <span class="text-danger">*</span>
@@ -244,7 +244,7 @@
                                     <div class="mb-3">
                                         <label for="contenueus" class="form-label">
                                             {{ __('actualite.contenu') }} (EUS) 
-                                            <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" class="text-info" title="{{ __('actualite.markdown_help') ?? 'Aide Markdown' }}" rel="noopener noreferrer">
+                                            <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" class="text-info text-decoration-none" title="{{ __('actualite.markdown_help') ?? 'Aide Markdown' }}" rel="noopener noreferrer">
                                                 <i class="bi bi-info-circle"></i>
                                             </a>
                                             <span class="text-danger">*</span>
