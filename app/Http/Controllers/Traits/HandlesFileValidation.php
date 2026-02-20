@@ -21,17 +21,11 @@ trait HandlesFileValidation
     protected function validateDocumentUpload(Request $request): void
     {
         $maxSizeKB = (int) self::MAX_DOCUMENT_SIZE_KB;
-        // Calculer la taille en MB pour le message d'erreur
         $maxSizeMB = round($maxSizeKB / 1024, 0);
         
         $request->validate([
-            'document' => [
-                'required',
-                'file',
-                'max:' . $maxSizeKB,
-                'mimes:pdf,doc,docx,jpg,jpeg,png'
-            ],
-            'idDocumentObligatoire' => ['required', 'integer', 'exists:documentObligatoire,idDocumentObligatoire'],
+            'document' => 'required|file|max:' . $maxSizeKB . '|mimes:pdf,doc,docx,jpg,jpeg,png',
+            'idDocumentObligatoire' => 'required|integer|exists:documentObligatoire,idDocumentObligatoire',
         ], [
             'document.required' => __('auth.document_required'),
             'document.file' => __('auth.document_must_be_file'),
