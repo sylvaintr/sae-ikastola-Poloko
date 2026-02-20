@@ -11,24 +11,24 @@ class DemandeControllerIndexFiltersTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_index_respects_search_etat_type_urgence_filters()
+    public function test_index_respects_search_etat_urgence_filters()
     {
         // given
         $this->withoutMiddleware();
-        // Matching demande
+        // Matching demande - type='demande' is the discriminator
         $match = Tache::factory()->create([
             'titre' => 'FindMeNow',
             'etat' => 'En attente',
-            'type' => 'Réparation',
+            'type' => 'demande',
             'urgence' => 'Faible',
             'dateD' => '2020-01-01'
         ]);
 
-        // Non-matching demande
+        // Non-matching demande (different etat and urgence)
         $other = Tache::factory()->create([
             'titre' => 'Other',
             'etat' => 'En cours',
-            'type' => 'Ménage',
+            'type' => 'demande',
             'urgence' => 'Élevée',
             'dateD' => '2020-01-01'
         ]);

@@ -49,9 +49,7 @@ class EvenementControllerExportTest extends TestCase
         $response = $controller->export($request);
 
         // then
-        ob_start();
-        $response->sendContent();
-        $content = ob_get_clean();
+        $content = $response->getContent();
 
         $this->assertStringContainsString('Test Export Evenement', $content);
     }
@@ -77,9 +75,7 @@ class EvenementControllerExportTest extends TestCase
         $response = $controller->export($request);
 
         // then
-        ob_start();
-        $response->sendContent();
-        $content = ob_get_clean();
+        $content = $response->getContent();
 
         $this->assertStringContainsString('Fete de Noel', $content);
         $this->assertStringNotContainsString('Reunion Parents', $content);
@@ -114,9 +110,7 @@ class EvenementControllerExportTest extends TestCase
         $response = $controller->export($request);
 
         // then
-        ob_start();
-        $response->sendContent();
-        $content = ob_get_clean();
+        $content = $response->getContent();
 
         $this->assertStringContainsString('Evenement Comptabilite', $content);
         // Total recettes: 100 * 2 = 200
@@ -174,9 +168,7 @@ class EvenementControllerExportTest extends TestCase
         $response = $controller->exportCsv($evenement);
 
         // then
-        ob_start();
-        $response->sendContent();
-        $content = ob_get_clean();
+        $content = $response->getContent();
 
         $this->assertStringContainsString('Evenement Avec Recettes', $content);
         $this->assertStringContainsString('Vente billets', $content);
@@ -223,9 +215,7 @@ class EvenementControllerExportTest extends TestCase
         $response = $controller->exportCsv($evenement);
 
         // then
-        ob_start();
-        $response->sendContent();
-        $content = ob_get_clean();
+        $content = $response->getContent();
 
         $this->assertStringContainsString('Commission Fetes', $content);
     }

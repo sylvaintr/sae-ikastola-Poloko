@@ -5,7 +5,6 @@ namespace Tests\Unit;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Controllers\DemandeController;
@@ -133,8 +132,7 @@ class DemandeControllerTest extends TestCase
     {
         // given
         $user = Utilisateur::factory()->create();
-        Auth::shouldReceive('user')->andReturn($user);
-        $user->shouldReceive('can')->with('gerer-demande')->andReturn(true);
+        $this->actingAs($user);
 
         // when
 
@@ -150,8 +148,7 @@ class DemandeControllerTest extends TestCase
     {
         // given
         $user = Utilisateur::factory()->create();
-        Auth::shouldReceive('user')->andReturn($user);
-        $user->shouldReceive('can')->with('gerer-demande')->andReturn(true);
+        $this->actingAs($user);
 
         // when
 
@@ -183,8 +180,7 @@ class DemandeControllerTest extends TestCase
     {
         // given
         $user = Utilisateur::factory()->create();
-        Auth::shouldReceive('user')->andReturn($user);
-        $user->shouldReceive('can')->with('gerer-demande')->andReturn(true);
+        $this->actingAs($user);
 
         // when
 
@@ -216,8 +212,7 @@ class DemandeControllerTest extends TestCase
     {
         // given
         $user = Utilisateur::factory()->create();
-        Auth::shouldReceive('user')->andReturn($user);
-        $user->shouldReceive('can')->with('gerer-demande')->andReturn(true);
+        $this->actingAs($user);
 
         // when
 
@@ -236,8 +231,7 @@ class DemandeControllerTest extends TestCase
     {
         // given
         $user = Utilisateur::factory()->create();
-        Auth::shouldReceive('user')->andReturn($user);
-        $user->shouldReceive('can')->with('gerer-demande')->andReturn(true);
+        $this->actingAs($user);
 
         // when
 

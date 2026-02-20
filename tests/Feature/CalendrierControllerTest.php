@@ -303,8 +303,8 @@ class CalendrierControllerTest extends TestCase
         ]);
         $differentRoleEvent->roles()->attach($otherRole->idRole);
 
-        // when
-        $response = $this->actingAs($this->user)->getJson(route('calendrier.events', [
+        // when - use actingAsNonAdmin to test role filtering without admin bypass
+        $response = $this->actingAsNonAdmin($this->user)->getJson(route('calendrier.events', [
             'start' => now()->toISOString(),
             'end' => now()->addMonth()->toISOString(),
         ]));
@@ -351,8 +351,8 @@ class CalendrierControllerTest extends TestCase
             'start_at' => now()->addDay(),
         ]);
 
-        // when
-        $response = $this->actingAs($this->user)->getJson(route('calendrier.events', [
+        // when - use actingAsNonAdmin to test role filtering without admin bypass
+        $response = $this->actingAsNonAdmin($this->user)->getJson(route('calendrier.events', [
             'start' => now()->toISOString(),
             'end' => now()->addMonth()->toISOString(),
         ]));
@@ -405,8 +405,8 @@ class CalendrierControllerTest extends TestCase
             'idEvenement' => $event->idEvenement,
         ]);
 
-        // when
-        $response = $this->actingAs($this->user)->getJson(route('calendrier.events', [
+        // when - use actingAsNonAdmin to test role filtering without admin bypass
+        $response = $this->actingAsNonAdmin($this->user)->getJson(route('calendrier.events', [
             'start' => now()->toISOString(),
             'end' => now()->addMonth()->toISOString(),
         ]));
@@ -553,8 +553,8 @@ class CalendrierControllerTest extends TestCase
         ]);
         $restrictedEvent->roles()->attach($otherRole->idRole);
 
-        // when
-        $response = $this->actingAs($this->user)->getJson(route('calendrier.events', [
+        // when - use actingAsNonAdmin to test role filtering without admin bypass
+        $response = $this->actingAsNonAdmin($this->user)->getJson(route('calendrier.events', [
             'start' => now()->toISOString(),
             'end' => now()->addMonth()->toISOString(),
         ]));
