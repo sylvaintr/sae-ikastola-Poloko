@@ -71,14 +71,7 @@
 
         {{-- Actions --}}
         <div class="d-flex flex-wrap gap-2 mb-4">
-            <a href="{{ route('evenements.edit', $evenement) }}" class="btn demande-btn-primary text-white">
-                <i class="bi bi-pencil"></i>
-                <span class="basque">{{ Lang::get('evenements.edit_event', [], 'eus') }}</span>
-                @if (Lang::getLocale() == 'fr')
-                    <span class="fr">/ {{ Lang::get('evenements.edit_event') }}</span>
-                @endif
-            </a>
-            <button class="btn demande-btn-outline" data-bs-toggle="modal" data-bs-target="#modalRecette">
+            <button class="btn demande-btn-primary text-white" data-bs-toggle="modal" data-bs-target="#modalRecette">
                 <i class="bi bi-plus-circle"></i>
                 <span class="basque">{{ Lang::get('evenements.add_recette', [], 'eus') }}</span>
                 @if (Lang::getLocale() == 'fr')
@@ -346,7 +339,7 @@
         @endif
     </div>
 
-    {{-- Modal : Ajouter une recette --}}
+    {{-- Modal : Ajouter une opération comptable --}}
     <div class="modal fade" id="modalRecette" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg rounded-4">

@@ -86,7 +86,7 @@ return [
     'recurrence_annual' => 'Annuelle',
     'no_description_provided' => 'Aucune description fournie.',
     'edit_event' => 'Modifier l\'événement',
-    'add_recette' => 'Ajouter une recette',
+    'add_recette' => 'Ajouter une opération comptable',
     'view_demandes' => 'Voir les demandes',
 
     // Comptabilité

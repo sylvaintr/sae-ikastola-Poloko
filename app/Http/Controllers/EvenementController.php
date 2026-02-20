@@ -196,7 +196,7 @@ class EvenementController extends Controller
      */
     public function export(Request $request): StreamedResponse
     {
-        $query = Evenement::with(['recettes', 'roles']);
+        $query = Evenement::with(['recettes', 'roles', 'demandes.historiques']);
 
         // Recherche par titre ou ID
         if ($search = $request->input('search')) {
@@ -242,6 +242,9 @@ class EvenementController extends Controller
                 __('evenements.export.total_recettes'),
                 __('evenements.export.total_depenses_prev'),
                 __('evenements.export.total_depenses'),
+                'Dépenses demandes',
+                'Total dépenses (avec demandes)',
+                'Balance',
             ], ';');
 
             foreach ($evenements as $evenement) {
@@ -254,6 +257,14 @@ class EvenementController extends Controller
                 $totalDepenses = $evenement->recettes
                     ->where('type', 'depense')
                     ->sum(fn($r) => $r->prix * $r->quantite);
+
+                // Calculer les dépenses des demandes liées
+                $demandesDepenses = $evenement->demandes->sum(function ($demande) {
+                    return $demande->historiques->sum('depense');
+                });
+
+                $totalDepensesAvecDemandes = $totalDepenses + $demandesDepenses;
+                $balance = $totalRecettes - $totalDepensesAvecDemandes;
 
                 $roles = $evenement->roles->pluck('name')->join(', ');
 
@@ -268,6 +279,9 @@ class EvenementController extends Controller
                     $this->formatMontantForCsv($totalRecettes),
                     $this->formatMontantForCsv($totalDepensesPrev),
                     $this->formatMontantForCsv($totalDepenses),
+                    $this->formatMontantForCsv($demandesDepenses),
+                    $this->formatMontantForCsv($totalDepensesAvecDemandes),
+                    $this->formatMontantForCsv($balance),
                 ], ';');
             }
 
@@ -282,7 +296,7 @@ class EvenementController extends Controller
      */
     public function exportCsv(Evenement $evenement): StreamedResponse
     {
-        $evenement->loadMissing(['recettes', 'roles']);
+        $evenement->loadMissing(['recettes', 'roles', 'demandes.historiques', 'demandes.roles']);
 
         $titreClean = preg_replace('/[^a-zA-Z0-9_-]/', '_', $evenement->titre);
         $titreClean = preg_replace('/_+/', '_', $titreClean);
@@ -339,6 +353,36 @@ class EvenementController extends Controller
 
             fputcsv($file, [], ';');
 
+            // Section demandes liées
+            if ($evenement->demandes->count() > 0) {
+                fputcsv($file, [], ';');
+                fputcsv($file, ['Demandes liées à cet événement'], ';');
+                fputcsv($file, [], ';');
+                fputcsv($file, [
+                    'ID',
+                    'Titre',
+                    'Urgence',
+                    'État',
+                    'Dépenses réelles',
+                    'Commissions',
+                ], ';');
+
+                foreach ($evenement->demandes as $demande) {
+                    $totalDepenseDemande = $demande->historiques->sum('depense');
+                    $commissions = $demande->roles->pluck('name')->join(', ');
+
+                    fputcsv($file, [
+                        $demande->idTache,
+                        $demande->titre,
+                        $demande->urgence ?? '—',
+                        $demande->etat ?? '—',
+                        $this->formatMontantForCsv($totalDepenseDemande),
+                        $commissions ?: '—',
+                    ], ';');
+                }
+                fputcsv($file, [], ';');
+            }
+
             // Totaux
             $totalRecettes = $evenement->recettes
                 ->where('type', 'recette')
@@ -350,9 +394,23 @@ class EvenementController extends Controller
                 ->where('type', 'depense')
                 ->sum(fn($r) => $r->prix * $r->quantite);
 
+            // Calculer les dépenses des demandes
+            $demandesDepenses = $evenement->demandes->sum(function ($demande) {
+                return $demande->historiques->sum('depense');
+            });
+
+            $totalDepensesAvecDemandes = $totalDepenses + $demandesDepenses;
+            $balance = $totalRecettes - $totalDepensesAvecDemandes;
+
             fputcsv($file, [__('evenements.export.total_recettes'), $this->formatMontantForCsv($totalRecettes)], ';');
             fputcsv($file, [__('evenements.export.total_depenses_prev'), $this->formatMontantForCsv($totalDepensesPrev)], ';');
             fputcsv($file, [__('evenements.export.total_depenses'), $this->formatMontantForCsv($totalDepenses)], ';');
+
+            if ($demandesDepenses > 0) {
+                fputcsv($file, ['Dépenses des demandes', $this->formatMontantForCsv($demandesDepenses)], ';');
+                fputcsv($file, ['Total dépenses (avec demandes)', $this->formatMontantForCsv($totalDepensesAvecDemandes)], ';');
+                fputcsv($file, ['Balance', $this->formatMontantForCsv($balance)], ';');
+            }
 
             fclose($file);
         };

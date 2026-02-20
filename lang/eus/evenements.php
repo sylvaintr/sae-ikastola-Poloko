@@ -86,7 +86,7 @@ return [
     'recurrence_annual' => 'Urtekoa',
     'no_description_provided' => 'Ez da deskribapenik eman.',
     'edit_event' => 'Gertaera aldatu',
-    'add_recette' => 'Diru-sarrera gehitu',
+    'add_recette' => 'Eragiketa kontable gehitu',
     'view_demandes' => 'Eskaerak ikusi',
 
     // Comptabilité
