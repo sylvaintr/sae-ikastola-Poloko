@@ -238,38 +238,25 @@
                             {{-- Événements --}}
                             <div class="d-flex align-items-center gap-2">
                                 <span class="rounded" style="width: 16px; height: 16px; background-color: #3788d8; display: inline-block;"></span>
-                                <span class="basque">{{ Lang::get('evenements.legend_event', [], 'eus') }}</span>
+                                <span class="basque">Gertaera</span>
                                 @if (Lang::getLocale() == 'fr')
-                                    <span class="fr text-muted">/ {{ Lang::get('evenements.legend_event') }}</span>
+                                    <span class="fr text-muted">/ Événement</span>
                                 @endif
                             </div>
+                            {{-- Tâches --}}
                             <div class="d-flex align-items-center gap-2">
-                                <span class="rounded" style="width: 16px; height: 16px; background-color: #dc3545; display: inline-block;"></span>
-                                <span class="basque">{{ Lang::get('evenements.legend_event_obligatoire', [], 'eus') }}</span>
+                                <span class="rounded" style="width: 16px; height: 16px; background-color: #2ecc71; display: inline-block;"></span>
+                                <span class="basque">Zeregina</span>
                                 @if (Lang::getLocale() == 'fr')
-                                    <span class="fr text-muted">/ {{ Lang::get('evenements.legend_event_obligatoire') }}</span>
+                                    <span class="fr text-muted">/ Tâche</span>
                                 @endif
                             </div>
                             {{-- Demandes --}}
                             <div class="d-flex align-items-center gap-2">
-                                <span class="rounded" style="width: 16px; height: 16px; background-color: #dc3545; display: inline-block;"></span>
-                                <span class="basque">{{ Lang::get('evenements.legend_demande_high', [], 'eus') }}</span>
+                                <span class="rounded" style="width: 16px; height: 16px; background-color: #f39c12; display: inline-block;"></span>
+                                <span class="basque">Eskaera</span>
                                 @if (Lang::getLocale() == 'fr')
-                                    <span class="fr text-muted">/ {{ Lang::get('evenements.legend_demande_high') }}</span>
-                                @endif
-                            </div>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="rounded" style="width: 16px; height: 16px; background-color: #fd7e14; display: inline-block;"></span>
-                                <span class="basque">{{ Lang::get('evenements.legend_demande_medium', [], 'eus') }}</span>
-                                @if (Lang::getLocale() == 'fr')
-                                    <span class="fr text-muted">/ {{ Lang::get('evenements.legend_demande_medium') }}</span>
-                                @endif
-                            </div>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="rounded" style="width: 16px; height: 16px; background-color: #ffc107; display: inline-block;"></span>
-                                <span class="basque">{{ Lang::get('evenements.legend_demande_low', [], 'eus') }}</span>
-                                @if (Lang::getLocale() == 'fr')
-                                    <span class="fr text-muted">/ {{ Lang::get('evenements.legend_demande_low') }}</span>
+                                    <span class="fr text-muted">/ Demande</span>
                                 @endif
                             </div>
                         </div>

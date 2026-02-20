@@ -107,47 +107,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const props = info.event.extendedProps || {};
 
-            // Style pour les demandes
+            // Style pour les demandes - toujours orange
             if (props.type === 'demande') {
                 info.el.classList.add('fc-event-demande');
-
-                // Couleur selon l'urgence
-                const urgence = props.urgence?.toLowerCase() || '';
-                if (urgence === 'élevée' || urgence === 'elevee') {
-                    info.el.style.backgroundColor = '#dc3545'; // Rouge
-                    info.el.style.borderColor = '#b02a37';
-                } else if (urgence === 'moyenne') {
-                    info.el.style.backgroundColor = '#fd7e14'; // Orange
-                    info.el.style.borderColor = '#d96a0b';
-                } else {
-                    info.el.style.backgroundColor = '#ffc107'; // Jaune
-                    info.el.style.borderColor = '#d9a406';
-                    info.el.style.color = '#212529'; // Texte sombre pour jaune
-                }
+                info.el.style.backgroundColor = '#f39c12'; // Orange
+                info.el.style.borderColor = '#e67e22';
             }
-            // Style pour les tâches
+            // Style pour les tâches - toujours vert
             else if (props.type === 'tache') {
                 info.el.classList.add('fc-event-tache');
-
-                // Couleur selon l'urgence
-                const urgence = props.urgence?.toLowerCase() || '';
-                if (urgence === 'high') {
-                    info.el.style.backgroundColor = '#e74c3c'; // Rouge vif
-                    info.el.style.borderColor = '#c0392b';
-                } else if (urgence === 'medium') {
-                    info.el.style.backgroundColor = '#3498db'; // Bleu
-                    info.el.style.borderColor = '#2980b9';
-                } else {
-                    info.el.style.backgroundColor = '#2ecc71'; // Vert
-                    info.el.style.borderColor = '#27ae60';
-                }
+                info.el.style.backgroundColor = '#2ecc71'; // Vert
+                info.el.style.borderColor = '#27ae60';
             }
-            // Ajouter une classe pour les événements obligatoires
+            // Style pour les événements - bleu par défaut, rouge si obligatoire
             else if (props.obligatoire) {
                 info.el.classList.add('fc-event-obligatoire');
-                info.el.style.backgroundColor = '#dc3545';
+                info.el.style.backgroundColor = '#dc3545'; // Rouge pour obligatoire
                 info.el.style.borderColor = '#b02a37';
             }
+            // Événement normal - bleu (couleur par défaut du calendrier)
         },
 
         eventDrop: async (info) => {
