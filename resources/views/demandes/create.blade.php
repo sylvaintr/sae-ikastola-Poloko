@@ -77,12 +77,12 @@
 
             <div class="demande-field-row">
                 <div class="demande-field-col w-100">
-                    <label class="form-label">{{ __('demandes.form.labels.assigne.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.assigne.fr') }}</small></label>
+                    <div class="form-label">{{ __('demandes.form.labels.assigne.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.assigne.fr') }}</small></div>
                     @php
                         $selectedRoleIds = collect(old('roles', isset($demande) ? $demande->roles->pluck('idRole')->toArray() : []));
                         $isDisabled = $isEdit && ($demande->etat ?? '') === 'Terminé';
                     @endphp
-                    <div class="role-selector-container {{ $isDisabled ? 'opacity-50 pe-none' : '' }}">
+                    <div class="role-selector-container {{ $isDisabled ? 'opacity-50 pe-none' : '' }}" id="role-selector-container">
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="commission-search" class="form-label small fw-semibold">{{ __('demandes.form.labels.commission_search') }}</label>
@@ -99,7 +99,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label small fw-semibold">{{ __('demandes.form.labels.commission_selected') }}</label>
+                                <div class="form-label small fw-semibold">{{ __('demandes.form.labels.commission_selected') }}</div>
                                 <div id="selected-commissions" class="role-list mt-2">
                                     @forelse ($roles->whereIn('idRole', $selectedRoleIds) ?? [] as $role)
                                         <div class="role-item selected" data-role-id="{{ $role->idRole }}" data-role-name="{{ $role->name }}">

@@ -8,6 +8,8 @@ use App\Models\Role;
 use App\Models\Evenement;
 use App\Models\DemandeHistorique;
 use App\Http\Controllers\Traits\HandlesCsvExport;
+use App\Http\Controllers\Traits\HandlesDemandeHistory;
+use App\Http\Controllers\Traits\HandlesDemandePhotos;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -17,7 +19,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DemandeController extends Controller
 {
-    use HandlesCsvExport;
+    use HandlesCsvExport, HandlesDemandeHistory, HandlesDemandePhotos;
     private const STATUS_TERMINE = 'Terminé';
     private const DEFAULT_ETATS = ['En attente', 'En cours', self::STATUS_TERMINE];
     private const DEFAULT_URGENCES = ['Faible', 'Moyenne', 'Élevée'];
@@ -491,21 +493,6 @@ class DemandeController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    private function loadOrDefault(string $column, Collection $fallback): Collection
-    {
-        $values = Tache::select($column)->where('type', 'demande')->distinct()->orderBy($column)->pluck($column)->filter();
-
-        return $values->isEmpty() ? $fallback : $values;
-    }
-
-    protected function storeInitialHistory(Tache $demande): void
-    {
-        $this->addHistoryEntry(
-            $demande,
-            __('demandes.history_statuses.created'),
-            $demande->description
-        );
-    }
 
     public function destroy(Tache $demande)
     {
@@ -589,43 +576,4 @@ class DemandeController extends Controller
         return to_route('demandes.show', $demande)->with('status', __('demandes.messages.validated'));
     }
 
-    /**
-     * Ajoute une entrée dans demande_historique.
-     */
-    private function addHistoryEntry(Tache $demande, string $statut, ?string $description = null, ?float $depense = null): void
-    {
-        $user = Auth::user();
-
-        DemandeHistorique::create([
-            'idDemande' => $demande->idTache,
-            'statut' => $statut,
-            'titre' => $demande->titre,
-            'responsable' => $user?->name ?? '',
-            'depense' => $depense,
-            'dateE' => now(),
-            'description' => $description,
-        ]);
-    }
-
-    /**
-     * Sauvegarde les photos liées à la demande (si présentes).
-     */
-    protected function storePhotos(Tache $demande, array $files): void
-    {
-        if (empty($files)) {
-            return;
-        }
-
-        foreach ($files as $file) {
-            $path = $file->store('demandes', 'public');
-
-            Document::create([
-                'idTache' => $demande->idTache,
-                'nom' => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
-                'chemin' => $path,
-                'type' => substr($file->extension(), 0, 5),
-                'etat' => 'actif',
-            ]);
-        }
-    }
 }

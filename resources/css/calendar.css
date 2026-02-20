@@ -122,7 +122,7 @@
 /* Bouton "Aujourd'hui" - style outline */
 .calendrier-page .fc .fc-today-button {
     background: #fff !important;
-    color: #f29201 !important;
+    color: #c47200 !important;
     border-color: #f29201 !important;
     box-shadow: inset 0 0 0 1px rgba(242, 146, 1, 0.3);
 }
@@ -191,8 +191,8 @@
 }
 
 .calendrier-page .fc .fc-day-today .fc-daygrid-day-number {
-    color: #fff;
-    background: linear-gradient(135deg, #f29201 0%, #e08600 100%);
+    color: #ffffff;
+    background: linear-gradient(135deg, #c47200 0%, #a85f00 100%);
     border-radius: 50%;
     width: 28px;
     height: 28px;
@@ -253,7 +253,7 @@
 
 .calendrier-page .fc .fc-more-link:hover {
     background: rgba(242, 146, 1, 0.1);
-    color: #d67f00;
+    color: #c47200;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -322,8 +322,8 @@
 }
 
 .calendrier-page .fc .fc-popover-header {
-    background: linear-gradient(135deg, #f29201 0%, #e08600 100%);
-    color: #fff;
+    background: linear-gradient(135deg, #c47200 0%, #a85f00 100%);
+    color: #ffffff;
     font-weight: 700;
     padding: 0.75rem 1rem;
     border: none;
@@ -419,10 +419,6 @@
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-.calendrier-page .fc {
-    animation: calendarFadeIn 0.4s ease-out;
 }
 
 /* ─────────────────────────────────────────────────────────

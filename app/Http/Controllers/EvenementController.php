@@ -406,19 +406,6 @@ class EvenementController extends Controller
             ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
     }
 
-    /**
-     * Construit les en-têtes HTTP pour le CSV.
-     */
-    private function buildCsvHeaders(string $filename): array
-    {
-        return [
-            'Content-Type' => self::CSV_CONTENT_TYPE,
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Pragma' => 'public',
-            'Expires' => '0',
-        ];
-    }
 
     /**
      * Formate une date pour l'export CSV.

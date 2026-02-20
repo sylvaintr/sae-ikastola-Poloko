@@ -104,11 +104,19 @@ class CalendrierController extends Controller
             $endDate = $endDate->copy()->addDay()->startOfDay();
         }
 
+        // Calculer la valeur 'end' pour éviter l'opération ternaire imbriquée
+        $endValue = null;
+        if ($isAllDay) {
+            $endValue = $endDate ? $endDate->toDateString() : null;
+        } else {
+            $endValue = optional($e->end_at)->toISOString();
+        }
+
         return [
             'id' => 'event-' . $e->idEvenement,
             'title' => $e->titre ?? 'Évènement',
             'start' => $isAllDay ? $e->start_at->toDateString() : optional($e->start_at)->toISOString(),
-            'end' => $isAllDay ? ($endDate ? $endDate->toDateString() : null) : optional($e->end_at)->toISOString(),
+            'end' => $endValue,
             'allDay' => $isAllDay,
             'extendedProps' => [
                 'type' => 'evenement',
@@ -150,7 +158,7 @@ class CalendrierController extends Controller
         $query = Tache::where('type', 'tache')->where('etat', '!=', self::STATUS_TERMINE);
 
         if (!$isAdmin) {
-            $this->applyRoleFilterToTaches($query, $userRoleIds);
+            $this->applyRoleFilterToTaches($query);
         }
 
         if ($start && $end) {
@@ -202,7 +210,7 @@ class CalendrierController extends Controller
     /**
      * Applique le filtre par rôles aux tâches (basé sur les réalisateurs).
      */
-    private function applyRoleFilterToTaches(Builder $query, array $userRoleIds): void
+    private function applyRoleFilterToTaches(Builder $query): void
     {
         // Pour les tâches, on filtre par les réalisateurs assignés
         // Un utilisateur voit les tâches qui lui sont assignées

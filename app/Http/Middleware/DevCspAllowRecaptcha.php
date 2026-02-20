@@ -24,7 +24,6 @@ class DevCspAllowRecaptcha
 
         // CSP permissif pour le dev : autorise l'exécution du script reCAPTCHA
         // et les ressources locales / CDN couramment utilisées pendant le dev.
-        $vitePort = env('VITE_PORT', '5173');
         $vitePorts = '';
         for ($p = 5173; $p <= 5180; $p++) {
             $vitePorts .= "http://localhost:{$p} ws://localhost:{$p} ";

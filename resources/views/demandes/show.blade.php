@@ -46,7 +46,12 @@
                     @foreach ($photos as $photo)
                         <div class="col-12 col-md-6 col-lg-4">
                             <a href="{{ $photo['url'] }}" target="_blank" class="d-block demande-photo-card text-decoration-none">
-                                <img src="{{ $photo['url'] }}" alt="{{ $photo['nom'] }}" class="img-fluid w-100 rounded-3" style="object-fit: cover; max-height: 220px;">
+                                @php
+                                    $altText = preg_replace('/\bphoto\b/i', '', $photo['nom']);
+                                    $altText = trim($altText);
+                                    $altText = $altText ?: 'Image';
+                                @endphp
+                                <img src="{{ $photo['url'] }}" alt="{{ $altText }}" class="img-fluid w-100 rounded-3" style="object-fit: cover; max-height: 220px;">
                                 <div class="small text-muted mt-2 text-truncate">{{ $photo['nom'] }}</div>
                             </a>
                         </div>
