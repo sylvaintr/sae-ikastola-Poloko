@@ -22,7 +22,7 @@
                 @endcan
                 @can('access-tache')
                     <li class="nav-item">
-                        <x-nav-link href="/tache" :active="request()->is('tache*')" class="nav-link">{{ __('nav.tache') }}</x-nav-link>
+                        <x-nav-link href="{{ route('tache.index') }}" :active="request()->routeIs('tache.*') || request()->is('tache*')" class="nav-link">{{ __('nav.tache') }}</x-nav-link>
                     </li>
                 @endcan
                 @can('access-presence')
