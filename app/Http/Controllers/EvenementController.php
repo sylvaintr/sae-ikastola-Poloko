@@ -146,7 +146,7 @@ class EvenementController extends Controller
 
         // Détecter si les dates ont changé pour synchroniser les demandes
         $datesChanged = $evenement->start_at != $validated['start_at'] ||
-                        $evenement->end_at != $validated['end_at'];
+            $evenement->end_at != $validated['end_at'];
 
         $evenement->update([
             'titre' => $titre,
@@ -286,7 +286,7 @@ class EvenementController extends Controller
         }
 
         return response($csv)
-            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Type', self::CSV_CONTENT_TYPE)
             ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
     }
 
@@ -402,7 +402,7 @@ class EvenementController extends Controller
         }
 
         return response($csv)
-            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Type', self::CSV_CONTENT_TYPE)
             ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
     }
 
@@ -412,7 +412,7 @@ class EvenementController extends Controller
     private function buildCsvHeaders(string $filename): array
     {
         return [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Type' => self::CSV_CONTENT_TYPE,
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Pragma' => 'public',

@@ -14,6 +14,8 @@ class CalendrierController extends Controller
 {
     private const STATUS_TERMINE = 'Terminé';
     private const ADMIN_PERMISSION = 'gerer-evenement';
+    // format utilisé pour les labels de date sans heure
+    private const DATE_LABEL_FORMAT = 'l d F Y';
 
     public function index()
     {
@@ -92,8 +94,8 @@ class CalendrierController extends Controller
     {
         // Détecter si c'est un événement de journée entière (00:00 → 23:59)
         $isAllDay = $e->start_at && $e->end_at &&
-                    $e->start_at->format('H:i') === '00:00' &&
-                    $e->end_at->format('H:i') === '23:59';
+            $e->start_at->format('H:i') === '00:00' &&
+            $e->end_at->format('H:i') === '23:59';
 
         // Pour les événements all-day, FullCalendar utilise des dates exclusives
         // Donc on ajoute 1 jour à la date de fin
@@ -113,11 +115,11 @@ class CalendrierController extends Controller
                 'description' => $e->description,
                 'obligatoire' => (bool) $e->obligatoire,
                 'startLabel' => $isAllDay
-                    ? optional($e->start_at)->translatedFormat('l d F Y')
-                    : optional($e->start_at)->translatedFormat('l d F Y \\à H\\hi'),
+                    ? optional($e->start_at)->translatedFormat(self::DATE_LABEL_FORMAT)
+                    : optional($e->start_at)->translatedFormat(self::DATE_LABEL_FORMAT . ' \\à H\\hi'),
                 'endLabel' => $isAllDay && $e->end_at
-                    ? $e->end_at->translatedFormat('l d F Y')
-                    : $e->end_at?->translatedFormat('l d F Y \\à H\\hi'),
+                    ? $e->end_at->translatedFormat(self::DATE_LABEL_FORMAT)
+                    : $e->end_at?->translatedFormat(self::DATE_LABEL_FORMAT . ' \\à H\\hi'),
             ],
         ];
     }
@@ -231,8 +233,8 @@ class CalendrierController extends Controller
                 'description' => $d->description,
                 'urgence' => $d->urgence,
                 'etat' => $d->etat,
-                'startLabel' => optional($d->dateD)->translatedFormat('l d F Y'),
-                'endLabel' => $d->dateF?->translatedFormat('l d F Y'),
+                'startLabel' => optional($d->dateD)->translatedFormat(self::DATE_LABEL_FORMAT),
+                'endLabel' => $d->dateF?->translatedFormat(self::DATE_LABEL_FORMAT),
             ],
         ];
     }
@@ -253,8 +255,8 @@ class CalendrierController extends Controller
                 'description' => $t->description,
                 'urgence' => $t->urgence,
                 'etat' => $t->etat,
-                'startLabel' => optional($t->dateD)->translatedFormat('l d F Y'),
-                'endLabel' => $t->dateF?->translatedFormat('l d F Y'),
+                'startLabel' => optional($t->dateD)->translatedFormat(self::DATE_LABEL_FORMAT),
+                'endLabel' => $t->dateF?->translatedFormat(self::DATE_LABEL_FORMAT),
             ],
         ];
     }

@@ -39,6 +39,7 @@ if (! defined('ROUTE_ADD')) {
     define('ROUTE_CLASSE', '/{classe}');
     define('ROUTE_OBLIGATORY_DOCUMENT', '/{obligatoryDocument}');
     define('ROUTE_DEMANDE', '/{demande}');
+    define('ROUTE_EVENEMENT_ID', '/evenements/{id}');
 }
 
 Route::get('/', [ActualiteController::class, 'index'])->name('home');
@@ -67,7 +68,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/export-all-csv', [DemandeController::class, 'exportAllCsv'])->name('export.all.csv');
 
             Route::get(ROUTE_DEMANDE, [DemandeController::class, 'show'])->name('show');
-            
+
             // Routes protégées : seuls les utilisateurs avec 'gerer-demandes' peuvent modifier, valider, supprimer ou ajouter des avancements
             Route::middleware('can:gerer-demandes')->group(function () {
                 Route::get(ROUTE_DEMANDE . '/edit', [DemandeController::class, 'edit'])->name('edit');
@@ -179,7 +180,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/lier/update-parite', [LierController::class, 'updateParite'])->name('admin.lier.updateParite');
 
     // ---------------- Présence ----------------
-    Route::get('/presence', function () {return view('presence.index');})->name('presence.index');
+    Route::get('/presence', function () {
+        return view('presence.index');
+    })->name('presence.index');
     Route::get('/presence/classes', [PresenceController::class, 'classes'])->name('presence.classes');
     Route::get('/presence/students', [PresenceController::class, 'students'])->name('presence.students');
     Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
@@ -198,9 +201,9 @@ Route::middleware('auth')->group(function () {
         Route::middleware('can:gerer-evenement')->group(function () {
             Route::get('/evenements/create', [EvenementController::class, 'create'])->name('evenements.create');
             Route::post('/evenements', [EvenementController::class, 'store'])->name('evenements.store');
-            Route::get('/evenements/{id}/edit', [EvenementController::class, 'edit'])->name('evenements.edit');
-            Route::put('/evenements/{id}', [EvenementController::class, 'update'])->name('evenements.update');
-            Route::delete('/evenements/{id}', [EvenementController::class, 'destroy'])->name('evenements.destroy');
+            Route::get(ROUTE_EVENEMENT_ID . '/edit', [EvenementController::class, 'edit'])->name('evenements.edit');
+            Route::put(ROUTE_EVENEMENT_ID, [EvenementController::class, 'update'])->name('evenements.update');
+            Route::delete(ROUTE_EVENEMENT_ID, [EvenementController::class, 'destroy'])->name('evenements.destroy');
 
             // Recettes (liées aux événements)
             Route::get('/evenements/{evenementId}/recettes/create', [RecetteController::class, 'create'])->name('recettes.create');
@@ -212,7 +215,7 @@ Route::middleware('auth')->group(function () {
 
         // Routes avec paramètre dynamique : après les routes statiques pour éviter les conflits
         Route::get('/evenements/{evenement}/export-csv', [EvenementController::class, 'exportCsv'])->name('evenements.export.csv');
-        Route::get('/evenements/{id}', [EvenementController::class, 'show'])->name('evenements.show');
+        Route::get(ROUTE_EVENEMENT_ID, [EvenementController::class, 'show'])->name('evenements.show');
     });
 
     // ---------------- Tâches ----------------
@@ -248,7 +251,6 @@ Route::middleware('auth')->group(function () {
         Route::delete('/actualites/{idActualite}/documents/{idDocument}', [ActualiteController::class, 'detachDocument'])
             ->name('actualites.detachDocument');
     });
-
 });
 
 Route::get('/actualites' . ROUTE_ID, [ActualiteController::class, 'show'])->name('actualites.show');

@@ -159,11 +159,11 @@ class DemandeController extends Controller
 
         $photos = $demande->documents
             ? $demande->documents
-                ->filter(fn($doc) => Storage::disk('public')->exists($doc->chemin))
-                ->map(fn($doc) => [
-                    'url' => Storage::url($doc->chemin),
-                    'nom' => $doc->nom,
-                ])->values()->all()
+            ->filter(fn($doc) => Storage::disk('public')->exists($doc->chemin))
+            ->map(fn($doc) => [
+                'url' => Storage::url($doc->chemin),
+                'nom' => $doc->nom,
+            ])->values()->all()
             : [];
 
         $historiques = $demande->historiques;
@@ -279,6 +279,46 @@ class DemandeController extends Controller
             'direction' => $request->input('direction', 'desc'),
         ];
 
+        $query = $this->buildDemandeQuery($filters);
+
+        $demandes = $query
+            ->orderBy($this->sortableField($filters['sort']), $this->sortDirection($filters['direction']))
+            ->orderBy('idTache', 'desc')
+            ->get();
+
+        $filename = 'demandes_' . now()->format('Y-m-d_His') . '.csv';
+
+        // BOM UTF-8 pour Excel
+        $csv = chr(0xEF) . chr(0xBB) . chr(0xBF);
+
+        // En-têtes CSV
+        $csv .= implode(';', [
+            'ID',
+            'Titre',
+            'Description',
+            'Urgence',
+            'État',
+            'Date début',
+            'Date fin',
+            'Montant prévu (€)',
+            'Montant réel (€)',
+            'Rôles cibles',
+        ]) . "\n";
+
+        foreach ($demandes as $demande) {
+            $csv .= implode(';', $this->formatDemandeToCsvRow($demande)) . "\n";
+        }
+
+        return response($csv)
+            ->header('Content-Type', self::CSV_CONTENT_TYPE)
+            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
+    }
+
+    /**
+     * Construit une requête filtrée pour les demandes.
+     */
+    private function buildDemandeQuery(array $filters): Builder
+    {
         $query = Tache::with('roles')->where('type', 'demande');
 
         if ($filters['search']) {
@@ -313,7 +353,36 @@ class DemandeController extends Controller
             $query->whereDate('dateD', '<=', $filters['date_to']);
         }
 
-        $sortable = [
+        return $query;
+    }
+
+    /**
+     * Retourne un tableau prêt pour enregistrer en CSV à partir d'une demande.
+     */
+    private function formatDemandeToCsvRow(Tache $demande): array
+    {
+        $roles = $demande->roles->pluck('name')->implode(', ');
+
+        return [
+            $demande->idTache,
+            '"' . str_replace('"', '""', $demande->titre ?? '') . '"',
+            '"' . str_replace('"', '""', $demande->description ?? '') . '"',
+            $demande->urgence ?? '',
+            $demande->etat ?? '',
+            optional($demande->dateD)->format('d/m/Y') ?? '',
+            optional($demande->dateF)->format('d/m/Y') ?? '',
+            $demande->montantP ? number_format($demande->montantP, 2, ',', ' ') : '',
+            $demande->montantR ? number_format($demande->montantR, 2, ',', ' ') : '',
+            '"' . str_replace('"', '""', $roles) . '"',
+        ];
+    }
+
+    /**
+     * Retourne le champ sortable correspondant.
+     */
+    private function sortableField(string $sort): string
+    {
+        $map = [
             'id' => 'idTache',
             'date' => 'dateD',
             'title' => 'titre',
@@ -321,58 +390,20 @@ class DemandeController extends Controller
             'etat' => 'etat',
         ];
 
-        $sortField = $sortable[$filters['sort']] ?? $sortable['date'];
-        $direction = strtolower($filters['direction']) === 'asc' ? 'asc' : 'desc';
-
-        $demandes = $query
-            ->orderBy($sortField, $direction)
-            ->orderBy('idTache', 'desc')
-            ->get();
-
-        $filename = 'demandes_' . now()->format('Y-m-d_His') . '.csv';
-
-        // BOM UTF-8 pour Excel
-        $csv = chr(0xEF) . chr(0xBB) . chr(0xBF);
-
-        // En-têtes CSV
-        $csv .= implode(';', [
-            'ID',
-            'Titre',
-            'Description',
-            'Urgence',
-            'État',
-            'Date début',
-            'Date fin',
-            'Montant prévu (€)',
-            'Montant réel (€)',
-            'Rôles cibles',
-        ]) . "\n";
-
-        // Données
-        foreach ($demandes as $demande) {
-            $roles = $demande->roles->pluck('name')->implode(', ');
-
-            $row = [
-                $demande->idTache,
-                '"' . str_replace('"', '""', $demande->titre ?? '') . '"',
-                '"' . str_replace('"', '""', $demande->description ?? '') . '"',
-                $demande->urgence ?? '',
-                $demande->etat ?? '',
-                optional($demande->dateD)->format('d/m/Y') ?? '',
-                optional($demande->dateF)->format('d/m/Y') ?? '',
-                $demande->montantP ? number_format($demande->montantP, 2, ',', ' ') : '',
-                $demande->montantR ? number_format($demande->montantR, 2, ',', ' ') : '',
-                '"' . str_replace('"', '""', $roles) . '"',
-            ];
-
-            $csv .= implode(';', $row) . "\n";
-        }
-
-        return response($csv)
-            ->header('Content-Type', 'text/csv; charset=UTF-8')
-            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
+        return $map[$sort] ?? $map['date'];
     }
 
+    /**
+     * Normalise la direction de tri.
+     */
+    private function sortDirection(string $dir): string
+    {
+        return strtolower($dir) === 'asc' ? 'asc' : 'desc';
+    }
+
+    /**
+     * Exporte toutes les demandes avec historique en CSV.
+     */
     /**
      * Exporte toutes les demandes avec historique en CSV.
      */
@@ -598,4 +629,3 @@ class DemandeController extends Controller
         }
     }
 }
-
