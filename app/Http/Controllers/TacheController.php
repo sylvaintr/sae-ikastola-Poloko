@@ -116,7 +116,8 @@ class TacheController extends Controller
     public function getDatatable(Request $request)
     {
         if (! $request->ajax()) {
-            return view('tache.index');
+            // Ensure the view receives the same variables as index()
+            return $this->index($request);
         }
 
         $query = Tache::query();

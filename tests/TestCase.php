@@ -22,9 +22,30 @@ abstract class TestCase extends BaseTestCase
                 }
 
                 if (method_exists($user, 'assignRole')) {
-                    $ca = \App\Models\Role::firstOrCreate(['name' => 'CA']);
-                    if (! $user->hasRole('CA')) {
-                        $user->assignRole($ca);
+                    $hasSpatieRoles = false;
+                    try {
+                        if (method_exists($user, 'getRoleNames')) {
+                            $hasSpatieRoles = $user->getRoleNames()->count() > 0;
+                        }
+                    } catch (\Throwable $e) {
+                        $hasSpatieRoles = false;
+                    }
+
+                    $hasCustomRoles = false;
+                    if (method_exists($user, 'rolesCustom')) {
+                        try {
+                            $hasCustomRoles = $user->rolesCustom()->exists();
+                        } catch (\Throwable $e) {
+                            $hasCustomRoles = false;
+                        }
+                    }
+
+                    // Only auto-assign CA when the user has no roles (avoids elevating parents)
+                    if (! $hasSpatieRoles && ! $hasCustomRoles) {
+                        $ca = \App\Models\Role::firstOrCreate(['name' => 'CA']);
+                        if (! $user->hasRole('CA')) {
+                            $user->assignRole($ca);
+                        }
                     }
                 }
                 // If the application uses a custom pivot (`rolesCustom`) in tests to attach
@@ -83,26 +104,39 @@ abstract class TestCase extends BaseTestCase
             }
             $zip = new \ZipArchive();
             if ($zip->open($templatePath, \ZipArchive::OVERWRITE | \ZipArchive::CREATE) === true) {
-                $zip->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"></Types>');
-                $zip->addFromString('_rels/.rels', '<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>');
-                $zip->addFromString('word/document.xml', '<?xml version="1.0" encoding="UTF-8"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>Template</w:t></w:r></w:p></w:body></w:document>');
+                $zip->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8"?><Types
+    xmlns="http://schemas.openxmlformats.org/package/2006/content-types"></Types>');
+                $zip->addFromString('_rels/.rels', '
+<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>');
+                $zip->addFromString('word/document.xml', '
+<?xml version="1.0" encoding="UTF-8"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+    <w:body>
+        <w:p>
+            <w:r>
+                <w:t>Template</w:t>
+            </w:r>
+        </w:p>
+    </w:body>
+</w:document>');
                 $zip->close();
             }
         }
 
-        // Create application permissions and a CA role with admin permissions
-        // Only run this if the Spatie permission tables exist in the test database.
+// Create application permissions and a CA role with admin permissions
+// Only run this if the Spatie permission tables exist in the test database.
         if (! Schema::hasTable('permissions') || ! Schema::hasTable('role')) {
-            // If Spatie permission tables are not present in the test database,
-            // short-circuit authorization by allowing all abilities. This avoids
-            // 401s in tests when the permission package isn't migrated in the
-            // test environment.
+// If Spatie permission tables are not present in the test database,
+// short-circuit authorization by allowing all abilities. This avoids
+// 401s in tests when the permission package isn't migrated in the
+// test environment.
             try {
                 \Illuminate\Support\Facades\Gate::before(function () {
                     return true;
                 });
             } catch (\Throwable $e) {
-                // If Gate isn't available for some reason, ignore and continue.
+// If Gate isn't available for some reason, ignore and continue.
             }
 
             return;
@@ -134,11 +168,11 @@ abstract class TestCase extends BaseTestCase
 
         $ca = \App\Models\Role::firstOrCreate(['name' => 'CA']);
         $ca->givePermissionTo($permissions);
-        // Clear Spatie permission cache so newly created permissions/roles are effective
+// Clear Spatie permission cache so newly created permissions/roles are effective
         try {
             \Spatie\Permission\PermissionRegistrar::getInstance()->forgetCachedPermissions();
         } catch (\Throwable $e) {
-            // ignore if registrar unavailable in test environment
+// ignore if registrar unavailable in test environment
         }
     }
 
