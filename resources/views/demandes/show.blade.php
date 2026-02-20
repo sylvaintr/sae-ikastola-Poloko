@@ -153,14 +153,16 @@
                     </div>
                     <div class="text-muted small mt-1">{{ __('demandes.toolbar.export.fr') }}</div>
                 </div>
-                @if ($demande->etat !== 'Terminé')
-                    <div class="text-center">
-                        <a href="{{ route('demandes.historique.create', $demande) }}" class="btn demande-btn-primary px-4">
-                            {{ __('demandes.history.button.eu') }}
-                        </a>
-                        <div class="text-muted small">{{ __('demandes.history.button.fr') }}</div>
-                    </div>
-                @endif
+                @can('gerer-demandes')
+                    @if ($demande->etat !== 'Terminé')
+                        <div class="text-center">
+                            <a href="{{ route('demandes.historique.create', $demande) }}" class="btn demande-btn-primary px-4">
+                                {{ __('demandes.history.button.eu') }}
+                            </a>
+                            <div class="text-muted small">{{ __('demandes.history.button.fr') }}</div>
+                        </div>
+                    @endif
+                @endcan
             </div>
         </div>
     </div>

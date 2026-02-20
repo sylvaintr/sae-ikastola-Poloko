@@ -8,15 +8,14 @@
             <div class="d-flex flex-column flex-sm-row flex-wrap gap-3 gap-sm-4 justify-content-end">
                 <div class="demande-toolbar-item">
                     <div class="d-flex align-items-center gap-2">
-                        <button type="button" id="export-csv-btn" class="btn demande-btn-outline fw-semibold px-4 py-2 w-100 w-sm-auto"
+                        <button type="button" id="export-csv-btn"
+                            class="btn demande-btn-outline fw-semibold px-4 py-2 w-100 w-sm-auto"
                             data-export-url="{{ route('demandes.export.all.csv', request()->query()) }}">
                             {{ __('demandes.toolbar.export.eu') }}
                         </button>
-                        <i class="bi bi-info-circle text-info"
-                           data-bs-toggle="tooltip"
-                           data-bs-placement="top"
-                           title="{{ __('demandes.toolbar.export.help.fr') }}"
-                           style="cursor: help; font-size: 1.1rem;"></i>
+                        <i class="bi bi-info-circle text-info" data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="{{ __('demandes.toolbar.export.help.fr') }}"
+                            style="cursor: help; font-size: 1.1rem;"></i>
                     </div>
                     <small class="text-muted d-block d-sm-inline">{{ __('demandes.toolbar.export.fr') }}</small>
                 </div>
@@ -51,8 +50,8 @@
             <div class="row g-3 align-items-start">
                 <div class="col-md-4">
                     <label for="search"
-                        class="form-label fw-semibold text-muted small mb-1">{{ __('demandes.search.label.eu') }} <small
-                            class="text-muted d-block">{{ __('demandes.search.label.fr') }}</small></label>
+                        class="form-label fw-semibold text-muted small mb-1">{{ __('demandes.search.label.eu') }}
+                        <small class="text-muted d-block">{{ __('demandes.search.label.fr') }}</small></label>
                     <input type="text" id="search" name="search" class="form-control demande-search-input"
                         placeholder="{{ __('demandes.search.placeholder') }}" value="{{ $filters['search'] }}">
                 </div>
@@ -94,7 +93,8 @@
                             </div>
                             <div class="mb-3">
                                 <label for="filter-evenement"
-                                    class="form-label small text-muted">{{ __('demandes.filters.evenement.eu') }} <small
+                                    class="form-label small text-muted">{{ __('demandes.filters.evenement.eu') }}
+                                    <small
                                         class="d-block text-muted">{{ __('demandes.filters.evenement.fr') }}</small></label>
                                 <select id="filter-evenement" class="form-select" name="evenement">
                                     <option value="all" @selected($filters['evenement'] === 'all')>
@@ -227,8 +227,10 @@
                     @forelse ($demandes as $demande)
                         @php
                             // Vérifier si l'utilisateur peut gérer cette demande
-                            $demandeRoleIds = $demande->roles->pluck('idRole')->toArray();
-                            $canManageDemande = $isCA || (!empty($demandeRoleIds) && !empty(array_intersect($demandeRoleIds, $userRoleIds)));
+$demandeRoleIds = $demande->roles->pluck('idRole')->toArray();
+                            $canManageDemande =
+                                $isCA ||
+                                (!empty($demandeRoleIds) && !empty(array_intersect($demandeRoleIds, $userRoleIds)));
                         @endphp
                         <tr>
                             <td class="fw-semibold">#{{ $demande->idTache }}</td>
@@ -264,12 +266,18 @@
                                         title="{{ __('demandes.actions.view') }}">
                                         <i class="bi bi-eye"></i>
                                     </a>
+                                    <a href="{{ route('demandes.show', $demande) }}" class="btn demande-action-btn"
+                                        title="{{ __('demandes.actions.view') }}">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
                                     @if ($demande->etat !== 'Terminé' && $canManageDemande)
                                         <a href="{{ route('demandes.edit', $demande) }}"
                                             class="btn demande-action-btn" title="{{ __('demandes.actions.edit') }}">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
                                     @endif
+
                                     @if ($canManageDemande)
                                         <form method="POST" action="{{ route('demandes.destroy', $demande) }}"
                                             class="d-inline demande-delete-form">
@@ -283,6 +291,7 @@
                                             </button>
                                         </form>
                                     @endif
+
                                     @if ($demande->etat !== 'Terminé' && $canManageDemande)
                                         <form method="POST" action="{{ route('demandes.validate', $demande) }}"
                                             class="d-inline">
@@ -294,9 +303,10 @@
                                             </button>
                                         </form>
                                     @endif
-                                </div>
-                            </td>
-                        </tr>
+                                @endcan
+                            </div>
+                        </td>
+                    </tr>
                     @empty
                         <tr>
                             <td colspan="6" class="text-center py-4 text-muted">{{ __('demandes.table.empty') }}
@@ -306,7 +316,6 @@
                 </tbody>
             </table>
         </div>
-
         <div class="mt-3 admin-pagination-container">
             {{ $demandes->links() }}
         </div>

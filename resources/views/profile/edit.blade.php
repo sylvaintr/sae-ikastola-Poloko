@@ -37,11 +37,6 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <span class="text-muted small">{{ __('auth.date_naissance') }} :</span>
-                                    <span class="fw-semibold">{{ Auth::user()->date_naissance ?? '-' }}</span>
-                                </div>
-
-                                <div class="mb-3">
                                     <span class="text-muted small">{{ __('auth.role') }} :</span>
                                     <span class="fw-semibold">
                                         @if (Auth::user()->roles->count() > 0)
@@ -55,7 +50,7 @@
                                 <div class="mb-3">
                                     <span class="text-muted small">{{ __('auth.statut_compte') }} :</span>
                                     <span class="fw-semibold">
-                                        @if (Auth::user()->email_verified_at)
+                                        @if (Auth::user()->statutValidation)
                                             {{ __('auth.valide') }}
                                         @else
                                             {{ __('auth.en_attente') ?? 'En attente' }}
