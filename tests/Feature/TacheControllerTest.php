@@ -25,8 +25,12 @@ class TacheControllerTest extends TestCase
         // Création des rôles et permissions
         $roleAdmin  = Role::create(['name' => 'admin']);
         $roleParent = Role::create(['name' => 'parent']);
-        Permission::create(['name' => 'gerer-tache']);
+        Permission::firstOrCreate(['name' => 'gerer-tache']);
+        Permission::firstOrCreate(['name' => 'access-tache']);
         $roleAdmin->givePermissionTo('gerer-tache');
+        $roleAdmin->givePermissionTo('access-tache');
+        // Parents should be able to access the tache pages (listing, datatable, show when assigned)
+        $roleParent->givePermissionTo('access-tache');
 
         // Création des utilisateurs
 
@@ -549,5 +553,99 @@ class TacheControllerTest extends TestCase
         $this->assertDatabaseMissing('tache_historique', [
             'titre' => 'Nouvel avancement',
         ]);
+    }
+
+    public function test_index_restricts_tasks_for_parent_only()
+    {
+        // Tâche assignée à notre parent
+        $tacheAssignee = Tache::factory()->create();
+        $tacheAssignee->realisateurs()->attach($this->parentUser->idUtilisateur);
+
+        // Tâche assignée à quelqu'un d'autre
+        $tacheNonAssignee = Tache::factory()->create();
+
+        // Action : Le parent accède à l'index
+        $response = $this->actingAs($this->parentUser)->get(route('tache.index'));
+
+        $response->assertStatus(200);
+        $tachesVues = $response->viewData('taches');
+
+        // Vérification : Il ne voit que sa tâche (Lignes 55-57 exécutées)
+        $this->assertTrue($tachesVues->contains('idTache', $tacheAssignee->idTache));
+        $this->assertFalse($tachesVues->contains('idTache', $tacheNonAssignee->idTache));
+    }
+
+    /**
+     * CIBLE Ligne 119 : Fallback dans getDatatable()
+     * Si la requête n'est pas AJAX, on retourne la vue 'tache.index'.
+     */
+    public function test_datatable_returns_index_view_if_not_ajax()
+    {
+        // Action : Appel sans les headers AJAX
+        $response = $this->actingAs($this->adminUser)->get(route('tache.get-datatable'));
+
+        $response->assertStatus(200);
+
+        // Vérification : Ligne 119 retourne bien la vue
+        $response->assertViewIs('tache.index');
+    }
+
+    /**
+     * CIBLE Lignes 143-145 : Restrictions dans applyFilters() pour la Datatable
+     * Un utilisateur uniquement "parent" ne reçoit que ses tâches via AJAX.
+     */
+    public function test_datatable_ajax_restricts_tasks_for_parent_only()
+    {
+        // Tâche assignée à notre parent
+        $tacheAssignee = Tache::factory()->create();
+        $tacheAssignee->realisateurs()->attach($this->parentUser->idUtilisateur);
+
+        // Tâche assignée à quelqu'un d'autre
+        $tacheNonAssignee = Tache::factory()->create();
+
+        // Action : Le parent accède à la Datatable VIA AJAX
+        $response = $this->actingAs($this->parentUser)
+            ->withHeaders(['X-Requested-With' => 'XMLHttpRequest']) // Simule AJAX
+            ->get(route('tache.get-datatable'));
+
+        $response->assertStatus(200);
+        $data = $response->json('data');
+
+        // Vérification : Le JSON ne contient que sa tâche (Lignes 143-145 exécutées)
+        $this->assertCount(1, $data);
+        $this->assertEquals($tacheAssignee->idTache, $data[0]['idTache']);
+    }
+
+    /**
+     * CIBLE Lignes 367-369 : Protection dans show()
+     * Un utilisateur "parent" ne peut pas afficher les détails d'une tâche qui ne lui est pas assignée.
+     */
+    public function test_show_aborts_403_if_parent_accesses_unassigned_task()
+    {
+        // Tâche assignée à quelqu'un d'autre
+        $tacheNonAssignee = Tache::factory()->create();
+
+        // Action : Le parent essaie de voir la tâche
+        $response = $this->actingAs($this->parentUser)->get(route('tache.show', $tacheNonAssignee->idTache));
+
+        // Vérification : Lignes 368-369 déclenchent un abort(403)
+        $response->assertStatus(403);
+        $response->assertSee("Vous n'avez pas accès à cette tâche.");
+    }
+
+    /**
+     * Vérification croisée (Optionnelle mais recommandée) :
+     * L'Admin doit pouvoir afficher la tâche sans problème (ne passe PAS dans l'abort).
+     */
+    public function test_show_allows_admin_to_access_any_task()
+    {
+        $tacheNonAssignee = Tache::factory()->create();
+
+        // Action : L'admin essaie de voir la tâche
+        $response = $this->actingAs($this->adminUser)->get(route('tache.show', $tacheNonAssignee->idTache));
+
+        // Vérification : L'admin accède à la page normalement
+        $response->assertStatus(200);
+        $response->assertViewHas('tache');
     }
 }
