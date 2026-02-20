@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Redirect;
 trait HandlesFileValidation
 {
     // Taille maximale des documents en KB (8 MB)
+    // Limite sécurisée pour éviter les attaques DoS tout en permettant des documents raisonnables
     protected const MAX_DOCUMENT_SIZE_KB = 8192;
 
     // Magic bytes pour détecter les fichiers ZIP (utilisé pour DOCX)
@@ -15,22 +16,26 @@ trait HandlesFileValidation
 
     /**
      * Valide l'upload d'un document.
+     * La limite de taille est fixée à 8 MB (8192 KB) pour éviter les attaques DoS.
      */
     protected function validateDocumentUpload(Request $request): void
     {
-        $maxSize = (int) self::MAX_DOCUMENT_SIZE_KB;
+        $maxSizeKB = (int) self::MAX_DOCUMENT_SIZE_KB;
+        // Calculer la taille en MB pour le message d'erreur
+        $maxSizeMB = round($maxSizeKB / 1024, 0);
+        
         $request->validate([
             'document' => [
                 'required',
                 'file',
-                'max:' . $maxSize,
+                'max:' . $maxSizeKB,
                 'mimes:pdf,doc,docx,jpg,jpeg,png'
             ],
             'idDocumentObligatoire' => ['required', 'integer', 'exists:documentObligatoire,idDocumentObligatoire'],
         ], [
             'document.required' => __('auth.document_required'),
             'document.file' => __('auth.document_must_be_file'),
-            'document.max' => __('auth.document_size_exceeded', ['max' => '8']),
+            'document.max' => __('auth.document_size_exceeded', ['max' => (string) $maxSizeMB]),
             'document.mimes' => __('auth.document_invalid_format'),
         ]);
     }
