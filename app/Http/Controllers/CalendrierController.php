@@ -90,18 +90,34 @@ class CalendrierController extends Controller
      */
     private function mapEvenementToCalendar(Evenement $e): array
     {
+        // Détecter si c'est un événement de journée entière (00:00 → 23:59)
+        $isAllDay = $e->start_at && $e->end_at &&
+                    $e->start_at->format('H:i') === '00:00' &&
+                    $e->end_at->format('H:i') === '23:59';
+
+        // Pour les événements all-day, FullCalendar utilise des dates exclusives
+        // Donc on ajoute 1 jour à la date de fin
+        $endDate = $e->end_at;
+        if ($isAllDay && $endDate) {
+            $endDate = $endDate->copy()->addDay()->startOfDay();
+        }
+
         return [
             'id' => 'event-' . $e->idEvenement,
             'title' => $e->titre ?? 'Évènement',
-            'start' => optional($e->start_at)->toISOString(),
-            'end' => optional($e->end_at)->toISOString(),
-            'allDay' => false,
+            'start' => $isAllDay ? $e->start_at->toDateString() : optional($e->start_at)->toISOString(),
+            'end' => $isAllDay ? ($endDate ? $endDate->toDateString() : null) : optional($e->end_at)->toISOString(),
+            'allDay' => $isAllDay,
             'extendedProps' => [
                 'type' => 'evenement',
                 'description' => $e->description,
                 'obligatoire' => (bool) $e->obligatoire,
-                'startLabel' => optional($e->start_at)->translatedFormat('l d F Y \\à H\\hi'),
-                'endLabel' => $e->end_at?->translatedFormat('l d F Y \\à H\\hi'),
+                'startLabel' => $isAllDay
+                    ? optional($e->start_at)->translatedFormat('l d F Y')
+                    : optional($e->start_at)->translatedFormat('l d F Y \\à H\\hi'),
+                'endLabel' => $isAllDay && $e->end_at
+                    ? $e->end_at->translatedFormat('l d F Y')
+                    : $e->end_at?->translatedFormat('l d F Y \\à H\\hi'),
             ],
         ];
     }
@@ -208,7 +224,7 @@ class CalendrierController extends Controller
             'id' => 'demande-' . $d->idTache,
             'title' => $d->titre ?? 'Demande',
             'start' => optional($d->dateD)->toDateString(),
-            'end' => $d->dateF?->addDay()->toDateString(),
+            'end' => $d->dateF?->copy()->addDay()->toDateString(),
             'allDay' => true,
             'extendedProps' => [
                 'type' => 'demande',
@@ -230,7 +246,7 @@ class CalendrierController extends Controller
             'id' => 'tache-' . $t->idTache,
             'title' => $t->titre ?? 'Tâche',
             'start' => optional($t->dateD)->toDateString(),
-            'end' => $t->dateF?->addDay()->toDateString(),
+            'end' => $t->dateF?->copy()->addDay()->toDateString(),
             'allDay' => true,
             'extendedProps' => [
                 'type' => 'tache',
