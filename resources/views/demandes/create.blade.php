@@ -63,6 +63,20 @@
 
             <div class="demande-field-row">
                 <div class="demande-field-col w-100">
+                    <label for="demande-evenement" class="form-label">{{ __('demandes.form.labels.evenement.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.evenement.fr') }}</small></label>
+                    <select id="demande-evenement" name="idEvenement" class="form-select" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : '' }}>
+                        <option value="">{{ __('demandes.form.labels.evenement.none') }}</option>
+                        @foreach ($evenements ?? [] as $evenement)
+                            <option value="{{ $evenement->idEvenement }}" @selected(old('idEvenement', $demande->idEvenement ?? '') == $evenement->idEvenement)>
+                                {{ $evenement->titre }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="demande-field-row">
+                <div class="demande-field-col w-100">
                     <label class="form-label">{{ __('demandes.form.labels.assigne.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.assigne.fr') }}</small></label>
                     @php
                         $selectedRoleIds = collect(old('roles', isset($demande) ? $demande->roles->pluck('idRole')->toArray() : []));

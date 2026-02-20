@@ -161,6 +161,11 @@ return [
                 'eu' => 'Argazkia',
                 'fr' => 'Photo',
             ],
+            'evenement' => [
+                'eu' => 'Gertaera',
+                'fr' => 'Événement',
+                'none' => 'Gertaerarik gabe / Sans événement',
+            ],
             'assigne' => [
                 'eu' => 'Batzordeak esleitu',
                 'fr' => 'Assigner à des commissions',

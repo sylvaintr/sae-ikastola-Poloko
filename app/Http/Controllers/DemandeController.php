@@ -148,8 +148,12 @@ class DemandeController extends Controller
     {
         $demande->loadMissing(['realisateurs', 'documents', 'historiques', 'roles']);
 
+        // Récupérer le créateur depuis l'historique initial
+        $initialHistory = $demande->historiques->where('statut', __('demandes.history_statuses.created'))->first();
+        $reporter = $initialHistory?->responsable ?? 'Inconnu';
+
         $metadata = [
-            'reporter' => $demande->user->name ?? $demande->reporter_name ?? 'Inconnu',
+            'reporter' => $reporter,
             'report_date' => optional($demande->dateD)->translatedFormat('d F Y') ?? now()->translatedFormat('d F Y'),
         ];
 
@@ -275,7 +279,7 @@ class DemandeController extends Controller
             'direction' => $request->input('direction', 'desc'),
         ];
 
-        $query = Tache::with('roles');
+        $query = Tache::with('roles')->where('type', 'demande');
 
         if ($filters['search']) {
             $searchTerm = trim($filters['search']);
@@ -385,7 +389,7 @@ class DemandeController extends Controller
             'direction' => $request->input('direction', 'desc'),
         ];
 
-        $query = Tache::with(['historiques', 'realisateurs', 'roles']);
+        $query = Tache::with(['historiques', 'realisateurs', 'roles'])->where('type', 'demande');
 
         if ($filters['search']) {
             $searchTerm = trim($filters['search']);
@@ -458,7 +462,7 @@ class DemandeController extends Controller
 
     private function loadOrDefault(string $column, Collection $fallback): Collection
     {
-        $values = Tache::select($column)->distinct()->orderBy($column)->pluck($column)->filter();
+        $values = Tache::select($column)->where('type', 'demande')->distinct()->orderBy($column)->pluck($column)->filter();
 
         return $values->isEmpty() ? $fallback : $values;
     }

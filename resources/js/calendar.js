@@ -125,6 +125,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     info.el.style.color = '#212529'; // Texte sombre pour jaune
                 }
             }
+            // Style pour les tâches
+            else if (props.type === 'tache') {
+                info.el.classList.add('fc-event-tache');
+
+                // Couleur selon l'urgence
+                const urgence = props.urgence?.toLowerCase() || '';
+                if (urgence === 'high') {
+                    info.el.style.backgroundColor = '#e74c3c'; // Rouge vif
+                    info.el.style.borderColor = '#c0392b';
+                } else if (urgence === 'medium') {
+                    info.el.style.backgroundColor = '#3498db'; // Bleu
+                    info.el.style.borderColor = '#2980b9';
+                } else {
+                    info.el.style.backgroundColor = '#2ecc71'; // Vert
+                    info.el.style.borderColor = '#27ae60';
+                }
+            }
             // Ajouter une classe pour les événements obligatoires
             else if (props.obligatoire) {
                 info.el.classList.add('fc-event-obligatoire');
@@ -154,6 +171,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (props.type === 'demande') {
                 const demandeId = info.event.id.replace('demande-', '');
                 const url = demandeShowUrl.replace('__ID__', demandeId);
+                globalThis.location.href = url;
+                return;
+            }
+
+            // Si c'est une tâche, rediriger vers la page de détail
+            if (props.type === 'tache') {
+                const tacheId = info.event.id.replace('tache-', '');
+                const url = `/tache/${tacheId}/show`;
                 globalThis.location.href = url;
                 return;
             }

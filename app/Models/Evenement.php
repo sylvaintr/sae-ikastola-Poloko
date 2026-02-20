@@ -70,6 +70,15 @@ class Evenement extends Model
 	}
 
 	/**
+	 * Relation hasMany vers les demandes associées à cet événement.
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function demandes()
+	{
+		return $this->hasMany(Tache::class, 'idEvenement')->where('type', 'demande');
+	}
+
+	/**
 	 * Relation belongsToMany vers les matériels associés à cet événement via la table pivot `inclure`.
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
 	 */

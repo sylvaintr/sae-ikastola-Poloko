@@ -32,8 +32,9 @@ class CalendrierController extends Controller
 
         $events = $this->getFilteredEvenements($isAdmin, $userRoleIds, $start, $end);
         $demandes = $this->getFilteredDemandes($isAdmin, $userRoleIds, $start, $end);
+        $taches = $this->getFilteredTaches($isAdmin, $userRoleIds, $start, $end);
 
-        return response()->json($events->merge($demandes));
+        return response()->json($events->merge($demandes)->merge($taches));
     }
 
     /**
@@ -110,7 +111,7 @@ class CalendrierController extends Controller
      */
     private function getFilteredDemandes(bool $isAdmin, array $userRoleIds, ?string $start, ?string $end): Collection
     {
-        $query = Tache::where('etat', '!=', self::STATUS_TERMINE);
+        $query = Tache::where('type', 'demande')->where('etat', '!=', self::STATUS_TERMINE);
 
         if (!$isAdmin) {
             $this->applyRoleFilterToDemandes($query, $userRoleIds);
@@ -121,6 +122,24 @@ class CalendrierController extends Controller
         }
 
         return $query->get()->map(fn(Tache $d) => $this->mapDemandeToCalendar($d));
+    }
+
+    /**
+     * Récupère les tâches filtrées par rôles et dates.
+     */
+    private function getFilteredTaches(bool $isAdmin, array $userRoleIds, ?string $start, ?string $end): Collection
+    {
+        $query = Tache::where('type', 'tache')->where('etat', '!=', self::STATUS_TERMINE);
+
+        if (!$isAdmin) {
+            $this->applyRoleFilterToTaches($query, $userRoleIds);
+        }
+
+        if ($start && $end) {
+            $this->applyDateFilterToDemandes($query, $start, $end);
+        }
+
+        return $query->get()->map(fn(Tache $t) => $this->mapTacheToCalendar($t));
     }
 
     /**
@@ -163,6 +182,24 @@ class CalendrierController extends Controller
     }
 
     /**
+     * Applique le filtre par rôles aux tâches (basé sur les réalisateurs).
+     */
+    private function applyRoleFilterToTaches(Builder $query, array $userRoleIds): void
+    {
+        // Pour les tâches, on filtre par les réalisateurs assignés
+        // Un utilisateur voit les tâches qui lui sont assignées
+        $user = Auth::user();
+        if ($user) {
+            $query->whereHas('realisateurs', function ($q) use ($user) {
+                $q->where('utilisateur.idUtilisateur', $user->idUtilisateur);
+            });
+        } else {
+            // Si pas connecté, ne rien montrer
+            $query->whereRaw('1 = 0');
+        }
+    }
+
+    /**
      * Mappe une demande au format FullCalendar.
      */
     private function mapDemandeToCalendar(Tache $d): array
@@ -180,6 +217,28 @@ class CalendrierController extends Controller
                 'etat' => $d->etat,
                 'startLabel' => optional($d->dateD)->translatedFormat('l d F Y'),
                 'endLabel' => $d->dateF?->translatedFormat('l d F Y'),
+            ],
+        ];
+    }
+
+    /**
+     * Mappe une tâche au format FullCalendar.
+     */
+    private function mapTacheToCalendar(Tache $t): array
+    {
+        return [
+            'id' => 'tache-' . $t->idTache,
+            'title' => $t->titre ?? 'Tâche',
+            'start' => optional($t->dateD)->toDateString(),
+            'end' => $t->dateF?->addDay()->toDateString(),
+            'allDay' => true,
+            'extendedProps' => [
+                'type' => 'tache',
+                'description' => $t->description,
+                'urgence' => $t->urgence,
+                'etat' => $t->etat,
+                'startLabel' => optional($t->dateD)->translatedFormat('l d F Y'),
+                'endLabel' => $t->dateF?->translatedFormat('l d F Y'),
             ],
         ];
     }

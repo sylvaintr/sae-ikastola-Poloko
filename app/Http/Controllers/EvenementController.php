@@ -100,8 +100,14 @@ class EvenementController extends Controller
      */
     public function show($id)
     {
-        $evenement = Evenement::with('roles')->findOrFail($id);
-        return view('evenements.show', compact('evenement'));
+        $evenement = Evenement::with(['roles', 'demandes.roles', 'demandes.historiques'])->findOrFail($id);
+
+        // Calculer les dépenses des demandes liées
+        $demandesDepenses = $evenement->demandes->sum(function ($demande) {
+            return $demande->historiques->sum('depense');
+        });
+
+        return view('evenements.show', compact('evenement', 'demandesDepenses'));
     }
 
     /**
@@ -138,6 +144,10 @@ class EvenementController extends Controller
         $titre = strip_tags($validated['titre']);
         $description = strip_tags($validated['description']);
 
+        // Détecter si les dates ont changé pour synchroniser les demandes
+        $datesChanged = $evenement->start_at != $validated['start_at'] ||
+                        $evenement->end_at != $validated['end_at'];
+
         $evenement->update([
             'titre' => $titre,
             'description' => $description,
@@ -149,6 +159,14 @@ class EvenementController extends Controller
 
         $evenement->roles()->sync($validated['roles'] ?? []);
 
+        // Synchroniser les dates avec les demandes liées si les dates ont changé
+        if ($datesChanged) {
+            $evenement->demandes()->update([
+                'dateD' => $validated['start_at'],
+                'dateF' => $validated['end_at'] ?? null,
+            ]);
+        }
+
         return redirect()->route('evenements.index')
             ->with('success', 'Événement mis à jour avec succès');
     }
@@ -159,7 +177,14 @@ class EvenementController extends Controller
     public function destroy($id)
     {
         $evenement = Evenement::findOrFail($id);
+
+        // Détacher les demandes liées (mettre idEvenement à NULL)
+        $evenement->demandes()->update(['idEvenement' => null]);
+
+        // Détacher les rôles
         $evenement->roles()->detach();
+
+        // Supprimer l'événement
         $evenement->delete();
 
         return redirect()->route('evenements.index')

@@ -162,6 +162,10 @@
                                 @endif
                             </div>
 
+                            @php
+                                $selectedRoleIds = collect(old('roles', $evenement->roles->pluck('idRole')->toArray()));
+                            @endphp
+
                             <div class="role-selector-container">
                                 <div class="row g-3">
                                     <div class="col-md-6">
@@ -170,25 +174,37 @@
                                             placeholder="{{ __('evenements.search_cible_placeholder') }}">
                                         <div id="available-roles" class="role-list mt-2">
                                             @foreach ($roles as $role)
-                                                <div class="role-item" data-role-id="{{ $role->idRole }}"
-                                                    data-role-name="{{ $role->name }}">
-                                                    <span>{{ $role->name }}</span>
-                                                    <i class="bi bi-plus-circle"></i>
-                                                </div>
+                                                @if (!$selectedRoleIds->contains($role->idRole))
+                                                    <div class="role-item" data-role-id="{{ $role->idRole }}"
+                                                        data-role-name="{{ $role->name }}">
+                                                        <span>{{ $role->name }}</span>
+                                                        <i class="bi bi-plus-circle"></i>
+                                                    </div>
+                                                @endif
                                             @endforeach
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-label small mb-2">{{ __('evenements.cibles_selected') }}</div>
                                         <div id="selected-roles" class="role-list mt-2">
-                                            <div class="role-list-empty-message">{{ __('evenements.no_cible_selected') }}</div>
+                                            @forelse ($roles->whereIn('idRole', $selectedRoleIds) as $role)
+                                                <div class="role-item selected" data-role-id="{{ $role->idRole }}"
+                                                    data-role-name="{{ $role->name }}">
+                                                    <span>{{ $role->name }}</span>
+                                                    <i class="bi bi-dash-circle"></i>
+                                                </div>
+                                            @empty
+                                                <div class="role-list-empty-message">{{ __('evenements.no_cible_selected') }}</div>
+                                            @endforelse
                                         </div>
                                         <div id="roles-error" class="invalid-feedback d-none mt-2">{{ __('evenements.cible_error') }}</div>
                                     </div>
                                 </div>
 
                                 <div id="role-inputs">
-                                    {{-- Les inputs seront ajoutés dynamiquement par JavaScript --}}
+                                    @foreach ($selectedRoleIds as $roleId)
+                                        <input type="hidden" name="roles[]" value="{{ $roleId }}">
+                                    @endforeach
                                 </div>
                             </div>
 
@@ -476,12 +492,25 @@
 
                 // Initialisation : restaurer les rôles existants de l'événement
                 const existingRoles = @json($evenement->roles->pluck('idRole')->values());
-                const oldRoles = @json(old('roles', null));
 
-                const rolesToRestore = Array.isArray(oldRoles) ? oldRoles : existingRoles;
+                // Ajouter les rôles existants au Set et attacher les événements aux éléments déjà créés côté serveur
+                if (Array.isArray(existingRoles) && existingRoles.length > 0) {
+                    existingRoles.forEach(roleId => {
+                        selectedRoleIds.add(String(roleId));
+                    });
 
-                if (Array.isArray(rolesToRestore) && rolesToRestore.length > 0) {
-                    rolesToRestore.forEach(roleId => addRole(roleId));
+                    // Masquer le message vide si des rôles sont sélectionnés
+                    const emptyMessage = selectedRoles.querySelector('.role-list-empty-message');
+                    if (emptyMessage && selectedRoleIds.size > 0) {
+                        emptyMessage.style.display = 'none';
+                    }
+
+                    // Attacher les événements de clic aux rôles sélectionnés déjà dans le DOM
+                    selectedRoles.querySelectorAll('.role-item.selected').forEach(roleElement => {
+                        roleElement.addEventListener('click', function() {
+                            removeRole(this.dataset.roleId);
+                        });
+                    });
                 }
             });
         </script>
