@@ -11,6 +11,7 @@ return [
     'titre' => 'Titre de l\'actualité',
     'description' => 'Description de l\'actualité',
     'contenu' => 'Contenu de l\'actualité',
+    'markdown_help' => 'Aide sur la syntaxe Markdown',
     'retour_aux_actualites' => 'Retour aux actualités',
     'filter' => 'Filtrer',
     'publie_le' => 'Publié le',

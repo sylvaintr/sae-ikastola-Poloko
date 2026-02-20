@@ -168,12 +168,18 @@
                                         @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label for="contenufr" class="form-label">{{ __('actualite.contenu') }} (FR) <span
-                                                class="text-danger">*</span></label>
+                                        <label for="contenufr" class="form-label">
+                                            {{ __('actualite.contenu') }} (FR) 
+                                            <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" class="text-info" title="{{ __('actualite.markdown_help') ?? 'Aide Markdown' }}" rel="noopener noreferrer">
+                                                <i class="bi bi-info-circle"></i>
+                                            </a>
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <textarea id="contenufr" name="contenufr" class="form-control mb-3 @error('contenufr') is-invalid @enderror" rows="6" required></textarea>
                                         @error('contenufr')
                                             <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
+                                        <p> {{ __('actualite.rendu_markdown') }} :</p>
                                         <div id="renducontenufr"></div>
                                     </div>
                                 </div>
@@ -196,12 +202,18 @@
                                         @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label for="contenueus" class="form-label">{{ __('actualite.contenu') }} (EUS) <span
-                                                class="text-danger">*</span></label>
+                                        <label for="contenueus" class="form-label">
+                                            {{ __('actualite.contenu') }} (EUS) 
+                                            <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" class="text-info" title="{{ __('actualite.markdown_help') ?? 'Aide Markdown' }}" rel="noopener noreferrer">
+                                                <i class="bi bi-info-circle"></i>
+                                            </a>
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <textarea id="contenueus" name="contenueus" class="form-control @error('contenueus') is-invalid @enderror" rows="6" required></textarea>
                                         @error('contenueus')
                                             <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
+                                        <p> {{ __('actualite.rendu_markdown') }} :</p>
                                         <div id="renducontenueus"></div>
                                     </div>
                                 </div>
@@ -715,9 +727,14 @@
             form.addEventListener('change', validateForm);
             validateForm();
 
+            // --- MARKDOWN PREVIEW ---
             if (typeof AfficherMarkdownfromBalise === "function") {
-                document.getElementById('contenufr').addEventListener('input', () => AfficherMarkdownfromBalise('contenufr', 'renducontenufr'));
-                document.getElementById('contenueus').addEventListener('input', () => AfficherMarkdownfromBalise('contenueus', 'renducontenueus'));
+                AfficherMarkdownfromBalise('contenufr', 'renducontenufr');
+                AfficherMarkdownfromBalise('contenueus', 'renducontenueus');
+                document.getElementById('contenufr').addEventListener('input', () => AfficherMarkdownfromBalise(
+                    'contenufr', 'renducontenufr'));
+                document.getElementById('contenueus').addEventListener('input', () => AfficherMarkdownfromBalise(
+                    'contenueus', 'renducontenueus'));
             }
         });
     </script>

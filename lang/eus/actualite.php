@@ -11,6 +11,7 @@ return [
     'titre' => 'Berriaren izenburua',
     'description' => 'Berriaren deskribapena',
     'contenu' => 'Berriaren edukia',
+    'markdown_help' => 'Markdown sintaxiaren laguntza',
     'retour_aux_actualites' => 'Itzuli berrietara',
     'filter' => 'Iragazi',
     'publie_le' => 'Argitaratua',
