@@ -37,7 +37,6 @@ class DemandeControllerIndexFiltersTest extends TestCase
         $request = Request::create('/', 'GET', [
             'search' => 'FindMe',
             'etat' => 'En attente',
-            'type' => 'Réparation',
             'urgence' => 'Faible',
         ]);
 

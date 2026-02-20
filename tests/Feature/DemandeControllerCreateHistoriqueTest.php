@@ -6,15 +6,25 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Tache;
+use App\Models\Utilisateur;
 
 class DemandeControllerCreateHistoriqueTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected Utilisateur $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = Utilisateur::factory()->create();
+    }
+
     public function test_createHistorique_redirects_when_demande_terminated()
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         $demande = Tache::factory()->create(['etat' => 'Terminé']);
 
         // when
@@ -29,6 +39,7 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         $demande = Tache::factory()->create(['etat' => 'En attente']);
 
         // when
@@ -44,6 +55,7 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         $demande = Tache::factory()->create(['etat' => 'Terminé']);
 
         // when
@@ -65,6 +77,7 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         $demande = Tache::factory()->create(['etat' => 'Terminé']);
 
         // when
@@ -79,6 +92,7 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         // create some existing types so the types collection is not empty
         Tache::factory()->create(['type' => 'Réparation']);
         Tache::factory()->create(['type' => 'Ménage']);
@@ -104,6 +118,7 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         // create a demande with empty type so the distinct types collection is empty after filter()
         $demande = Tache::factory()->create(['type' => '', 'etat' => 'En attente']);
 
@@ -123,6 +138,7 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         $demande = Tache::factory()->create(['etat' => 'Terminé']);
 
         // when

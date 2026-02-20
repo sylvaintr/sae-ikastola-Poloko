@@ -108,6 +108,7 @@ class EvenementControllerTest extends TestCase
             'start_at' => now()->addDay()->format('Y-m-d\TH:i'),
             'end_at' => now()->addDays(2)->format('Y-m-d\TH:i'),
             'obligatoire' => true,
+            'roles' => [],
         ];
 
         // when
@@ -127,6 +128,7 @@ class EvenementControllerTest extends TestCase
             'start_at' => now()->addDay()->format('Y-m-d'),
             'end_at' => null,
             'obligatoire' => false,
+            'roles' => [],
         ];
 
         // when
@@ -160,6 +162,7 @@ class EvenementControllerTest extends TestCase
             'description' => '<p>Description</p> avec <b>HTML</b>',
             'start_at' => now()->addDay()->format('Y-m-d\TH:i'),
             'obligatoire' => false,
+            'roles' => [],
         ];
 
         // when
@@ -246,6 +249,7 @@ class EvenementControllerTest extends TestCase
             'description' => 'Updated description',
             'start_at' => now()->addDay()->format('Y-m-d\TH:i'),
             'obligatoire' => true,
+            'roles' => [],
         ];
 
         // when

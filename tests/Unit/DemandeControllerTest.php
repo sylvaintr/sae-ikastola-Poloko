@@ -12,7 +12,7 @@ use App\Http\Controllers\DemandeController;
 use App\Models\Tache;
 use App\Models\Document;
 use App\Models\DemandeHistorique;
-use App\Models\User;
+use App\Models\Utilisateur;
 
 class DemandeControllerTest extends TestCase
 {
@@ -132,7 +132,7 @@ class DemandeControllerTest extends TestCase
     public function test_edit_redirige_lorsque_termine()
     {
         // given
-        $user = User::factory()->create();
+        $user = Utilisateur::factory()->create();
         Auth::shouldReceive('user')->andReturn($user);
         $user->shouldReceive('can')->with('gerer-demande')->andReturn(true);
 
@@ -149,7 +149,7 @@ class DemandeControllerTest extends TestCase
     public function test_update_applique_les_mises_a_jour()
     {
         // given
-        $user = User::factory()->create();
+        $user = Utilisateur::factory()->create();
         Auth::shouldReceive('user')->andReturn($user);
         $user->shouldReceive('can')->with('gerer-demande')->andReturn(true);
 
@@ -182,7 +182,7 @@ class DemandeControllerTest extends TestCase
     public function test_storeHistorique_cree_un_historique()
     {
         // given
-        $user = User::factory()->create();
+        $user = Utilisateur::factory()->create();
         Auth::shouldReceive('user')->andReturn($user);
         $user->shouldReceive('can')->with('gerer-demande')->andReturn(true);
 
@@ -215,7 +215,7 @@ class DemandeControllerTest extends TestCase
     public function test_validate_demande_definit_termine_et_cree_un_historique()
     {
         // given
-        $user = User::factory()->create();
+        $user = Utilisateur::factory()->create();
         Auth::shouldReceive('user')->andReturn($user);
         $user->shouldReceive('can')->with('gerer-demande')->andReturn(true);
 
@@ -235,7 +235,7 @@ class DemandeControllerTest extends TestCase
     public function test_destroy_supprime_les_fichiers_et_les_enregistrements()
     {
         // given
-        $user = User::factory()->create();
+        $user = Utilisateur::factory()->create();
         Auth::shouldReceive('user')->andReturn($user);
         $user->shouldReceive('can')->with('gerer-demande')->andReturn(true);
 
