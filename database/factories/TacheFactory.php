@@ -16,7 +16,7 @@ class TacheFactory extends Factory
             'idTache' => $this->faker->unique()->numberBetween(1, 100000),
             'titre' => $this->faker->words(2, true),
             'description' => $this->faker->text(80),
-            'type' => $this->faker->word(),
+            'type' => $this->faker->randomElement(['low', 'medium', 'high']),
             'etat' => $this->faker->randomElement(['todo', 'doing', 'done']),
             'dateD' => $this->faker->optional()->date(),
             'dateF' => $this->faker->optional()->date(),

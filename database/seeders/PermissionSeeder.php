@@ -21,6 +21,7 @@ class PermissionSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'gerer-actualites'], ['guard_name' => 'web']);
         Permission::firstOrCreate(['name' => 'gerer-etiquettes'], ['guard_name' => 'web']);
         Permission::firstOrCreate(['name' => 'gerer-demandes'], ['guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'gerer-tache'], ['guard_name' => 'web']);
         Permission::firstOrCreate(['name' => 'gerer-notifications'], ['guard_name' => 'web']);
         Permission::firstOrCreate(['name' => 'gerer-familles'], ['guard_name' => 'web']);
         Permission::firstOrCreate(['name' => 'gerer-utilisateurs'], ['guard_name' => 'web']);
