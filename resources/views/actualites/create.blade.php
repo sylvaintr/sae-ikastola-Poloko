@@ -168,12 +168,18 @@
                                         @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label for="contenufr" class="form-label">{{ __('actualite.contenu') }} (FR) <span
-                                                class="text-danger">*</span></label>
+                                        <label for="contenufr" class="form-label">
+                                            {{ __('actualite.contenu') }} (FR)
+                                            <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" class="text-info text-decoration-none" title="{{ __('actualite.markdown_help') ?? 'Aide Markdown' }}" rel="noopener noreferrer">
+                                                <i class="bi bi-info-circle"></i>
+                                            </a>
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <textarea id="contenufr" name="contenufr" class="form-control mb-3 @error('contenufr') is-invalid @enderror" rows="6" required></textarea>
                                         @error('contenufr')
                                             <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
+                                        <p> {{ __('actualite.rendu_markdown') }} :</p>
                                         <div id="renducontenufr"></div>
                                     </div>
                                 </div>
@@ -196,12 +202,18 @@
                                         @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label for="contenueus" class="form-label">{{ __('actualite.contenu') }} (EUS) <span
-                                                class="text-danger">*</span></label>
+                                        <label for="contenueus" class="form-label">
+                                            {{ __('actualite.contenu') }} (EUS)
+                                            <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" class="text-info text-decoration-none" title="{{ __('actualite.markdown_help') ?? 'Aide Markdown' }}" rel="noopener noreferrer">
+                                                <i class="bi bi-info-circle"></i>
+                                            </a>
+                                            <span class="text-danger">*</span>
+                                        </label>
                                         <textarea id="contenueus" name="contenueus" class="form-control @error('contenueus') is-invalid @enderror" rows="6" required></textarea>
                                         @error('contenueus')
                                             <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
+                                        <p> {{ __('actualite.rendu_markdown') }} :</p>
                                         <div id="renducontenueus"></div>
                                     </div>
                                 </div>
@@ -299,6 +311,12 @@
                                 <label for="images" class="form-label fw-bold">{{ __('actualite.images') }}</label>
                                 <input type="file" id="images" name="images[]" class="form-control mb-2"
                                     multiple accept="image/*">
+                                <div class="form-text">
+                                    {{ Lang::get('actualite.images_formats_help', [], 'eus') }}
+                                    @if (Lang::getLocale() == 'fr')
+                                        / {{ __('actualite.images_formats_help') }}
+                                    @endif
+                                </div>
 
                                 {{-- Message d'erreur serveur pour images trop lourdes ou autres erreurs de validation --}}
                                 @if ($errors->has('images') || $errors->has('images.*'))
@@ -306,8 +324,11 @@
                                         @foreach ($errors->get('images') as $err)
                                             <div>{{ $err }}</div>
                                         @endforeach
-                                        @foreach ($errors->get('images.*') as $err)
-                                            <div>{{ $err }}</div>
+                                        {{-- $errors->get('images.*') renvoie un tableau de tableaux (par index de fichier) --}}
+                                        @foreach ($errors->get('images.*') as $errs)
+                                            @foreach ((array) $errs as $err)
+                                                <div>{{ $err }}</div>
+                                            @endforeach
                                         @endforeach
                                     </div>
                                 @endif
@@ -706,9 +727,14 @@
             form.addEventListener('change', validateForm);
             validateForm();
 
+            // --- MARKDOWN PREVIEW ---
             if (typeof AfficherMarkdownfromBalise === "function") {
-                document.getElementById('contenufr').addEventListener('input', () => AfficherMarkdownfromBalise('contenufr', 'renducontenufr'));
-                document.getElementById('contenueus').addEventListener('input', () => AfficherMarkdownfromBalise('contenueus', 'renducontenueus'));
+                AfficherMarkdownfromBalise('contenufr', 'renducontenufr');
+                AfficherMarkdownfromBalise('contenueus', 'renducontenueus');
+                document.getElementById('contenufr').addEventListener('input', () => AfficherMarkdownfromBalise(
+                    'contenufr', 'renducontenufr'));
+                document.getElementById('contenueus').addEventListener('input', () => AfficherMarkdownfromBalise(
+                    'contenueus', 'renducontenueus'));
             }
         });
     </script>

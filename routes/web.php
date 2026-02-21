@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\ActualiteController;
+use App\Http\Controllers\ActualiteMediaController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\DemandeController;
+use App\Http\Controllers\EnfantController;
 use App\Http\Controllers\EtiquetteController;
 use App\Http\Controllers\FactureController;
 use App\Http\Controllers\FamilleController;
@@ -11,6 +13,8 @@ use App\Http\Controllers\LierController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TacheController;
+use App\Http\Controllers\UtilisateurController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -58,13 +62,17 @@ Route::middleware('auth')->group(function () {
             Route::get('/export-all-csv', [DemandeController::class, 'exportAllCsv'])->name('export.all.csv');
 
             Route::get(ROUTE_DEMANDE, [DemandeController::class, 'show'])->name('show');
-            Route::get(ROUTE_DEMANDE . '/edit', [DemandeController::class, 'edit'])->name('edit');
-            Route::put(ROUTE_DEMANDE, [DemandeController::class, 'update'])->name('update');
-            Route::patch(ROUTE_DEMANDE . '/valider', [DemandeController::class, 'validateDemande'])->name('validate');
-            Route::delete(ROUTE_DEMANDE, [DemandeController::class, 'destroy'])->name('destroy');
+            
+            // Routes protégées : seuls les utilisateurs avec 'gerer-demandes' peuvent modifier, valider, supprimer ou ajouter des avancements
+            Route::middleware('can:gerer-demandes')->group(function () {
+                Route::get(ROUTE_DEMANDE . '/edit', [DemandeController::class, 'edit'])->name('edit');
+                Route::put(ROUTE_DEMANDE, [DemandeController::class, 'update'])->name('update');
+                Route::patch(ROUTE_DEMANDE . '/valider', [DemandeController::class, 'validateDemande'])->name('validate');
+                Route::delete(ROUTE_DEMANDE, [DemandeController::class, 'destroy'])->name('destroy');
+                Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
+                Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
+            });
 
-            Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
-            Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
             Route::get(ROUTE_DEMANDE . '/export-csv', [DemandeController::class, 'exportCsv'])->name('export.csv');
             Route::get(ROUTE_DEMANDE . '/document/{document}', [DemandeController::class, 'showDocument'])->name('document.show');
         });
@@ -172,6 +180,26 @@ Route::middleware('auth')->group(function () {
     Route::get('/presence/status', [PresenceController::class, 'status'])->name('presence.status');
     Route::post('/presence/save', [PresenceController::class, 'save'])->name('presence.save');
 
+    // ---------------- Tâches ----------------
+    Route::middleware('can:access-tache')->group(function () {
+        Route::get('/tache', [TacheController::class, 'index'])->name('tache.index');
+        Route::get('/tache/get-datatable', [TacheController::class, 'getDatatable'])->name('tache.get-datatable');
+        Route::get('/tache/{tache}/show', [TacheController::class, 'show'])->name('tache.show');
+        Route::get('/tache/{tache}/historique/create', [TacheController::class, 'createHistorique'])->name('tache.historique.create');
+        Route::post('/tache/{tache}/historique', [TacheController::class, 'storeHistorique'])->name('tache.historique.store');
+        Route::middleware('can:gerer-tache')->group(function () {
+            Route::get('/tache/create', [TacheController::class, 'create'])->name('tache.create');
+            Route::post('/tache/store', [TacheController::class, 'store'])->name('tache.store');
+            Route::get('/tache/{tache}/edit', [TacheController::class, 'edit'])->name('tache.edit');
+            Route::put('/tache/{tache}', [TacheController::class, 'update'])->name('tache.update');
+            Route::delete('/tache/{tache}', [TacheController::class, 'delete'])->name('tache.delete');
+            Route::patch('/taches/{id}/done', [TacheController::class, 'markDone'])->name('tache.markDone');
+        });
+    });
+
+    // Recherche des utilisateurs (pour assignation des tâches)
+    Route::get('/users/search', [UtilisateurController::class, 'search'])->name('users.search');
+
     Route::middleware(['permission:gerer-etiquettes'])->name('admin.')->group(function () {
         Route::resource('/pannel/etiquettes', EtiquetteController::class)->except(['show']);
         Route::get('/pannel/etiquettes/data', [EtiquetteController::class, 'data'])->name('etiquettes.data');
@@ -189,6 +217,12 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/actualites' . ROUTE_ID, [ActualiteController::class, 'show'])->name('actualites.show');
+Route::get('/actualites/{actualite}/images.zip', [ActualiteMediaController::class, 'downloadImagesZip'])
+    ->name('actualites.images.zip');
+Route::get('/actualites/{actualite}/documents/{document}', [ActualiteMediaController::class, 'showDocument'])
+    ->name('actualites.document.show');
+Route::get('/actualites/{actualite}/documents/{document}/download', [ActualiteMediaController::class, 'downloadDocument'])
+    ->name('actualites.document.download');
 
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['fr', 'eus'])) {

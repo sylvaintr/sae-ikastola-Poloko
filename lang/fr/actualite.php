@@ -11,6 +11,7 @@ return [
     'titre' => 'Titre de l\'actualité',
     'description' => 'Description de l\'actualité',
     'contenu' => 'Contenu de l\'actualité',
+    'markdown_help' => 'Aide sur la syntaxe Markdown',
     'retour_aux_actualites' => 'Retour aux actualités',
     'filter' => 'Filtrer',
     'publie_le' => 'Publié le',
@@ -74,6 +75,15 @@ return [
     ],
     'duplicate' => 'Dupliquer',
     'duplicated_success' => 'Actualité dupliquée avec succès.',
+    'cannot_duplicate_archived' => 'Impossible de dupliquer une actualité archivée.',
 
 
+    'download_images_zip' => 'Télécharger les images (ZIP)',
+    'pieces_jointes' => 'Pièces jointes',
+    'images_formats_help' => 'Formats acceptés : JPG, PNG, GIF ou WebP (2 Mo max par image).',
+    'validation' => [
+        'image_format' => 'Format non pris en charge. Formats acceptés : JPG, PNG, GIF ou WebP.',
+        'image_max' => 'Chaque image ne doit pas dépasser 2 Mo.',
+        'image_label' => 'image',
+    ],
 ];
