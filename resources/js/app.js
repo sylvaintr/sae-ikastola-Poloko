@@ -7,7 +7,7 @@ import Alpine from 'alpinejs';
 import { userGuide } from './user-guide';
 
 // Enregistrer le composant userGuide globalement
-window.userGuide = userGuide;
+globalThis.userGuide = userGuide;
 
 globalThis.Alpine = Alpine;
 Alpine.start();

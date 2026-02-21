@@ -143,8 +143,8 @@ function userGuide() {
 }
 
 // Enregistrer le composant globalement pour Alpine.js
-if (typeof window !== 'undefined') {
-    window.userGuide = userGuide;
+if (typeof globalThis !== 'undefined') {
+    globalThis.userGuide = userGuide;
 }
 
 export { userGuide };
