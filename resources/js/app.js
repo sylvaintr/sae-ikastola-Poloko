@@ -4,6 +4,11 @@ import './bootstrap';
 import './children-selector';
 import './forgot-password';
 import Alpine from 'alpinejs';
+import { userGuide } from './user-guide';
+
+// Enregistrer le composant userGuide globalement
+window.userGuide = userGuide;
+
 globalThis.Alpine = Alpine;
 Alpine.start();
 import * as yup from 'yup';
