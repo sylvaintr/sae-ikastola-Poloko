@@ -13,6 +13,7 @@ $common = [
     'first_name'               => 'Prénom',
     'last_name'                => 'Nom',
     'email'                    => 'Email',
+    'birth_date'               => 'Date de naissance',
     'preferred_language'       => 'Langue préférée',
     'fixed_expiration_date'    => 'Date d\'expiration fixe',
     'submit'                   => 'Enregistrer',
@@ -60,6 +61,10 @@ return [
                 'role_label' => 'Filtrer par rôle',
             ],
             'columns'              => [
+                'id'         => [
+                    'title'    => 'ID',
+                    'subtitle' => 'Identifiant',
+                ],
                 'first_name' => [
                     'title'    => 'Izena',
                     'subtitle' => $common['first_name'],
