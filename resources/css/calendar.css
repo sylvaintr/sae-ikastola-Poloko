@@ -1,0 +1,444 @@
+/* =========================
+   FullCalendar – Thème Ikastola
+   Charte graphique orange #f29201
+   ========================= */
+
+/* ─────────────────────────────────────────────────────────
+   Variables & Base
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc {
+    font-family: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+    /* Variables FullCalendar (v6) */
+    --fc-border-color: rgba(0, 0, 0, 0.06);
+    --fc-page-bg-color: transparent;
+
+    /* Boutons toolbar */
+    --fc-button-bg-color: #f29201;
+    --fc-button-border-color: #f29201;
+    --fc-button-text-color: #ffffff;
+
+    --fc-button-hover-bg-color: #d67f00;
+    --fc-button-hover-border-color: #d67f00;
+
+    --fc-button-active-bg-color: #c47200;
+    --fc-button-active-border-color: #c47200;
+
+    /* Aujourd'hui */
+    --fc-today-bg-color: rgba(242, 146, 1, 0.08);
+
+    /* Events */
+    --fc-event-bg-color: #3788d8;
+    --fc-event-border-color: #2c6cb0;
+    --fc-event-text-color: #ffffff;
+
+    --fc-link-color: #f29201;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Conteneur & Grille
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-scrollgrid {
+    border: none !important;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.calendrier-page .fc .fc-scrollgrid-section > * {
+    border: none;
+}
+
+.calendrier-page .fc th {
+    border: none !important;
+}
+
+.calendrier-page .fc td {
+    border-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Toolbar (Navigation)
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-toolbar {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem !important;
+}
+
+.calendrier-page .fc .fc-toolbar-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -0.01em;
+}
+
+/* Groupe de boutons */
+.calendrier-page .fc .fc-button-group {
+    gap: 0.35rem;
+    box-shadow: none;
+}
+
+/* Boutons individuels */
+.calendrier-page .fc .fc-button {
+    border-radius: 10px !important;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-width: 2px;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 2px 8px rgba(242, 146, 1, 0.15);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: capitalize;
+}
+
+.calendrier-page .fc .fc-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(242, 146, 1, 0.25);
+}
+
+.calendrier-page .fc .fc-button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(242, 146, 1, 0.2);
+}
+
+.calendrier-page .fc .fc-button:focus {
+    box-shadow: 0 0 0 3px rgba(242, 146, 1, 0.3);
+    outline: none;
+}
+
+.calendrier-page .fc .fc-button:disabled {
+    opacity: 0.45;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* Bouton actif (vue sélectionnée) */
+.calendrier-page .fc .fc-button-active {
+    background: #c47200 !important;
+    border-color: #c47200 !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Bouton "Aujourd'hui" - style outline */
+.calendrier-page .fc .fc-today-button {
+    background: #fff !important;
+    color: #c47200 !important;
+    border-color: #f29201 !important;
+    box-shadow: inset 0 0 0 1px rgba(242, 146, 1, 0.3);
+}
+
+.calendrier-page .fc .fc-today-button:hover:not(:disabled) {
+    background: #f29201 !important;
+    color: #fff !important;
+}
+
+/* ─────────────────────────────────────────────────────────
+   En-têtes de colonnes (jours de la semaine)
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-col-header {
+    background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
+}
+
+.calendrier-page .fc .fc-col-header-cell {
+    padding: 0.85rem 0;
+    border-bottom: 2px solid rgba(242, 146, 1, 0.15) !important;
+}
+
+.calendrier-page .fc .fc-col-header-cell-cushion {
+    color: #374151;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Cellules de jours
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-daygrid-day {
+    transition: background-color 0.15s ease;
+}
+
+.calendrier-page .fc .fc-daygrid-day:hover {
+    background-color: rgba(242, 146, 1, 0.03);
+}
+
+/* Numéro du jour */
+.calendrier-page .fc .fc-daygrid-day-number {
+    color: #4b5563;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.65rem;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.calendrier-page .fc .fc-daygrid-day:hover .fc-daygrid-day-number {
+    color: #f29201;
+}
+
+/* Jours du mois précédent/suivant */
+.calendrier-page .fc .fc-day-other .fc-daygrid-day-number {
+    color: #d1d5db;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Jour actuel (Aujourd'hui)
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-day-today {
+    background: linear-gradient(135deg, rgba(242, 146, 1, 0.08) 0%, rgba(242, 146, 1, 0.04) 100%) !important;
+}
+
+.calendrier-page .fc .fc-day-today .fc-daygrid-day-number {
+    color: #ffffff;
+    background: linear-gradient(135deg, #c47200 0%, #a85f00 100%);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.35rem;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(242, 146, 1, 0.35);
+}
+
+/* ─────────────────────────────────────────────────────────
+   Événements (Pills)
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-daygrid-event,
+.calendrier-page .fc .fc-timegrid-event {
+    border-radius: 6px;
+    padding: 3px 8px;
+    border: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.calendrier-page .fc .fc-daygrid-event:hover,
+.calendrier-page .fc .fc-timegrid-event:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+}
+
+/* Titre et heure de l'événement */
+.calendrier-page .fc .fc-event-title {
+    font-weight: 600;
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+
+.calendrier-page .fc .fc-event-time {
+    font-weight: 600;
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+/* Événements "dot" (quand trop d'événements) */
+.calendrier-page .fc .fc-daygrid-event-dot {
+    border-color: #f29201 !important;
+}
+
+/* Lien "+X autres" */
+.calendrier-page .fc .fc-more-link {
+    color: #f29201;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.calendrier-page .fc .fc-more-link:hover {
+    background: rgba(242, 146, 1, 0.1);
+    color: #c47200;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Événements obligatoires (style spécial)
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-event-obligatoire {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+}
+
+.calendrier-page .fc .fc-event-obligatoire:hover {
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
+}
+
+/* ─────────────────────────────────────────────────────────
+   Demandes (événements type demande)
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-event-demande {
+    border-left: 3px solid rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Vue Semaine/Jour - Indicateur "maintenant"
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-timegrid-now-indicator-line {
+    border-color: #f29201;
+    border-width: 2px;
+}
+
+.calendrier-page .fc .fc-timegrid-now-indicator-arrow {
+    border-color: #f29201;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Sélection (drag select)
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-highlight {
+    background: rgba(242, 146, 1, 0.12);
+    border-radius: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Vue Semaine - Heures
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-timegrid-slot-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.calendrier-page .fc .fc-timegrid-axis-cushion {
+    color: #9ca3af;
+    font-size: 0.75rem;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Popover ("+X autres" détails)
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-popover {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.calendrier-page .fc .fc-popover-header {
+    background: linear-gradient(135deg, #c47200 0%, #a85f00 100%);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 0.75rem 1rem;
+    border: none;
+}
+
+.calendrier-page .fc .fc-popover-body {
+    padding: 0.5rem;
+}
+
+.calendrier-page .fc .fc-popover-close {
+    color: #fff;
+    opacity: 0.8;
+}
+
+.calendrier-page .fc .fc-popover-close:hover {
+    opacity: 1;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Responsive
+   ───────────────────────────────────────────────────────── */
+@media (max-width: 767.98px) {
+    .calendrier-page .fc .fc-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .calendrier-page .fc .fc-toolbar-chunk {
+        display: flex;
+        justify-content: center;
+    }
+
+    .calendrier-page .fc .fc-toolbar-title {
+        font-size: 1.15rem;
+        text-align: center;
+        order: -1;
+    }
+
+    .calendrier-page .fc .fc-button {
+        padding: 0.45rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .calendrier-page .fc .fc-col-header-cell-cushion {
+        font-size: 0.7rem;
+    }
+
+    .calendrier-page .fc .fc-daygrid-day-number {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.5rem;
+    }
+
+    .calendrier-page .fc .fc-day-today .fc-daygrid-day-number {
+        width: 24px;
+        height: 24px;
+        font-size: 0.75rem;
+    }
+
+    .calendrier-page .fc .fc-event-title {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .calendrier-page .fc .fc-button-group {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .calendrier-page .fc .fc-toolbar-chunk:last-child {
+        width: 100%;
+    }
+
+    .calendrier-page .fc .fc-toolbar-chunk:last-child .fc-button-group {
+        width: 100%;
+    }
+
+    .calendrier-page .fc .fc-toolbar-chunk:last-child .fc-button {
+        flex: 1;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────
+   Animation d'entrée du calendrier
+   ───────────────────────────────────────────────────────── */
+@keyframes calendarFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ─────────────────────────────────────────────────────────
+   Scrollbar personnalisée (vue semaine)
+   ───────────────────────────────────────────────────────── */
+.calendrier-page .fc .fc-scroller::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.calendrier-page .fc .fc-scroller::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.calendrier-page .fc .fc-scroller::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.calendrier-page .fc .fc-scroller::-webkit-scrollbar-thumb:hover {
+    background: #f29201;
+}

@@ -6,15 +6,25 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Tache;
+use App\Models\Utilisateur;
 
 class DemandeControllerCreateHistoriqueTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected Utilisateur $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = Utilisateur::factory()->create();
+    }
+
     public function test_createHistorique_redirects_when_demande_terminated()
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         $demande = Tache::factory()->create(['etat' => 'Terminé']);
 
         // when
@@ -29,6 +39,7 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         $demande = Tache::factory()->create(['etat' => 'En attente']);
 
         // when
@@ -44,6 +55,7 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         $demande = Tache::factory()->create(['etat' => 'Terminé']);
 
         // when
@@ -65,6 +77,7 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         $demande = Tache::factory()->create(['etat' => 'Terminé']);
 
         // when
@@ -75,13 +88,11 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Http\RedirectResponse::class, $resp);
     }
 
-    public function test_edit_returns_view_with_types_and_urgences_when_not_terminated()
+    public function test_edit_returns_view_with_urgences_and_roles_when_not_terminated()
     {
         // given
         $this->withoutMiddleware();
-        // create some existing types so the types collection is not empty
-        Tache::factory()->create(['type' => 'Réparation']);
-        Tache::factory()->create(['type' => 'Ménage']);
+        $this->actingAs($this->user);
         $demande = Tache::factory()->create(['etat' => 'En attente']);
 
         // when
@@ -92,20 +103,20 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Contracts\View\View::class, $resp);
         $data = $resp->getData();
 
-        $this->assertArrayHasKey('types', $data);
         $this->assertArrayHasKey('urgences', $data);
+        $this->assertArrayHasKey('roles', $data);
+        $this->assertArrayHasKey('evenements', $data);
         $this->assertArrayHasKey('demande', $data);
 
-        $this->assertNotEmpty($data['types']);
         $this->assertEquals(['Faible', 'Moyenne', 'Élevée'], $data['urgences']);
     }
 
-    public function test_edit_uses_default_types_when_none_exist()
+    public function test_edit_loads_demande_with_roles()
     {
         // given
         $this->withoutMiddleware();
-        // create a demande with empty type so the distinct types collection is empty after filter()
-        $demande = Tache::factory()->create(['type' => '', 'etat' => 'En attente']);
+        $this->actingAs($this->user);
+        $demande = Tache::factory()->create(['etat' => 'En attente']);
 
         // when
         $controller = new \App\Http\Controllers\DemandeController();
@@ -115,14 +126,15 @@ class DemandeControllerCreateHistoriqueTest extends TestCase
         $this->assertInstanceOf(\Illuminate\Contracts\View\View::class, $resp);
         $data = $resp->getData();
 
-        $this->assertArrayHasKey('types', $data);
-        $this->assertEquals(['Réparation', 'Ménage', 'Maintenance'], $data['types']->values()->all());
+        $this->assertArrayHasKey('demande', $data);
+        $this->assertTrue($data['demande']->relationLoaded('roles'));
     }
 
     public function test_storeHistorique_redirects_when_demande_terminated()
     {
         // given
         $this->withoutMiddleware();
+        $this->actingAs($this->user);
         $demande = Tache::factory()->create(['etat' => 'Terminé']);
 
         // when

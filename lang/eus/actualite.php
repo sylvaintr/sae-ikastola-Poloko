@@ -48,6 +48,7 @@ return [
     'modifier_actualite' => 'Editatu berria',
     'mettre_a_jour' => 'Eguneratu',
     'nouvelle_actualite' => 'Berri berria',
+    'rendu_markdown' => 'Hemen da edukiaren aurrebista',
 
     // Argazkien errore mezuak
     'images_trop_lourdes' => 'Fitxategi(ak) gehiegi tamainakoak: __LIST__. Onartutako tamaina maximoa: __MAX__ KB.',

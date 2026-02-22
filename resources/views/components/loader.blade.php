@@ -1,13 +1,13 @@
 <style>
     /* Le conteneur qui couvre l'écran (Overlay) */
     #loader-overlay {
-        display: none;
+        display: flex;
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(255, 255, 255, 0.8);
+        background: #fff;
         z-index: 9999;
         justify-content: center;
         align-items: center;

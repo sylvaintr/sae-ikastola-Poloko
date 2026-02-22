@@ -11,6 +11,24 @@ abstract class TestCase extends BaseTestCase
      * Ensure any user passed to actingAs has the CA role and permissions.
      * This helps tests that rely on admin permissions after route permission changes.
      */
+    /**
+     * Flag to skip automatic CA role assignment in actingAs().
+     * Used by tests that need to verify role-based filtering.
+     */
+    protected bool $skipAutoAdminRole = false;
+
+    /**
+     * Act as user without automatically assigning admin role.
+     * Use this when testing role-based filtering logic.
+     */
+    public function actingAsNonAdmin($user, $driver = null)
+    {
+        $this->skipAutoAdminRole = true;
+        $result = $this->actingAs($user, $driver);
+        $this->skipAutoAdminRole = false;
+        return $result;
+    }
+
     public function actingAs($user, $driver = null)
     {
         try {
@@ -20,7 +38,8 @@ abstract class TestCase extends BaseTestCase
                     $user->save();
                 }
 
-                if (method_exists($user, 'assignRole')) {
+                // Only assign CA role if not skipped (for role-based filtering tests)
+                if (!$this->skipAutoAdminRole && method_exists($user, 'assignRole')) {
                     $ca = \App\Models\Role::firstOrCreate(['name' => 'CA']);
                     if (! $user->hasRole('CA')) {
                         $user->assignRole($ca);
@@ -47,7 +66,7 @@ abstract class TestCase extends BaseTestCase
         }
 
         return parent::actingAs($user, $driver);
-        
+
     }
 
     protected function setUp(): void
@@ -108,6 +127,8 @@ abstract class TestCase extends BaseTestCase
             'gerer-classes',
             'gerer-document-obligatoire',
             'gerer-factures',
+            'gerer-evenement',
+            'gerer-demande',
         ];
 
         foreach ($permissions as $p) {

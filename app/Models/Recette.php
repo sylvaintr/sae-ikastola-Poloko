@@ -28,7 +28,8 @@ class Recette extends Model
 
 	protected $casts = [
 		'idRecette' => 'int',
-		'idEvenement' => 'int'
+		'idEvenement' => 'int',
+		'prix' => 'float'
 	];
 
 	/**
@@ -40,9 +41,11 @@ class Recette extends Model
 	 * - `idEvenement` (int) : référence vers l'événement associé.
 	 */
 	protected $fillable = [
+		'idRecette',
 		'description',
 		'prix',
 		'quantite',
+		'type',
 		'idEvenement'
 	];
 

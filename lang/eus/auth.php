@@ -4,10 +4,12 @@ return [
     // Labels (keys in French)
     'email' => 'Posta elektronikoa',
     'mot_de_passe' => 'Pasahitza',
+    'prenom' => 'Izena',
     'se_souvenir_de_moi' => 'Gogora nazazu',
     'connexion' => 'Saioa hasi',
     'inscription' => 'Erregistratu',
-    'nom' => 'Izena',
+    'titre_connexion_principal' => 'Saioa hasi',
+    'nom' => 'Abizena',
     'confirmer_mot_de_passe' => 'Pasahitza berretsi',
     'titre_connexion_secondaire' => 'Sartu zure kontuan',
     'email_principal' => 'Posta elektronikoa',
@@ -20,7 +22,15 @@ return [
     'mot_de_passe_oublie_secondaire' => 'Berrezarri zure pasahitza',
     'pas_compte_principal' => 'Ez duzu konturik oraindik?',
     'pas_compte_secondaire' => 'Eman izena',
-
+    'bouton_connexion' => 'Sartu',
+    'mot_de_passe_confirme_a' => 'Pasahitza :time-n berretsi da',
+    'password_req_length' => 'Gutxienez 8 karaktere',
+    'password_req_uppercase' => 'Maiuskula bat',
+    'password_req_lowercase' => 'Minuskula bat',
+    'password_req_number' => 'Zenbaki bat',
+    'password_req_special' => 'Karaktere berezi bat',
+    'consulter_profil' => 'Profila ikusi',
+    'passer_eus_fr' => 'EUS/FR aldatu',
 
     // Actions / Links
     'mot_de_passe_oublie' => 'Pasahitza ahaztu duzu?',

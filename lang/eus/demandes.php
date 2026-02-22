@@ -59,12 +59,18 @@ return [
             'eu' => 'Data max',
             'fr' => 'Date max',
         ],
+        'evenement' => [
+            'eu' => 'Gertaera',
+            'fr' => 'Événement',
+        ],
         'reset' => 'Berrezarri',
         'submit' => 'Iragazi',
         'options' => [
             'all_status' => 'Egoera guztiak',
             'all_types' => 'Mota guztiak',
             'all_urgencies' => 'Larrialdi guztiak',
+            'all_evenements' => 'Gertaera guztiak',
+            'no_evenement' => 'Gertaerarik gabe',
         ],
     ],
     'table' => [
@@ -155,11 +161,21 @@ return [
                 'eu' => 'Argazkia',
                 'fr' => 'Photo',
             ],
+            'evenement' => [
+                'eu' => 'Gertaera',
+                'fr' => 'Événement',
+                'none' => 'Gertaerarik gabe / Sans événement',
+            ],
             'assigne' => [
-                'eu' => 'Batzordea esleitu',
-                'fr' => 'Assigner à une commission',
+                'eu' => 'Batzordeak esleitu',
+                'fr' => 'Assigner à des commissions',
                 'none' => 'Batzorderik esleitu gabe',
             ],
+            'commission_search' => 'Bilatu batzorde bat / Rechercher une commission',
+            'commission_placeholder' => 'Tapez pour filtrer...',
+            'commission_selected' => 'Hautatutako batzordeak / Commissions sélectionnées',
+            'commission_empty' => 'Batzorderik hautatu gabe',
+            'commission_required' => 'Gutxienez batzorde bat hautatu behar duzu.',
         ],
         'buttons' => [
             'back' => [

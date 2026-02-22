@@ -117,4 +117,14 @@ class Tache extends Model
 		return $this->belongsTo(Role::class, 'idRole');
 	}
 
+	/**
+	 * Relation belongsToMany vers les rôles associés à la tâche (pivot `tache_role`).
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+	 */
+	public function roles()
+	{
+		return $this->belongsToMany(Role::class, 'tache_role', 'idTache', 'idRole');
+	}
+
 }

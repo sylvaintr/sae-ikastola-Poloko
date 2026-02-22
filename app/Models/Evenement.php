@@ -24,29 +24,32 @@ class Evenement extends Model
 	use HasFactory;
 	protected $table = 'evenement';
 	protected $primaryKey = 'idEvenement';
-	public $incrementing = false;
+	public $incrementing = true;
 	public $timestamps = false;
 
 	protected $casts = [
 		'idEvenement' => 'int',
 		'obligatoire' => 'bool',
-		'dateE' => 'datetime'
+		'start_at' => 'datetime',
+		'end_at' => 'datetime',
 	];
 
-	/**
-	 * Attributs assignables (fillable) pour un événement.
-	 *
-	 * - `titre` (string) : titre de l'événement.
-	 * - `description` (string) : description détaillée.
-	 * - `obligatoire` (bool) : indique si l'événement est obligatoire.
-	 * - `dateE` (datetime) : date de l'événement.
-	 */
 	protected $fillable = [
 		'titre',
 		'description',
 		'obligatoire',
-		'dateE'
+		'start_at',
+		'end_at',
 	];
+
+	/**
+	 * Relation belongsToMany vers les rôles associés à cet événement (pivot `evenement_role`).
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+	 */
+	public function roles()
+	{
+		return $this->belongsToMany(Role::class, 'evenement_role', 'idEvenement', 'idRole');
+	}
 
 	/**
 	 * Relation hasMany vers les recettes associées à cet événement.
@@ -64,6 +67,15 @@ class Evenement extends Model
 	public function taches()
 	{
 		return $this->hasMany(Tache::class, 'idEvenement');
+	}
+
+	/**
+	 * Relation hasMany vers les demandes associées à cet événement.
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function demandes()
+	{
+		return $this->hasMany(Tache::class, 'idEvenement')->where('type', 'demande');
 	}
 
 	/**

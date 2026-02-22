@@ -3,6 +3,9 @@
 if (! defined('OBLIGATORY_DOCUMENTS_LABEL')) {
     define('OBLIGATORY_DOCUMENTS_LABEL', 'Documents obligatoires');
 }
+if (! defined('ADMIN_BIRTH_DATE_LABEL')) {
+    define('ADMIN_BIRTH_DATE_LABEL', 'Date de naissance');
+}
 
 $common = [
     'roles'                    => 'Rôles',
@@ -13,6 +16,7 @@ $common = [
     'first_name'               => 'Prénom',
     'last_name'                => 'Nom',
     'email'                    => 'Email',
+    'birth_date'               => ADMIN_BIRTH_DATE_LABEL,
     'preferred_language'       => 'Langue préférée',
     'fixed_expiration_date'    => 'Date d\'expiration fixe',
     'submit'                   => 'Enregistrer',
@@ -60,6 +64,10 @@ return [
                 'role_label' => 'Filtrer par rôle',
             ],
             'columns'              => [
+                'id'         => [
+                    'title'    => 'ID',
+                    'subtitle' => 'Identifiant',
+                ],
                 'first_name' => [
                     'title'    => 'Izena',
                     'subtitle' => $common['first_name'],
@@ -171,7 +179,7 @@ return [
                     'password'                 => 'Mot de passe',
                     'password_confirmation'    => 'Confirmer le mot de passe',
                     'language'                 => $common['preferred_language'],
-                    'dateNaissance'            => 'Date de naissance',
+                    'dateNaissance'            => $common['birth_date'],
                     'status'                   => 'Statut de validation',
                     'roles'                    => $common['roles'],
                     'roles_search'             => $common['roles_search'],
@@ -209,7 +217,7 @@ return [
             ],
             'birth_date' => [
                 'title'    => 'Jaiotze data',
-                'subtitle' => 'Date de naissance',
+                'subtitle' => $common['birth_date'],
             ],
             'sexe'       => [
                 'title'    => 'Sexua',
