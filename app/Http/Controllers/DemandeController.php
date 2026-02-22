@@ -61,66 +61,11 @@ class DemandeController extends Controller
 
     public function index(Request $request)
     {
-        $filters = [
-            'search' => $request->input('search'),
-            'etat' => $request->input('etat', 'all'),
-            'urgence' => $request->input('urgence', 'all'),
-            'evenement' => $request->input('evenement', 'all'),
-            'date_from' => $request->input('date_from'),
-            'date_to' => $request->input('date_to'),
-            'sort' => $request->input('sort', 'date'),
-            'direction' => $request->input('direction', 'desc'),
-        ];
-
-        $query = Tache::query();
-        $query->where('type', 'demande');
-
-        if ($filters['search']) {
-            $searchTerm = trim($filters['search']);
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('idTache', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('titre', 'like', '%' . $searchTerm . '%');
-            });
-        }
-
-        if ($filters['etat'] && $filters['etat'] !== 'all') {
-            $query->where('etat', $filters['etat']);
-        }
-
-        if ($filters['urgence'] && $filters['urgence'] !== 'all') {
-            $query->where('urgence', $filters['urgence']);
-        }
-
-        if ($filters['evenement'] && $filters['evenement'] !== 'all') {
-            if ($filters['evenement'] === 'none') {
-                $query->whereNull('idEvenement');
-            } else {
-                $query->where('idEvenement', $filters['evenement']);
-            }
-        }
-
-        if ($filters['date_from']) {
-            $query->whereDate('dateD', '>=', $filters['date_from']);
-        }
-
-        if ($filters['date_to']) {
-            $query->whereDate('dateD', '<=', $filters['date_to']);
-        }
-
-        $sortable = [
-            'id' => 'idTache',
-            'date' => 'dateD',
-            'title' => 'titre',
-            'urgence' => 'urgence',
-            'etat' => 'etat',
-        ];
-
-        $sortField = $sortable[$filters['sort']] ?? $sortable['date'];
-        $direction = strtolower($filters['direction']) === 'asc' ? 'asc' : 'desc';
+        $filters = $this->demandeFiltersFromRequest($request);
+        $query = $this->buildDemandeQuery($filters);
 
         $demandes = $query
-            ->with('roles')
-            ->orderBy($sortField, $direction)
+            ->orderBy($this->sortableField($filters['sort']), $this->sortDirection($filters['direction']))
             ->orderBy('idTache', 'desc')
             ->paginate(10)
             ->withQueryString();
@@ -220,15 +165,12 @@ class DemandeController extends Controller
             return to_route('demandes.show', $demande)->with('status', __('demandes.messages.locked'));
         }
 
-        $urgences = ['Faible', 'Moyenne', 'Élevée'];
         $roles = Role::orderBy('name')->get();
         $evenements = Evenement::with('roles')->orderBy('titre')->get();
-
-        // Charger les rôles de la demande
         $demande->load('roles');
 
         return view('demandes.create', [
-            'urgences' => $urgences,
+            'urgences' => self::DEFAULT_URGENCES,
             'demande' => $demande,
             'roles' => $roles,
             'evenements' => $evenements,
@@ -270,17 +212,7 @@ class DemandeController extends Controller
      */
     public function export(Request $request)
     {
-        $filters = [
-            'search' => $request->input('search'),
-            'etat' => $request->input('etat', 'all'),
-            'urgence' => $request->input('urgence', 'all'),
-            'evenement' => $request->input('evenement', 'all'),
-            'date_from' => $request->input('date_from'),
-            'date_to' => $request->input('date_to'),
-            'sort' => $request->input('sort', 'date'),
-            'direction' => $request->input('direction', 'desc'),
-        ];
-
+        $filters = $this->demandeFiltersFromRequest($request);
         $query = $this->buildDemandeQuery($filters);
 
         $demandes = $query
@@ -314,6 +246,23 @@ class DemandeController extends Controller
         return response($csv)
             ->header('Content-Type', self::CSV_CONTENT_TYPE)
             ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
+    }
+
+    /**
+     * Extrait les filtres de la requête pour les demandes.
+     */
+    private function demandeFiltersFromRequest(Request $request): array
+    {
+        return [
+            'search' => $request->input('search'),
+            'etat' => $request->input('etat', 'all'),
+            'urgence' => $request->input('urgence', 'all'),
+            'evenement' => $request->input('evenement', 'all'),
+            'date_from' => $request->input('date_from'),
+            'date_to' => $request->input('date_to'),
+            'sort' => $request->input('sort', 'date'),
+            'direction' => $request->input('direction', 'desc'),
+        ];
     }
 
     /**
@@ -406,69 +355,14 @@ class DemandeController extends Controller
     /**
      * Exporte toutes les demandes avec historique en CSV.
      */
-    /**
-     * Exporte toutes les demandes avec historique en CSV.
-     */
     public function exportAllCsv(Request $request): StreamedResponse
     {
-        $filters = [
-            'search' => $request->input('search'),
-            'etat' => $request->input('etat', 'all'),
-            'urgence' => $request->input('urgence', 'all'),
-            'evenement' => $request->input('evenement', 'all'),
-            'date_from' => $request->input('date_from'),
-            'date_to' => $request->input('date_to'),
-            'sort' => $request->input('sort', 'date'),
-            'direction' => $request->input('direction', 'desc'),
-        ];
-
-        $query = Tache::with(['historiques', 'realisateurs', 'roles'])->where('type', 'demande');
-
-        if ($filters['search']) {
-            $searchTerm = trim($filters['search']);
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('idTache', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('titre', 'like', '%' . $searchTerm . '%');
-            });
-        }
-
-        if ($filters['etat'] && $filters['etat'] !== 'all') {
-            $query->where('etat', $filters['etat']);
-        }
-
-        if ($filters['urgence'] && $filters['urgence'] !== 'all') {
-            $query->where('urgence', $filters['urgence']);
-        }
-
-        if ($filters['evenement'] && $filters['evenement'] !== 'all') {
-            if ($filters['evenement'] === 'none') {
-                $query->whereNull('idEvenement');
-            } else {
-                $query->where('idEvenement', $filters['evenement']);
-            }
-        }
-
-        if ($filters['date_from']) {
-            $query->whereDate('dateD', '>=', $filters['date_from']);
-        }
-
-        if ($filters['date_to']) {
-            $query->whereDate('dateD', '<=', $filters['date_to']);
-        }
-
-        $sortable = [
-            'id' => 'idTache',
-            'date' => 'dateD',
-            'title' => 'titre',
-            'urgence' => 'urgence',
-            'etat' => 'etat',
-        ];
-
-        $sortField = $sortable[$filters['sort']] ?? $sortable['date'];
-        $direction = strtolower($filters['direction']) === 'asc' ? 'asc' : 'desc';
+        $filters = $this->demandeFiltersFromRequest($request);
+        $query = $this->buildDemandeQuery($filters)
+            ->with(['historiques', 'realisateurs', 'roles']);
 
         $demandes = $query
-            ->orderBy($sortField, $direction)
+            ->orderBy($this->sortableField($filters['sort']), $this->sortDirection($filters['direction']))
             ->orderBy('idTache', 'desc')
             ->get();
 

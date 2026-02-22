@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->date('dateNaissance')->nullable();
             $table->boolean('statutValidation')->default(false);
             $table->rememberToken();
+            $table->string('ics_token', 64)->nullable()->unique();
             $table->timestamps();
         });
 

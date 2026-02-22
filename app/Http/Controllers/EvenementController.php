@@ -11,14 +11,18 @@ class EvenementController extends Controller
 {
     private const DATE_FORMAT_CSV = 'd/m/Y';
 
-    /**
-     * Afficher tous les événements
-     */
-    public function index(Request $request)
-    {
-        $query = Evenement::query();
+    private const ALLOWED_SORTS = [
+        'id_desc' => ['idEvenement', 'desc'],
+        'id_asc' => ['idEvenement', 'asc'],
+        'date_desc' => ['start_at', 'desc'],
+        'date_asc'  => ['start_at', 'asc'],
+    ];
 
-        // Recherche par titre ou ID
+    /**
+     * Applique recherche et tri sur la requête événements.
+     */
+    private function applyEvenementSearchAndSort(\Illuminate\Database\Eloquent\Builder $query, Request $request): array
+    {
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('titre', 'like', "%{$search}%")
@@ -26,26 +30,53 @@ class EvenementController extends Controller
                     ->orWhere('idEvenement', $search);
             });
         }
-
-        // Tri dynamique
         $sort = $request->input('sort', 'id_desc');
-        $allowedSorts = [
-            'id_desc' => ['idEvenement', 'desc'],
-            'id_asc' => ['idEvenement', 'asc'],
-            'date_desc' => ['start_at', 'desc'],
-            'date_asc'  => ['start_at', 'asc'],
-        ];
-
-        if (! array_key_exists($sort, $allowedSorts)) {
+        if (! array_key_exists($sort, self::ALLOWED_SORTS)) {
             $sort = 'id_desc';
         }
+        [$column, $direction] = self::ALLOWED_SORTS[$sort];
+        $query->orderBy($column, $direction);
+        return [$sort];
+    }
 
-        [$column, $direction] = $allowedSorts[$sort];
+    /**
+     * Règles de validation communes store/update.
+     */
+    private function evenementValidationRules(): array
+    {
+        return [
+            'titre' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'max:5000'],
+            'obligatoire' => ['nullable', 'boolean'],
+            'start_at' => ['required', 'date'],
+            'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
+            'roles' => ['required', 'array', 'min:1', 'max:50'],
+            'roles.*' => ['integer', 'exists:role,idRole'],
+        ];
+    }
 
-        $evenements = $query->orderBy($column, $direction)
-            ->paginate(10)
-            ->withQueryString();
+    /**
+     * Calcule les totaux recettes/dépenses pour un événement.
+     */
+    private function getEvenementTotaux(Evenement $evenement): array
+    {
+        $totalRecettes = $evenement->recettes->where('type', 'recette')->sum(fn($r) => $r->prix * ($r->quantite ?? 1));
+        $totalDepensesPrev = $evenement->recettes->where('type', 'depense_previsionnelle')->sum(fn($r) => $r->prix * ($r->quantite ?? 1));
+        $totalDepenses = $evenement->recettes->where('type', 'depense')->sum(fn($r) => $r->prix * ($r->quantite ?? 1));
+        $demandesDepenses = $evenement->demandes->sum(fn($d) => $d->historiques->sum('depense'));
+        $totalDepensesAvecDemandes = $totalDepenses + $demandesDepenses;
+        $balance = $totalRecettes - $totalDepensesAvecDemandes;
+        return compact('totalRecettes', 'totalDepensesPrev', 'totalDepenses', 'demandesDepenses', 'totalDepensesAvecDemandes', 'balance');
+    }
 
+    /**
+     * Afficher tous les événements
+     */
+    public function index(Request $request)
+    {
+        $query = Evenement::query();
+        [$sort] = $this->applyEvenementSearchAndSort($query, $request);
+        $evenements = $query->paginate(10)->withQueryString();
         return view('evenements.index', compact('evenements', 'sort'));
     }
 
@@ -64,31 +95,14 @@ class EvenementController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'titre' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string', 'max:5000'],
-            'obligatoire' => ['nullable', 'boolean'],
-
-            'start_at' => ['required', 'date'],
-            'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
-
-            'roles' => ['required', 'array', 'min:1', 'max:50'],
-            'roles.*' => ['integer', 'exists:role,idRole'],
-        ]);
-
-        // Sanitization contre XSS
-        $titre = strip_tags($validated['titre']);
-        $description = strip_tags($validated['description']);
-
+        $validated = $request->validate($this->evenementValidationRules());
         $evenement = Evenement::create([
-            'titre' => $titre,
-            'description' => $description,
+            'titre' => strip_tags($validated['titre']),
+            'description' => strip_tags($validated['description']),
             'obligatoire' => (bool)($validated['obligatoire'] ?? false),
-
             'start_at' => $validated['start_at'],
             'end_at' => $validated['end_at'] ?? null,
         ]);
-
         $evenement->roles()->sync($validated['roles'] ?? []);
 
         return redirect()->route('evenements.index')
@@ -126,33 +140,14 @@ class EvenementController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            'titre' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string', 'max:5000'],
-            'obligatoire' => ['nullable', 'boolean'],
-
-            'start_at' => ['required', 'date'],
-            'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
-
-            'roles' => ['required', 'array', 'min:1', 'max:50'],
-            'roles.*' => ['integer', 'exists:role,idRole'],
-        ]);
-
+        $validated = $request->validate($this->evenementValidationRules());
         $evenement = Evenement::findOrFail($id);
-
-        // Sanitization contre XSS
-        $titre = strip_tags($validated['titre']);
-        $description = strip_tags($validated['description']);
-
-        // Détecter si les dates ont changé pour synchroniser les demandes
-        $datesChanged = $evenement->start_at != $validated['start_at'] ||
-            $evenement->end_at != $validated['end_at'];
+        $datesChanged = $evenement->start_at != $validated['start_at'] || $evenement->end_at != $validated['end_at'];
 
         $evenement->update([
-            'titre' => $titre,
-            'description' => $description,
+            'titre' => strip_tags($validated['titre']),
+            'description' => strip_tags($validated['description']),
             'obligatoire' => (bool)($validated['obligatoire'] ?? false),
-
             'start_at' => $validated['start_at'],
             'end_at' => $validated['end_at'] ?? null,
         ]);
@@ -197,31 +192,8 @@ class EvenementController extends Controller
     public function export(Request $request): StreamedResponse
     {
         $query = Evenement::with(['recettes', 'roles', 'demandes.historiques']);
-
-        // Recherche par titre ou ID
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('titre', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%")
-                    ->orWhere('idEvenement', $search);
-            });
-        }
-
-        // Tri dynamique
-        $sort = $request->input('sort', 'id_desc');
-        $allowedSorts = [
-            'id_desc' => ['idEvenement', 'desc'],
-            'id_asc' => ['idEvenement', 'asc'],
-            'date_desc' => ['start_at', 'desc'],
-            'date_asc'  => ['start_at', 'asc'],
-        ];
-
-        if (! array_key_exists($sort, $allowedSorts)) {
-            $sort = 'id_desc';
-        }
-
-        [$column, $direction] = $allowedSorts[$sort];
-        $evenements = $query->orderBy($column, $direction)->get();
+        $this->applyEvenementSearchAndSort($query, $request);
+        $evenements = $query->get();
 
         $filename = 'evenements_' . date('Y-m-d') . '.csv';
 
@@ -246,24 +218,7 @@ class EvenementController extends Controller
         ]) . "\n";
 
         foreach ($evenements as $evenement) {
-            $totalRecettes = $evenement->recettes
-                ->where('type', 'recette')
-                ->sum(fn($r) => $r->prix * $r->quantite);
-            $totalDepensesPrev = $evenement->recettes
-                ->where('type', 'depense_previsionnelle')
-                ->sum(fn($r) => $r->prix * $r->quantite);
-            $totalDepenses = $evenement->recettes
-                ->where('type', 'depense')
-                ->sum(fn($r) => $r->prix * $r->quantite);
-
-            // Calculer les dépenses des demandes liées
-            $demandesDepenses = $evenement->demandes->sum(function ($demande) {
-                return $demande->historiques->sum('depense');
-            });
-
-            $totalDepensesAvecDemandes = $totalDepenses + $demandesDepenses;
-            $balance = $totalRecettes - $totalDepensesAvecDemandes;
-
+            $totaux = $this->getEvenementTotaux($evenement);
             $roles = $evenement->roles->pluck('name')->join(', ');
 
             $row = [
@@ -274,12 +229,12 @@ class EvenementController extends Controller
                 $this->formatDateForCsv($evenement->end_at),
                 $evenement->obligatoire ? __('evenements.status_obligatoire') : __('evenements.status_optionnel'),
                 '"' . str_replace('"', '""', $roles ?: '—') . '"',
-                $this->formatMontantForCsv($totalRecettes),
-                $this->formatMontantForCsv($totalDepensesPrev),
-                $this->formatMontantForCsv($totalDepenses),
-                $this->formatMontantForCsv($demandesDepenses),
-                $this->formatMontantForCsv($totalDepensesAvecDemandes),
-                $this->formatMontantForCsv($balance),
+                $this->formatMontantForCsv($totaux['totalRecettes']),
+                $this->formatMontantForCsv($totaux['totalDepensesPrev']),
+                $this->formatMontantForCsv($totaux['totalDepenses']),
+                $this->formatMontantForCsv($totaux['demandesDepenses']),
+                $this->formatMontantForCsv($totaux['totalDepensesAvecDemandes']),
+                $this->formatMontantForCsv($totaux['balance']),
             ];
 
             $csv .= implode(';', $row) . "\n";
@@ -372,33 +327,14 @@ class EvenementController extends Controller
             $csv .= "\n";
         }
 
-        // Totaux
-        $totalRecettes = $evenement->recettes
-            ->where('type', 'recette')
-            ->sum(fn($r) => $r->prix * $r->quantite);
-        $totalDepensesPrev = $evenement->recettes
-            ->where('type', 'depense_previsionnelle')
-            ->sum(fn($r) => $r->prix * $r->quantite);
-        $totalDepenses = $evenement->recettes
-            ->where('type', 'depense')
-            ->sum(fn($r) => $r->prix * $r->quantite);
-
-        // Calculer les dépenses des demandes
-        $demandesDepenses = $evenement->demandes->sum(function ($demande) {
-            return $demande->historiques->sum('depense');
-        });
-
-        $totalDepensesAvecDemandes = $totalDepenses + $demandesDepenses;
-        $balance = $totalRecettes - $totalDepensesAvecDemandes;
-
-        $csv .= __('evenements.export.total_recettes') . ';' . $this->formatMontantForCsv($totalRecettes) . "\n";
-        $csv .= __('evenements.export.total_depenses_prev') . ';' . $this->formatMontantForCsv($totalDepensesPrev) . "\n";
-        $csv .= __('evenements.export.total_depenses') . ';' . $this->formatMontantForCsv($totalDepenses) . "\n";
-
-        if ($demandesDepenses > 0) {
-            $csv .= 'Dépenses des demandes;' . $this->formatMontantForCsv($demandesDepenses) . "\n";
-            $csv .= 'Total dépenses (avec demandes);' . $this->formatMontantForCsv($totalDepensesAvecDemandes) . "\n";
-            $csv .= 'Balance;' . $this->formatMontantForCsv($balance) . "\n";
+        $totaux = $this->getEvenementTotaux($evenement);
+        $csv .= __('evenements.export.total_recettes') . ';' . $this->formatMontantForCsv($totaux['totalRecettes']) . "\n";
+        $csv .= __('evenements.export.total_depenses_prev') . ';' . $this->formatMontantForCsv($totaux['totalDepensesPrev']) . "\n";
+        $csv .= __('evenements.export.total_depenses') . ';' . $this->formatMontantForCsv($totaux['totalDepenses']) . "\n";
+        if ($totaux['demandesDepenses'] > 0) {
+            $csv .= 'Dépenses des demandes;' . $this->formatMontantForCsv($totaux['demandesDepenses']) . "\n";
+            $csv .= 'Total dépenses (avec demandes);' . $this->formatMontantForCsv($totaux['totalDepensesAvecDemandes']) . "\n";
+            $csv .= 'Balance;' . $this->formatMontantForCsv($totaux['balance']) . "\n";
         }
 
         return response($csv)
