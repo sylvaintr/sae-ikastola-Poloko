@@ -41,6 +41,8 @@ if (! defined('ROUTE_ADD')) {
     define('ROUTE_OBLIGATORY_DOCUMENT', '/{obligatoryDocument}');
     define('ROUTE_DEMANDE', '/{demande}');
     define('ROUTE_EVENEMENT_ID', '/evenements/{id}');
+    define('ROUTE_RECETTE', '/recettes/{recette}');
+    define('ROUTE_TACHE', '/tache/{tache}');
 }
 
 Route::get('/', [ActualiteController::class, 'index'])->name('home');
@@ -221,9 +223,9 @@ Route::middleware('auth')->group(function () {
             // Recettes (liées aux événements)
             Route::get('/evenements/{evenementId}/recettes/create', [RecetteController::class, 'create'])->name('recettes.create');
             Route::post('/evenements/{evenement}/recettes', [RecetteController::class, 'store'])->name('recettes.store');
-            Route::get('/recettes/{recette}' . ROUTE_EDIT_EN, [RecetteController::class, 'edit'])->name('recettes.edit');
-            Route::put('/recettes/{recette}', [RecetteController::class, 'update'])->name('recettes.update');
-            Route::delete('/recettes/{recette}', [RecetteController::class, 'destroy'])->name('recettes.destroy');
+            Route::get(ROUTE_RECETTE . ROUTE_EDIT_EN, [RecetteController::class, 'edit'])->name('recettes.edit');
+            Route::put(ROUTE_RECETTE, [RecetteController::class, 'update'])->name('recettes.update');
+            Route::delete(ROUTE_RECETTE, [RecetteController::class, 'destroy'])->name('recettes.destroy');
         });
 
         // Routes avec paramètre dynamique : après les routes statiques pour éviter les conflits
@@ -237,15 +239,15 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:access-tache')->group(function () {
         Route::get('/tache', [TacheController::class, 'index'])->name('tache.index');
         Route::get('/tache/get-datatable', [TacheController::class, 'getDatatable'])->name('tache.get-datatable');
-        Route::get('/tache/{tache}/show', [TacheController::class, 'show'])->name('tache.show');
-        Route::get('/tache/{tache}/historique/create', [TacheController::class, 'createHistorique'])->name('tache.historique.create');
-        Route::post('/tache/{tache}/historique', [TacheController::class, 'storeHistorique'])->name('tache.historique.store');
+        Route::get(ROUTE_TACHE . '/show', [TacheController::class, 'show'])->name('tache.show');
+        Route::get(ROUTE_TACHE . '/historique/create', [TacheController::class, 'createHistorique'])->name('tache.historique.create');
+        Route::post(ROUTE_TACHE . '/historique', [TacheController::class, 'storeHistorique'])->name('tache.historique.store');
         Route::middleware('can:gerer-tache')->group(function () {
             Route::get('/tache/create', [TacheController::class, 'create'])->name('tache.create');
             Route::post('/tache/store', [TacheController::class, 'store'])->name('tache.store');
-            Route::get('/tache/{tache}' . ROUTE_EDIT_EN, [TacheController::class, 'edit'])->name('tache.edit');
-            Route::put('/tache/{tache}', [TacheController::class, 'update'])->name('tache.update');
-            Route::delete('/tache/{tache}', [TacheController::class, 'delete'])->name('tache.delete');
+            Route::get(ROUTE_TACHE . ROUTE_EDIT_EN, [TacheController::class, 'edit'])->name('tache.edit');
+            Route::put(ROUTE_TACHE, [TacheController::class, 'update'])->name('tache.update');
+            Route::delete(ROUTE_TACHE, [TacheController::class, 'delete'])->name('tache.delete');
             Route::patch('/taches/{id}/done', [TacheController::class, 'markDone'])->name('tache.markDone');
         });
     });
