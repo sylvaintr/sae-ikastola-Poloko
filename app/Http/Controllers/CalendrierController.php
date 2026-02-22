@@ -34,7 +34,7 @@ class CalendrierController extends Controller
 
         $events = $this->getFilteredEvenements($isAdmin, $userRoleIds, $start, $end);
         $demandes = $this->getFilteredDemandes($isAdmin, $userRoleIds, $start, $end);
-        $taches = $this->getFilteredTaches($isAdmin, $userRoleIds, $start, $end);
+        $taches = $this->getFilteredTaches($isAdmin, $start, $end);
 
         return response()->json($events->concat($demandes)->concat($taches));
     }
@@ -153,7 +153,7 @@ class CalendrierController extends Controller
     /**
      * Récupère les tâches filtrées par rôles et dates.
      */
-    private function getFilteredTaches(bool $isAdmin, array $userRoleIds, ?string $start, ?string $end): Collection
+    private function getFilteredTaches(bool $isAdmin, ?string $start, ?string $end): Collection
     {
         $query = Tache::where('type', 'tache')->where('etat', '!=', self::STATUS_TERMINE);
 
