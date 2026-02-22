@@ -171,19 +171,39 @@ class EvenementController extends Controller
      */
     public function destroy($id)
     {
-        $evenement = Evenement::findOrFail($id);
+        $evenement = Evenement::with(['demandes.documents', 'demandes.historiques'])->findOrFail($id);
 
-        // Détacher les demandes liées (mettre idEvenement à NULL)
-        $evenement->demandes()->update(['idEvenement' => null]);
+        // Supprimer les demandes liées et leurs dépendances
+        foreach ($evenement->demandes as $demande) {
+            // Supprimer les documents de la demande
+            foreach ($demande->documents as $doc) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($doc->chemin);
+                $doc->utilisateurs()->detach();
+                $doc->actualites()->detach();
+                $doc->delete();
+            }
 
-        // Détacher les rôles
+            // Supprimer l'historique de la demande
+            \App\Models\DemandeHistorique::where('idDemande', $demande->idTache)->delete();
+
+            // Détacher les rôles de la demande
+            $demande->roles()->detach();
+
+            // Supprimer la demande
+            $demande->delete();
+        }
+
+        // Supprimer les recettes liées
+        $evenement->recettes()->delete();
+
+        // Détacher les rôles de l'événement
         $evenement->roles()->detach();
 
         // Supprimer l'événement
         $evenement->delete();
 
         return redirect()->route('evenements.index')
-            ->with('success', 'Événement supprimé avec succès');
+            ->with('success', 'Événement et demandes liées supprimés avec succès');
     }
 
     /**

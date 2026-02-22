@@ -266,12 +266,8 @@ $demandeRoleIds = $demande->roles->pluck('idRole')->toArray();
                                         title="{{ __('demandes.actions.view') }}">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="{{ route('demandes.show', $demande) }}" class="btn demande-action-btn"
-                                        title="{{ __('demandes.actions.view') }}">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
 
-                                    @if ($demande->etat !== 'Terminé' && $canManageDemande)
+                                    @if ($canManageDemande && $demande->etat !== 'Terminé')
                                         <a href="{{ route('demandes.edit', $demande) }}"
                                             class="btn demande-action-btn" title="{{ __('demandes.actions.edit') }}">
                                             <i class="bi bi-pencil-square"></i>
@@ -292,7 +288,7 @@ $demandeRoleIds = $demande->roles->pluck('idRole')->toArray();
                                         </form>
                                     @endif
 
-                                    @if ($demande->etat !== 'Terminé' && $canManageDemande)
+                                    @if ($canManageDemande && $demande->etat !== 'Terminé')
                                         <form method="POST" action="{{ route('demandes.validate', $demande) }}"
                                             class="d-inline">
                                             @csrf
@@ -303,8 +299,7 @@ $demandeRoleIds = $demande->roles->pluck('idRole')->toArray();
                                             </button>
                                         </form>
                                     @endif
-                                @endcan
-                            </div>
+                                </div>
                         </td>
                     </tr>
                     @empty

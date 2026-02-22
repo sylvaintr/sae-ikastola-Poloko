@@ -5,7 +5,11 @@
         $totalDepensesPrev = $recettes->where('type', 'depense_previsionnelle')->sum(fn($r) => $r->prix * ($r->quantite ?? 1));
         $totalDepenses = $recettes->where('type', 'depense')->sum(fn($r) => $r->prix * ($r->quantite ?? 1));
 
-        // Intégrer les dépenses des demandes
+        // Dépenses prévisionnelles des demandes liées
+        $demandesDepensesPrev = $evenement->demandes->sum('montantP');
+        $totalDepensesPrevAvecDemandes = $totalDepensesPrev + $demandesDepensesPrev;
+
+        // Intégrer les dépenses réelles des demandes
         $totalDepensesAvecDemandes = $totalDepenses + ($demandesDepenses ?? 0);
         $balance = $totalRecettes - $totalDepensesAvecDemandes;
 
@@ -142,9 +146,28 @@
                         </thead>
                         <tbody>
                             @forelse($recettes as $recette)
+                                @php
+                                    $typeBadgeClass = match($recette->type) {
+                                        'recette' => 'bg-success-subtle text-success',
+                                        'depense_previsionnelle' => 'bg-warning-subtle text-warning',
+                                        'depense' => 'bg-danger-subtle text-danger',
+                                        default => 'bg-secondary-subtle text-secondary'
+                                    };
+                                    $typeIcon = match($recette->type) {
+                                        'recette' => 'bi-arrow-down-circle',
+                                        'depense_previsionnelle' => 'bi-clock-history',
+                                        'depense' => 'bi-arrow-up-circle',
+                                        default => 'bi-question-circle'
+                                    };
+                                @endphp
                                 <tr>
-                                    <td>{{ $typeLabels[$recette->type] ?? ucfirst($recette->type ?? __('evenements.type_recette')) }}</td>
-                                    <td>{{ number_format((float) $recette->prix, 2, ',', ' ') }} &euro;</td>
+                                    <td>
+                                        <span class="badge {{ $typeBadgeClass }} d-inline-flex align-items-center gap-1">
+                                            <i class="bi {{ $typeIcon }}"></i>
+                                            {{ $typeLabels[$recette->type] ?? ucfirst($recette->type ?? __('evenements.type_recette')) }}
+                                        </span>
+                                    </td>
+                                    <td class="fw-semibold">{{ number_format((float) $recette->prix, 2, ',', ' ') }} &euro;</td>
                                     <td>{{ $recette->quantite }}</td>
                                     <td class="text-muted">{{ $recette->description }}</td>
                                     <td class="text-end">
@@ -171,57 +194,70 @@
                     </table>
                 </div>
 
-                {{-- Totaux collés en bas --}}
-                <div class="position-sticky bottom-0 bg-white border-top pt-3 mt-4">
-                    <div class="d-flex flex-column gap-2 fw-semibold small">
-                        <div class="d-flex flex-column flex-lg-row flex-wrap gap-3">
-                            <div>
-                                <span class="basque">{{ Lang::get('evenements.total_depenses_prev', [], 'eus') }}</span>
-                                @if (Lang::getLocale() == 'fr')
-                                    <span class="fr text-muted">/ {{ Lang::get('evenements.total_depenses_prev') }}</span>
-                                @endif
-                                : {{ number_format($totalDepensesPrev, 2, ',', ' ') }} &euro;
-                            </div>
-                            <div>
-                                <span class="basque">{{ Lang::get('evenements.total_depenses', [], 'eus') }}</span>
-                                @if (Lang::getLocale() == 'fr')
-                                    <span class="fr text-muted">/ {{ Lang::get('evenements.total_depenses') }}</span>
-                                @endif
-                                : {{ number_format($totalDepenses, 2, ',', ' ') }} &euro;
-                            </div>
-                            @if ($demandesDepenses > 0)
-                                <div class="text-primary">
-                                    <span class="basque">+ Demandes</span>
-                                    @if (Lang::getLocale() == 'fr')
-                                        <span class="fr text-muted">/ Demandes</span>
-                                    @endif
-                                    : {{ number_format($demandesDepenses, 2, ',', ' ') }} &euro;
+                {{-- Résumé comptable avec cartes --}}
+                <div class="row g-3 mt-4">
+                    {{-- Recettes --}}
+                    <div class="col-6 col-lg-3">
+                        <div class="card border-0 bg-success-subtle h-100">
+                            <div class="card-body text-center py-3">
+                                <i class="bi bi-arrow-down-circle fs-4 text-success"></i>
+                                <div class="text-muted small mt-1">
+                                    <span class="basque">Sarrerak</span>
+                                    <span class="fr d-block">Recettes</span>
                                 </div>
-                            @endif
-                            <div>
-                                <span class="basque">{{ Lang::get('evenements.total_recettes', [], 'eus') }}</span>
-                                @if (Lang::getLocale() == 'fr')
-                                    <span class="fr text-muted">/ {{ Lang::get('evenements.total_recettes') }}</span>
-                                @endif
-                                : {{ number_format($totalRecettes, 2, ',', ' ') }} &euro;
+                                <div class="fs-5 fw-bold text-success">{{ number_format($totalRecettes, 2, ',', ' ') }} &euro;</div>
                             </div>
                         </div>
-                        @if ($demandesDepenses > 0)
-                            <div class="border-top pt-2 mt-2">
-                                <span class="basque">Total dépenses (avec demandes)</span>
-                                @if (Lang::getLocale() == 'fr')
-                                    <span class="fr text-muted">/ Total dépenses (avec demandes)</span>
+                    </div>
+
+                    {{-- Dépenses prévues --}}
+                    <div class="col-6 col-lg-3">
+                        <div class="card border-0 bg-warning-subtle h-100">
+                            <div class="card-body text-center py-3">
+                                <i class="bi bi-clock-history fs-4 text-warning"></i>
+                                <div class="text-muted small mt-1">
+                                    <span class="basque">Aurreikusitako gastuak</span>
+                                    <span class="fr d-block">Dépenses prévues</span>
+                                </div>
+                                <div class="fs-5 fw-bold text-warning">{{ number_format($totalDepensesPrevAvecDemandes, 2, ',', ' ') }} &euro;</div>
+                                @if ($demandesDepensesPrev > 0)
+                                    <div class="small text-muted">({{ number_format($totalDepensesPrev, 2, ',', ' ') }} + {{ number_format($demandesDepensesPrev, 2, ',', ' ') }} demandes)</div>
                                 @endif
-                                : <strong>{{ number_format($totalDepensesAvecDemandes, 2, ',', ' ') }} &euro;</strong>
                             </div>
-                            <div class="{{ $balance >= 0 ? 'text-success' : 'text-danger' }}">
-                                <span class="basque">Balance</span>
-                                @if (Lang::getLocale() == 'fr')
-                                    <span class="fr text-muted">/ Solde</span>
+                        </div>
+                    </div>
+
+                    {{-- Dépenses réelles --}}
+                    <div class="col-6 col-lg-3">
+                        <div class="card border-0 bg-danger-subtle h-100">
+                            <div class="card-body text-center py-3">
+                                <i class="bi bi-arrow-up-circle fs-4 text-danger"></i>
+                                <div class="text-muted small mt-1">
+                                    <span class="basque">Benetako gastuak</span>
+                                    <span class="fr d-block">Dépenses réelles</span>
+                                </div>
+                                <div class="fs-5 fw-bold text-danger">{{ number_format($totalDepensesAvecDemandes, 2, ',', ' ') }} &euro;</div>
+                                @if ($demandesDepenses > 0)
+                                    <div class="small text-muted">({{ number_format($totalDepenses, 2, ',', ' ') }} + {{ number_format($demandesDepenses, 2, ',', ' ') }} demandes)</div>
                                 @endif
-                                : <strong>{{ number_format($balance, 2, ',', ' ') }} &euro;</strong>
                             </div>
-                        @endif
+                        </div>
+                    </div>
+
+                    {{-- Balance --}}
+                    <div class="col-6 col-lg-3">
+                        <div class="card border-0 {{ $balance >= 0 ? 'bg-success-subtle' : 'bg-danger-subtle' }} h-100">
+                            <div class="card-body text-center py-3">
+                                <i class="bi bi-wallet2 fs-4 {{ $balance >= 0 ? 'text-success' : 'text-danger' }}"></i>
+                                <div class="text-muted small mt-1">
+                                    <span class="basque">Balantzea</span>
+                                    <span class="fr d-block">Solde</span>
+                                </div>
+                                <div class="fs-5 fw-bold {{ $balance >= 0 ? 'text-success' : 'text-danger' }}">
+                                    {{ $balance >= 0 ? '+' : '' }}{{ number_format($balance, 2, ',', ' ') }} &euro;
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -264,8 +300,14 @@
                                     </th>
                                     <th>
                                         <div class="demande-header-label">
-                                            <span class="basque">Gastuak</span>
-                                            <span class="fr">Dépenses</span>
+                                            <span class="basque">Aurreikusitako gastua</span>
+                                            <span class="fr">Dépense prévue</span>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="demande-header-label">
+                                            <span class="basque">Benetako gastua</span>
+                                            <span class="fr">Dépense réelle</span>
                                         </div>
                                     </th>
                                     <th>
@@ -307,6 +349,13 @@
                                                 @endif">
                                                 {{ $demande->etat }}
                                             </span>
+                                        </td>
+                                        <td>
+                                            @if($demande->montantP > 0)
+                                                <span class="fw-semibold text-warning">{{ number_format($demande->montantP, 2, ',', ' ') }} &euro;</span>
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
                                         </td>
                                         <td>
                                             @if($totalDepenseDemande > 0)

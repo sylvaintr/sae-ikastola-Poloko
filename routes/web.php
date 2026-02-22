@@ -73,15 +73,14 @@ Route::middleware('auth')->group(function () {
 
             Route::get(ROUTE_DEMANDE, [DemandeController::class, 'show'])->name('show');
 
-            // Routes protégées : seuls les utilisateurs avec 'gerer-demande' peuvent modifier, valider, supprimer ou ajouter des avancements
-            Route::middleware('can:gerer-demande')->group(function () {
-                Route::get(ROUTE_DEMANDE . ROUTE_EDIT_EN, [DemandeController::class, 'edit'])->name('edit');
-                Route::put(ROUTE_DEMANDE, [DemandeController::class, 'update'])->name('update');
-                Route::patch(ROUTE_DEMANDE . '/valider', [DemandeController::class, 'validateDemande'])->name('validate');
-                Route::delete(ROUTE_DEMANDE, [DemandeController::class, 'destroy'])->name('destroy');
-                Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
-                Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
-            });
+            // Routes de gestion (accessibles aux utilisateurs ayant un rôle associé à la demande)
+            // L'autorisation est vérifiée dans le contrôleur via authorizeManageDemande()
+            Route::get(ROUTE_DEMANDE . '/historique/ajouter', [DemandeController::class, 'createHistorique'])->name('historique.create');
+            Route::post(ROUTE_DEMANDE . '/historique', [DemandeController::class, 'storeHistorique'])->name('historique.store');
+            Route::get(ROUTE_DEMANDE . ROUTE_EDIT_EN, [DemandeController::class, 'edit'])->name('edit');
+            Route::put(ROUTE_DEMANDE, [DemandeController::class, 'update'])->name('update');
+            Route::patch(ROUTE_DEMANDE . '/valider', [DemandeController::class, 'validateDemande'])->name('validate');
+            Route::delete(ROUTE_DEMANDE, [DemandeController::class, 'destroy'])->name('destroy');
 
             Route::get(ROUTE_DEMANDE . '/export-csv', [DemandeController::class, 'exportCsv'])->name('export.csv');
             Route::get(ROUTE_DEMANDE . '/document/{document}', [DemandeController::class, 'showDocument'])->name('document.show');
