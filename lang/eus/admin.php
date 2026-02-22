@@ -55,22 +55,28 @@ return [
         'add_button_subtitle'  => 'Kontu bat gehitu',
         'columns'              => [
             'id'         => [
-                'title' => 'Identifikatzailea',
+                'title'    => 'Identifikatzailea',
+                'subtitle' => '',
             ],
             'first_name' => [
-                'title' => $common['first_name'],
+                'title'    => $common['first_name'],
+                'subtitle' => '',
             ],
             'last_name'  => [
-                'title' => $common['last_name'],
+                'title'    => $common['last_name'],
+                'subtitle' => '',
             ],
             'email'      => [
-                'title' => $common['email'],
+                'title'    => $common['email'],
+                'subtitle' => '',
             ],
             'status'     => [
-                'title' => 'Egoera',
+                'title'    => 'Egoera',
+                'subtitle' => '',
             ],
             'actions'    => [
-                'title' => 'Ekintzak',
+                'title'    => 'Ekintzak',
+                'subtitle' => '',
             ],
         ],
         'actions'              => [
