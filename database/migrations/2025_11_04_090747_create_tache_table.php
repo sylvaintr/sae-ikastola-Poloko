@@ -16,7 +16,7 @@ return new class extends Migration
                 $table->integer('idTache')->primary();
                 $table->string('titre', 255);
                 $table->text('description');
-                $table->string('type', 15);
+                $table->string('type', 50)->nullable();
                 $table->string('urgence', 15)->default('Moyenne');
                 $table->string('etat', 10);
                 $table->date('dateD')->nullable();
