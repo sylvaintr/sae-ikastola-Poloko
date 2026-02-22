@@ -14,12 +14,16 @@ return [
     'step_of' => '/',
 
     // Étapes du guide (par clé pour filtrage dynamique)
+    // Pour ajouter une vidéo à une étape, ajoutez le champ 'video' avec l'URL d'embed YouTube/Vimeo
+    // Exemple: 'video' => 'https://www.youtube.com/embed/VIDEO_ID',
+    // ou pour Vimeo: 'video' => 'https://player.vimeo.com/video/VIDEO_ID',
     'steps' => [
         'welcome' => [
             'title' => 'Ongi etorri',
             'icon' => 'bi-house-heart',
             'description' => 'Ongi etorri Baionako Hiriondo Ikastolaren atarira! Gida honek zure eskura dauden funtzionaltasunak erabiltzen lagunduko dizu. Klikatu "Hurrengoa" hasteko.',
             'permission' => null,
+            // 'video' => 'https://www.youtube.com/embed/VIDEO_ID', // Décommentez et remplacez VIDEO_ID
         ],
         'navigation' => [
             'title' => 'Nabigazioa',
@@ -32,12 +36,14 @@ return [
             'icon' => 'bi-newspaper',
             'description' => 'Hasiera-orrialdeak Ikastolaren berriak erakusten ditu. Kategorien arabera iragazki dezakezu eta artikuluak irakur ditzakezu haien gainean klik eginez. Eranskinak deskargagarriak dira.',
             'permission' => null,
+            'video' => 'https://www.youtube.com/embed/CD3d-CcQwi8',
         ],
         'demandes_create' => [
             'title' => 'Eskaera sortu',
             'icon' => 'bi-file-earmark-plus',
             'description' => '"Eskaerak" atalean, klikatu "Eskaera berria" eskaera administratibo bat sortzeko. Bete formularioa eskaera motarekin, deskribapena eta beharrezko dokumentuak erantsi.',
             'permission' => 'access-demande',
+            'video' => 'https://www.youtube.com/embed/WduONgpd2h0',
         ],
         'demandes_follow' => [
             'title' => 'Zure eskaerak jarraitu',

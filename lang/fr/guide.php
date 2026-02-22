@@ -14,12 +14,16 @@ return [
     'step_of' => 'sur',
 
     // Étapes du guide (par clé pour filtrage dynamique)
+    // Pour ajouter une vidéo à une étape, ajoutez le champ 'video' avec l'URL d'embed YouTube/Vimeo
+    // Exemple: 'video' => 'https://www.youtube.com/embed/VIDEO_ID',
+    // ou pour Vimeo: 'video' => 'https://player.vimeo.com/video/VIDEO_ID',
     'steps' => [
         'welcome' => [
             'title' => 'Bienvenue',
             'icon' => 'bi-house-heart',
             'description' => 'Bienvenue sur le portail de la Baionako Hiriondo Ikastola ! Ce guide vous accompagnera dans l\'utilisation des fonctionnalités auxquelles vous avez accès. Cliquez sur "Suivant" pour commencer.',
             'permission' => null, // Toujours visible
+            // 'video' => 'https://www.youtube.com/embed/VIDEO_ID', // Décommentez et remplacez VIDEO_ID
         ],
         'navigation' => [
             'title' => 'Navigation',
@@ -32,12 +36,14 @@ return [
             'icon' => 'bi-newspaper',
             'description' => 'La page d\'accueil affiche les actualités de l\'Ikastola. Vous pouvez filtrer par catégorie et lire les articles en cliquant dessus. Les pièces jointes (images, documents PDF) sont téléchargeables depuis chaque actualité.',
             'permission' => null,
+            'video' => 'https://www.youtube.com/embed/CD3d-CcQwi8',
         ],
         'demandes_create' => [
             'title' => 'Créer une demande',
             'icon' => 'bi-file-earmark-plus',
             'description' => 'Dans la section "Demandes", cliquez sur "Nouvelle demande" pour créer une demande administrative. Remplissez le formulaire avec le type de demande, la description et joignez les documents nécessaires.',
             'permission' => 'access-demande',
+            'video' => 'https://www.youtube.com/embed/WduONgpd2h0',
         ],
         'demandes_follow' => [
             'title' => 'Suivre vos demandes',

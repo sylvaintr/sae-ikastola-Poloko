@@ -15,6 +15,7 @@
                 'title' => $step['title'],
                 'icon' => $step['icon'],
                 'description' => $step['description'],
+                'video' => $step['video'] ?? null,
             ];
         }
     }
@@ -84,6 +85,19 @@
                                 </div>
                                 <h4 class="user-guide-step-title">{{ $step['title'] }}</h4>
                                 <p class="user-guide-step-description">{{ $step['description'] }}</p>
+
+                                @if($step['video'])
+                                    <div class="user-guide-video mt-3">
+                                        <div class="ratio ratio-16x9">
+                                            <iframe
+                                                src="{{ $step['video'] }}"
+                                                title="{{ $step['title'] }}"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowfullscreen
+                                            ></iframe>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>

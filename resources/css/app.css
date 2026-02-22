@@ -2435,6 +2435,18 @@ input[readonly] {
     margin: 0;
 }
 
+/* Vidéo du guide */
+.user-guide-video {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-guide-video iframe {
+    border: none;
+    border-radius: 0.5rem;
+}
+
 /* Animations des étapes */
 .user-guide-step-enter {
     transition: all 0.3s ease;
@@ -2562,6 +2574,10 @@ input[readonly] {
 
     .user-guide-step-description {
         font-size: 0.95rem;
+    }
+
+    .user-guide-video {
+        margin-top: 1rem;
     }
 
     .user-guide-footer {
