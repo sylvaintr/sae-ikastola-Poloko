@@ -71,8 +71,8 @@ Route::middleware('auth')->group(function () {
 
             Route::get(ROUTE_DEMANDE, [DemandeController::class, 'show'])->name('show');
 
-            // Routes protégées : seuls les utilisateurs avec 'gerer-demandes' peuvent modifier, valider, supprimer ou ajouter des avancements
-            Route::middleware('can:gerer-demandes')->group(function () {
+            // Routes protégées : seuls les utilisateurs avec 'gerer-demande' peuvent modifier, valider, supprimer ou ajouter des avancements
+            Route::middleware('can:gerer-demande')->group(function () {
                 Route::get(ROUTE_DEMANDE . ROUTE_EDIT_EN, [DemandeController::class, 'edit'])->name('edit');
                 Route::put(ROUTE_DEMANDE, [DemandeController::class, 'update'])->name('update');
                 Route::patch(ROUTE_DEMANDE . '/valider', [DemandeController::class, 'validateDemande'])->name('validate');
@@ -248,6 +248,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/tache/{tache}', [TacheController::class, 'delete'])->name('tache.delete');
             Route::patch('/taches/{id}/done', [TacheController::class, 'markDone'])->name('tache.markDone');
         });
+    });
 });
 
 // Recherche des utilisateurs (pour assignation des tâches)

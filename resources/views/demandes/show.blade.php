@@ -158,7 +158,7 @@
                     </div>
                     <div class="text-muted small mt-1">{{ __('demandes.toolbar.export.fr') }}</div>
                 </div>
-                @can('gerer-demandes')
+                @can('gerer-demande')
                     @if ($demande->etat !== 'Terminé')
                         <div class="text-center">
                             <a href="{{ route('demandes.historique.create', $demande) }}" class="btn demande-btn-primary px-4">
