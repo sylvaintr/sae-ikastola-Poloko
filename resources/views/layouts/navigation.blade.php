@@ -22,7 +22,7 @@
                 @endcan
                 @can('access-tache')
                     <li class="nav-item">
-                        <x-nav-link href="/tache" :active="request()->is('tache*')" class="nav-link">{{ __('nav.tache') }}</x-nav-link>
+                        <x-nav-link href="{{ route('tache.index') }}" :active="request()->is('tache*')" class="nav-link">{{ __('nav.tache') }}</x-nav-link>
                     </li>
                 @endcan
                 @can('access-presence')
@@ -32,12 +32,12 @@
                 @endcan
                 @can('access-evenement')
                     <li class="nav-item">
-                        <x-nav-link href="/evenements" :active="request()->is('evenement*')" class="nav-link">{{ __('nav.evenement') }}</x-nav-link>
+                        <x-nav-link href="{{ route('evenements.index') }}" :active="request()->is('evenement*')" class="nav-link">{{ __('nav.evenement') }}</x-nav-link>
                     </li>
                 @endcan
                 @can('access-calendrier')
                     <li class="nav-item">
-                        <x-nav-link href="/calendrier" :active="request()->is('calendrier*')" class="nav-link">{{ __('nav.calendrier') }}</x-nav-link>
+                        <x-nav-link href="{{ route('calendrier.index') }}" :active="request()->is('calendrier*')" class="nav-link">{{ __('nav.calendrier') }}</x-nav-link>
                     </li>
                 @endcan
                 @can('access-administration')

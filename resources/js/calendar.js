@@ -52,8 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const eventObligatoireLabel = el.dataset.eventObligatoire || 'Événement obligatoire';
     const noDescriptionLabel = el.dataset.noDescription || 'Aucune description';
 
-    // URL pour les demandes
-    const demandeShowUrl = el.dataset.demandeShowUrl || '/demandes/__ID__';
+    // URL pour les demandes et tâches
+    const demandeShowUrl = el.dataset.demandeShowUrl;
+    const tacheShowUrl = el.dataset.tacheShowUrl;
 
     // Locale du calendrier (fr ou eu pour basque)
     const calendarLocale = el.dataset.locale || 'fr';
@@ -154,9 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Si c'est une tâche, rediriger vers la page de détail
-            if (props.type === 'tache') {
+            if (props.type === 'tache' && tacheShowUrl) {
                 const tacheId = info.event.id.replace('tache-', '');
-                const url = `/tache/${tacheId}/show`;
+                const url = tacheShowUrl.replace('__ID__', tacheId);
                 globalThis.location.href = url;
                 return;
             }
