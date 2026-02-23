@@ -1,15 +1,14 @@
 <?php
-
 namespace Tests\Unit;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use App\Models\Activite;
+use App\Models\Enfant;
 use App\Models\Facture;
 use App\Models\Famille;
-use App\Models\Enfant;
-use App\Models\Activite;
 use App\Models\Pratiquer;
 use Carbon\Carbon;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class CalculMontantFactureTest extends TestCase
 {
@@ -18,15 +17,13 @@ class CalculMontantFactureTest extends TestCase
     public function test_zero_enfants_retourne_montants_zero()
     {
         // given
-        // none
-
-        // when
-
-        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
         $facture = $this->createFacture($famille, ['previsionnel' => false]);
 
+        // when
         $result = $this->invokeCalculerMontantFacture($facture);
+
+        // then
 
         $this->assertEquals(0, $result['montantcotisation']);
         $this->assertEquals(0, $result['montantparticipation']);
@@ -38,19 +35,17 @@ class CalculMontantFactureTest extends TestCase
     public function test_un_enfant_previsionnel_utilise_nbFois_garderie()
     {
         // given
-        // none
 
-        // when
-
-        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
 
         $this->createEnfant($famille, ['nbFoisGarderie' => 9]);
 
         $facture = $this->createFacture($famille, ['previsionnel' => true]);
 
+        // when
         $result = $this->invokeCalculerMontantFacture($facture);
 
+        // then
         // 1 enfant -> cotisation 45
         $this->assertEquals(45, $result['montantcotisation']);
         // participation = 1 * 9.65
@@ -64,11 +59,6 @@ class CalculMontantFactureTest extends TestCase
     public function test_deux_enfants_avec_seaska_et_etre_sont_comptes()
     {
         // given
-        // none
-
-        // when
-
-        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => true]);
         $this->createEnfants($famille, 2);
 
@@ -78,7 +68,10 @@ class CalculMontantFactureTest extends TestCase
 
         $this->createPresencesForAllEnfants($famille, $activite, Carbon::now());
 
+        // when
         $result = $this->invokeCalculerMontantFacture($facture);
+
+        // then
 
         // 2 enfants -> cotisation 65
         $this->assertEquals(65, $result['montantcotisation']);
@@ -93,18 +86,17 @@ class CalculMontantFactureTest extends TestCase
     public function test_trois_ou_plus_enfants_cotisation_75()
     {
         // given
-        // none
 
-        // when
-
-        // then
         $famille = $this->createFamille(['aineDansAutreSeaska' => false]);
 
         $this->createEnfants($famille, 3);
 
         $facture = $this->createFacture($famille, ['previsionnel' => false]);
 
+        // when
         $result = $this->invokeCalculerMontantFacture($facture);
+
+        // then
 
         $this->assertEquals(75, $result['montantcotisation']);
     }
@@ -128,9 +120,9 @@ class CalculMontantFactureTest extends TestCase
     private function createFacture(Famille $famille, array $attrs = []): Facture
     {
         return Facture::factory()->create(array_merge([
-            'idFamille' => $famille->idFamille,
+            'idFamille'    => $famille->idFamille,
             'previsionnel' => true,
-            'dateC' => Carbon::now(),
+            'dateC'        => Carbon::now(),
         ], $attrs));
     }
 
@@ -146,7 +138,7 @@ class CalculMontantFactureTest extends TestCase
             Pratiquer::create([
                 'idEnfant' => $enfant->idEnfant,
                 'activite' => $activite->activite,
-                'dateP' => $date,
+                'dateP'    => $date,
             ]);
         }
     }
