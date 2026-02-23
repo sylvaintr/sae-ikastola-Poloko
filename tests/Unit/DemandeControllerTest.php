@@ -11,6 +11,7 @@ use App\Http\Controllers\DemandeController;
 use App\Models\Tache;
 use App\Models\Document;
 use App\Models\DemandeHistorique;
+use App\Models\Utilisateur;
 
 class DemandeControllerTest extends TestCase
 {
@@ -51,8 +52,9 @@ class DemandeControllerTest extends TestCase
 
         $this->assertInstanceOf(\Illuminate\View\View::class, $view);
         $data = $view->getData();
-        $this->assertArrayHasKey('types', $data);
         $this->assertArrayHasKey('urgences', $data);
+        $this->assertArrayHasKey('roles', $data);
+        $this->assertArrayHasKey('evenements', $data);
     }
 
     public function test_show_retourne_une_vue_avec_photos_et_historique()
@@ -129,7 +131,8 @@ class DemandeControllerTest extends TestCase
     public function test_edit_redirige_lorsque_termine()
     {
         // given
-        // none
+        $user = Utilisateur::factory()->create();
+        $this->actingAs($user);
 
         // when
 
@@ -144,14 +147,15 @@ class DemandeControllerTest extends TestCase
     public function test_update_applique_les_mises_a_jour()
     {
         // given
-        // none
+        $user = Utilisateur::factory()->create();
+        $this->actingAs($user);
 
         // when
 
         // then
-        $tache = Tache::factory()->create(['titre' => 'old']);
+        $tache = Tache::factory()->create(['titre' => 'old', 'etat' => 'En cours']);
 
-        $payload = ['titre' => 'updated', 'description' => 'newdesc', 'urgence' => 'elevee', 'etat' => 'En cours'];
+        $payload = ['titre' => 'updated', 'description' => 'newdesc', 'urgence' => 'elevee', 'etat' => 'En cours', 'roles' => []];
         $request = new class($payload) extends Request {
             public function __construct($data = [])
             {
@@ -175,7 +179,8 @@ class DemandeControllerTest extends TestCase
     public function test_storeHistorique_cree_un_historique()
     {
         // given
-        // none
+        $user = Utilisateur::factory()->create();
+        $this->actingAs($user);
 
         // when
 
@@ -206,7 +211,8 @@ class DemandeControllerTest extends TestCase
     public function test_validate_demande_definit_termine_et_cree_un_historique()
     {
         // given
-        // none
+        $user = Utilisateur::factory()->create();
+        $this->actingAs($user);
 
         // when
 
@@ -224,7 +230,8 @@ class DemandeControllerTest extends TestCase
     public function test_destroy_supprime_les_fichiers_et_les_enregistrements()
     {
         // given
-        // none
+        $user = Utilisateur::factory()->create();
+        $this->actingAs($user);
 
         // when
 

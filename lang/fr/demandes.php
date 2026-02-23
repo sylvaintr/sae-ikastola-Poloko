@@ -53,12 +53,18 @@ return [
             'eu' => 'Data max',
             'fr' => 'Date max',
         ],
+        'evenement' => [
+            'eu' => 'Gertaera',
+            'fr' => 'Événement',
+        ],
         'reset' => 'Réinitialiser',
         'submit' => 'Filtrer',
         'options' => [
             'all_status' => 'Tous les statuts',
             'all_types' => 'Tous les types',
             'all_urgencies' => 'Toutes les urgences',
+            'all_evenements' => 'Tous les événements',
+            'no_evenement' => 'Sans événement',
         ],
     ],
     'table' => [
@@ -155,11 +161,21 @@ return [
                 'eu' => 'Argazkia',
                 'fr' => 'Photo',
             ],
+            'evenement' => [
+                'eu' => 'Gertaera',
+                'fr' => 'Événement',
+                'none' => 'Gertaerarik gabe / Sans événement',
+            ],
             'assigne' => [
-                'eu' => 'Batzordea esleitu',
-                'fr' => 'Assigner à une commission',
+                'eu' => 'Batzordeak esleitu',
+                'fr' => 'Assigner à des commissions',
                 'none' => 'Aucune commission assignée',
             ],
+            'commission_search' => 'Bilatu batzorde bat / Rechercher une commission',
+            'commission_placeholder' => 'Tapez pour filtrer...',
+            'commission_selected' => 'Hautatutako batzordeak / Commissions sélectionnées',
+            'commission_empty' => 'Aucune commission sélectionnée',
+            'commission_required' => 'Veuillez sélectionner au moins une commission.',
         ],
         'buttons' => [
             'back' => [

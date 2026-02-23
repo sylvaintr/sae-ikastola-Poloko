@@ -47,6 +47,7 @@ class TacheController extends Controller
         ];
 
         $query = Tache::query()->with('realisateurs');
+        $query->where('type', 'tache');
 
         // Les utilisateurs avec uniquement le rôle 'parent' ne voient que leurs tâches
         $user = auth()->user();
@@ -69,7 +70,7 @@ class TacheController extends Controller
         }
 
         if ($filters['urgence'] && $filters['urgence'] !== 'all') {
-            $query->where('type', $filters['urgence']);
+            $query->where('urgence', $filters['urgence']);
         }
 
         if ($filters['date_min']) {
@@ -85,7 +86,7 @@ class TacheController extends Controller
             'date' => 'dateD',
             'title' => 'titre',
             'assignation' => 'assignation',
-            'urgence' => 'type',
+            'urgence' => 'urgence',
             'etat' => 'etat',
         ];
 
@@ -122,13 +123,14 @@ class TacheController extends Controller
     }
 
     $query = Tache::query();
+    $query->where('type', 'tache');
     $this->applyFilters($query, $request);
 
     return DataTables::of($query)
         ->editColumn('dateD', fn ($row) => $this->formatDate($row))
         ->editColumn('etat', fn ($row) => $this->formatEtat($row->etat))
         ->addColumn('assignation', fn ($tache) => $this->formatAssignation($tache))
-        ->addColumn('urgence', fn ($row) => $this->formatUrgence($row->type))
+        ->addColumn('urgence', fn ($row) => $this->formatUrgence($row->urgence))
         ->addColumn('action', fn ($row) => $this->buildActions($row))
         ->rawColumns(['action'])
         ->make(true);
@@ -157,7 +159,7 @@ private function applyFilters($query, Request $request): void
     }
 
     if ($request->filled('urgence')) {
-        $query->where('type', $request->urgence);
+        $query->where('urgence', $request->urgence);
     }
 
     // Validation et application des filtres de date
@@ -234,14 +236,14 @@ private function formatAssignation($tache)
         $validated = $request->validate([
             'titre' => 'required|string|max:255',
             'description' => 'required|string',
-            'type' => 'required|in:low,medium,high',
+            'urgence' => 'required|in:low,medium,high',
             'dateD' => 'required|date',
             'realisateurs' => 'required|array|min:1',
             'realisateurs.*' => 'required|integer|exists:utilisateur,idUtilisateur'
         ], [
             'titre.required' => 'taches.validation.titre_required',
             'description.required' => 'taches.validation.description_required',
-            'type.required' => 'taches.validation.type_required',
+            'urgence.required' => 'taches.validation.type_required',
             'dateD.required' => 'taches.validation.dateD_required',
             'dateD.date' => 'taches.validation.dateD_date',
             'realisateurs.required' => 'taches.validation.realisateurs_required',
@@ -252,11 +254,12 @@ private function formatAssignation($tache)
             'idTache' => (Tache::max('idTache') ?? 0) + 1,
             'titre' => $validated['titre'],
             'description' => $validated['description'],
-            'type' => $validated['type'],
+            'type' => 'tache',
+            'urgence' => $validated['urgence'],
             'etat' => 'todo',
             'dateD' => $validated['dateD'],
         ],
-       
+
         );
        
 
@@ -271,7 +274,7 @@ private function formatAssignation($tache)
             'idTache' => $tache->idTache,
             'statut' => __('taches.history_statuses.created'),
             'titre' => $tache->titre,
-            'urgence' => $tache->type,
+            'urgence' => $tache->urgence,
             'description' => $tache->description,
             'modifie_par' => auth()->user()->idUtilisateur ?? null,
         ]);
@@ -302,14 +305,14 @@ private function formatAssignation($tache)
         $validated = $request->validate([
             'titre' => 'required|string|max:255',
             'description' => 'required|string',
-            'type' => 'required|in:low,medium,high',
+            'urgence' => 'required|in:low,medium,high',
             'dateD' => 'required|date',
             'realisateurs' => 'required|array|min:1',
             'realisateurs.*' => 'required|integer|exists:utilisateur,idUtilisateur',
         ], [
             'titre.required' => 'taches.validation.titre_required',
             'description.required' => 'taches.validation.description_required',
-            'type.required' => 'taches.validation.type_required',
+            'urgence.required' => 'taches.validation.type_required',
             'dateD.required' => 'taches.validation.dateD_required',
             'dateD.date' => 'taches.validation.dateD_date',
             'realisateurs.required' => 'taches.validation.realisateurs_required',
@@ -319,7 +322,7 @@ private function formatAssignation($tache)
         $tache->update([
             'titre' => $validated['titre'],
             'description' => $validated['description'],
-            'type' => $validated['type'],
+            'urgence' => $validated['urgence'],
             'dateD' => $validated['dateD'],
         ]);
 
@@ -394,7 +397,7 @@ private function formatAssignation($tache)
             'idTache' => $tache->idTache,
             'statut' => __('taches.history_statuses.done'),
             'titre' => $tache->titre,
-            'urgence' => $tache->type,
+            'urgence' => $tache->urgence,
             'description' => __('taches.history_statuses.done_description'),
             'modifie_par' => auth()->user()->idUtilisateur ?? null,
         ]);
@@ -429,7 +432,7 @@ private function formatAssignation($tache)
             'idTache' => $tache->idTache,
             'statut' => __('taches.history_statuses.progress'),
             'titre' => $validated['titre'],
-            'urgence' => $tache->type,
+            'urgence' => $tache->urgence,
             'description' => $validated['description'] ?? null,
             'modifie_par' => auth()->user()->idUtilisateur ?? null,
         ]);

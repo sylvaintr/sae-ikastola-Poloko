@@ -11,9 +11,14 @@ export default defineConfig({
                 'resources/js/actualite.js',
                 'resources/js/etiquette.js',
                 'resources/js/classes.js',
+                'resources/js/calendar.js',
                 'resources/js/password-reset.js',
             ],
             refresh: true,
         }),
     ],
+    server: {
+        host: 'localhost',
+        cors: true,
+    },
 });

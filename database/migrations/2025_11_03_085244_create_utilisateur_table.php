@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->date('dateNaissance')->nullable();
             $table->boolean('statutValidation')->default(false);
             $table->rememberToken();
+            $table->string('ics_token', 64)->nullable()->unique();
             $table->timestamps();
         });
 
@@ -29,15 +30,6 @@ return new class extends Migration {
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
-
-        Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
-        });
     }
 
     /**
@@ -45,8 +37,7 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('utilisateur');
         Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
+        Schema::dropIfExists('utilisateur');
     }
 };

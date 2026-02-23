@@ -54,15 +54,6 @@
             </div>
 
             <div class="demande-field-row">
-                <div class="demande-field-col flex-grow-1">
-                    <label for="demande-type" class="form-label">{{ __('demandes.form.labels.type.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.type.fr') }}</small></label>
-                    <input id="demande-type" type="text" name="type" class="form-control" list="types-list" value="{{ old('type', $demande->type ?? '') }}" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : 'required' }}>
-                    <datalist id="types-list">
-                        @foreach ($types as $type)
-                            <option value="{{ $type }}"></option>
-                        @endforeach
-                    </datalist>
-                </div>
                 <div class="demande-field-col demande-field-sm">
                     <label for="demande-planned-expense" class="form-label">{{ __('demandes.form.labels.planned_expense.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.planned_expense.fr') }}</small></label>
                     <input id="demande-planned-expense" type="number" step="0.01" min="0" name="montantP" class="form-control"
@@ -72,17 +63,64 @@
 
             <div class="demande-field-row">
                 <div class="demande-field-col w-100">
-                    <label for="demande-assigne" class="form-label">{{ __('demandes.form.labels.assigne.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.assigne.fr') }}</small></label>
-                    <select id="demande-assigne" name="idRole" class="form-select" required {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : '' }}>
-                        <option value="" disabled @selected(old('idRole', $demande->idRole ?? '') == '')>
-                            {{ __('demandes.form.labels.assigne.none') }}
-                        </option>
-                        @foreach ($roles ?? [] as $role)
-                            <option value="{{ $role->idRole }}" @selected(old('idRole', $demande->idRole ?? '') == $role->idRole)>
-                                {{ $role->name }}
+                    <label for="demande-evenement" class="form-label">{{ __('demandes.form.labels.evenement.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.evenement.fr') }}</small></label>
+                    <select id="demande-evenement" name="idEvenement" class="form-select" {{ $isEdit && ($demande->etat === 'Terminé') ? 'disabled' : '' }}>
+                        <option value="">{{ __('demandes.form.labels.evenement.none') }}</option>
+                        @foreach ($evenements ?? [] as $evenement)
+                            <option value="{{ $evenement->idEvenement }}" @selected(old('idEvenement', $demande->idEvenement ?? '') == $evenement->idEvenement)>
+                                {{ $evenement->titre }}
                             </option>
                         @endforeach
                     </select>
+                </div>
+            </div>
+
+            <div class="demande-field-row">
+                <div class="demande-field-col w-100">
+                    <div class="form-label">{{ __('demandes.form.labels.assigne.eu') }} <small class="text-muted d-block">{{ __('demandes.form.labels.assigne.fr') }}</small></div>
+                    @php
+                        $selectedRoleIds = collect(old('roles', isset($demande) ? $demande->roles->pluck('idRole')->toArray() : []));
+                        $isDisabled = $isEdit && ($demande->etat ?? '') === 'Terminé';
+                    @endphp
+                    <div class="role-selector-container {{ $isDisabled ? 'opacity-50 pe-none' : '' }}" id="role-selector-container">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="commission-search" class="form-label small fw-semibold">{{ __('demandes.form.labels.commission_search') }}</label>
+                                <input type="text" id="commission-search" class="form-control" placeholder="{{ __('demandes.form.labels.commission_placeholder') }}">
+                                <div id="available-commissions" class="role-list mt-2">
+                                    @foreach ($roles ?? [] as $role)
+                                        @if (!$selectedRoleIds->contains($role->idRole))
+                                            <div class="role-item" data-role-id="{{ $role->idRole }}" data-role-name="{{ $role->name }}">
+                                                <span>{{ $role->name }}</span>
+                                                <i class="bi bi-plus-circle"></i>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-label small fw-semibold">{{ __('demandes.form.labels.commission_selected') }}</div>
+                                <div id="selected-commissions" class="role-list mt-2">
+                                    @forelse ($roles->whereIn('idRole', $selectedRoleIds) ?? [] as $role)
+                                        <div class="role-item selected" data-role-id="{{ $role->idRole }}" data-role-name="{{ $role->name }}">
+                                            <span>{{ $role->name }}</span>
+                                            <i class="bi bi-x-circle"></i>
+                                        </div>
+                                    @empty
+                                        <div class="role-list-empty-message">{{ __('demandes.form.labels.commission_empty') }}</div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                        <div id="commissions-error" class="text-danger small mt-2" style="display:none;">
+                            {{ __('demandes.form.labels.commission_required') }}
+                        </div>
+                        <div id="commission-inputs">
+                            @foreach ($selectedRoleIds as $roleId)
+                                <input type="hidden" name="roles[]" value="{{ $roleId }}">
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -123,6 +161,111 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // ─── Sélecteur de commissions ───
+        const commissionSearch = document.getElementById('commission-search');
+        const availableCommissions = document.getElementById('available-commissions');
+        const selectedCommissions = document.getElementById('selected-commissions');
+        const commissionInputs = document.getElementById('commission-inputs');
+
+        if (commissionSearch && availableCommissions) {
+            function normalizeStr(str) {
+                return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+            }
+
+            function updateEmptyMessage() {
+                const empty = selectedCommissions.querySelector('.role-list-empty-message');
+                const hasItems = selectedCommissions.querySelectorAll('.role-item').length > 0;
+                if (hasItems && empty) empty.remove();
+                if (!hasItems && !empty) {
+                    const msg = document.createElement('div');
+                    msg.className = 'role-list-empty-message';
+                    msg.textContent = '{{ __('demandes.form.labels.commission_empty') }}';
+                    selectedCommissions.appendChild(msg);
+                }
+            }
+
+            function addCommission(item) {
+                const roleId = item.dataset.roleId;
+                const roleName = item.dataset.roleName;
+
+                item.style.display = 'none';
+
+                const selected = document.createElement('div');
+                selected.className = 'role-item selected';
+                selected.dataset.roleId = roleId;
+                selected.dataset.roleName = roleName;
+                selected.innerHTML = `<span>${roleName}</span><i class="bi bi-x-circle"></i>`;
+                selected.addEventListener('click', () => removeCommission(roleId));
+                selectedCommissions.appendChild(selected);
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'roles[]';
+                input.value = roleId;
+                commissionInputs.appendChild(input);
+
+                commissionSearch.value = '';
+                filterCommissions('');
+                updateEmptyMessage();
+            }
+
+            function removeCommission(roleId) {
+                const selectedItem = selectedCommissions.querySelector(`[data-role-id="${roleId}"]`);
+                if (selectedItem) selectedItem.remove();
+
+                const hiddenInput = commissionInputs.querySelector(`input[value="${roleId}"]`);
+                if (hiddenInput) hiddenInput.remove();
+
+                const availItem = availableCommissions.querySelector(`[data-role-id="${roleId}"]`);
+                if (availItem) availItem.style.display = 'flex';
+
+                updateEmptyMessage();
+            }
+
+            function filterCommissions(term) {
+                const normalized = normalizeStr(term.trim());
+                availableCommissions.querySelectorAll('.role-item').forEach(item => {
+                    const alreadySelected = selectedCommissions.querySelector(`[data-role-id="${item.dataset.roleId}"]`);
+                    if (alreadySelected) { item.style.display = 'none'; return; }
+                    item.style.display = (!normalized || normalizeStr(item.dataset.roleName).includes(normalized)) ? 'flex' : 'none';
+                });
+            }
+
+            availableCommissions.querySelectorAll('.role-item').forEach(item => {
+                item.addEventListener('click', () => addCommission(item));
+            });
+
+            selectedCommissions.querySelectorAll('.role-item').forEach(item => {
+                item.addEventListener('click', () => removeCommission(item.dataset.roleId));
+            });
+
+            let searchTimeout;
+            commissionSearch.addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => filterCommissions(this.value), 150);
+            });
+
+            updateEmptyMessage();
+
+            // Validation à la soumission
+            const form = document.querySelector('form.demande-create-form');
+            const commissionsError = document.getElementById('commissions-error');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    const hasSelected = commissionInputs.querySelectorAll('input[name="roles[]"]').length > 0;
+                    if (!hasSelected) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        commissionsError.style.display = 'block';
+                        selectedCommissions.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        commissionsError.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // ─── Prévisualisation photos ───
         const input = document.getElementById('photos-input');
         const preview = document.getElementById('photos-preview');
 

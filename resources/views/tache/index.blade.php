@@ -269,7 +269,7 @@
                             @php
                                 $first = $tache->realisateurs->first();
                                 $assignation = $first ? ($first->prenom . ' ' . strtoupper(substr($first->nom, 0, 1)) . '.') : '—';
-                                $urgenceLabel = $urgences[$tache->type] ?? '—';
+                                $urgenceLabel = $urgences[$tache->urgence] ?? '—';
                                 $etatLabel = $etats[$tache->etat] ?? '—';
                             @endphp
                             <td>{{ $assignation }}</td>

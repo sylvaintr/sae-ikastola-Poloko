@@ -41,7 +41,7 @@ trait HandlesCsvExport
         $titreClean = preg_replace('/[^a-zA-Z0-9_-]/', '_', $titre);
         $titreClean = preg_replace('/_+/', '_', $titreClean);
         $titreClean = trim($titreClean, '_');
-        
+
         return $titreClean . '_demande_' . date('Y-m-d') . '.csv';
     }
 
@@ -51,7 +51,7 @@ trait HandlesCsvExport
     protected function buildCsvHeaders(string $filename): array
     {
         return [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Type' => self::CSV_CONTENT_TYPE,
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Pragma' => 'public',
@@ -76,7 +76,7 @@ trait HandlesCsvExport
         fputcsv($file, [__('demandes.export.date_fin'), $this->formatDateForCsv($demande->dateF)], ';');
         fputcsv($file, [__('demandes.export.montant_previsionnel'), $this->formatMontantForCsv($demande->montantP)], ';');
         fputcsv($file, [__('demandes.export.montant_reel'), $this->formatMontantForCsv($demande->historiques->sum('depense'), true)], ';');
-        
+
         $realisateurs = $demande->realisateurs->pluck('name')->join(', ');
         fputcsv($file, [__('demandes.export.realisateurs'), $realisateurs ?: '—'], ';');
         fputcsv($file, [], ';');
@@ -126,9 +126,8 @@ trait HandlesCsvExport
         if ($montant === null && !$defaultToZero) {
             return '—';
         }
-        
+
         $value = $montant ?? 0;
         return number_format($value, 2, ',', ' ') . ' €';
     }
 }
-

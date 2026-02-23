@@ -1010,9 +1010,22 @@ form .btn-primary:not(.btn-login):focus {
     font-size: 1.05rem;
 }
 
+.demande-photo-card {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.demande-photo-card:hover {
+    opacity: 0.85;
+}
+
 .demande-photo-card img {
     object-fit: cover;
-    height: 320px;
+    height: 220px;
+}
+
+.bg-orange-soft {
+    background: rgba(242, 146, 1, 0.15);
 }
 
 .demande-history-table th {

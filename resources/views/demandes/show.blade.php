@@ -16,9 +16,12 @@
                 <p class="text-muted mb-0">
                     {{ __('demandes.show.reported_by', ['name' => $metadata['reporter'], 'date' => $metadata['report_date']]) }}
                 </p>
-                @if($demande->roleAssigne)
+                @if($demande->roles->isNotEmpty())
                     <p class="text-muted mb-0 mt-2">
-                        <strong>{{ __('demandes.show.assigned_to') }}:</strong> {{ $demande->roleAssigne->name }}
+                        <strong>{{ __('demandes.show.assigned_to') }}:</strong>
+                        @foreach($demande->roles as $role)
+                            <span class="badge bg-orange-soft text-dark fw-normal ms-1">{{ $role->name }}</span>
+                        @endforeach
                     </p>
                 @endif
             </div>
@@ -41,14 +44,21 @@
             @if (count($photos))
                 <div class="row g-3">
                     @foreach ($photos as $photo)
-                        <div class="col-12 col-md-6">
-                            <div class="demande-photo-card">
-                                <img src="{{ $photo['url'] }}" alt="{{ $photo['nom'] }}" class="img-fluid w-100 rounded-3">
-                                <div class="small text-muted mt-2">{{ $photo['nom'] }}</div>
-                            </div>
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <a href="{{ $photo['url'] }}" target="_blank" class="d-block demande-photo-card text-decoration-none">
+                                @php
+                                    $altText = preg_replace('/\bphoto\b/i', '', $photo['nom']);
+                                    $altText = trim($altText);
+                                    $altText = $altText ?: 'Image';
+                                @endphp
+                                <img src="{{ $photo['url'] }}" alt="{{ $altText }}" class="img-fluid w-100 rounded-3" style="object-fit: cover; max-height: 220px;">
+                                <div class="small text-muted mt-2 text-truncate">{{ $photo['nom'] }}</div>
+                            </a>
                         </div>
                     @endforeach
                 </div>
+            @else
+                <p class="text-muted">—</p>
             @endif
         </section>
 
@@ -148,16 +158,14 @@
                     </div>
                     <div class="text-muted small mt-1">{{ __('demandes.toolbar.export.fr') }}</div>
                 </div>
-                @can('gerer-demandes')
-                    @if ($demande->etat !== 'Terminé')
-                        <div class="text-center">
-                            <a href="{{ route('demandes.historique.create', $demande) }}" class="btn demande-btn-primary px-4">
-                                {{ __('demandes.history.button.eu') }}
-                            </a>
-                            <div class="text-muted small">{{ __('demandes.history.button.fr') }}</div>
-                        </div>
-                    @endif
-                @endcan
+                @if ($canManage && $demande->etat !== 'Terminé')
+                    <div class="text-center">
+                        <a href="{{ route('demandes.historique.create', $demande) }}" class="btn demande-btn-primary px-4">
+                            {{ __('demandes.history.button.eu') }}
+                        </a>
+                        <div class="text-muted small">{{ __('demandes.history.button.fr') }}</div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

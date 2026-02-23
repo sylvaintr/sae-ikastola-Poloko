@@ -9,13 +9,16 @@ return [
     'connexion' => 'Se connecter',
     'inscription' => "S'inscrire",
     'titre_connexion_principal' => 'Connexion',
-
+    'titre_connexion_secondaire' => 'Connectez-vous à votre compte',
     'email_principal' => 'Email',
+    'email_secondaire' => 'Email',
     'mot_de_passe_principal' => 'Mot de passe',
 
     'placeholder_email' => 'adresse@email.com',
     'placeholder_password' => 'Votre mot de passe',
     'mot_de_passe_oublie_principal' => 'Mot de passe oublié ?',
+    'mot_de_passe_oublie_secondaire' => 'Réinitialiser votre mot de passe',
+    'mot_de_passe_secondaire' => 'Votre mot de passe',
     'pas_compte_principal' => "Vous n'avez pas encore de compte ?",
     'pas_compte_secondaire' => 'Inscrivez-vous',
     'bouton_connexion' => 'Se connecter',

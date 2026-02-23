@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('description', 100);
             $table->string('prix', 50);
             $table->string('quantite', 50);
+            $table->enum('type', ['recette', 'depense', 'depense_previsionnelle'])->default('recette');
             $table->integer('idEvenement')->index('idevenement');
         });
     }

@@ -53,24 +53,42 @@ return [
         'search_label'         => 'Erabiltzailea bilatu',
         'add_button'           => 'Gehitu kontu bat',
         'add_button_subtitle'  => 'Kontu bat gehitu',
+        'filter'               => [
+            'all_roles'  => 'Rol guztiak',
+            'role_label' => 'Iragazi rolaren arabera',
+        ],
         'columns'              => [
             'id'         => [
-                'title' => 'Identifikatzailea',
+                'title'    => 'Identifikatzailea',
+                'subtitle' => 'Identifikatzailea',
             ],
             'first_name' => [
-                'title' => $common['first_name'],
+                'title'    => $common['first_name'],
+                'subtitle' => $common['first_name'],
             ],
             'last_name'  => [
-                'title' => $common['last_name'],
+                'title'    => $common['last_name'],
+                'subtitle' => $common['last_name'],
             ],
             'email'      => [
-                'title' => $common['email'],
+                'title'    => $common['email'],
+                'subtitle' => $common['email'],
+            ],
+            'famille'    => [
+                'title'    => 'Familia',
+                'subtitle' => 'Familia ID',
+            ],
+            'roles'      => [
+                'title'    => 'Rola',
+                'subtitle' => 'Rolak',
             ],
             'status'     => [
-                'title' => 'Egoera',
+                'title'    => 'Egoera',
+                'subtitle' => 'Egoera',
             ],
             'actions'    => [
-                'title' => 'Ekintzak',
+                'title'    => 'Ekintzak',
+                'subtitle' => 'Ekintzak',
             ],
         ],
         'actions'              => [
@@ -97,6 +115,7 @@ return [
             'status_label'     => 'Egoera',
             'roles_label'      => $common['roles'],
             'no_roles'         => 'Ez dago esleituriko rolarik',
+            'no_roles_selected' => 'Ez da rolarik hautatu',
             'archived_notice'  => 'Kontu hau artxibatuta dago. Kontsulta bakarrik baimenduta dago.',
             'details_title'    => 'Kontuaren informazioa',
             'documents_title'  => 'OBLIGATORY_DOCUMENTS_LABEL',
