@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use App\Http\Controllers\FactureController;
 use Illuminate\Support\Facades\DB;
+// commit pour démonstration SonarQube
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
