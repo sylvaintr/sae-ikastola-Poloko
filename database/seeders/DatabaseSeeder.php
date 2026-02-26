@@ -1,13 +1,10 @@
 <?php
-
 namespace Database\Seeders;
 
 use App\Models\Facture;
 use App\Models\Famille;
-use Illuminate\Database\Seeder;
 use App\Models\Utilisateur;
-use App\Models\Enfant;
-use Database\Factories\LierFactory;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,7 +13,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        Facture::factory()->count(5)->create();
+        Utilisateur::factory()->create([
+
+            'idUtilisateur' => 1,
+
+        ]);
+
+        Famille::factory()->create([
+
+            'idFamille' => 1,
+
+        ])->utilisateurs()->attach(1);
+
+        Facture::factory()->count(10)->create(['previsionnel' => true, 'dateC' => now()->subMonth(), 'idUtilisateur' => 1, 'idFamille' => 1]);
+
+        Facture::factory()->create(['previsionnel' => false, 'idUtilisateur' => 1, 'idFamille' => 1, 'dateC' => now()]);
 
         $this->call([
             PermissionSeeder::class,
