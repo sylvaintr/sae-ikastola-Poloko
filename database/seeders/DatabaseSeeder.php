@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
 
         Facture::factory()->count(10)->create(['previsionnel' => true, 'dateC' => now()->subMonth(), 'idUtilisateur' => 1, 'idFamille' => 1]);
 
-        Facture::factory()->create(['previsionnel' => false, 'idUtilisateur' => 1, 'idFamille' => 1, 'dateC' => now()]);
+        Facture::factory()->create(['previsionnel' => false, 'idUtilisateur' => 1, 'idFamille' => 1]);
 
         $this->call([
             PermissionSeeder::class,
