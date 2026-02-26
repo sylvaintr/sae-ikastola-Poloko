@@ -22,37 +22,42 @@ class FactureControllerEnvoyerFactureTest extends TestCase
         $this->withoutMiddleware();
     }
 
-    public function test_envoyerFacture_attaches_pdf_and_sends_mail()
-    {
-        Mail::fake();
-        Storage::fake('public');
+    public function test_when_sending_invoice_should_attach_pdf_and_send_mail()
+{
+    // GIVEN
+    Mail::fake();
+    Storage::fake('public');
 
-        $client = Utilisateur::factory()->create(['email' => 'client@example.org']);
-        $famille = Famille::factory()->create();
-        $famille->utilisateurs()->detach();
-        $famille->utilisateurs()->attach($client->idUtilisateur);
+    $client = Utilisateur::factory()->create([
+        'email' => 'client@example.org'
+    ]);
 
-        $facture = Facture::factory()->create([
-            'etat' => 'verifier',
-            'idFamille' => $famille->idFamille,
-            'idUtilisateur' => $client->idUtilisateur,
-        ]);
+    $famille = Famille::factory()->create();
+    $famille->utilisateurs()->sync([$client->idUtilisateur]);
 
-        // Mock exporter to return pdf bytes and expect to be called with $facture and true
-        $mock = $this->createMock(FactureExporter::class);
-        $mock->expects($this->once())
-            ->method('serveManualFile')
-            ->with($this->isInstanceOf(Facture::class), true)
-            ->willReturn('%PDF-1.4');
-        $this->app->instance(FactureExporter::class, $mock);
+    $facture = Facture::factory()->create([
+        'etat' => 'verifier',
+        'idFamille' => $famille->idFamille,
+        'idUtilisateur' => $client->idUtilisateur,
+    ]);
 
-        // perform the request
-        $response = $this->get(route('admin.facture.envoyer', $facture->idFacture));
+    $exporterMock = $this->createMock(FactureExporter::class);
+    $exporterMock->expects($this->once())
+        ->method('serveManualFile')
+        ->with($this->isInstanceOf(Facture::class), true)
+        ->willReturn('%PDF-1.4');
 
-        $response->assertRedirect(route('admin.facture.index'));
+    $this->app->instance(FactureExporter::class, $exporterMock);
 
-        Mail::assertSent(FactureMail::class, function ($mail) use ($client) {
-            return $mail->hasTo($client->email);
-        });
-    }
+    // WHEN
+    $response = $this->get(route('admin.facture.envoyer', $facture->idFacture));
+
+    // THEN
+    $response->assertRedirect(route('admin.facture.index'));
+
+    Mail::assertSent(FactureMail::class, fn($mail) =>
+        $mail->hasTo($client->email)
+    );
+}
+
 }

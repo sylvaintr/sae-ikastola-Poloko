@@ -23,77 +23,79 @@ class FactureControllerExtraTest extends TestCase
         $this->withoutMiddleware();
     }
 
-    public function test_export_appelle_service_manuel_et_retourne_binaire()
+    public function test_when_exporting_manual_invoice_should_return_binary_content()
     {
-        // given
+        // GIVEN
         $facture = Facture::factory()->create(['etat' => 'manuel']);
 
-        // Mock the exporter and bind into container
-        $mock = $this->createMock(FactureExporter::class);
-        $mock->expects($this->once())->method('serveManualFile')->with($this->isInstanceOf(\App\Models\Facture::class), false)->willReturn('BINARY_CONTENT');
-        $this->app->instance(FactureExporter::class, $mock);
+        $exporterMock = $this->createMock(FactureExporter::class);
+        $exporterMock->expects($this->once())
+            ->method('serveManualFile')
+            ->with($this->isInstanceOf(Facture::class), false)
+            ->willReturn('BINARY_CONTENT');
 
-        // when
+        $this->app->instance(FactureExporter::class, $exporterMock);
+
+        // WHEN
         $response = $this->get(route('admin.facture.export', $facture->idFacture));
 
-        // then
+        // THEN
         $response->assertStatus(200);
         $this->assertEquals('BINARY_CONTENT', $response->getContent());
     }
 
-    public function test_valider_facture_supprime_anciens_fichiers_quand_manuel()
+    public function test_when_validating_manual_invoice_should_keep_existing_files()
     {
-        // given
+        // GIVEN
         Storage::fake('public');
 
         $facture = Facture::factory()->create(['etat' => 'manuel']);
-        $nom = 'factures/facture-' . $facture->idFacture;
+        $baseName = 'factures/facture-' . $facture->idFacture;
 
-        Storage::disk('public')->put($nom . '.docx', 'dummy');
-        Storage::disk('public')->put($nom . '.doc', 'dummy2');
+        Storage::disk('public')->put($baseName . '.docx', 'dummy');
+        Storage::disk('public')->put($baseName . '.doc', 'dummy2');
 
-        $this->assertTrue(Storage::disk('public')->exists($nom . '.docx'));
-        $this->assertTrue(Storage::disk('public')->exists($nom . '.doc'));
+        $this->assertTrue(Storage::disk('public')->exists($baseName . '.docx'));
+        $this->assertTrue(Storage::disk('public')->exists($baseName . '.doc'));
 
-        // when
+        // WHEN
         $response = $this->get(route('admin.facture.valider', $facture->idFacture));
 
-        // then
+        // THEN
         $response->assertRedirect(route('admin.facture.index'));
-        // current controller does not delete manual files on validate; keep existing files
-        $this->assertTrue(Storage::disk('public')->exists($nom . '.docx'));
-        $this->assertTrue(Storage::disk('public')->exists($nom . '.doc'));
-
+        $this->assertTrue(Storage::disk('public')->exists($baseName . '.docx'));
+        $this->assertTrue(Storage::disk('public')->exists($baseName . '.doc'));
         $this->assertEquals('verifier', Facture::find($facture->idFacture)->etat);
     }
 
-    public function test_mise_a_jour_rejette_fichier_invalide_par_magic_bytes()
+    public function test_when_updating_invoice_with_invalid_magic_bytes_should_reject_file()
     {
-        // given
+        // GIVEN
         $facture = Facture::factory()->create();
+        $invalidFile = UploadedFile::fake()->create('bad.doc', 10, 'application/msword');
 
-        $badFile = UploadedFile::fake()->create('bad.doc', 10, 'application/msword');
-
-        // when
+        // WHEN
         $response = $this->put(route('admin.facture.update', $facture->idFacture), [
-            'facture' => $badFile,
+            'facture' => $invalidFile,
         ]);
 
-        // then
+        // THEN
         $response->assertRedirect(route('admin.facture.index'));
         $response->assertSessionHas('error', 'facture.invalidfile');
     }
 
-    public function test_envoyer_facture_attache_pdf_et_envoie_mail_si_verifie()
+    public function test_when_sending_verified_invoice_should_attach_pdf_and_send_mail()
     {
-        // given
+        // GIVEN
         Mail::fake();
         Storage::fake('public');
 
-        $client = Utilisateur::factory()->create(['email' => 'client@example.org']);
+        $client = Utilisateur::factory()->create([
+            'email' => 'client@example.org'
+        ]);
+
         $famille = Famille::factory()->create();
-        $famille->utilisateurs()->detach();
-        $famille->utilisateurs()->attach($client->idUtilisateur);
+        $famille->utilisateurs()->sync([$client->idUtilisateur]);
 
         $facture = Facture::factory()->create([
             'etat' => 'verifier',
@@ -101,18 +103,21 @@ class FactureControllerExtraTest extends TestCase
             'idUtilisateur' => $client->idUtilisateur,
         ]);
 
-        // Mock exporter to return some pdf binary data
-        $mock = $this->createMock(FactureExporter::class);
-        $mock->expects($this->once())->method('serveManualFile')->willReturn('%PDF-1.4');
-        $this->app->instance(FactureExporter::class, $mock);
+        $exporterMock = $this->createMock(FactureExporter::class);
+        $exporterMock->expects($this->once())
+            ->method('serveManualFile')
+            ->willReturn('%PDF-1.4');
 
-        // when
+        $this->app->instance(FactureExporter::class, $exporterMock);
+
+        // WHEN
         $response = $this->get(route('admin.facture.envoyer', $facture->idFacture));
 
-        // then
+        // THEN
         $response->assertRedirect(route('admin.facture.index'));
-        Mail::assertSent(FactureMail::class, function ($mail) use ($client) {
-            return $mail->hasTo($client->email);
-        });
+
+        Mail::assertSent(FactureMail::class, fn($mail) =>
+            $mail->hasTo($client->email)
+        );
     }
 }
